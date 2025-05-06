@@ -6,7 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ $title ?? 'BeeBook'}}</title>
     @vite('resources/css/app.css')</head>
+    {{ $styles ?? '' }}
 <body>
     {{ $slot }}
+
+
+
+
+    <!-- script -->
+    {{ $scripts ?? ''}}
 </body>
 </html>
