@@ -1,2 +1,10 @@
+
+
 // import giống như vậy theo từng module, đặt tên để dễ nhận biết
 @use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
+// @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;  
+
+
+* {
+    font-family: "Helvetica Neue", Helvetica, Arial, 文泉驛正黑, "WenQuanYi Zen Hei", "Hiragino Sans GB", "儷黑 Pro", "LiHei Pro", "Heiti TC", 微軟正黑體, "Microsoft JhengHei UI", "Microsoft JhengHei", sans-serif;
+}
