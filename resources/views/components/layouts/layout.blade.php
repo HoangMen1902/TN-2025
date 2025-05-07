@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ $title ?? 'BeeBook'}}</title>
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])</head>
-    <link rel="stylesheet" href="{{ asset('/assets/styles/main.css')}}">
+    
+    @vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/app.css'])</head>
     {{ $styles ?? '' }}
 <body>
     {{ $slot }}
