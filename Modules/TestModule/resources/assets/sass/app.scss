@@ -1,7 +1,6 @@
-//code scss vào đây
-// màu chủ đạo: $primary-color, nền $bg-color
-//ví dụ
 
-p {
-    color: $primary-color;
+@use '@sass/variables/variables' as *; // import file biến
+
+.test-element {
+    color: $primary-color; // sử dụng biến màu chủ đạo
 }

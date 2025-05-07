@@ -1,5 +1,2 @@
-@import './variables/variables';
-
-// import duoi day
-
-@import '../../Modules/TestModule/resources/assets/sass/app.scss';
+// import giống như vậy theo từng module, đặt tên để dễ nhận biết
+@use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
