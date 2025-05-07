@@ -1,0 +1,1 @@
+import '@modules/DetailModule/resources/assets/js/app.js';

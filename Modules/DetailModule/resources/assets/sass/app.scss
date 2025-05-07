@@ -1,0 +1,233 @@
+@use '@sass/variables/variables' as *;
+
+.detail-wrapper {
+    margin: auto;
+}
+
+.thumbnail-holder {
+    border-radius: 8px;
+    padding: 0.2rem 1rem;
+    width: 385px;
+    max-height: 800px;
+    transition: all 0.3s ease;
+    background: $bg-white;
+    width: 485px;
+    height: 780px;
+
+    .thumbnail-img {
+        width: 450px;
+        height: 450px;
+    }
+
+    .action-button {
+        form {
+            .cart-add-item {
+
+                width: 220px;
+                height: 44px;
+            }
+
+            .item-checkout {
+                width: 220px;
+                height: 44px;
+            }
+        }
+    }
+
+    .gallery {
+
+
+        .thumbnail-img {
+            object-fit: cover;
+        }
+
+        .gallery-item-holder,
+        .last-image {
+            width: 84px;
+            height: 84px;
+            transition: 0.1s;
+
+            .gallery-item {
+                margin: 0;
+                padding: 0;
+                border: 1px solid transparent;
+
+                &:hover {
+                    border-color: $primary-color;
+                    border-radius: 7px;
+                }
+            }
+        }
+
+        .last-image {
+            .image-count {
+                border-radius: 8px;
+            }
+        }
+    }
+
+    .action-button {
+        a svg {
+            color: red;
+        }
+
+        form {
+            .policy-svg {
+                color: $primary-color;
+            }
+
+            gap: 10px;
+
+            .cart-add-item {
+                border: 2px solid $primary-color;
+                border-radius: 8px;
+                color: $primary-color;
+                cursor: pointer;
+            }
+
+            .item-checkout {
+                border: 2px solid $primary-color;
+                border-radius: 8px;
+                background-color: $primary-color;
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.general-information-wrapper {
+    width: 730px;
+    height: 250px;
+    background-color: $bg-white;
+    border-radius: 8px;
+
+    .price {
+        .discount-percent {
+            background: #C92127;
+            border-radius: 4px;
+        }
+    }
+
+    .flashsale-progress {
+        position: relative;
+    }
+
+    .flashsale-progress .progressbar-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+
+    .flashsale {
+        width: 100%;
+        height: 46px;
+        margin: auto;
+        border-radius: 8px;
+
+        .flashsale-time-box {
+            background: black;
+            width: 31px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .flashsale-wrapper {
+            background-color: $bg-white;
+            border-radius: 8px;
+        }
+
+        background-color: $primary-color;
+
+    }
+}
+
+.shipment {
+    padding: 1rem;
+    border-radius: 8px;
+    width: 730px;
+    background: $bg-white;
+    .coupon-related {
+
+
+        .coupon-container {
+            padding: 0.2rem;
+            max-width: 170px;
+            max-height: 45px;
+            height: 45px;
+            border: 1px solid #c5c5c588;
+            border-radius: 8px;
+
+            .coupon-img {
+                img {
+                    width: 30px;
+                }
+            }
+        }
+    }
+
+    .quantity-container {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .quantity-container .btn {
+        padding: 0.1rem 1rem;
+        background: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+
+
+
+    .quantity-container input {
+        width: 36px;
+        text-align: center;
+        border: none;
+        outline: none;
+        font-size: 1rem;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+
+}
+
+.detail-information {
+    width: 730px;
+    background: $bg-white;
+    table {
+        margin-left: 0;
+        padding-left: 0;
+        border-collapse: collapse;
+        width: 100%;
+        th {
+            width: 26%;
+            color: #777777;
+        }
+      }
+      th, td {
+        padding: 0.5rem 0;   
+        text-align: left;
+      }
+      p {
+        text-align: justify;
+      }
+}
+@media (min-width: 1440px) {}
