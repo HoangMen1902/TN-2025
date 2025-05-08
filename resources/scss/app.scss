@@ -1,17 +1,19 @@
+// import giống như vậy theo từng module, đặt tên để dễ nhận biết
 @use 'variables/_variables' as vars;
 @use '@sass/components/header';
 @use '@sass/components/footer';
-
-
-// import giống như vậy theo từng module, đặt tên để dễ nhận biết
+@use '@modules/AboutModule/resources/assets/sass/app.scss' as aboutModule;  
+@use '@modules/ProductModule/resources/assets/sass/app.scss' as productModule;  
 @use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
 @use '@modules/HomeModule/resources/assets/sass/app.scss' as HomeModule;  
-// @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;  
+@use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham; 
 @use '@sass/variables/variables' as variables;
 
+// @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;  
+
+
 // import giống như vậy theo từng module, đặt tên để dễ nhận biết
-@use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
-@use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham; 
+
 
 * {
     font-family: "Helvetica Neue", Helvetica, Arial, 文泉驛正黑, "WenQuanYi Zen Hei", "Hiragino Sans GB", "儷黑 Pro", "LiHei Pro", "Heiti TC", 微軟正黑體, "Microsoft JhengHei UI", "Microsoft JhengHei", sans-serif;
@@ -29,8 +31,7 @@
 .bg-dark {
     background-color: vars.$bg-dark;
 }
-@use '@modules/AboutModule/resources/assets/sass/app.scss' as aboutModule;  
-@use '@modules/ProductModule/resources/assets/sass/app.scss' as productModule;  
+
 body {
     background: variables.$bg-color;
 }

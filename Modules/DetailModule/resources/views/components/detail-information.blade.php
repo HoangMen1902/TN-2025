@@ -49,10 +49,10 @@
 
     </table>
     <p class="text-sm">
-        Giá sản phẩm trên Fahasa.com đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình
+        Giá sản phẩm trên BeeBook.com đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tuỳ vào loại sản phẩm, hình
         thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như Phụ phí đóng gói, phí vận chuyển, phụ
         phí hàng cồng kềnh,...
     </p>
-    <p class="text-red-600 text-sm">Chính sách khuyến mãi trên Fahasa.com không áp dụng cho Hệ thống Nhà sách Fahasa
+    <p class="text-red-600 text-sm">Chính sách khuyến mãi trên BeeBook.com không áp dụng cho Hệ thống Nhà sách BeeBook
         trên toàn quốc</p>
 </div>

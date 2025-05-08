@@ -1,15 +1,64 @@
 <x-layouts.layout>
     <div class="container m-auto pt-6">
-        <div class="detail-wrapper xl:flex mt-10 gap-4 justify-center">
-            <x-detailmodule::thumbnail></x-detailmodule::thumbnail>
-            <div class="flex flex-col">
-                <livewire:detailmodule::components.general-information>
-                </livewire:detailmodule::components.general-information>
-                <livewire:detailmodule::components.shipment-calculate>
-                </livewire:detailmodule::components.shipment-calculate>
-            <x-detailmodule::detail-information></x-detailmodule::detail-information>
+        <div class="flex justify-center">
+            <div>
+                <div class="detail-wrapper xl:flex mt-10 gap-4">
+                    <x-detailmodule::thumbnail></x-detailmodule::thumbnail>
+                    <div class="flex flex-col">
+                        <livewire:detailmodule::components.general-information>
+                        </livewire:detailmodule::components.general-information>
+                        <livewire:detailmodule::components.shipment-calculate>
+                        </livewire:detailmodule::components.shipment-calculate>
+                        <x-detailmodule::detail-information></x-detailmodule::detail-information>
+                        <x-detailmodule::description></x-detailmodule::description>
+                    </div>
+                </div>
+                <div class="">
+                    <livewire:detailmodule::components.comment>
+                    </livewire:detailmodule::components.comment>
+                </div>
             </div>
-
         </div>
+
+
+
+
     </div>
+
+    <x-slot name="scripts">
+        <script>
+            const minusBtn = document.querySelector(".minus");
+            const plusBtn = document.querySelector(".plus");
+            const quantityInput = document.getElementById("quantity");
+    
+            minusBtn.addEventListener("click", () => {
+                let current = parseInt(quantityInput.value);
+                if (current > parseInt(quantityInput.min)) {
+                    quantityInput.value = current - 1;
+                }
+            });
+    
+            plusBtn.addEventListener("click", () => {
+                quantityInput.value = parseInt(quantityInput.value) + 1;
+            });
+        </script>
+            <script>
+                $('.view-more-btn').on('click', function () {
+                    if ($(this).data('mode') === "more") {
+                        $(this).text('Rút gọn');
+                        $(this).data('mode', "limit");
+                        $('.desc-content').css('max-height', 'none');
+                        $('.desc-wrapper').css('max-height', 'none');
+                        $('.desc-gradient').css('display', 'none');
+                    } else {
+        
+                        $(this).text('Xem thêm');
+                        $(this).data('mode', "more");
+                        $('.desc-content').css('max-height', '300px');
+                        $('.desc-wrapper').css('max-height', '320px');
+                        $('.desc-gradient').css('display', 'none');
+                    }
+                });
+            </script>
+    </x-slot>
 </x-layouts.layout>

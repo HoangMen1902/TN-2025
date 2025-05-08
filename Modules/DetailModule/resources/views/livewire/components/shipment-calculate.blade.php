@@ -88,21 +88,3 @@
 
     </div>
 </div>
-<x-slot name="scripts">
-    <script>
-        const minusBtn = document.querySelector(".minus");
-        const plusBtn = document.querySelector(".plus");
-        const quantityInput = document.getElementById("quantity");
-
-        minusBtn.addEventListener("click", () => {
-            let current = parseInt(quantityInput.value);
-            if (current > parseInt(quantityInput.min)) {
-                quantityInput.value = current - 1;
-            }
-        });
-
-        plusBtn.addEventListener("click", () => {
-            quantityInput.value = parseInt(quantityInput.value) + 1;
-        });
-    </script>
-</x-slot>

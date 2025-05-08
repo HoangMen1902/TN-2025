@@ -5,6 +5,8 @@
 }
 
 .thumbnail-holder {
+    position: sticky;
+    top: 0;
     border-radius: 8px;
     padding: 0.2rem 1rem;
     width: 385px;
@@ -155,6 +157,7 @@
     border-radius: 8px;
     width: 730px;
     background: $bg-white;
+
     .coupon-related {
 
 
@@ -212,22 +215,74 @@
 .detail-information {
     width: 730px;
     background: $bg-white;
+
     table {
         margin-left: 0;
         padding-left: 0;
         border-collapse: collapse;
         width: 100%;
+
         th {
             width: 26%;
             color: #777777;
         }
-      }
-      th, td {
-        padding: 0.5rem 0;   
+    }
+
+    th,
+    td {
+        padding: 0.5rem 0;
         text-align: left;
-      }
-      p {
+    }
+
+    p {
         text-align: justify;
-      }
+    }
 }
+
+
+.detail-desc {
+    width: 730px;
+    background: $bg-white;
+    border-radius: 8px;
+
+
+    .desc-gradient {
+        background-image: linear-gradient(rgba(255, 255, 255, 0), rgb(255, 255, 255));
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.comment-section {
+    max-width: 1230px;
+    background: $bg-white;
+    border-radius: 8px;
+
+    .comment-btn {
+        color: $primary-color;
+    }
+
+    .comment-btn-wrapper {
+        width: 360px;
+        height: 40px;
+        padding: 5px 15px;
+        border: 2px solid $primary-color;
+        border-radius: 8px;
+    }
+
+    .comment-choice {
+        .newest-choice, .favorite-choice {
+            transition: 0.2s ease;
+            &:hover {
+                color: $primary-color;
+            }
+        }
+        .active {
+            border-bottom: 2px solid $primary-color;
+        }
+    }
+}
+
 @media (min-width: 1440px) {}
