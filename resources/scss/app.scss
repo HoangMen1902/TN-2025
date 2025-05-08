@@ -24,3 +24,4 @@
 .bg-dark {
     background-color: vars.$bg-dark;
 }
+@use '@modules/AboutModule/resources/assets/sass/app.scss' as aboutModule;  
