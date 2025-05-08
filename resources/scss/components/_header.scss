@@ -1,3 +1,4 @@
+@use '../variables/_variables' as vars;
 .main-header {
     background-color: white;
     padding: 10px 0;
@@ -44,7 +45,7 @@
       }
   
       .btn-search {
-        background-color: #0A68FF;
+        background-color: vars.$primary-color;
         border-radius: 10px;
         color: white;
         border: none;
@@ -81,10 +82,10 @@
           }
       
           &:hover {
-            color: #0A68FF;
+            color: vars.$primary-color;
       
             i, svg {
-              color: #0A68FF;
+              color: vars.$primary-color;
             }
           }
         }

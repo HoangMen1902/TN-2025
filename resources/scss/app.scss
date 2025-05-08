@@ -1,14 +1,26 @@
+@use 'variables/_variables' as vars;
 @use '@sass/components/header';
 @use '@sass/components/footer';
 
 
-
 // import giống như vậy theo từng module, đặt tên để dễ nhận biết
 @use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
+@use '@modules/HomeModule/resources/assets/sass/app.scss' as HomeModule;  
 // @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;  
 
 * {
     font-family: "Helvetica Neue", Helvetica, Arial, 文泉驛正黑, "WenQuanYi Zen Hei", "Hiragino Sans GB", "儷黑 Pro", "LiHei Pro", "Heiti TC", 微軟正黑體, "Microsoft JhengHei UI", "Microsoft JhengHei", sans-serif;
 }
 
-
+.bg-primary {
+    background-color: vars.$primary-color;
+}
+.text-primary {
+    background-color: vars.$primary-color;
+}
+.bg-light {
+    background-color: vars.$bg-light;
+}
+.bg-dark {
+    background-color: vars.$bg-dark;
+}

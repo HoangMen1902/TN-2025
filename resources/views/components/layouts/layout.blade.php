@@ -8,10 +8,12 @@
     <title>{{ $title ?? 'BeeBook'}}</title>
 
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
 </head>
 {{ $styles ?? '' }}
 
-<body>
+<body class="bg-dark">
 <header class="main-header bg-white shadow-md py-2">
     <div class="container header-content max-w-[1200px] mx-auto flex flex-wrap items-center justify-between gap-4 px-4">
         <!-- Logo -->
@@ -217,6 +219,7 @@
     <!-- script -->
     {{ $scripts ?? ''}}
     <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
 </body>
 
 </html>
