@@ -7,4 +7,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('contactmodules', ContactModuleController::class)->names('contactmodule');
 });
 
-Route::get('/contact', [ContactModuleController::class , 'index'])->name('contactmodule.index');
+Route::get('/lien-he', [ContactModuleController::class , 'index'])->name('contactmodule.index');

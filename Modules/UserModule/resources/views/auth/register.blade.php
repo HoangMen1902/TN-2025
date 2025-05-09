@@ -1,9 +1,6 @@
-@extends('usermodule::layouts.app')
-@section('title')
-Đăng ký
-@endsection
-@section('content')
-<div class="min-h-screen flex items-center justify-center bg-white px-4 py-12">
+<x-layouts.layout>
+    <x-slot name="title">BeeBook - Đăng ký</x-slot>
+<div class="flex items-center justify-center bg-white px-4 py-32">
     <div class="w-full max-w-md space-y-6">
         <div class="text-center">
             <h2 class="text-3xl font-bold text-[#2b4f60]">Đăng ký</h2>
@@ -38,4 +35,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.layout>

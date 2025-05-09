@@ -11,8 +11,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('usermodules', UserModuleController::class)->names('usermodule');
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::get('/register',[AuthController::class, 'showRegisterForm'])->name('register');
-Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
-Route::get('/change-forgot-password', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
-Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
+Route::get('/dang-nhap', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/dang-ky',[AuthController::class, 'showRegisterForm'])->name('register');
+Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
+Route::get('/cap-nhat-mat-khau', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
+Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');

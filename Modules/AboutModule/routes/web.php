@@ -7,4 +7,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('aboutmodules', AboutModuleController::class)->names('aboutmodule');
 });
 
-Route::get('/about', [AboutModuleController::class, 'index'])->name('aboutmodule.index');
+Route::get('/gioi-thieu', [AboutModuleController::class, 'index'])->name('aboutmodule.index');

@@ -7,3 +7,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('homemodules', HomeModuleController::class)->names('homemodule');
 });
 Route::get('/',[HomeModuleController::class ,'index']);
+Route::get('/trang-chu',[HomeModuleController::class ,'index'])->name('home');

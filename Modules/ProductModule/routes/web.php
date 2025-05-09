@@ -7,4 +7,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('productmodules', ProductModuleController::class)->names('productmodule');
 });
 
-Route::get('/list', [ProductModuleController::class, 'index']);
+Route::get('/san-pham', [ProductModuleController::class, 'index']);
