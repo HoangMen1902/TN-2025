@@ -1,8 +1,8 @@
 <div class="comment-section w-full p-4 mt-3">
     <h1 class="text-lg font-bold">Đánh giá sản phẩm</h1>
-    <div class="mt-[15px] flex items-center w-full">
-        <div class="w-[65%]">
-            <div class="flex gap-8">
+    <div class="mt-[15px] flex sm:flex-col lg:flex-row items-center w-full">
+        <div class="lg:w-[65%] sm:w-full">
+            <div class="flex gap-8 ">
                 <div class="">
                     <h1 class="text-5xl">4.9/<span class="text-2xl">5</span></h1>
                     <div class="flex items-center w-fit">
@@ -34,7 +34,7 @@
                     </div>
                     <span class="text-sm" style="color: #777777">(11 đánh giá)</span>
                 </div>
-                <div class="">
+                <div class="progress-bar-wrapper">
                     <div class="flex items-center gap-2">
                         <span class="w-[50px] text-sm font-extralight">5 sao</span>
                         <div class="flex-1">

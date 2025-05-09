@@ -1,8 +1,40 @@
 <div class="thumbnail-holder flex flex-col justify-items-center items-center">
-    <div class="thumbnail">
+    <div class="thumbnail hidden sm:hidden lg:block">
         <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="thumbnail-img">
     </div>
-    <div class="gallery flex w-full mt-4">
+    <div class="thumbnail hidden gallery sm:block lg:hidden">
+        
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden ">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden ">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden ">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+        <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
+            target="_blank" class="gallery-item-holder hidden">
+            <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
+        </a>
+    </div>
+    <div class="gallery hidden sm:hidden lg:flex w-full mt-4">
         <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="450" data-pswp-height="450"
             target="_blank" class="gallery-item-holder ">
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
@@ -22,9 +54,11 @@
         <div class="last-image relative z-0">
             <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="450" data-pswp-height="450"
                 target="_blank" class="gallery-item-holder ">
-                <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border blur-[1px]">
+                <img src="{{ asset('storage/products/image_226331.jpg') }}" alt=""
+                    class="gallery-item box-border blur-[1px]">
             </a>
-            <span class="absolute inset-0 flex items-center justify-center font-bold text-xl text-white bg-black/40 z-10 pointer-events-none image-count">
+            <span
+                class="absolute inset-0 flex items-center justify-center font-bold text-xl text-white bg-black/40 z-10 pointer-events-none image-count">
                 +3
             </span>
         </div>
@@ -44,20 +78,21 @@
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
         </a>
     </div>
-    <div class="action-button w-full py-4">
+    <div class="action-button w-full lg:py-4">
         <form action="" class="flex items-center ">
             @csrf
-            <button class="w-1/2 cart-add-item font-bold flex items-center justify-center" name="add-to-cart"
-                value=""><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="size-6">
+            <button class="w-1/2 cart-add-item font-bold flex items-center justify-center sm:hidden lg:flex"
+                name="add-to-cart" value=""><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor" class="size-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
                 Thêm vào giỏ hàng</button>
-            <button class="w-1/2 item-checkout text-white font-bold" name="checkout" value="">Mua ngay</button>
+            <button class="w-1/2 item-checkout text-white font-bold sm:hidden lg:block" name="checkout" value="">Mua
+                ngay</button>
         </form>
     </div>
-    <div class="preferential-policy w-full">
+    <div class="sm:hidden lg:block preferential-policy w-full">
         <span class="font-bold">Chính sách ưu đãi của BeeBook</span>
         <div class="policy-group flex flex-col w-full mt-4 pl-2">
             <a href="#" class="mb-4 w-full text-sm flex items-center"><svg xmlns="http://www.w3.org/2000/svg"

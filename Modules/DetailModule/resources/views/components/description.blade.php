@@ -1,4 +1,4 @@
-<div class="detail-desc p-4 mt-3">
+<div class="detail-desc p-4 lg:mt-3">
     <h1 class="text-xl font-bold">Mô tả sản phẩm</h1>
     <div class="w-full relative mt-4 desc-wrapper" style="max-height: 320px">
         <div class="desc-content text-sm text-justify overflow-hidden" style="max-height: 300px">

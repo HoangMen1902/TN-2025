@@ -1,10 +1,10 @@
-<div class="shipment mt-3">
+<div class="shipment mt-3 lg:block sm:hidden">
     <h1 class="text-lg font-bold">Thông tin vận chuyển</h1>
     <div class="shipment-wrapper">
         <div class="pt-2">
             <span class="text-sm">Giao hàng đến</span>
             <span class="font-bold text-sm">Phường 1, Hộ Phòng, Thị Xã Giá Rai, Bạc Liêu</span>
-            <a class="text-sm text-blue-500" href="#">Thay đổi</a>
+            <a class="text-sm text-blue-500 change-address" href="javascript:void(0)">Thay đổi</a>
         </div>
 
         <div class="flex items-center">

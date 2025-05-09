@@ -1,4 +1,4 @@
-<div class="general-information-wrapper p-4">
+<div class="general-information-wrapper p-4 lg:block sm:hidden">
     <h2 class="text-2xl font-semibold">Thần Nông Bản Thảo Kinh</h2>
     <div class="public-information grid grid-cols-2 gap-y-2 gap-x-4">
         <div class="text-sm">
