@@ -4,16 +4,16 @@
     margin: auto;
 }
 
+
 .thumbnail-holder {
     position: sticky;
     top: 0;
     border-radius: 8px;
     padding: 0.2rem 1rem;
-    width: 385px;
     max-height: 800px;
     transition: all 0.3s ease;
     background: $bg-white;
-    width: 485px;
+    width: 470px;
     height: 780px;
 
     .thumbnail-img {
@@ -98,7 +98,7 @@
 }
 
 .general-information-wrapper {
-    width: 730px;
+    width: 715px;
     height: 250px;
     background-color: $bg-white;
     border-radius: 8px;
@@ -155,7 +155,7 @@
 .shipment {
     padding: 1rem;
     border-radius: 8px;
-    width: 730px;
+    width: 715px;
     background: $bg-white;
 
     .coupon-related {
@@ -213,7 +213,7 @@
 }
 
 .detail-information {
-    width: 730px;
+    width: 715px;
     background: $bg-white;
 
     table {
@@ -241,7 +241,7 @@
 
 
 .detail-desc {
-    width: 730px;
+    width: 715px;
     background: $bg-white;
     border-radius: 8px;
 
@@ -256,7 +256,8 @@
 }
 
 .comment-section {
-    max-width: 1230px;
+    margin: 12px auto;
+    max-width: 1200px;
     background: $bg-white;
     border-radius: 8px;
 

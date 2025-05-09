@@ -59,7 +59,7 @@
     </div>
     <div class="preferential-policy w-full">
         <span class="font-bold">Chính sách ưu đãi của BeeBook</span>
-        <div class="policy-group flex flex-col w-full mt-4">
+        <div class="policy-group flex flex-col w-full mt-4 pl-2">
             <a href="#" class="mb-4 w-full text-sm flex items-center"><svg xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="red" class="size-5">
                     <path stroke-linecap="round" stroke-linejoin="round"

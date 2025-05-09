@@ -1,10 +1,10 @@
 <x-layouts.layout>
-    <div class="container m-auto pt-6">
+    <div class="container m-auto py-12">
         <div class="flex justify-center">
             <div>
                 <div class="detail-wrapper xl:flex mt-10 gap-4">
                     <x-detailmodule::thumbnail></x-detailmodule::thumbnail>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col detail-information">
                         <livewire:detailmodule::components.general-information>
                         </livewire:detailmodule::components.general-information>
                         <livewire:detailmodule::components.shipment-calculate>

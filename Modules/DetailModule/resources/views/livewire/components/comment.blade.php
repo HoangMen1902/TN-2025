@@ -86,7 +86,7 @@
         </div>
 
     </div>
-    <div class="border-b-2 flex gap-6 text-sm mt-3 comment-choice">
+    <div class="border-b-1 border-b-neutral-600 flex gap-6 text-sm mt-3 comment-choice">
         <a href="javascript:void(0)" class="newest-choice active py-[10px]">Mới nhất</a>
         <a href="javascript:void(0)" class="favorite-choice py-[10px]">Yêu thích nhất</a>
     </div>
