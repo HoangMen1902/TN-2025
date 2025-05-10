@@ -3,7 +3,7 @@
         <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="thumbnail-img">
     </div>
     <div class="thumbnail hidden gallery sm:block lg:hidden">
-        
+
         <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
             target="_blank" class="gallery-item-holder">
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
@@ -20,7 +20,7 @@
             target="_blank" class="gallery-item-holder hidden ">
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
         </a>
-        
+
         <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
             target="_blank" class="gallery-item-holder hidden">
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">

@@ -139,3 +139,6 @@ var oneStar = new ProgressBar.Line('.one-star-bar', {
 });
 
 oneStar.animate(0.5);
+
+
+
