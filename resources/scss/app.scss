@@ -4,6 +4,7 @@
 @use '@sass/components/footer';
 @use '@modules/AboutModule/resources/assets/sass/app.scss' as aboutModule;  
 @use '@modules/ProductModule/resources/assets/sass/app.scss' as productModule;  
+@use '@modules/CartModule/resources/assets/sass/app.scss' as cartModule;  
 @use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
 @use '@modules/HomeModule/resources/assets/sass/app.scss' as HomeModule;  
 @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham; 
