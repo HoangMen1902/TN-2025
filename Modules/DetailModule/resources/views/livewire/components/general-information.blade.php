@@ -1,4 +1,4 @@
-<div class="general-information-wrapper p-4 lg:block sm:hidden">
+<div class="general-information-wrapper p-4 lg:block hidden lg:block sm:w-full">
     <h2 class="text-2xl font-semibold">Thần Nông Bản Thảo Kinh</h2>
     <div class="public-information grid grid-cols-2 gap-y-2 gap-x-4">
         <div class="text-sm">
@@ -51,10 +51,10 @@
         <span class="text-sm font-thin">Đã bán</span>
         <span class="text-sm font-bold ml-0.5">100</span>
     </div>
-    <div class="flashsale flex items-center justify-between p-4">
+    <div class="flashsale flex items-center justify-between p-4 max-w-full">
         <div class="flashsale-time m-[4px]">
             <div class="flashsale-wrapper flex gap-[11px] px-5 py-1">
-                <img src="{{asset('storage/flashsale.png')}}" alt="flashsale" class="object-contain">
+                <img src="{{asset('storage/flashsale.png')}}" alt="flashsale" class="object-contain" class="max-w-full">
                 <div class="hour-box flashsale-time-box text-white">
                     01
                 </div>
@@ -66,7 +66,7 @@
                 </div>
             </div>
         </div>
-        <div class="flashsale-progress">
+        <div class="flashsale-progress w-3/12">
         </div>
     </div>
     <div class="price flex items-center pt-[8px]">

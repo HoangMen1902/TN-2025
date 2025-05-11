@@ -1,5 +1,5 @@
-<div class="">
-    <div class="shipment mt-3 lg:block sm:hidden">
+<div class="shipment-container lg:w-full ">
+    <div class="shipment mt-3 lg:block hidden">
         <h1 class="text-lg font-bold">Thông tin vận chuyển</h1>
         <div class="shipment-wrapper">
             <div class="pt-2">
@@ -84,14 +84,14 @@
                 <h1 class="font-bold text-xl">Số lượng:</h1>
                 <div class="quantity-container">
                     <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
-                    <input type="number" id="quantity" value="1" min="1" class="font-bold" />
+                    <input type="number" id="quantity" value="1" min="1" class="font-bold" form="addToCart"/>
                     <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
                 </div>
             </div>
 
         </div>
     </div>
-    <div class="general-information-wrapper p-4 lg:hidden sm:block">
+    <div class="general-information-wrapper p-4 lg:hidden sm:block w-full" style="width: 100%">
         <div class="flashsale flex items-center justify-between p-4">
             <div class="flashsale-time m-[4px] w-full">
                 <div class="flashsale-wrapper flex items-center justify-between">

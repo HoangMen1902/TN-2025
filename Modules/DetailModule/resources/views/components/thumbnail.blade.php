@@ -1,8 +1,8 @@
 <div class="thumbnail-holder flex flex-col justify-items-center items-center">
-    <div class="thumbnail hidden sm:hidden lg:block">
+    <div class="thumbnail hidden hidden lg:block">
         <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="thumbnail-img">
     </div>
-    <div class="thumbnail hidden gallery sm:block lg:hidden">
+    <div class="thumbnail  gallery block lg:hidden thumbnail-responsive">
 
         <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="200" data-pswp-height="200"
             target="_blank" class="gallery-item-holder">
@@ -34,7 +34,7 @@
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
         </a>
     </div>
-    <div class="gallery hidden sm:hidden lg:flex w-full mt-4">
+    <div class="gallery hidden lg:flex w-full mt-4">
         <a href="{{ asset('storage/products/image_226331.jpg') }}" data-pswp-width="450" data-pswp-height="450"
             target="_blank" class="gallery-item-holder ">
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
@@ -78,8 +78,8 @@
             <img src="{{ asset('storage/products/image_226331.jpg') }}" alt="" class="gallery-item box-border">
         </a>
     </div>
-    <div class="action-button w-full lg:py-4">
-        <form action="" class="flex items-center ">
+    <div class="action-button w-full lg:py-4 hidden lg:block">
+        <form action="" class="flex items-center" id="addToCart">
             @csrf
             <button class="w-1/2 cart-add-item font-bold flex items-center justify-center sm:hidden lg:flex"
                 name="add-to-cart" value=""><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -92,7 +92,7 @@
                 ngay</button>
         </form>
     </div>
-    <div class="sm:hidden lg:block preferential-policy w-full">
+    <div class="hidden lg:block preferential-policy w-full">
         <span class="font-bold">Chính sách ưu đãi của BeeBook</span>
         <div class="policy-group flex flex-col w-full mt-4 pl-2">
             <a href="#" class="mb-4 w-full text-sm flex items-center"><svg xmlns="http://www.w3.org/2000/svg"

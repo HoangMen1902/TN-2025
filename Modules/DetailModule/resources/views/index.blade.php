@@ -1,31 +1,9 @@
 <x-layouts.layout>
-    <x-slot name="styles">
-        <style>
-            @keyframes popup {
-                from {
-                    opacity: 0;
-                    transform: scale(0.95);
-                }
-
-                to {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-            }
-
-            .animate-popup {
-                animation: popup 0.3s ease-out;
-            }
-        </style>
-    </x-slot>
-
-    <div class="container m-auto py-lg-2">
+    <div class="m-auto lg:py-lg-2">
         <div class="flex justify-center">
             <div>
-                <div class="detail-wrapper xl:flex sm:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
+                <div class="detail-wrapper flex flex-col sm:flex-col md:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
                     <x-detailmodule::thumbnail></x-detailmodule::thumbnail>
-                    {{-- </livewire:detailmodule::components.responsive-general>
-                    <livewire:detailmodule::components.responsive-general> --}}
                         <div class="flex flex-col detail-information-wrapper">
                             <livewire:detailmodule::components.general-information>
                             </livewire:detailmodule::components.general-information>
@@ -35,13 +13,15 @@
                             <x-detailmodule::description></x-detailmodule::description>
                         </div>
                 </div>
-                <div class="">
+                <div>
                     <livewire:detailmodule::components.comment>
                     </livewire:detailmodule::components.comment>
                 </div>
             </div>
         </div>
     </div>
+    <x-detailmodule::add-to-cart-responsive></x-detailmodule::add-to-cart-responsive>
+
 
 
 

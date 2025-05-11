@@ -1,6 +1,6 @@
 <div class="comment-section w-full p-4 mt-3">
     <h1 class="text-lg font-bold">Đánh giá sản phẩm</h1>
-    <div class="mt-[15px] flex sm:flex-col lg:flex-row items-center w-full">
+    <div class="mt-[15px] flex sm:flex-col lg:flex-row items-center w-full comment-wrapper">
         <div class="lg:w-[65%] sm:w-full">
             <div class="flex gap-8 ">
                 <div class="">
