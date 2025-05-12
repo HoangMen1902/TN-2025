@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('carts', function(Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('session_id');
+            $table->string('session_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('sku_id')->nullable();
             $table->unsignedBigInteger('combo_id')->nullable();
             $table->unsignedBigInteger('quantity');
             $table->enum('item_type', ['combo', 'sku']);
-            $table->foreign('session_id')->references('id')->on('sessions');
+            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
             $table->timestamps();
         });
     }
