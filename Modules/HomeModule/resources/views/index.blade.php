@@ -1,5 +1,5 @@
 <x-layouts.layout>
-
+    
     <div class="container max-w-[1200px] mx-auto">
         <div class="flex h-[330px] my-3  ">
             <!-- Div bên trái -->
