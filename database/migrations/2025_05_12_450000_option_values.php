@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('option_id');
             $table->string('value_name');
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('option_values_status', ['active', 'inactive']);
             $table->foreign('option_id')->references('id')->on('options')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();

@@ -8,7 +8,7 @@ return new class extends Migration {
     {
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('ratings_status', ['active', 'inactive']);
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('user_id');
             $table->text('review')->nullable();

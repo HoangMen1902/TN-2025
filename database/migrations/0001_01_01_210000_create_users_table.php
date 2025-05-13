@@ -23,7 +23,7 @@
                 $table->timestamp('email_verified_at')->nullable();
                 $table->timestamp('phone_verified_at')->nullable();
                 $table->enum('role', ['admin', 'user'])->default('user');
-                $table->enum('status', ['active', 'inactive'])->default('active');
+                $table->enum('users_status', ['active', 'inactive'])->default('active');
                 $table->softDeletes();
                 $table->rememberToken();
                 $table->timestamps(); // created_at, updated_at

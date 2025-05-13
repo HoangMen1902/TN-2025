@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('publishers', function(Blueprint $table) {
             $table->id();
             $table->string('publisher_name');
-            $table->enum('status', ['active', 'inactive']);
+            $table->enum('publishers_status', ['active', 'inactive']);
             $table->timestamps();
             $table->softDeletes();
         });
