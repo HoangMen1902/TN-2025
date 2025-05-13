@@ -45,7 +45,7 @@
                 </div>
 
                 <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
-                    <a href="/dia-chi"></a>
+                    <a href="/dia-chi">Địa chỉ</a>
                 </div>
 
                 <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
