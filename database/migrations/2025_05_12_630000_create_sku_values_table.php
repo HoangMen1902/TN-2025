@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sku_id')->constrained('product_skus')->onDelete('cascade');
             $table->foreignId('option_id')->constrained('options')->onDelete('cascade');
-            $table->foreignId('value_id')->constrained('values')->onDelete('cascade');
+            $table->unsignedBigInteger('value_id');
+            $table->foreign('value_id')->references('id')->on('option_values')->onDelete('cascade');
             $table->timestamps();
         });
     }

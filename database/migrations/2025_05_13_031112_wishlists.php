@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('flashsale_discounts', function(Blueprint $table) {
+        Schema::create('wishlists', function(Blueprint $table) {
             $table->id();
-            $table->enum('discount_type', ['percent', 'specific']);
-            $table->double('discount_amount');
-            $table->unsignedBigInteger('flashsale_id');
-            $table->foreign('flashsale_id')->references('id')->on('flashsales')->onDelete('cascade');
+            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

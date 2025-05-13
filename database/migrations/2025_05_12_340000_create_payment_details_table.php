@@ -13,10 +13,10 @@ return new class extends Migration {
             $table->string('payment_id')->nullable();
             $table->string('tracking_id')->nullable();
             $table->string('shipment_unit')->nullable();
-            $table->timestamps();
-
-
+            
+            
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

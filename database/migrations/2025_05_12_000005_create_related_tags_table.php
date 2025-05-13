@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('tag_name');
             $table->enum('related_tags_status', ['active', 'inactive'])->default('active');
-            $table->timestamp('deleted_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

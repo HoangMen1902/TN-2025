@@ -12,10 +12,10 @@ return new class extends Migration {
             $table->unsignedBigInteger('sku_id');
             $table->decimal('price', 10, 2);
             $table->integer('quantity');
-            $table->timestamps();
-
+            
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('sku_id')->references('id')->on('product_skus')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
