@@ -1,5 +1,3 @@
-<x-paymentmodule::layouts.master>
-    <h1>Hello World</h1>
-
-    <p>Module: {!! config('paymentmodule.name') !!}</p>
-</x-paymentmodule::layouts.master>
+<x-layouts.layout>
+    <x-paymentmodule::page></x-paymentmodule::page>
+</x-layouts.layout>

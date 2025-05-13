@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('thumbnail')->nullable();
             $table->foreignId('publisher_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->timestamp('published_at');
             $table->timestamps();
             $table->softDeletes();
         });

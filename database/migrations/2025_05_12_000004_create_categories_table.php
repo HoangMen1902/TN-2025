@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('categories_status', ['active', 'inactive'])->default('active');
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->integer('order_by')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });
