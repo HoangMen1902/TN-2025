@@ -27,4 +27,11 @@ class AuthController extends Controller
     {
         return view('usermodule::auth.change-password'); 
     }
+    public function showProfileInfomation(){
+        return view('usermodule::profile.infomation');
+    }
+
+    public function showAddressInfomation(){
+        return view('usermodule::profile.address');
+    }
 }

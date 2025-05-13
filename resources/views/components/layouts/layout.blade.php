@@ -9,312 +9,173 @@
     @livewireStyles
     @livewireScripts
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-        <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
+
 </head>
 {{ $styles ?? '' }}
 
 <body>
-    
-<header class="bg-white py-2 shadow-sm sticky top-0 z-50">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="md:flex md:items-center md:justify-between md:flex-wrap md:gap-2 md:py-4">
-            <div class="hidden md:block md:logo">
-                <a href="/">
-                    <img src="{{ asset('assets/images/logongangtest.jpg') }}" alt="Logo" class="h-[70px]">
-                </a>
-            </div>
+    <header class="bg-white py-2 shadow-sm sticky top-0 z-50">
 
-            <div class="hidden md:block md:category-select md:relative md:group">
-                <div id="category-trigger-desktop" class="cursor-pointer flex items-center text-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-                    </svg>
-
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ml-2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                </div>
-            </div>
-
-            <div class="hidden md:relative md:flex-1 md:flex md:mx-5 md:max-w-xl md:min-w-[250px]">
-                <input type="text" placeholder="Sách giải hỗ trợ học tập" class="w-full py-2 px-3 border border-gray-300 rounded-lg pr-14">
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1 rounded hover:bg-blue-700 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="hidden md:flex md:items-center md:gap-6">
-                <div class="text-center">
-                    <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                        </svg>
-                        <span>Thông Báo</span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="md:flex md:items-center md:justify-between md:flex-wrap md:gap-2 md:py-4">
+                <div class="hidden md:block md:logo">
+                    <a href="/">
+                        <img src="{{ asset('assets/images/logongangtest.jpg') }}" alt="Logo" class="h-[70px]">
                     </a>
                 </div>
-                <div class="text-center">
-                    <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                        </svg>
-                        <span>Giỏ Hàng</span>
-                    </a>
-                </div>
-                <div class="text-center">
-                    <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                        <span>Tài khoản</span>
-                    </a>
-                </div>
-            </div>
 
-         
-            <div class="md:hidden">
-           
-                <div class="flex justify-center items-center py-2">
-                    <div class="logo text-center">
-                        <a href="/">
-                            <img src="{{ asset('assets/images/logongangtest.jpg') }}" alt="Logo" class="h-8">
+                <div class="hidden md:block md:category-select md:relative md:group">
+                    <button
+                        id="category-trigger-desktop"
+                        type="button"
+                        data-drawer-target="drawer-top-example"
+                        data-drawer-show="drawer-top-example"
+                        data-drawer-placement="top"
+                        aria-controls="drawer-top-example"
+                        class="cursor-pointer flex items-center text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                        </svg>
+
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ml-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </button>
+                </div>
+
+
+                <div class="hidden md:relative md:flex-1 md:flex md:mx-5 md:max-w-xl md:min-w-[250px]">
+                    <input type="text" placeholder="Sách giải hỗ trợ học tập" class="w-full py-2 px-3 border border-gray-300 rounded-lg pr-14">
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1 rounded hover:bg-blue-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="hidden md:flex md:items-center md:gap-6">
+                    <div class="text-center">
+                        <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                            </svg>
+                            <span>Thông Báo</span>
+                        </a>
+                    </div>
+                    <div class="text-center">
+                        <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                            </svg>
+                            <span>Giỏ Hàng</span>
+                        </a>
+                    </div>
+                    <div class="text-center">
+                        <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                            <span>Tài khoản</span>
                         </a>
                     </div>
                 </div>
-                
-      
-                <div class="flex items-center justify-between py-2">
-       
-                    <div class="category-select relative group">
-                        <div id="category-trigger-mobile" class="cursor-pointer flex items-center text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-                            </svg>
-                            
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 ml-1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                            </svg>
+
+
+                <div class="md:hidden">
+
+                    <div class="flex justify-center items-center py-2">
+                        <div class="logo text-center">
+                            <a href="/">
+                                <img src="{{ asset('assets/images/logongangtest.jpg') }}" alt="Logo" class="h-8">
+                            </a>
                         </div>
                     </div>
 
-        
-                    <div class="relative flex-1 mx-2 max-w-full">
-                        <input type="text" placeholder="Sách giải hỗ trợ học tập" class="w-full py-1 px-2 border border-gray-300 rounded-lg pr-10">
-                        <button class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                            </svg>
-                        </button>
-                    </div>
 
-             
-                    <div class="flex items-center gap-3">
-    
-                        <div class="text-center">
-                            <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                    <div class="flex items-center justify-between py-2">
+
+                        <div class="category-select relative group">
+                            <div id="category-trigger-mobile" class="cursor-pointer flex items-center text-gray-600">
+                                <button
+                                    id="category-trigger-desktop"
+                                    type="button"
+                                    data-drawer-target="drawer-top-example"
+                                    data-drawer-show="drawer-top-example"
+                                    data-drawer-placement="top"
+                                    aria-controls="drawer-top-example"
+                                    class="cursor-pointer flex items-center text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-7">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
                                 </svg>
-                            </a>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 ml-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                                 </button>
+                            </div>
                         </div>
-                        
-         
-                        <div class="text-center">
-                            <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+
+
+                        <div class="relative flex-1 mx-2 max-w-full">
+                            <input type="text" placeholder="Sách giải hỗ trợ học tập" class="w-full py-1 px-2 border border-gray-300 rounded-lg pr-10">
+                            <button class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                                 </svg>
-                            </a>
+                            </button>
+                        </div>
+
+
+                        <div class="flex items-center gap-3">
+
+                            <div class="text-center">
+                                <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                                    </svg>
+                                </a>
+                            </div>
+
+
+                            <div class="text-center">
+                                <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<div id="overlay" class="fixed inset-0  bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
+<div id="drawer-top-example"
+    class="fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
+           w-full max-w-[1200px] sm:w-[90%] md:w-[1000px] lg:w-[1200px]
+           h-[90vh] sm:h-[600px] 
+           p-4 transition-transform -translate-y-full bg-white"
+    tabindex="-1"
+    aria-labelledby="drawer-top-label">
 
-<div id="offcanvas-menu" class="fixed top-0 left-0 h-full w-80 bg-white shadow-lg z-50 transform -translate-x-full transition-transform duration-300 ease-in-out overflow-hidden">
-    <div class="flex justify-between items-center px-6 py-4 border-b">
-        <h2 class="text-xl font-bold text-gray-800">Danh mục sản phẩm</h2>
-        <button id="close-menu" class="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        <h5 id="drawer-top-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"><svg class="w-4 h-4 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>Top drawer</h5>
+        <button type="button" data-drawer-hide="drawer-top-example" aria-controls="drawer-top-example" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
             </svg>
+            <span class="sr-only">Close menu</span>
         </button>
+        <p class="max-w-lg mb-6 text-sm text-gray-500 dark:text-gray-400">Supercharge your hiring by taking advantage of our <a href="#" class="text-blue-600 underline font-medium dark:text-blue-500 hover:no-underline">limited-time sale</a> for Flowbite Docs + Job Board. Unlimited access to over 190K top-ranked candidates and the #1 design job board.</p>
+        <a href="#" class="px-4 py-2 me-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-200 rounded-lg focus:outline-none hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Learn more</a>
+        <a href="#" class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Get access <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+            </svg></a>
     </div>
-    
-    <div class="py-4 px-6 overflow-y-auto" style="max-height: calc(100vh - 70px);">
-        <ul class="space-y-4">
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">Sách Trong Nước</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Sách Giáo Khoa</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Sách Kinh Tế</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Sách Văn Học</a></li>
-                </ul>
-            </li>
-
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">FOREIGN BOOKS</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Fiction</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Non-Fiction</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Education</a></li>
-                </ul>
-            </li>
-            
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">VPP - Dụng Cụ Học Sinh</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Bút các loại</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Vở</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Dụng cụ học tập</a></li>
-                </ul>
-            </li>
-            
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">Đồ Chơi</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Đồ chơi phát triển kỹ năng</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Đồ chơi xếp hình</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Đồ chơi điều khiển</a></li>
-                </ul>
-            </li>
-            
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">Làm Đẹp - Sức Khỏe</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Khẩu Trang Các Loại</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Nước Rửa Tay - Xà Phòng</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Băng Keo Cá Nhân</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Khăn Giấy - Giấy Ướt</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Sản Phẩm Làm Đẹp</a></li>
-                </ul>
-            </li>
-
-            <li>
-                <div class="flex items-center justify-between cursor-pointer group category-item">
-                    <span class="font-medium text-gray-700 group-hover:text-blue-600">Hành Trang Đến Trường</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-gray-500 transition-transform">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <ul class="pl-4 mt-2 space-y-2 hidden submenu">
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Cặp sách, Ba lô</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Đồng phục học sinh</a></li>
-                    <li><a href="#" class="text-gray-600 hover:text-blue-600 block py-1">Hộp đựng bút</a></li>
-                </ul>
-            </li>
-        </ul>
-    </div>
-</div>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-
-        const desktopCategoryTrigger = document.getElementById('category-trigger-desktop');
-        const mobileCategoryTrigger = document.getElementById('category-trigger-mobile');
-        const closeMenuBtn = document.getElementById('close-menu');
-        const offcanvasMenu = document.getElementById('offcanvas-menu');
-        const overlay = document.getElementById('overlay');
-        const categoryItems = document.querySelectorAll('.category-item');
-        
-    
-        function openMenu() {
-            offcanvasMenu.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-            document.body.classList.add('offcanvas-active');
-        }
-        
-
-        function closeMenu() {
-            offcanvasMenu.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-            document.body.classList.remove('offcanvas-active');
-        }
-        
-      
-        if (desktopCategoryTrigger) {
-            desktopCategoryTrigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openMenu();
-            });
-        }
-        
-    
-        if (mobileCategoryTrigger) {
-            mobileCategoryTrigger.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openMenu();
-            });
-        }
-        
-
-        closeMenuBtn.addEventListener('click', closeMenu);
-        
-
-        overlay.addEventListener('click', closeMenu);
-        
-
-        categoryItems.forEach(item => {
-            item.addEventListener('click', function() {
-     
-                const submenu = this.parentElement.querySelector('.submenu');
-                
-       
-                if (submenu.classList.contains('hidden')) {
-                    submenu.classList.remove('hidden');
-          
-                    this.classList.add('active');
-                } else {
-                    submenu.classList.add('hidden');
-             
-                    this.classList.remove('active');
-                }
-            });
-        });
-
-      
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeMenu();
-            }
-        });
-    });
-</script>
 
     {{ $slot }}
 
@@ -350,9 +211,9 @@
                 </div>
             </div>
 
- 
+
             <div class="w-full md:w-[75%] space-y-6">
- 
+
                 <div class="flex flex-col md:flex-row w-full space-y-6 md:space-y-0 md:space-x-6">
                     <div class="w-full md:w-[33%]">
                         <h4 class="font-semibold mb-2">DỊCH VỤ</h4>

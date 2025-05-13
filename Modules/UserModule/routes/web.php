@@ -16,3 +16,5 @@ Route::get('/dang-ky',[AuthController::class, 'showRegisterForm'])->name('regist
 Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
 Route::get('/cap-nhat-mat-khau', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
 Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
+Route::get('/ho-so',[AuthController::class, 'showProfileInfomation'])->name('infomation');
+Route::get('/dia-chi',[AuthController::class, 'showAddressInfomation'])->name('address');
