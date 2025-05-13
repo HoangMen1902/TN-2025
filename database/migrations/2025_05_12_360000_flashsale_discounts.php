@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_tags', function (Blueprint $table) {
+        Schema::create('flashsale_discounts', function(Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('tag_id');
-            $table->foreign('tag_id')->references('id')->on('related_tags')->onDelete('cascade');
+            $table->enum('discount_type', ['percent', 'specific']);
+            $table->double('discount_amount');
+            $table->unsignedBigInteger('flashsale_id');
+            $table->softDeletes();
             $table->timestamps();
+            $table->foreign('flashsale_id')->references('id')->on('flashsales')->onDelete('cascade');
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_tags');
+        //
     }
 };

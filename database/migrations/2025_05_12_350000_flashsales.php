@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_tags', function (Blueprint $table) {
+        Schema::create('flashsales', function(Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('tag_id');
-            $table->foreign('tag_id')->references('id')->on('related_tags')->onDelete('cascade');
+            $table->string('name');
+            $table->timestamp('started_at');
+            $table->timestamp('expired_at');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_tags');
+        //
     }
 };

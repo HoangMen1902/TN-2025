@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('product_id');
             $table->string('value_name');
-            $table->enum('status', ['Active', 'Inactive']);
+            $table->enum('status', ['active', 'inactive']);
             $table->softDeletes();
             $table->timestamps();
 

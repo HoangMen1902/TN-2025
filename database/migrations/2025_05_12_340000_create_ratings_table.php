@@ -6,22 +6,22 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('ratings', function (Blueprint $table) {
+        Schema::create('payment_detail', function (Blueprint $table) {
             $table->id();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('user_id');
-            $table->text('review')->nullable();
-            $table->tinyInteger('rating')->unsigned();  
+            $table->unsignedBigInteger('order_id');
+            $table->enum('payment_method', ['vnpay', 'momo', 'cod', 'bank_transfer'])->default('cod');
+            $table->string('payment_id')->nullable();
+            $table->string('tracking_id')->nullable();
+            $table->string('shipment_unit')->nullable();
             $table->timestamps();
 
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('ratings');
+        Schema::dropIfExists('payment_detail');
     }
 };
