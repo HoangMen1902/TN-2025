@@ -1,8 +1,5 @@
-
-
-@section('content')
-    <div class="wrapper">
-        <div class="sidebar">
+<div class="wrapper">
+       
             <nav>
                 <section class="filter-section">
                     <h3>Nhóm sản phẩm</h3>
@@ -72,24 +69,8 @@
                     </ul>
                 </section>
 
-                <button class="select-button">Áp dụng bộ lọc</button>
+              
             </nav>
         </div>
 
-        <div class="main-content">
-            <header class="sort-header">
-                @include('productmodule::components.sort-header')
-            </header>
-
-            <section class="product-grid">
-                {{-- @foreach ([['name' => 'Nhật Ký Đặng Thùy Trâm (Tái Bản 2022)', 'price' => 72000, 'original_price' => 90000, 'discount' => -20], ['name' => 'Hà Thanh Hải Yến - Ngang Qua Ngõ Nhỏ Bình An', 'price' => 147000, 'original_price' => 196000, 'discount' => -25], ['name' => 'Hồ Điệp Và Kình Ngư', 'price' => 111600, 'original_price' => 155000, 'discount' => -28], ['name' => 'Người Đàn Ông Mang Tên OVE (Tái Bản)', 'price' => 136000, 'original_price' => 160000, 'discount' => -15], ['name' => 'Trường Ca Achilles', 'price' => 124800, 'original_price' => 156000, 'discount' => -20]] as $product)
-                    @include('productmodule::components.product-card', ['product' => $product])
-                @endforeach --}}
-            </section>
-
-            <nav class="pagination">
-                @include('productmodule::components.pagination')
-            </nav>
-        </div>
-    </div>
-@endsection
+       

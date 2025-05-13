@@ -27,7 +27,7 @@ $border: 1px solid #ddd;
     box-shadow: $shadow; 
     padding: 20px;
     border-radius: 8px;
-
+    margin-bottom: 25px;
     .filter-section {
         margin-bottom: 20px;
 
@@ -87,23 +87,58 @@ $border: 1px solid #ddd;
     box-shadow: $shadow;
     padding: 20px;
     border-radius: 8px;
+    margin-bottom: 25px;
 
     .sort-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
         font-family: 'Poppins', sans-serif;
+        gap: 10px;
+        .sort-header1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
 
-        select,
-        span {
-            font-size: 16px;
+            span {
+                font-size: 16px;
+                color: $text-color;
+            }
+
+            select {
+                font-size: 16px;
+               padding: 5px 10px; 
+                border: $border;
+                border-radius: 5px;
+                background-color: white;
+                cursor: pointer;
+                min-width: 150px;
+
+                &:focus {
+                    outline: none;
+                    border-color: $primary-color;
+                }
+            }
         }
 
-        select {
-            padding: 5px;
-            border-radius: 5px;
-            border: $border;
+        .sort-header2 {
+            display: flex;
+            align-items: center;
+
+            select {
+                font-size: 16px;
+                padding: 5px 10px;
+                border: $border;
+                border-radius: 5px;
+                background-color: white;
+                cursor: pointer;
+                min-width: 120px;
+
+                &:focus {
+                    outline: none;
+                    border-color: $primary-color;
+                }
+            }
         }
     }
 
@@ -190,7 +225,66 @@ $border: 1px solid #ddd;
         }
     }
 }
+.mb-breadcrumbs {
+    
+    padding: 10px 0;
+    font-size: 14px;
+    color: #333;
+    margin-left: 150px;
+    .breadcrumbs {
+        &.hidden-xs {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
+        .container-inner-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 15px;
+
+            .breadcrumb {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                li {
+                    &.home {
+                        a {
+                            color: #007bff;
+                            text-decoration: none;
+
+                            &:hover {
+                                text-decoration: underline;
+                            }
+                        }
+                    }
+
+                    &.category3165 {
+                        &::before {
+                            content: ">";
+                            margin: 0 5px;
+                            color: #666;
+                        }
+
+                        strong {
+                            color: #333;
+                            font-weight: 600;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Media query để ẩn breadcrumb trên màn hình nhỏ (nếu cần)
+@media (max-width: 768px) {
+    .breadcrumbs.hidden-xs {
+        display: none;
+    }
+}
 @media (max-width: 768px) {
     .wrapper {
         flex-direction: column;

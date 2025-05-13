@@ -1,11 +1,13 @@
 
 <x-layouts.layout>
+     <x-productmodule::breadcrumbs />
         <div class="wrapper my-3">
             <div class="sidebar">
                 <x-productmodule::sidebar-filter />
             </div>
             <div class="main-content">
                 <x-productmodule::sort-header />
+               
                 <x-productmodule::product-card />
                 <x-productmodule::pagination />
             </div>
