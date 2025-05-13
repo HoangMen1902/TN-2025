@@ -16,8 +16,10 @@ return new class extends Migration
         Schema::create('option_values', function(Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('option_id');
             $table->string('value_name');
             $table->enum('status', ['active', 'inactive']);
+            $table->foreign('option_id')->references('id')->on('options')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
 
