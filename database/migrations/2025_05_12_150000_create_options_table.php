@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('options', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->enum('options_status', ['inactive', 'active']);
+            $table->string('name',255);
+            $table->tinyInteger('option_status')->default(1);
             $table->timestamps();
-
         });
     }
 

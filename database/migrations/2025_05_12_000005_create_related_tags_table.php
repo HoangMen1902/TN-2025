@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('related_tags', function (Blueprint $table) {
             $table->id();
             $table->string('tag_name');
-            $table->enum('related_tags_status', ['active', 'inactive'])->default('active');
+            $table->enum('related_tag_status', ['active', 'inactive'])->default('active');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
@@ -27,69 +28,70 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?string $navigationGroup = 'Quản lý Người Dùng';
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
-   public static function form(Form $form): Form
-{
-    return $form->schema([
-        TextInput::make('name')
-            ->label('Tên người dùng')
-            ->required()
-            ->maxLength(255),
+    protected static ?string $navigationLabel = 'Người Dùng';
+    protected static ?string $modelLabel = 'Người Dùng';
+    protected static ?string $pluralModelLabel = 'Các Người Dùng';
 
-        TextInput::make('email')
-            ->label('Email')
-            ->email()
-            ->required()
-            ->unique(ignoreRecord: true),
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            TextInput::make('name')
+                ->label('Tên người dùng')
+                ->required()
+                ->maxLength(255),
 
-        TextInput::make('password')
-            ->label('Mật khẩu')
-            ->password()
-            ->required(fn($livewire) => $livewire instanceof CreateRecord)
-            ->hidden(fn($livewire) => $livewire instanceof EditRecord)
-            ->maxLength(255),
+            TextInput::make('email')
+                ->label('Email')
+                ->email()
+                ->required()
+                ->unique(ignoreRecord: true),
 
-        TextInput::make('phone')
-            ->label('Số điện thoại')
-            ->required()
-            ->minLength(10)
-            ->maxLength(10)
-            ->rule('regex:/^0\d{9}$/'),
+            TextInput::make('password')
+                ->label('Mật khẩu')
+                ->password()
+                ->required(fn($livewire) => $livewire instanceof CreateRecord)
+                ->hidden(fn($livewire) => $livewire instanceof EditRecord)
+                ->maxLength(255),
 
-        DatePicker::make('birthday')
-            ->label('Ngày sinh')
-            ->nullable(),
+            TextInput::make('phone')
+                ->label('Số điện thoại')
+                ->required()
+                ->minLength(10)
+                ->maxLength(10)
+                ->rule('regex:/^0\d{9}$/'),
 
-        TextInput::make('avatar')
-            ->label('Ảnh đại diện (URL)')
-            ->nullable(),
+            DatePicker::make('birthday')
+                ->label('Ngày sinh')
+                ->nullable(),
 
-        TextInput::make('score')
-            ->label('Điểm')
-            ->numeric()
-            ->nullable(),
+            TextInput::make('avatar')
+                ->label('Ảnh đại diện (URL)')
+                ->nullable(),
 
-        Select::make('role')
-            ->label('Vai trò')
-            ->options([
-                'user' => 'Khách hàng',
-                'admin' => 'Quản trị',
-            ])
-            ->required()
-            ->native(false),
+            TextInput::make('score')
+                ->label('Điểm')
+                ->numeric()
+                ->nullable(),
 
-        Select::make('users_status')
-            ->label('Trạng thái')
-            ->options([
-                'active' => 'Hoạt động',
-                'inactive' => 'Khóa',
-            ])
-            ->required()
-            ->native(false),
-    ]);
-}
+            Select::make('role')
+                ->label('Vai trò')
+                ->options([
+                    'user' => 'Khách hàng',
+                    'admin' => 'Quản trị',
+                ])
+                ->required()
+                ->native(false),
+
+               Toggle::make('publisher_status')
+                ->label('Kích hoạt')
+                ->default(true)
+                ->columnSpan(2),
+
+        ]);
+    }
 
 
     public static function getEloquentQuery(): Builder
@@ -107,7 +109,7 @@ class UserResource extends Resource
                 ImageColumn::make('avatar')->label('Avatar')->circular(),
                 TextColumn::make('birthday')->label('Ngày sinh')->date('d/m/Y')->sortable(),
                 TextColumn::make('score')->label('Điểm')->sortable(),
-                TextColumn::make('users_status')
+                TextColumn::make('user_status')
                     ->label('Trạng thái')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
@@ -127,7 +129,7 @@ class UserResource extends Resource
                         'user' => 'Khách hàng',
                     ]),
 
-                SelectFilter::make('status')
+                SelectFilter::make('user_status')
                     ->label('Lọc theo trạng thái')
                     ->options([
                         'active' => 'Hoạt động',
@@ -138,7 +140,7 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()->action(function($record) {
+                Tables\Actions\DeleteAction::make()->action(function ($record) {
                     if ($record->id === Auth::id()) {
                         Notification::make()
                             ->title('Không thể xóa tài khoản đang sử dụng.')
@@ -151,7 +153,7 @@ class UserResource extends Resource
                     $record->save();
                     $record->delete();
                 }),
-                Tables\Actions\RestoreAction::make()->action(function($record) {
+                Tables\Actions\RestoreAction::make()->action(function ($record) {
                     $record->users_status = 'active';
                     $record->save();
 

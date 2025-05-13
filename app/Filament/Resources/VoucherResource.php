@@ -21,7 +21,11 @@ class VoucherResource extends Resource
 {
     protected static ?string $model = Voucher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+
+    protected static ?string $navigationLabel = 'Mã giảm giá';
+    protected static ?string $modelLabel = 'Mã giảm giá';
+    protected static ?string $pluralModelLabel = 'Các Mã giảm giá';
 
     public static function form(Form $form): Form
     {
@@ -52,7 +56,7 @@ class VoucherResource extends Resource
                 ->label('Ngày hết hạn')
                 ->required(),
 
-            Select::make('vouchers_status')
+            Select::make('voucher_status')
                 ->label('Trạng thái')
                 ->options([
                     'active' => 'Hoạt động',
@@ -67,10 +71,30 @@ class VoucherResource extends Resource
         return $table->columns([
             TextColumn::make('voucher_name')->label('Tên voucher')->searchable()->sortable(),
             TextColumn::make('requirement_price')->label('Giá trị tối thiểu')->sortable(),
-            TextColumn::make('reduced_amount')->label('Số tiền giảm')->sortable(),
-            TextColumn::make('voucher_type')->label('Loại')->sortable(),
+            TextColumn::make('reduced_amount')
+                ->label('Số tiền giảm')
+                ->sortable()
+                ->formatStateUsing(function ($state) {
+                    return number_format($state, 0, ',', ',') . ' VNĐ';
+                }),
+
+                TextColumn::make('voucher_type')
+                ->label('Loại')
+                ->formatStateUsing(fn($state) => match ($state) {
+                    'percent' => 'Phần trăm',
+                    'amount' => 'Cố định',
+                    default => ucfirst($state),
+                })
+                ->sortable(),
+            
+            
+
             TextColumn::make('expired_at')->label('Hết hạn')->dateTime(),
-            TextColumn::make('vouchers_status')->label('Trạng thái')->sortable(),
+            TextColumn::make('voucher_status')
+                ->label('Trạng thái')
+                ->badge()
+                ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
+                ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
         ])->filters([
             //
         ])->actions([

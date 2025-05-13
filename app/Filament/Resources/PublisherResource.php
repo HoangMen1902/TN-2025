@@ -15,31 +15,40 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ForceDeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\ForceDeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\TextInput;
 
 class PublisherResource extends Resource
 {
     protected static ?string $model = Publisher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
+    protected static ?string $navigationGroup = 'Quản lý Sản phẩm';
 
     protected static ?string $navigationLabel = 'Nhà xuất bản';
-   public static function form(Form $form): Form
+    protected static ?string $modelLabel = 'Nhà xuất bản';
+    protected static ?string $pluralModelLabel = 'Các Nhà xuất bản';
+
+    public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('publisher_name')
+                TextInput::make('publisher_name')
                     ->label('Tên nhà xuất bản')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Select::make('publishers_status')
-                    ->label('Trạng thái')
-                    ->options([
-                        'active' => 'Hoạt động',
-                        'inactive' => 'Không hoạt động',
-                    ])
-                    ->default('active')
-                    ->required(),
+                Toggle::make('publisher_status')
+                    ->label('Kích hoạt')
+                    ->default(true)
+                    ->columnSpan(2),
+
             ]);
     }
 
@@ -47,36 +56,38 @@ class PublisherResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('publisher_name')
+                TextColumn::make('publisher_name')
                     ->label('Tên nhà xuất bản')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('publishers_status')
+                TextColumn::make('publisher_status')
                     ->label('Trạng thái')
-                    ->formatStateUsing(fn (string $state): string => $state === 'active' ? 'Hoạt động' : 'Không hoạt động'),
-                Tables\Columns\TextColumn::make('products_count')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
+                    ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
+                TextColumn::make('products_count')
                     ->label('Số sản phẩm')
                     ->counts('products'),
-                Tables\Columns\TextColumn::make('deleted_at')
+                TextColumn::make('deleted_at')
                     ->label('Ngày xóa')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
             ->actions([
                 ActionGroup::make([
-                    Tables\Actions\EditAction::make()->label('Sửa'),
+                    EditAction::make()->label('Sửa'),
                     DeleteAction::make()->label('Xóa'),
                     RestoreAction::make()->label('Khôi phục'),
                     ForceDeleteAction::make()->label('Xóa vĩnh viễn'),
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make()->label('Xóa nhiều'),
-                Tables\Actions\ForceDeleteBulkAction::make()->label('Xóa vĩnh viễn nhiều'),
-                Tables\Actions\RestoreBulkAction::make()->label('Khôi phục nhiều'),
+                DeleteBulkAction::make()->label('Xóa nhiều'),
+                ForceDeleteBulkAction::make()->label('Xóa vĩnh viễn nhiều'),
+                RestoreBulkAction::make()->label('Khôi phục nhiều'),
             ]);
     }
 

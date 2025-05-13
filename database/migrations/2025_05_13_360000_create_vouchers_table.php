@@ -17,7 +17,7 @@ return new class extends Migration
             $table->double("reduced_amount");
             $table->enum("voucher_type", ["percent", "amount"]);
             $table->dateTime("expired_at");
-            $table->enum("vouchers_status", ["active", "inactive"]);
+            $table->enum("voucher_status", ["active", "inactive"]);
             $table->timestamps();
             $table->softDeletes(); 
         });

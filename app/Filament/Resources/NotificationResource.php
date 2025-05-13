@@ -14,6 +14,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -22,8 +27,12 @@ class NotificationResource extends Resource
 {
     protected static ?string $model = Notification::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
     protected static ?string $label = 'Thông báo';
+
+    protected static ?string $navigationLabel = 'Thông báo';
+    protected static ?string $modelLabel = 'Thông báo';
+    protected static ?string $pluralModelLabel = 'Các Thông báo';
 
     public static function form(Form $form): Form
     {
@@ -44,21 +53,21 @@ class NotificationResource extends Resource
                     ->label('Nội dung')
                     ->limit(50)
                     ->html(),
-                    TextColumn::make('user_notifications_count')->label('Số người dùng nhận được')
-                    ])
+                TextColumn::make('user_notifications_count')->label('Số người dùng nhận được')
+            ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
                 ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                DeleteAction::make(),
+                RestoreAction::make(),
 
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
@@ -71,7 +80,7 @@ class NotificationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-        ->withCount('userNotifications');
+            ->withCount('userNotifications');
     }
 
     public static function getRelations(): array

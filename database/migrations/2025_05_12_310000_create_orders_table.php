@@ -8,10 +8,11 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->enum('orders_status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $table->enum('order_status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
             $table->integer('total_price');
             $table->unsignedBigInteger('user_id');
             $table->text('address');
+            $table->string('phone');
             $table->boolean('is_approved')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

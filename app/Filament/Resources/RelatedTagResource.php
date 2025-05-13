@@ -15,8 +15,13 @@ use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Illuminate\Validation\ValidationException;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 
 class RelatedTagResource extends Resource
 {
@@ -24,22 +29,24 @@ class RelatedTagResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Quản lý Sản phẩm';
-    protected static ?string $navigationLabel = 'Tag liên quan';
-    protected static ?string $modelLabel = 'Tag liên quan';
-    protected static ?string $pluralModelLabel = 'Các Tag liên quan';
+    protected static ?string $navigationLabel = 'Thẻ sản phẩm';
+    protected static ?string $modelLabel = 'Thẻ sản phẩm';
+    protected static ?string $pluralModelLabel = 'Các Thẻ sản phẩm';
 
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('tag_name')
+            TextInput::make('tag_name')
                 ->label('Tên Tag')
                 ->required()
                 ->maxLength(255)
                 ->reactive()
                 ->unique(table: 'related_tags', column: 'tag_name', ignoreRecord: true),
-            Forms\Components\Toggle::make('related_tags_status')
+
+            Toggle::make('related_tag_status')
                 ->label('Kích hoạt')
-                ->default(true),
+                ->default(true)
+                ->columnSpan(2),
         ]);
     }
 
@@ -50,33 +57,34 @@ class RelatedTagResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tag_name')
+                TextColumn::make('tag_name')
                     ->label('Tên Tag')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\IconColumn::make('related_tags_status')
+                TextColumn::make('related_tag_status')
                     ->label('Trạng thái')
-                    ->boolean()
-                    ->sortable(),
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
+                    ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
 
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Ngày tạo')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('related_tags_status')
+                SelectFilter::make('related_tag_status')
                     ->label('Trạng thái')
                     ->options([
-                        true => 'Kích hoạt',
-                        false => 'Ẩn',
+                        true => 'Hoạt động',
+                        false => 'khóa',
                     ]),
 
                 Filter::make('created_at')
                     ->form([
-                        Forms\Components\DatePicker::make('from')->label('Từ ngày'),
-                        Forms\Components\DatePicker::make('until')->label('Đến ngày'),
+                        DatePicker::make('from')->label('Từ ngày'),
+                        DatePicker::make('until')->label('Đến ngày'),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
