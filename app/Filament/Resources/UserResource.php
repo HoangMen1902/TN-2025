@@ -26,68 +26,71 @@ use Illuminate\Support\Facades\Auth;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+    protected static ?string $navigationGroup = 'Quản lý Người Dùng';
+    
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
-    public static function form(Form $form): Form
-    {
-        return $form->schema([
-            TextInput::make('name')
-                ->label('Tên người dùng')
-                ->required()
-                ->maxLength(255),
+   public static function form(Form $form): Form
+{
+    return $form->schema([
+        TextInput::make('name')
+            ->label('Tên người dùng')
+            ->required()
+            ->maxLength(255),
 
-            TextInput::make('email')
-                ->label('Email')
-                ->email()
-                ->required()
-                ->unique(ignoreRecord: true),
+        TextInput::make('email')
+            ->label('Email')
+            ->email()
+            ->required()
+            ->unique(ignoreRecord: true),
 
-            TextInput::make('password')
-                ->label('Mật khẩu')
-                ->password()
-                ->required(fn($livewire) => $livewire instanceof CreateRecord)
-                ->hidden(fn($livewire) => $livewire instanceof EditRecord)
-                ->maxLength(255),
+        TextInput::make('password')
+            ->label('Mật khẩu')
+            ->password()
+            ->required(fn($livewire) => $livewire instanceof CreateRecord)
+            ->hidden(fn($livewire) => $livewire instanceof EditRecord)
+            ->maxLength(255),
 
-            TextInput::make('phone')
-                ->label('Số điện thoại')
-                ->required()
-                ->minLength(10)
-                ->maxLength(10)
-                ->rule('regex:/^0\d{9}$/'),
+        TextInput::make('phone')
+            ->label('Số điện thoại')
+            ->required()
+            ->minLength(10)
+            ->maxLength(10)
+            ->rule('regex:/^0\d{9}$/'),
 
-            DatePicker::make('birthday')
-                ->label('Ngày sinh')
-                ->nullable(),
+        DatePicker::make('birthday')
+            ->label('Ngày sinh')
+            ->nullable(),
 
-            TextInput::make('avatar')
-                ->label('Ảnh đại diện (URL)')
-                ->nullable(),
+        TextInput::make('avatar')
+            ->label('Ảnh đại diện (URL)')
+            ->nullable(),
 
-            TextInput::make('score')
-                ->label('Điểm')
-                ->numeric()
-                ->nullable(),
+        TextInput::make('score')
+            ->label('Điểm')
+            ->numeric()
+            ->nullable(),
 
-            Select::make('role')
-                ->label('Vai trò')
-                ->options([
-                    'user' => 'Khách hàng',
-                    'admin' => 'Quản trị',
-                ])
-                ->required()
-                ->native(false),
+        Select::make('role')
+            ->label('Vai trò')
+            ->options([
+                'user' => 'Khách hàng',
+                'admin' => 'Quản trị',
+            ])
+            ->required()
+            ->native(false),
 
-            Select::make('users_status')
-                ->label('Trạng thái')
-                ->options([
-                    'active' => 'Hoạt động',
-                    'inactive' => 'Khóa',
-                ])
-                ->required()
-                ->native(false),
-        ]);
-    }
+        Select::make('users_status')
+            ->label('Trạng thái')
+            ->options([
+                'active' => 'Hoạt động',
+                'inactive' => 'Khóa',
+            ])
+            ->required()
+            ->native(false),
+    ]);
+}
+
 
     public static function getEloquentQuery(): Builder
     {
