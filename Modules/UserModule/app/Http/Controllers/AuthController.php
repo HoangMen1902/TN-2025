@@ -34,4 +34,8 @@ class AuthController extends Controller
     public function showAddressInfomation(){
         return view('usermodule::profile.address');
     }
+    
+       public function showOrderInfomation(){
+        return view('usermodule::profile.order');
+    }
 }
