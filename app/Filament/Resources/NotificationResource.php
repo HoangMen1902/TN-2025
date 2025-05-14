@@ -53,8 +53,8 @@ class NotificationResource extends Resource
                     ->label('Nội dung')
                     ->limit(50)
                     ->html(),
-                TextColumn::make('user_notifications_count')->label('Số người dùng nhận được')
-            ])
+                    TextColumn::make('user_notifications_count')->label('Số người dùng nhận được')
+                    ])
             ->filters([
                 //
             ])
