@@ -29,13 +29,12 @@ class VoucherResource extends Resource
             TextInput::make('voucher_name')
                 ->label('Tên voucher')
                 ->required()
-                ->maxLength(255),
+                ->maxLength(length: 255),
 
             TextInput::make('requirement_price')
                 ->label('Giá trị đơn hàng tối thiểu')
                 ->numeric()
                 ->required(),
-
             TextInput::make('reduced_amount')
                 ->label('Số tiền giảm')
                 ->numeric()
@@ -60,27 +59,26 @@ class VoucherResource extends Resource
                     'inactive' => 'Không hoạt động',
                 ])
                 ->required(),
-
         ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table->columns([
-        TextColumn::make('voucher_name')->label('Tên voucher')->searchable(),
-        TextColumn::make('requirement_price')->label('Giá trị tối thiểu'),
-        TextColumn::make('reduced_amount')->label('Số tiền giảm'),
-        TextColumn::make('voucher_type')->label('Loại'),
-        TextColumn::make('expired_at')->label('Hết hạn')->dateTime(),
-        TextColumn::make('vouchers_status')->label('Trạng thái'),
-    ])->filters([
-        //
-    ])->actions([
-        Tables\Actions\EditAction::make()->label('Chỉnh sửa'),
-        Tables\Actions\DeleteAction::make()->label('Xoá'),
-    ])->bulkActions([
-        Tables\Actions\DeleteBulkAction::make()->label('Xoá hàng loạt'),
-    ]);
+            TextColumn::make('voucher_name')->label('Tên voucher')->searchable()->sortable(),
+            TextColumn::make('requirement_price')->label('Giá trị tối thiểu')->sortable(),
+            TextColumn::make('reduced_amount')->label('Số tiền giảm')->sortable(),
+            TextColumn::make('voucher_type')->label('Loại')->sortable(),
+            TextColumn::make('expired_at')->label('Hết hạn')->dateTime(),
+            TextColumn::make('vouchers_status')->label('Trạng thái')->sortable(),
+        ])->filters([
+            //
+        ])->actions([
+            Tables\Actions\EditAction::make()->label('Chỉnh sửa'),
+            Tables\Actions\DeleteAction::make()->label('Xoá'),
+        ])->bulkActions([
+            Tables\Actions\DeleteBulkAction::make()->label('Xoá hàng loạt'),
+        ]);
     }
 
     public static function getRelations(): array
