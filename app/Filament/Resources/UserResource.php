@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Pages\EditRecord;
@@ -20,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -43,8 +45,8 @@ class UserResource extends Resource
             TextInput::make('password')
                 ->label('Mật khẩu')
                 ->password()
-                ->required(fn ($livewire) => $livewire instanceof CreateRecord)
-                ->hidden(fn ($livewire) => $livewire instanceof EditRecord)
+                ->required(fn($livewire) => $livewire instanceof CreateRecord)
+                ->hidden(fn($livewire) => $livewire instanceof EditRecord)
                 ->maxLength(255),
 
             TextInput::make('phone')
@@ -76,7 +78,7 @@ class UserResource extends Resource
                 ->required()
                 ->native(false),
 
-            Select::make('status')
+            Select::make('users_status')
                 ->label('Trạng thái')
                 ->options([
                     'active' => 'Hoạt động',
@@ -87,6 +89,10 @@ class UserResource extends Resource
         ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withTrashed();
+    }
     public static function table(Table $table): Table
     {
         return $table
@@ -98,7 +104,7 @@ class UserResource extends Resource
                 ImageColumn::make('avatar')->label('Avatar')->circular(),
                 TextColumn::make('birthday')->label('Ngày sinh')->date('d/m/Y')->sortable(),
                 TextColumn::make('score')->label('Điểm')->sortable(),
-                TextColumn::make('status')
+                TextColumn::make('users_status')
                     ->label('Trạng thái')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
@@ -110,6 +116,7 @@ class UserResource extends Resource
                     ->color(fn($state) => $state === 'admin' ? 'primary' : 'info'),
             ])
             ->filters([
+                TrashedFilter::make(),
                 SelectFilter::make('role')
                     ->label('Lọc theo vai trò')
                     ->options([
@@ -124,13 +131,30 @@ class UserResource extends Resource
                         'inactive' => 'Khóa',
                     ]),
 
-                TrashedFilter::make(),  
+                TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),  
-                Tables\Actions\ViewAction::make(), 
+                Tables\Actions\DeleteAction::make()->action(function($record) {
+                    if ($record->id === Auth::id()) {
+                        Notification::make()
+                            ->title('Không thể xóa tài khoản đang sử dụng.')
+                            ->danger()
+                            ->send();
+                        return;
+                    }
+
+                    $record->users_status = 'inactive';
+                    $record->save();
+                    $record->delete();
+                }),
+                Tables\Actions\RestoreAction::make()->action(function($record) {
+                    $record->users_status = 'active';
+                    $record->save();
+
+                    $record->restore();
+                }),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -139,7 +163,7 @@ class UserResource extends Resource
                 ]),
             ])
             ->defaultSort('id', 'desc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]));
     }

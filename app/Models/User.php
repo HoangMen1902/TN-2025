@@ -63,4 +63,8 @@ class User extends Authenticatable
             ->map(fn ($name) => Str::substr($name, 0, 1))
             ->implode('');
     }
+    public function notifications() {
+        return $this->belongsToMany(Notification::class, 'user_notifications');
+
+    }
 }
