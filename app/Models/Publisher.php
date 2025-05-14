@@ -14,7 +14,7 @@ class Publisher extends Model
 
     protected $fillable = [
         'publisher_name',
-        'status',
+        'publishers_status',
     ];
 
 public function products()
