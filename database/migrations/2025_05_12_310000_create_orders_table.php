@@ -8,14 +8,15 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->enum('order_status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->integer('total_price');
+            $table->enum('orders_status', ['Đang xử lý', 'Đã thanh toán', 'Vận chuyển', 'Chờ hoàn tiền' , 'Đã hoàn tiền' , 'Đã giao', 'Đã hủy'])->default('Đang xử lý');
             $table->unsignedBigInteger('user_id');
             $table->text('address');
             $table->string('phone');
             $table->boolean('is_approved')->default(false);
             $table->string('customer_name'); // bổ sung
             $table->string('contact_email'); // bổ sung
+            $table->string('phone'); // bổ sung
+            $table->text('reason'); // bổ sung
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

@@ -19,6 +19,7 @@ class Order extends Model
         'address',
         'is_approved',
         'phone',
+        'reason',
         'contact_email',
         'customer_name',
     ];
@@ -35,5 +36,11 @@ class Order extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
+    }
+    public function getCalculatedTotalPriceAttribute()
+    {
+        return $this->orderDetails->sum(function ($item) {
+            return $item->price * $item->quantity;
+        });
     }
 }
