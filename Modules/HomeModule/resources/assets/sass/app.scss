@@ -1,4 +1,4 @@
-.test{
+.test {
     background-color: red;
 }
 $breakpoints: (
@@ -7,15 +7,15 @@ $breakpoints: (
     md: 768px,
     lg: 992px,
     xl: 1024px,
-    2xl: 1200px
+    2xl: 1200px,
 );
 $gray-900: #212529 !default;
 
 $dark: $gray-900 !default;
 
-$color-primary: #0A68FF;
+$color-primary: #0a68ff;
 $color-primary-light: #dbe5f5;
-$color-primary-dark: #0A68FF;
+$color-primary-dark: #0a68ff;
 
 $color-secondary: #272727;
 
@@ -26,7 +26,6 @@ $color-text-gray: #26262658;
 $color-footer-trans: #f2f2f2;
 
 $color-box-dark: #0000;
-
 
 $fs-h1: 64px;
 $fs-h2: 40px;
@@ -75,11 +74,10 @@ $container-width: 1600px;
 
 $gutter: 48px;
 
-
 @mixin down($value) {
     $breakpoint: map-get(
         $map: $breakpoints,
-        $key: $value
+        $key: $value,
     );
 
     @if $breakpoint {
@@ -142,7 +140,6 @@ $gutter: 48px;
     &__content {
         width: 100vw !important;
     }
-
 
     &__wrapper {
         margin-right: var(--gutter-right) !important;
@@ -214,14 +211,13 @@ $gutter: 48px;
     background-color: black !important;
 }
 
-
 .product {
     margin: auto;
     width: 100%;
     overflow: hidden;
     --gutter: calc((100vw - 1600px) / 2);
     --slide-height: 5rem;
-    --slide-spacing: 1rem;
+    --slide-spacing: 0.5rem;
     --slide-size: 260px;
 
     @include down(1600px) {
@@ -265,6 +261,7 @@ $gutter: 48px;
     margin-left: calc(var(--slide-spacing) * -1);
     // margin-left: 100;
 }
+
 .product__slide {
     overflow: hidden;
     position: relative;
@@ -272,7 +269,7 @@ $gutter: 48px;
     align-items: center;
     justify-content: center;
     // width: 320px;
-    height: 450px;
+    height: 390px;
     border-radius: 10px;
     flex: 0 0 var(--slide-size);
     aspect-ratio: 16/9;
@@ -390,14 +387,10 @@ $gutter: 48px;
 
         &__imgs {
             width: 100%;
-            height: 60px;
-            position: absolute;
-            bottom: 0;
-            left: 0;
+      
+         
             display: flex;
-            padding-inline: 10px;
-            justify-content: space-between;
-            padding-inline: 15px;
+        
             align-items: center;
             &__price {
                 color: #e12825;
@@ -414,15 +407,15 @@ $gutter: 48px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-inline: 10px;
-                width:  150px ;
+                // margin-inline: 10px;
+                width: 150px;
                 height: 45px;
                 border-radius: 30px;
                 background: #fff;
                 border: 2px solid rgba(38, 38, 38, 0.3450980392);
                 transition: background-color 0.5s ease;
                 &:hover {
-                    background-color:#0A68FF !important;
+                    background-color: #0a68ff !important;
                     color: white;
                 }
             }
@@ -434,7 +427,10 @@ $gutter: 48px;
         }
     }
 }
-
+.bg-transparent{
+        background-color: transparent;
+      
+}
 .product__controls {
     max-width: 1600px;
     margin-inline: auto;

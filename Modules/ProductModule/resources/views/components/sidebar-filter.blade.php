@@ -3,17 +3,17 @@
             <nav>
                 <section class="filter-section">
                     <h3>Nhóm sản phẩm</h3>
-                    <ul class="filter-list">
-                        <li>Tất Cả Nhóm Sản Phẩm</li>
-                        <li>Sách tiếng Việt</li>
-                        <li>Văn học</li>
-                        <li>Tiểu thuyết</li>
-                        <li>Truyện ngắn - Tản Văn</li>
-                        <li>Light Novel</li>
-                        <li>Truyện Trinh Thám - Kiếm Hiệp</li>
-                        <li>Tác Phẩm Kinh Điển</li>
-                        <li>Huyền Bí - Giả Tưởng - Kinh Dị</li>
-                        <li>Ngôn Tình</li>
+                    <ul class="filter-list text-base">
+                        <li class="mb-1">Tất Cả Nhóm Sản Phẩm</li>
+                        <li class="mb-1">Sách tiếng Việt</li>
+                        <li class="mb-1">Văn học</li>
+                        <li class="mb-1">Tiểu thuyết</li>
+                        <li class="mb-1">Truyện ngắn - Tản Văn</li>
+                        <li class="mb-1">Light Novel</li>
+                        <li class="mb-1">Truyện Trinh Thám - Kiếm Hiệp</li>
+                        <li class="mb-1">Tác Phẩm Kinh Điển</li>
+                        <li class="mb-1">Huyền Bí - Giả Tưởng - Kinh Dị</li>
+                        <li class="mb-1">Ngôn Tình</li>
                         <li>Thơ ca, tục ngữ, ca dao, thành ngữ</li>
                         <li class="show-more">Xem Thêm</li>
                     </ul>

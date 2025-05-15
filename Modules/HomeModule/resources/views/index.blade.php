@@ -1,5 +1,5 @@
 <x-layouts.layout>
-    
+
     <div class="container max-w-[1200px] mx-auto">
         <div class="flex h-[330px] my-3  ">
             <!-- Div bên trái -->
@@ -269,26 +269,55 @@
                         </div> --}}
 
                         <?php for ($i = 1; $i <= 10; $i++): ?>
-                        <div class="product__slide mt-4">
-                            <div style="cursor:pointer" onclick="window.location.href='/product-detail/<?= $i ?>';"
-                                class="product__slide__image">
-                                <img src="	https://cdn1.fahasa.com/media/catalog/product/u/n/untitled-1-2_1.jpg"
-                                    alt="Sản phẩm <?= $i ?>" width="100px"
-                                    class="embla__slide__background  block w-full h-full">
+                        <div class="product__slide mt-4 relative border border-gray-300 group rounded-lg">
+                            <div class="absolute bottom-40 right-4 z-10 
+                                        opacity-0 translate-y-4 
+                                        group-hover:opacity-100 group-hover:translate-y-0 
+                                        transition-all duration-500 ease-in-out">
+                                <form action="/add-to-cart" method="post">
+                                    <input type="hidden" name="id" value="<?= $i ?>">
+                                    <button class="bg-blue-500 text-white px-4 py-2 rounded-3xl shadow-md
+                                           border border-transparent
+                                           transition duration-300 ease-in-out
+                                           hover:bg-transparent hover:text-blue-600
+                                           hover:border-blue-600 hover:shadow-lg
+                                           hover:scale-105">
+                                        Mua ngay
+                                    </button>
+
+
+                                </form>
                             </div>
-                            <div class="product__slide__number">
+
+                            <div style="cursor:pointer" onclick="window.location.href='/product-detail/<?= $i ?>';"
+                                class="product__slide__image border-b border-gray-300">
+                                <img src="https://cdn1.fahasa.com/media/catalog/product/u/n/untitled-1-2_1.jpg"
+                                    alt="Sản phẩm <?= $i ?>" width="100px"
+                                    class="embla__slide__background  block w-full h-full ">
+                            </div>
+                            <div class="product__slide__number flex flex-wrap content-around ">
                                 <div>
-                                    <p class="product__slide__text clamp-text">Sản phẩm <?= $i ?></p>
+                                    <p class="text-base line-clamp-2"><?= $i ?> tung tung tung tung tung tung tung tung
+                                        tung tung sahur tung tung tung</p>
+                                </div>
+                                <div class="flex items-center space-x-1 w-[100%]">
+                                    <?php    for ($j = 1; $j <= 5; $j++): ?>
+                                    <svg class="w-4 h-4 <?= $j <= 4 ? 'text-yellow-300' : 'text-gray-200' ?>"
+                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                        <path
+                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                    </svg>
+                                    <?php    endfor; ?>
+                                    <span class="text-xs"> 20</span>
+                                </div>
+                                <div>
+                                    category
                                 </div>
                                 <div class="product__slide__number__imgs">
-                                    <p class="product__slide__number__imgs__price"><?= number_format($i * 100000) ?>đ
+                                    <p class="product__slide__number__imgs__price"><?= number_format($i * 100000000) ?>đ
                                     </p>
-                                    <form action="/add-to-cart" method="post">
-                                        <input type="hidden" name="method" value="POST">
-                                        <input type="hidden" name="id" value="<?= $i ?>">
-                                        <button name="add-to-cart" style="cursor:pointer"
-                                            class="product__slide__number__imgs__buy">Mua ngay</button>
-                                    </form>
+                                    <span
+                                        class="product__slide__number__imgs__price-sale ml-1 opacity-50"><?= number_format($i * 100000000) ?>đ</span>
                                 </div>
                             </div>
                         </div>
@@ -426,41 +455,195 @@
         </div>
 
         <div class="my-3 bg-light rounded  p-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 ">
-                <?php for ($i = 1; $i <= 10; $i++): ?>
-                <div
-                    class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm  dark:border-gray-200">
-                    <a href="#">
-                        <img class="p-8 rounded-t-lg" src="https://cdn1.fahasa.com/media/catalog/product/8/9/8936065400931_1_2.jpg"
-                            alt="Product Image <?= $i ?>" />
-                    </a>
-                    <div class="px-5 pb-5">
-                        <a href="#">
-                            <h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Product
-                                <?= $i ?></h5>
-                        </a>
-                        <div class="flex items-center mt-2.5 mb-5">
-                            <div class="flex items-center space-x-1">
-                                <?php    for ($j = 1; $j <= 5; $j++): ?>
-                                <svg class="w-4 h-4 <?= $j <= 4 ? 'text-yellow-300' : 'text-gray-200' ?>"
-                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                                <?php    endfor; ?>
-                            </div>
-                            <span
-                                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-sm ms-3">5.0</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-3xl font-bold product__slide__number__imgs__price">321.000</span>
-                            <a href="#"
-                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 bg-primary dark:hover:bg-blue-700">Mua ngay</a>
-                        </div>
-                    </div>
-                </div>
-                <?php endfor; ?>
+            <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab"
+                    data-tabs-toggle="#default-tab-content" role="tablist">
+                    <li class="me-2" role="presentation">
+                        <button class="inline-block p-4 border-b-2 rounded-t-lg" id="profile-tab"
+                            data-tabs-target="#profile" type="button" role="tab" aria-controls="profile"
+                            aria-selected="false">Đẹp</button>
+                    </li>
+                    <li class="me-2" role="presentation">
+                        <button
+                            class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                            id="dashboard-tab" data-tabs-target="#dashboard" type="button" role="tab"
+                            aria-controls="dashboard" aria-selected="false">Xấu quắc</button>
+                    </li>
+                    {{-- <li class="me-2" role="presentation">
+                        <button
+                            class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                            id="settings-tab" data-tabs-target="#settings" type="button" role="tab"
+                            aria-controls="settings" aria-selected="false">Settings</button>
+                    </li>
+                    <li role="presentation">
+                        <button
+                            class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                            id="contacts-tab" data-tabs-target="#contacts" type="button" role="tab"
+                            aria-controls="contacts" aria-selected="false">Contacts</button>
+                    </li> --}}
+                </ul>
             </div>
+            <div id="default-tab-content">
+                <div class="" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                      <?php for ($i = 1; $i <= 10; $i++): ?>
+                        <div
+                          class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg"
+                        >
+                          <!-- Nút mua ngay -->
+                          <div
+                            class="absolute bottom-12    right-4 z-10 
+                                       opacity-0 translate-y-4 
+                                       group-hover:opacity-100 group-hover:translate-y-0 
+                                       transition-all duration-500 ease-in-out"
+                          >
+                            <form action="/add-to-cart" method="post">
+                              <input type="hidden" name="id" value="<?= $i ?>">
+                              <button
+                                class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
+                                       border border-transparent
+                                       transition duration-300 ease-in-out
+                                       hover:bg-transparent hover:text-blue-600
+                                       hover:border-blue-600 hover:shadow-lg
+                                       hover:scale-105
+                                       hover:bg-white
+                                       "
+                              >
+                                Mua ngay
+                              </button>
+                            </form>
+                          </div>
+                  
+                          <!-- Ảnh -->
+                          <div
+                            style="cursor:pointer"
+                            onclick="window.location.href='/product-detail/<?= $i ?>';"
+                            class="product__slide__image border-b border-gray-300 overflow-hidden"
+                          >
+                            <img
+                              src="https://cdn1.fahasa.com/media/catalog/product/u/n/untitled-1-2_1.jpg"
+                              alt="Sản phẩm <?= $i ?>"
+                              width="100px"
+                              class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105"
+                            >
+                          </div>
+                  
+                          <!-- Thông tin -->
+                          <div class="product__slide__number flex flex-wrap content-around p-2">
+                            <div>
+                              <p class="text-base line-clamp-2"><?= $i ?> tung tung tung tung tung tung tung tung tung tung sahur tung</p>
+                            </div>
+                            <div class="flex items-center space-x-1 w-[100%]">
+                              <?php for ($j = 1; $j <= 5; $j++): ?>
+                                <svg class="w-4 h-4 <?= $j <= 4 ? 'text-yellow-300' : 'text-gray-200' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                  <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                </svg>
+                              <?php endfor; ?>
+                              <span class="text-xs">20</span>
+                            </div>
+                            <div>category</div>
+                            <div class="product__slide__number__imgs">
+                              <p class="product__slide__number__imgs__price"><?= number_format($i * 100000000) ?>đ</p>
+                              <span class="product__slide__number__imgs__price-sale ml-1 opacity-50"><?= number_format($i * 100000000) ?>đ</span>
+                            </div>
+                          </div>
+                        </div>
+                      <?php endfor; ?>
+                    </div>
+                  </div>
+                  
+                <div  id="dashboard" role="tabpanel"
+                    aria-labelledby="dashboard-tab">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                        <?php for ($i = 1; $i <= 10; $i++): ?>
+                          <div class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
+                            <div
+                              class="absolute bottom-12    right-4 z-10 
+                                         opacity-0 translate-y-4 
+                                         group-hover:opacity-100 group-hover:translate-y-0 
+                                         transition-all duration-500 ease-in-out"
+                            >
+                              <form action="/add-to-cart" method="post">
+                                <input type="hidden" name="id" value="<?= $i ?>">
+                                <button
+                                  class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
+                                         border border-transparent
+                                         transition duration-300 ease-in-out
+                                         hover:bg-transparent hover:text-blue-600
+                                         hover:border-blue-600 hover:shadow-lg
+                                         hover:scale-105
+                                         hover:bg-white
+                                         "
+                                >
+                                  Mua ngay
+                                </button>
+                              </form>
+                            </div>
+                    
+                            <!-- Ảnh -->
+                            <div
+                              style="cursor:pointer"
+                              onclick="window.location.href='/product-detail/<?= $i ?>';"
+                              class="product__slide__image border-b border-gray-300 overflow-hidden"
+                            >
+                              <img
+                                src="	https://cdn1.fahasa.com/media/catalog/product/b/_/b_a-tr_c-manifest_1_2_1_2.jpg"
+                                alt="Sản phẩm <?= $i ?>"
+                                width="100px"
+                                class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105"
+                              >
+                            </div>
+                    
+                            <!-- Thông tin -->
+                            <div class="product__slide__number flex flex-wrap content-around p-2">
+                              <div>
+                                <p class="text-base line-clamp-2"><?= $i ?> tung tung tung tung tung tung tung tung tung tung sahur tung</p>
+                              </div>
+                              <div class="flex items-center space-x-1 w-[100%]">
+                                <?php for ($j = 1; $j <= 5; $j++): ?>
+                                  <svg class="w-4 h-4 <?= $j <= 4 ? 'text-yellow-300' : 'text-gray-200' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                    <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                  </svg>
+                                <?php endfor; ?>
+                                <span class="text-xs">20</span>
+                              </div>
+                              <div>category</div>
+                              <div class="product__slide__number__imgs">
+                                <p class="product__slide__number__imgs__price"><?= number_format($i * 100000000) ?>đ</p>
+                                <span class="product__slide__number__imgs__price-sale ml-1 opacity-50"><?= number_format($i * 100000000) ?>đ</span>
+                              </div>
+                            </div>
+                          </div>
+                        <?php endfor; ?>
+                      </div>
+                </div>
+                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="settings" role="tabpanel"
+                    aria-labelledby="settings-tab">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong
+                            class="font-medium text-gray-800 dark:text-white">Settings tab's associated
+                            content</strong>. Clicking another tab will toggle the visibility of this one for the next.
+                        The tab JavaScript swaps classes to control the content visibility and styling.</p>
+                </div>
+                <div class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800" id="contacts" role="tabpanel"
+                    aria-labelledby="contacts-tab">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">This is some placeholder content the <strong
+                            class="font-medium text-gray-800 dark:text-white">Contacts tab's associated
+                            content</strong>. Clicking another tab will toggle the visibility of this one for the next.
+                        The tab JavaScript swaps classes to control the content visibility and styling.</p>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
         </div>
 
