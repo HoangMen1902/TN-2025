@@ -19,7 +19,7 @@ class OptionValueFactory extends Factory
         return [
             'option_id' => \App\Models\Option::factory(),
             'value_name' => $this->faker->word,
-            'option_values_status' => $this->faker->randomElement(['active', 'inactive']),
+            'option_value_status' => $this->faker->randomElement(['active', 'inactive']),
         ];
     }
 }

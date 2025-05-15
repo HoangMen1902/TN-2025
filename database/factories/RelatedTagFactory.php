@@ -18,7 +18,7 @@ class RelatedTagFactory extends Factory
     {
         return [
             'tag_name' => $this->faker->word,
-            'related_tags_status' => $this->faker->randomElement(['active', 'inactive']),
+            'related_tag_status' => $this->faker->randomElement(['active', 'inactive']),
         ];
     }
 }

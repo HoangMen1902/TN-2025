@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('categoryy_status', ['active', 'inactive'])->default('active');
+            $table->enum('category_status', ['active', 'inactive'])->default('active');
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
             $table->integer('order_by')->default(1);
             $table->softDeletes();

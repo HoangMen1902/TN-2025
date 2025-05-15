@@ -18,7 +18,7 @@ class CategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'categories_status' => $this->faker->randomElement(['active', 'inactive']),
+            'category_status' => $this->faker->randomElement(['active', 'inactive']),
             'parent_id' => null,  
         ];
     }

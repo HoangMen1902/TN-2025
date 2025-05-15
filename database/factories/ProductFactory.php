@@ -20,7 +20,7 @@ class ProductFactory extends Factory
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->paragraph,
             'short_description' => $this->faker->sentence,
-            'products_status' => $this->faker->randomElement(['active', 'inactive']),
+            'product_status' => $this->faker->randomElement(['active', 'inactive']),
             'thumbnail' => 'default-thumbnail.jpg',
             'published_at' => $this->faker->dateTimeBetween('-1 years', 'now'),
             'publisher_id' => \App\Models\Publisher::factory(),

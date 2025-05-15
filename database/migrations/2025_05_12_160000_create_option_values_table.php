@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('option_id');
             $table->string('value_name', 255);
-            $table->tinyInteger('option_value_status')->default(1);
+            $table->enum('option_value_status',['active', 'inactive']);
             $table->foreign('option_id')->references('id')->on('options')->onDelete('cascade');
             $table->timestamps();
         });

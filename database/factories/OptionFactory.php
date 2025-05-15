@@ -18,7 +18,7 @@ class OptionFactory extends Factory
     {
         return [
             'name' => $this->faker->randomElement(['Color', 'Size', 'Format']),
-            'options_status' => $this->faker->randomElement(['active', 'inactive']),
+            'option_status' => $this->faker->randomElement(['active', 'inactive']),
         ];  
     }
 }

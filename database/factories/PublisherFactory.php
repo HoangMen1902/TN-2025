@@ -18,7 +18,7 @@ class PublisherFactory extends Factory
     {
         return [
             'publisher_name' => $this->faker->company,
-            'publishers_status' => $this->faker->randomElement(['active', 'inactive']),
+            'publisher_status' => $this->faker->randomElement(['active', 'inactive']),
 
         ];
     }
