@@ -8,6 +8,7 @@ use App\Filament\Resources\NotificationResource\RelationManagers\UserRelationMan
 use App\Models\Notification;
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,13 +34,19 @@ class NotificationResource extends Resource
     protected static ?string $navigationLabel = 'Thông báo';
     protected static ?string $modelLabel = 'Thông báo';
     protected static ?string $pluralModelLabel = 'Các Thông báo';
+    
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->label('Tiêu đề')->columnSpanFull(),
-                RichEditor::make('content')->label('Nội dung thông báo')->columnSpanFull()
+                TextInput::make('name')->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập tiêu đề thông báo'])->label('Tiêu đề')->columnSpanFull(),
+                RichEditor::make('content')->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập nội dung thông báo'])->label('Nội dung thông báo')->columnSpanFull(),
+                Select::make('notification_type')->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn loại thông báo'])->label('Loại thông báo')->options([
+                    'promotion' => 'Khuyến mại',
+                    'order' => 'Đơn hàng',
+                    'update' => 'Cập nhật'
+                ])
             ]);
     }
 
@@ -53,10 +60,10 @@ class NotificationResource extends Resource
                     ->label('Nội dung')
                     ->limit(50)
                     ->html(),
-                    TextColumn::make('user_notifications_count')->label('Số người dùng nhận được')
-                    ])
+                    TextColumn::make('user_notifications_count')->label('Số người dùng nhận được'),
+                TextColumn::make('notification_type')->label('Loại thông báo')
+            ])
             ->filters([
-                //
             ])
             ->actions([
                 EditAction::make(),

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->enum('notification_type',['promote', 'order', 'update'])->default('promote');
+            $table->enum('notification_type',['promotion', 'order', 'update'])->default('promote');
         });
     }
 
