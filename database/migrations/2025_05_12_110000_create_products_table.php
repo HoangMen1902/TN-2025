@@ -19,7 +19,6 @@ return new class extends Migration
             $table->enum('product_status', ['active', 'inactive', 'draft'])->default('active');
             $table->text('thumbnail')->nullable();
             $table->foreignId('publisher_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->timestamp('published_at');
             $table->timestamps();
             $table->softDeletes();

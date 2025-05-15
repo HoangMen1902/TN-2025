@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->text('address');
             $table->string('phone');
             $table->boolean('is_approved')->default(false);
+            $table->string('customer_name'); // bổ sung
+            $table->string('contact_email'); // bổ sung
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();

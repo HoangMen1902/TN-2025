@@ -13,7 +13,7 @@ class Option extends Model
 
     protected $fillable = [
         'name',
-        'option_status',
+        'options_status',
     ];
 
  

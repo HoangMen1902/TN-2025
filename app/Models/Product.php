@@ -19,7 +19,7 @@ class Product extends Model
         'products_status',
         'thumbnail',
         'publisher_id',
-        'category_id',
+      
     ];
 
     public function publisher()

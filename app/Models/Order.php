@@ -13,11 +13,14 @@ class Order extends Model
     protected $table = 'orders';
 
     protected $fillable = [
-        'status',
+        'orders_status',
         'total_price',
         'user_id',
         'address',
         'is_approved',
+        'phone',
+        'contact_email',
+        'customer_name',
     ];
 
     protected $casts = [
