@@ -16,10 +16,10 @@ class Login extends Component
         ]);
 
         if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
-            return redirect('/');
+            return redirect()->intended('/');
         }
 
-        session()->flash('error', 'Thông tin đăng nhập không đúng');
+        $this->addError('email', 'Thông tin đăng nhập không đúng.');
     }
 
     public function render()

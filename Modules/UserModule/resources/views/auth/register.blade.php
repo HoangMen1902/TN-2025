@@ -1,21 +1,44 @@
 <x-layouts.layout>
     <x-slot name="title">BeeBook - Đăng ký</x-slot>
-<div class="flex items-center justify-center bg-white px-4 py-32">
-    <div class="w-full max-w-md space-y-6">
-        <div class="text-center">
-            <h2 class="text-3xl font-bold text-[#2b4f60]">Đăng ký</h2>
-            <p class="text-sm text-gray-500 mt-2">Tạo tài khoản BeeBook để khám phá kho sách tuyệt vời</p>
-        </div>
+    <div class="flex items-center justify-center bg-white px-4 py-32">
+        <div class="w-full max-w-md space-y-6">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-[#2b4f60]">Đăng ký</h2>
+                <p class="text-sm text-gray-500 mt-2">Tạo tài khoản BeeBook để khám phá kho sách tuyệt vời</p>
+            </div>
 
-        <form wire:submit.prevent="register" class="space-y-4">
-            <input type="text" wire:model="name" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Họ và tên" required />
-            <input type="email" wire:model="email" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Email" required />
-            <input type="password" wire:model="password" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Mật khẩu" required />
-            <input type="password" wire:model="password_confirmation" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Nhập lại mật khẩu" required />
+            @if (session('success'))
+                <div class="text-green-500 text-center">{{ session('success') }}</div>
+            @endif
+            @if ($errors->any())
+                <div class="text-red-500 text-center">
+                    @foreach ($errors->all() as $error)
+                        {{ $error }}<br>
+                    @endforeach
+                </div>
+            @endif
 
-            <button type="submit" class="w-full py-3 bg-[#5cb8b2] text-white font-semibold rounded-full hover:bg-[#469a95] transition">Đăng ký</button>
-        </form>
+            <form method="POST" action="{{ route('register') }}" class="space-y-4">
+                @csrf
+                <div>
+                    <input type="text" name="name" value="{{ old('name') }}" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Họ và tên"  />
+                    @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Email"  />
+                    @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <input type="password" name="password" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Mật khẩu"  />
+                    @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
+                <div>
+                    <input type="password" name="password_confirmation" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Nhập lại mật khẩu"  />
+                    @error('password_confirmation') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                </div>
 
+                <button type="submit" class="w-full py-3 bg-[#5cb8b2] text-white font-semibold rounded-full hover:bg-[#469a95] transition">Đăng ký</button>
+            </form>
         <div class="flex items-center justify-center gap-4 mt-4">
             <a href="" class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition" title="Google">
                 <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">

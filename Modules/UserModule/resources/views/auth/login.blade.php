@@ -1,22 +1,25 @@
 <x-layouts.layout>
     <x-slot name="title">BeeBook - Đăng Nhập</x-slot>
-<div class=" flex items-center justify-center bg-white px-4 py-32">
+<div class="flex items-center justify-center bg-white px-4 py-32">
     <div class="w-full max-w-md space-y-6">
         <div class="text-center">
             <h2 class="text-3xl font-bold text-[#2b4f60]">Đăng nhập</h2>
             <p class="text-sm text-gray-500 mt-2">Chào mừng đến với BeeBook - Thế giới sách</p>
         </div>
 
-        <form wire:submit.prevent="login" class="space-y-4">
-            <input type="email" wire:model="email" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Email" required />
-            <input type="password" wire:model="password" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Mật khẩu" required />
+        <form wire:submit.prevent="login" method="POST" class="space-y-4">
+    @csrf
+    <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Email"  />
+    @error('email') <span class="error text-red-500">{{ $message }}</span> @enderror
+    <input type="password" name="password" class="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2]" placeholder="Mật khẩu"  />
+    @error('password') <span class="error text-red-500">{{ $message }}</span> @enderror
 
-            <div class="text-right text-sm">
-                <a href="{{ route('forgot-password') }}" class="text-[#5cb8b2] hover:underline">Quên mật khẩu?</a>
-            </div>
+    <div class="text-right text-sm">
+        <a href="{{ route('forgot-password') }}" class="text-[#5cb8b2] hover:underline">Quên mật khẩu?</a>
+    </div>
 
-            <button type="submit" class="w-full py-3 bg-[#5cb8b2] text-white font-semibold rounded-full hover:bg-[#469a95] transition">Đăng nhập</button>
-        </form>
+    <button type="submit" class="w-full py-3 bg-[#5cb8b2] text-white font-semibold rounded-full hover:bg-[#469a95] transition">Đăng nhập</button>
+</form>
 
         <div class="flex items-center justify-center gap-4 mt-4">
             <a href="" class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition" title="Google">
@@ -33,7 +36,7 @@
 
         <div class="text-center text-sm text-gray-600">
             Chưa có tài khoản?
-            <a href="{{route ('register')}}" class="text-[#5cb8b2] font-medium hover:underline">Đăng ký ngay</a>
+            <a href="{{ route('register') }}" class="text-[#5cb8b2] font-medium hover:underline">Đăng ký ngay</a>
         </div>
     </div>
 </div>
