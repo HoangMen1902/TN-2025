@@ -38,4 +38,7 @@ class AuthController extends Controller
        public function showOrderInfomation(){
         return view('usermodule::profile.order');
     }
+           public function showNotification(){
+        return view('usermodule::profile.notification');
+    }
 }

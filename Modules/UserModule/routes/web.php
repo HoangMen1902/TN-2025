@@ -19,4 +19,5 @@ Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->
 Route::get('/ho-so',[AuthController::class, 'showProfileInfomation'])->name('infomation');
 Route::get('/dia-chi',[AuthController::class, 'showAddressInfomation'])->name('address');
 Route::get('/don-hang',[AuthController::class, 'showOrderInfomation'])->name('order');
+Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 
