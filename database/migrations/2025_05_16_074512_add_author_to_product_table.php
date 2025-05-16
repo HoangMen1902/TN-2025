@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dateTime('published_at')->nullable();
+            $table->string('author')->nullable();
         });
     }
 
@@ -22,6 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
+            //
         });
     }
 };

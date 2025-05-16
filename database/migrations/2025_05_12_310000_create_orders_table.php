@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->boolean('is_approved')->default(false);
             $table->string('customer_name'); // bổ sung
             $table->string('contact_email'); // bổ sung
-            $table->string('phone'); // bổ sung
             $table->text('reason'); // bổ sung
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

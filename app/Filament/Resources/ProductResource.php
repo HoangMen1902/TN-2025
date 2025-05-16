@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Forms\Components\YearPicker;
 use App\Models\Option;
 use App\Models\OptionValue;
 use App\Models\Product;
@@ -14,6 +15,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -49,10 +51,20 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')->label('Tên sản phẩm')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Sản phẩm này đã tồn tại'])->columnSpanFull()->unique(ignoreRecord: true),
-
+                TextInput::make('name')->label('Tên sách')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Sản phẩm này đã tồn tại'])->unique(ignoreRecord: true),
+                TextInput::make('author')->label('Tác giả')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 RichEditor::make('short_description')->label('Mô tả ngắn')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 RichEditor::make('description')->label('Mô tả')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
+                Section::make('Thông tin sản phẩm')
+                ->description('Thông tin chi tiết của sản phẩm')
+                ->schema([
+                    YearPicker::make('product_released_year')->label('Năm xuất bản')->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
+                    TextInput::make('weight')->label('Trọng lượng')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
+                    TextInput::make('width')->label('Chiều rộng')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
+                    TextInput::make('height')->label('Chiều cao')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
+                    TextInput::make('pages')->label('Số trang')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
+                    Select::make('book_cover')->label('Loại bìa')->options(['Bìa cứng' => 'Bìa cứng', 'Bìa mềm' => 'Bìa mềm'])->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này'])
+                ])->columns(2),
                 FileUpload::make('thumbnail')->label('Ảnh sản phẩm')->rules('required')->image()->validationMessages(['required' => 'Vui lòng nhập ảnh', 'image' => 'File tải lên không phải hình ảnh'])->columnSpanFull(),
                 Repeater::make('productSkus')->relationship()->schema([
                     TextInput::make('sku')->label('Mã SKU')->rules('required')->validationMessages(['required' => 'Vui lòng nhập thông tin *', 'unique' => 'Mã SKU đã tôn tại'])->columnSpanFull()->unique(ignoreRecord: true)->columnSpan(1),

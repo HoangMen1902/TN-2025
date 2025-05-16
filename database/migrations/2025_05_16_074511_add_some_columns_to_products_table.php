@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
         Schema::table('products', function (Blueprint $table) {
-            $table->dateTime('published_at')->nullable()->default(null);
+            $table->integer('product_released_year')->nullable();
+            $table->double('height')->nullable();
+            $table->double('width')->nullable();
+            $table->double('weight')->nullable();
+            $table->integer('pages')->nullable();
+            $table->enum('book_cover', ['Bìa cứng', 'Bìa mềm'])->default('Bìa mềm');
         });
     }
 
@@ -22,7 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
         Schema::table('products', function (Blueprint $table) {
             //
         });
