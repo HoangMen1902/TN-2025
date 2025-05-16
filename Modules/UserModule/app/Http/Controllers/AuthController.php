@@ -105,4 +105,10 @@ class AuthController extends Controller
            public function showNotification(){
         return view('usermodule::profile.notification');
     }
+             public function showWishList(){
+        return view('usermodule::profile.wishlist');
+    }
+            public function wishListRemove(){
+        return view('usermodule::profile.wishlist');
+    }
 }
