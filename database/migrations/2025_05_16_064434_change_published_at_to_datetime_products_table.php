@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->enum('notification_type',['promotion', 'order', 'update', 'special_promotion'])->default('promotion');
+        Schema::table('products', function (Blueprint $table) {
+            $table->dateTime('published_at')->nullable();
         });
     }
 
@@ -21,8 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            //
+        Schema::table('products', function (Blueprint $table) {
         });
     }
 };

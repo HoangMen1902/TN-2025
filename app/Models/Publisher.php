@@ -17,8 +17,9 @@ class Publisher extends Model
         'publishers_status',
     ];
 
-public function products()
-{
-    return $this->hasMany(Product::class);
-}
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

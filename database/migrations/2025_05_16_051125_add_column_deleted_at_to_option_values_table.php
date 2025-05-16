@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->enum('notification_type',['promotion', 'order', 'update', 'special_promotion'])->default('promotion');
+        Schema::table('option_values', function (Blueprint $table) {
+            $table->softDeletes();
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
+        Schema::table('option_values', function (Blueprint $table) {
             //
         });
     }

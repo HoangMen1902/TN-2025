@@ -89,7 +89,6 @@ class UserResource extends Resource
                 ->label('Kích hoạt')
                 ->default(true)
                 ->columnSpan(2),
-
         ]);
     }
 

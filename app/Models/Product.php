@@ -22,14 +22,15 @@ class Product extends Model
       
     ];
 
+    
     public function publisher()
     {
         return $this->belongsTo(Publisher::class, 'publisher_id');
     }
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsToMany(Category::class, 'product_categories');
     }
 
     public function productSkus()

@@ -36,6 +36,10 @@ class Category extends Model
         return $query->where('categories_status', 'active');
     }
 
+    public function products() {
+        return $this->belongsToMany(Product::class, 'product_categories');
+    }
+
 
     public function isParent()
     {
