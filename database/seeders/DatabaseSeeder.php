@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Notification;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,5 +27,6 @@ class DatabaseSeeder extends Seeder
         \App\Models\RelatedTag::factory(10)->create();
         \App\Models\ProductTag::factory(20)->create();
         \App\Models\ProductCategory::factory(30)->create();
+        Notification::factory(40)->create();
     }
 }

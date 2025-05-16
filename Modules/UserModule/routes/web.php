@@ -8,6 +8,7 @@ use Modules\UserModule\App\Http\Livewire\Login;
 use Modules\UserModule\App\Http\Livewire\Register;
 use Modules\UserModule\App\Http\Livewire\ForgotPassword;
 use Modules\UserModule\Http\Controllers\AuthController;
+use Modules\UserModule\Http\Controllers\NotificationController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('usermodules', UserModuleController::class)->names('usermodule');
@@ -28,7 +29,7 @@ Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->
 Route::get('/ho-so',[AuthController::class, 'showProfileInfomation'])->name('infomation');
 Route::get('/dia-chi',[AuthController::class, 'showAddressInfomation'])->name('address');
 Route::get('/don-hang',[AuthController::class, 'showOrderInfomation'])->name('order');
-Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
+Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notification.index');
 Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
 Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->name('wishlist.remove');
 Route::get('/ma-giam-gia',[AuthController::class, 'voucherList'])->name('voucherlist');

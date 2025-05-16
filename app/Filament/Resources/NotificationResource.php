@@ -3,18 +3,20 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\NotificationResource\Pages;
-use App\Filament\Resources\NotificationResource\RelationManagers;
 use App\Filament\Resources\NotificationResource\RelationManagers\UserRelationManager;
 use App\Models\Notification;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -34,19 +36,42 @@ class NotificationResource extends Resource
     protected static ?string $navigationLabel = 'Thông báo';
     protected static ?string $modelLabel = 'Thông báo';
     protected static ?string $pluralModelLabel = 'Các Thông báo';
-    
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập tiêu đề thông báo'])->label('Tiêu đề')->columnSpanFull(),
-                RichEditor::make('content')->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập nội dung thông báo'])->label('Nội dung thông báo')->columnSpanFull(),
-                Select::make('notification_type')->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn loại thông báo'])->label('Loại thông báo')->options([
-                    'promotion' => 'Khuyến mại',
-                    'order' => 'Đơn hàng',
-                    'update' => 'Cập nhật'
-                ])
+                TextInput::make('name')
+                    ->rules(['required'])
+                    ->validationMessages(['required' => 'Vui lòng nhập tiêu đề thông báo'])
+                    ->label('Tiêu đề')
+                    ->columnSpanFull(),
+
+                Textarea::make('content')
+                    ->rules(['required'])
+                    ->validationMessages(['required' => 'Vui lòng nhập nội dung thông báo'])
+                    ->label('Nội dung thông báo')
+                    ->columnSpanFull()
+                    ->rows(4),
+
+                Select::make('notification_type')
+                    ->rules(['required'])
+                    ->validationMessages(['required' => 'Vui lòng chọn loại thông báo'])
+                    ->label('Loại thông báo')
+                    ->options([
+                        'Khuyến mãi' => 'Khuyến mãi',
+                        'Đơn hàng' => 'Đơn hàng',
+                        'Tài khoản' => 'Tài khoản',
+                        'Ưu đãi độc quyền' => 'Ưu đãi độc quyền',
+                    ])
+                    ->columnSpanFull(),
+
+                FileUpload::make('thumbnail')
+                    ->label('Ảnh đại diện')
+                    ->image()
+                    ->directory('thumbnails')
+                    ->nullable()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -54,23 +79,29 @@ class NotificationResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
+                ImageColumn::make('thumbnail')
+                    ->label('Ảnh')
+                    ->circular()
+                    ->height(40)
+                    ->width(40),
+
+                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('name')->label('Tiêu đề')->limit(30),
                 TextColumn::make('content')
                     ->label('Nội dung')
                     ->limit(50)
                     ->html(),
-                    TextColumn::make('user_notifications_count')->label('Số người dùng nhận được'),
-                TextColumn::make('notification_type')->label('Loại thông báo')
+                TextColumn::make('user_notifications_count')->label('Số người dùng nhận được'),
+                TextColumn::make('notification_type')->label('Loại thông báo')->sortable(),
             ])
             ->filters([
+
             ])
             ->actions([
                 EditAction::make(),
                 ViewAction::make(),
                 DeleteAction::make(),
                 RestoreAction::make(),
-
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -78,11 +109,10 @@ class NotificationResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]));
     }
-
 
     public static function getEloquentQuery(): Builder
     {
@@ -93,7 +123,7 @@ class NotificationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            UserRelationManager::class
+            UserRelationManager::class,
         ];
     }
 

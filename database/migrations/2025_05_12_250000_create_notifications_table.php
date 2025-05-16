@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id(); 
             $table->string('name'); 
             $table->text('content'); 
+            $table->text('thumbnail')->nullable(); 
+            $table->enum('notifications',['Đơn hàng, Tài khoản, Khuyến mãi, Ưu đãi độc quyền']); 
             $table->timestamps();
             $table->softDeletes();
         });

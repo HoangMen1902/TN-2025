@@ -15,8 +15,13 @@ class Notification extends Model
     protected $fillable = [
         'name',
         'content',
+        'thumbnail',
+        'notification_type',
     ];
 
+    protected $casts = [
+        'deleted_at' => 'datetime',
+    ];
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_notifications');
