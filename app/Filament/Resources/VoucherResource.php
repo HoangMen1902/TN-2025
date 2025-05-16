@@ -32,17 +32,31 @@ class VoucherResource extends Resource
         return $form->schema([
             TextInput::make('voucher_name')
                 ->label('Tên voucher')
-                ->required()
-                ->maxLength(length: 255),
+                ->rules(['required', 'max:255'])
+                ->validationMessages([
+                    'required' => 'Vui lòng nhập tên voucher',
+                    'max' => 'Tên voucher không được vượt quá 255 ký tự',
+                ]),
 
             TextInput::make('requirement_price')
                 ->label('Giá trị đơn hàng tối thiểu')
                 ->numeric()
-                ->required(),
+                ->rules(['required', 'numeric', 'min:0'])
+                ->validationMessages([
+                    'required' => 'Vui lòng nhập giá trị tối thiểu',
+                    'numeric' => 'Giá trị tối thiểu phải là số',
+                    'min' => 'Giá trị tối thiểu không được âm',
+                ]),
+
             TextInput::make('reduced_amount')
                 ->label('Số tiền giảm')
                 ->numeric()
-                ->required(),
+                ->rules(['required', 'numeric', 'min:0'])
+                ->validationMessages([
+                    'required' => 'Vui lòng nhập số tiền giảm',
+                    'numeric' => 'Số tiền giảm phải là số',
+                    'min' => 'Số tiền giảm không được âm',
+                ]),
 
             Select::make('voucher_type')
                 ->label('Loại voucher')
@@ -50,11 +64,19 @@ class VoucherResource extends Resource
                     'percent' => 'Phần trăm',
                     'amount' => 'Cố định',
                 ])
-                ->required(),
+                ->rules(['required'])
+                ->validationMessages([
+                    'required' => 'Vui lòng chọn loại voucher',
+                ]),
 
             DateTimePicker::make('expired_at')
                 ->label('Ngày hết hạn')
-                ->required(),
+                ->rules(['required', 'date', 'after:now'])
+                ->validationMessages([
+                    'required' => 'Vui lòng chọn ngày hết hạn',
+                    'date' => 'Ngày hết hạn không hợp lệ',
+                    'after' => 'Ngày hết hạn phải sau thời điểm hiện tại',
+                ]),
 
             Select::make('voucher_status')
                 ->label('Trạng thái')
@@ -62,7 +84,10 @@ class VoucherResource extends Resource
                     'active' => 'Hoạt động',
                     'inactive' => 'Không hoạt động',
                 ])
-                ->required(),
+                ->rules(['required'])
+                ->validationMessages([
+                    'required' => 'Vui lòng chọn trạng thái voucher',
+                ]),
         ]);
     }
 
@@ -78,7 +103,7 @@ class VoucherResource extends Resource
                     return number_format($state, 0, ',', ',') . ' VNĐ';
                 }),
 
-                TextColumn::make('voucher_type')
+            TextColumn::make('voucher_type')
                 ->label('Loại')
                 ->formatStateUsing(fn($state) => match ($state) {
                     'percent' => 'Phần trăm',
@@ -86,8 +111,8 @@ class VoucherResource extends Resource
                     default => ucfirst($state),
                 })
                 ->sortable(),
-            
-            
+
+
 
             TextColumn::make('expired_at')->label('Hết hạn')->dateTime(),
             TextColumn::make('voucher_status')
