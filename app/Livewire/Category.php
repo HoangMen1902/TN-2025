@@ -14,6 +14,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Group;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\ToggleColumn;
 
 class Category extends Component implements HasForms, HasTable
 {
@@ -26,12 +30,24 @@ class Category extends Component implements HasForms, HasTable
     {
         return $table
             ->query(CategoryModel::with('parent'))
+            ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('parent.name')
                     ->label('Danh mục cha')
                     ->sortable()
                     ->formatStateUsing(fn($state, $record) => $record->parent?->name ?? '—'),
                 TextColumn::make('name')->label('Tên danh mục'),
+                ToggleColumn::make('category_status')
+                    ->label('Trạng thái')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->onIcon('heroicon-s-check-circle')
+                    ->offIcon('heroicon-s-x-circle')
+                    ->updateStateUsing(function ($record, $state) {
+                        $record->update(['category_status' => $state ? 'active' : 'inactive']);
+                    })
+                    ->tooltip(fn($record) => $record->category_status === 'active' ? 'Nhấn để hủy kích hoạt' : 'Nhấn để kích hoạt') // Optional: tooltip
+                    ->sortable(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -43,7 +59,36 @@ class Category extends Component implements HasForms, HasTable
                     ->using(function (array $data) {
                         return $this->createCategoryWithChildren($data);
                     }),
+            ])
+            ->actions([
+                EditAction::make()
+                    ->label('Sửa')
+                    ->form([
+                        TextInput::make('name')->label('Tên danh mục')->required(),
+                        Select::make('parent_id')
+                            ->label('Danh mục cha')
+                            ->options(CategoryModel::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->default(null),
+                    ])->modalHeading('Chỉnh sửa danh mục')
+                    ->modalSubmitActionLabel('Xác nhận')
+                    ->modalCancelActionLabel('Hủy')
 
+                    ->using(function ($record, array $data) {
+                        $record->update([
+                            'name' => $data['name'],
+                        ]);
+                    }),
+
+                DeleteAction::make()
+                    ->label('Xóa')
+                    ->requiresConfirmation()
+                    ->modalHeading('Xóa danh mục')
+                    ->modalSubheading('Bạn có chắc chắn muốn xóa danh mục này?')
+                    ->modalSubmitActionLabel('Xác nhận')
+                    ->modalCancelActionLabel('Hủy'),
             ]);
     }
 
