@@ -26,3 +26,4 @@ Route::get('/don-hang',[AuthController::class, 'showOrderInfomation'])->name('or
 Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
 Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->name('wishlist.remove');
+Route::get('/ma-giam-gia',[AuthController::class, 'voucherList'])->name('voucherlist');
