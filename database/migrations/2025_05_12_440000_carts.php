@@ -21,6 +21,9 @@ return new class extends Migration
             $table->enum('item_type', ['combo', 'sku']);
             $table->foreign('session_id')->references('id')->on('sessions')->onDelete('cascade');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('sku_id')->references('id')->on('product_skus')->onDelete('set null');
+            $table->foreign('combo_id')->references('id')->on('combo_skus')->onDelete('set null');
         });
     }
 

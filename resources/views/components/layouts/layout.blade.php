@@ -71,7 +71,7 @@
                         </a>
                     </div>
                     <div class="text-center">
-                        <a href="" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                        <a href="{{route('cart.index')}}" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6 mb-1">
                                 <path stroke-linecap="round" stroke-linejoin="round"
