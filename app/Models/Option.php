@@ -3,22 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Option extends Model
 {
-    use HasFactory;
-
     protected $table = 'options';
+    protected $fillable = ['name', 'option_status'];
 
-    protected $fillable = [
-        'name',
-        'options_status',
-    ];
+    public function skuValues() {
+        return $this->hasMany(SkuValue::class);
+    }
 
- 
-    public function values()
-    {
+    public function optionValues() {
         return $this->hasMany(OptionValue::class);
     }
+
+    
 }
