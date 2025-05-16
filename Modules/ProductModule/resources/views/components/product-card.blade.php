@@ -1,7 +1,7 @@
 <div class="">
     <div class="product__viewport">
         <!-- Gán class product-grid để áp dụng lưới 5 cột -->
-        <div class=" grid grid-cols-3 gap-3 gap-[3px]">
+        <div class=" grid grid-cols-3 gap-3 gap-[10px]">
 
             <?php for ($i = 1; $i <= 10; $i++): ?>
 
