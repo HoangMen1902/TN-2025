@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 use Modules\UserModule\Http\Controllers\UserModuleController;
@@ -11,10 +13,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('usermodules', UserModuleController::class)->names('usermodule');
 });
 
-Route::get('/dang-nhap', [AuthController::class, 'showLoginForm'])->name('show.login');
-Route::post('/dang-nhap', [AuthController::class, 'login'])->name('login');
-Route::get('/dang-ky',[AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/dang-ky', [AuthController::class, 'register'])->name('register');
+Route::middleware(RedirectIfAuthenticatedCustom::class)->group(function () {
+    Route::get('/dang-nhap', [AuthController::class, 'showLoginForm'])->name('show.login');
+    Route::post('/dang-nhap', [AuthController::class, 'login'])->name('login');
+    Route::get('/dang-ky', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/dang-ky', [AuthController::class, 'register'])->name('register');
+});
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');

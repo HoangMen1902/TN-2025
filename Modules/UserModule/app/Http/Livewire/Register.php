@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\UserModule\App\Http\Livewire;
 
 use Livewire\Component;
@@ -25,6 +26,12 @@ class Register extends Component
         'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
         'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
     ];
+    public function mount()
+    {
+        if (Auth::check()) {
+            return redirect()->intended('/');
+        }
+    }
 
     public function register()
     {
@@ -49,6 +56,6 @@ class Register extends Component
 
     public function render()
     {
-       return view('usermodule::auth.register');
+        return view('usermodule::auth.register');
     }
 }
