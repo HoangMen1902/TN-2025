@@ -7,4 +7,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('detailmodules', DetailModuleController::class)->names('detailmodule');
 });
 
-Route::get('/chi-tiet', [DetailModuleController::class, 'index']);
+Route::get('/chi-tiet/{id}', [DetailModuleController::class, 'index']);

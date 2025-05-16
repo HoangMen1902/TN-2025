@@ -14,36 +14,32 @@
             <tr>
                 <th class="text-sm font-light">Tác giả</th>
                 <td class="text-sm">
-                    Đào Ẩn Tích</td>
+                    {{$data->author}}</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">NXB</th>
-                <td class="text-sm">NXB Hồng Đức</td>
+                <td class="text-sm">{{$data->publisher->publisher_name}}</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">Năm XB</th>
-                <td class="text-sm">2021</td>
+                <td class="text-sm">{{$data->product_released_year}}</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">Trọng lượng (gr)</th>
-                <td class="text-sm">1455</td>
+                <td class="text-sm">{{$data->weight}}</td>
             </tr>
 
             <tr>
                 <th class="text-sm font-light">Kích Thước Bao Bì</th>
-                <td class="text-sm">27 x 19 x 4.3 cm</td>
+                <td class="text-sm">{{$data->width}} x {{$data->height}} cm</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">Số trang</th>
-                <td class="text-sm">591</td>
+                <td class="text-sm">{{$data->pages}}</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">Hình thức</th>
-                <td class="text-sm">Bìa Cứng</td>
-            </tr>
-            <tr>
-                <th class="text-sm font-light">Sản phẩm hiển thị trong</th>
-                <td class="text-sm">Cty Văn Hóa Minh Lâm</td>
+                <td class="text-sm">{{$data->book_cover}}</td>
             </tr>
         </tbody>
 

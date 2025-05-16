@@ -3,6 +3,7 @@
 namespace Modules\DetailModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,9 +12,13 @@ class DetailModuleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id)
     {
-        return view('detailmodule::index');
+        $data = Product::where('id', $id)
+        ->where('product_status', 'active')
+        ->where('deleted_at', '=', null)
+        ->first();
+        return view('detailmodule::index', ['data' => $data, 'id' => $id]);
     }
 
     /**

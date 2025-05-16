@@ -4,7 +4,7 @@ import ProgressBar from 'progressbar.js';
 const lightbox = new PhotoSwipeLightbox({
     gallery: '.gallery',
     children: 'a',
-    pswpModule: () => import('photoswipe')
+    pswpModule: () => import('photoswipe'),
 });
 lightbox.init();
 

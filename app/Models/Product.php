@@ -13,13 +13,20 @@ class Product extends Model
     protected $table = 'products';
 
     protected $fillable = [
+        'product_released_year',
+        'author',
+        'book_cover',
+        'weight',
+        'width',
+        'height',
+        'pages',
         'name',
         'description',
         'short_description',
         'products_status',
         'thumbnail',
         'publisher_id',
-      
+        'published_at'
     ];
 
     

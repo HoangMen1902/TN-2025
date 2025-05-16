@@ -8,7 +8,9 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/scss/app.scss', 'resources/js/app.js'],
+            input: ['resources/scss/app.scss', 'resources/js/app.js',
+            'Modules/DetailModule/Resources/assets/js/app.js',
+            ],
             refresh: true,
         }),
         tailwindcss(),

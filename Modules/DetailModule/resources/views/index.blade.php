@@ -1,17 +1,20 @@
 <x-layouts.layout>
+    <x-slot name="styles">
+        @vite('Modules/DetailModule/Resources/assets/js/app.js')
+    </x-slot>
     <div class="m-auto lg:py-lg-2">
         <div class="flex justify-center">
             <div>
                 <div class="detail-wrapper flex flex-col sm:flex-col md:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
-                    <x-detailmodule::thumbnail></x-detailmodule::thumbnail>
-                        <div class="flex flex-col detail-information-wrapper">
-                            <livewire:detailmodule::components.general-information>
-                            </livewire:detailmodule::components.general-information>
-                            <livewire:detailmodule::components.shipment-calculate>
-                            </livewire:detailmodule::components.shipment-calculate>
-                            <x-detailmodule::detail-information></x-detailmodule::detail-information>
-                            <x-detailmodule::description></x-detailmodule::description>
-                        </div>
+                    <x-detailmodule::thumbnail :data="$data"></x-detailmodule::thumbnail>
+                    <div class="flex flex-col detail-information-wrapper">
+                        <livewire:detailmodule::components.general-information :id="$id">
+                        </livewire:detailmodule::components.general-information>
+                        <livewire:detailmodule::components.shipment-calculate>
+                        </livewire:detailmodule::components.shipment-calculate>
+                        <x-detailmodule::detail-information :data="$data"></x-detailmodule::detail-information>
+                        <x-detailmodule::description :data="$data"></x-detailmodule::description>
+                    </div>
                 </div>
                 <div>
                     <livewire:detailmodule::components.comment>
@@ -106,5 +109,4 @@
         </script>
 
     </x-slot>
-
 </x-layouts.layout>
