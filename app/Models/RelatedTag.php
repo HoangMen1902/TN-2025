@@ -14,9 +14,17 @@ class RelatedTag extends Model
 
     protected $fillable = [
         'tag_name',
-        'related_tags_status',
+        'related_tag_status',
     ];
- 
 
-   
+  
+    public function productTags()
+    {
+        return $this->hasMany(ProductTag::class, 'tag_id');
+    }
+
+    public function products()
+    {
+        return $this->hasManyThrough(Product::class, ProductTag::class, 'tag_id', 'id', 'id', 'product_id');
+    }
 }

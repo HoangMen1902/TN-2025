@@ -23,7 +23,7 @@ class Product extends Model
         'name',
         'description',
         'short_description',
-        'products_status',
+        'product_status',
         'thumbnail',
         'publisher_id',
         'published_at'
@@ -37,8 +37,9 @@ class Product extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'product_categories');
+        return $this->belongsToMany(Category::class, 'product_categories', 'product_id', 'category_id');
     }
+
 
     public function productSkus()
     {

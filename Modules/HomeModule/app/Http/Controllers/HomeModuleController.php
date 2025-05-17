@@ -4,16 +4,52 @@ namespace Modules\HomeModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Product;
+use App\Models\RelatedTag;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Wishlist;
+use App\Models\Category;
 
 class HomeModuleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+
+
     public function index()
     {
-        return view('homemodule::index');
+        $products = Product::with(['categories', 'publisher', 'productSkus'])
+            ->where('product_status', 'active')
+            ->latest()
+            ->take(20)
+            ->get();
+
+        $relatedTags = RelatedTag::where('related_tag_status', 'active')
+            ->with(['products' => function ($query) {
+                $query->with('productSkus')->where('product_status', 'active');
+            }])
+            ->get();
+
+        $wishlistProducts = collect();
+
+        if (Auth::check()) {
+            $wishlistProducts = Wishlist::with('product.productSkus', 'product.categories')
+                ->where('user_id', Auth::id())
+                ->get()
+                ->pluck('product')
+                ->filter();
+        }
+        $childCategories = Category::active()
+            ->whereNotNull('parent_id')
+            ->get();
+
+        return view('homemodule::index', compact('products', 'relatedTags', 'wishlistProducts', 'childCategories'));
     }
+
+
+
 
     /**
      * Show the form for creating a new resource.

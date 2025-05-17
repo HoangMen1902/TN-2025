@@ -15,7 +15,7 @@ class Category extends Model
 
     protected $fillable = [
         'name',
-        'categories_status',
+        'category_status',
         'parent_id',
     ];
 
@@ -33,7 +33,7 @@ class Category extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('categories_status', 'active');
+        return $query->where('category_status', 'active');
     }
 
     public function products() {
