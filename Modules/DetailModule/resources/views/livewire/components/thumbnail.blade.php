@@ -1,7 +1,6 @@
 <div class="thumbnail-holder flex flex-col justify-items-center items-center">
     <div class="thumbnail hidden lg:block">
-        <img src="{{ asset('storage/' . $data->thumbnail) }}" alt="" class="thumbnail-img">
-
+        <img src="{{ asset('storage/' . $thumbnail) }}" alt="" class="thumbnail-img">
     </div>
     <div class="thumbnail  gallery block lg:hidden thumbnail-responsive">
 
@@ -37,16 +36,11 @@
     </div>
     <div class="gallery hidden lg:flex w-full mt-4">
         @php
-            $count = 0;
+            $count = 1;
             $fifthImg;
         @endphp
-        @foreach ($data->productSkus as $sku)
-            @foreach ($sku->images as $index => $image)
-                <a href="{{ asset('storage/' . $image) }}" target="_blank" data-pswp-width="450" data-pswp-height="450"
-                    class="gallery-item-holder w-[84px] h-[84px]">
-                    <img src="{{ asset('storage/' . $image) }}" alt=""
-                        class="gallery-item box-border w-full h-full object-cover">
-                </a>
+            @foreach ($currentSku->images as $index => $image)
+
                 @if($index >= 5)
                     @php
                         $count++
@@ -60,16 +54,21 @@
                     <a href="{{ asset('storage/' . $image) }}" data-pswp-width="450" data-pswp-height="450" target="_blank"
                         class="gallery-item-holder w-[84px] h-[84px] hidden">
                         <img src="{{ asset('storage/' . $image) }}" alt=""
-                            class="gallery-item box-border w-full h-full object-cover">
+                            class="gallery-item box-border w-full h-full object-contain">
                     </a>
+                @else
+                <a href="{{ asset('storage/' . $image) }}" target="_blank" data-pswp-width="450" data-pswp-height="450"
+                    class="gallery-item-holder w-[84px] h-[84px]">
+                    <img src="{{ asset('storage/' . $image) }}" alt=""
+                        class="gallery-item box-border w-full h-full object-cover">
+                </a>
                 @endif
             @endforeach
-        @endforeach
         @if (isset($fifthImg))
             <div class="last-image relative z-0">
                 <a href="{{ asset('storage/' . $fifthImg) }}" data-pswp-width="450" data-pswp-height="450" target="_blank"
-                    class="gallery-item-holder ">
-                    <img src="{{ asset('storage/' . $fifthImg) }}" alt="" class="gallery-item box-border blur-[1px]">
+                    class="gallery-item-holder w-[84px] h-[84px]">
+                    <img src="{{ asset('storage/' . $fifthImg) }}" alt="" class="gallery-item box-border blur-[1px] w-full h-full object-contain">
                 </a>
                 <span
                     class="absolute inset-0 flex items-center justify-center font-bold text-xl text-white bg-black/40 z-10 pointer-events-none image-count">

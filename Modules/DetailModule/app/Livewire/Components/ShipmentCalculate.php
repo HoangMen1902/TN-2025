@@ -25,6 +25,9 @@ class ShipmentCalculate extends Component
     public $districts = [];
     public $wards = [];
     public $estimatedTime;
+    public $data;
+
+    public $currentSku;
     protected $rules = [
         'province_id' => 'required',
         'district_id' => 'required',
@@ -71,11 +74,21 @@ class ShipmentCalculate extends Component
             $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
             $this->estimatedTime = ucwords($date->translatedFormat('l - d/m'));
 
+            $this->currentSku = $this->data->productSkus->first();
+
         } catch (\Throwable $th) {
             Log::error('Loi khi fetch du lieu: ' . $th->getMessage());
         }
     }
 
+    public function selectSku($skuId) {
+        $currentSku = $this->data->productSkus->firstWhere('id', $skuId);
+        if($currentSku) {
+            $this->currentSku = $currentSku;
+            $this->dispatch('updatedSku', skuId: $skuId);
+            
+        }
+    }
     function updateTime(GhnService $ghn)
     {
         $this->validate();

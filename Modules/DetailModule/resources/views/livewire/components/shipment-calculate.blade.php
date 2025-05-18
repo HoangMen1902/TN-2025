@@ -87,15 +87,22 @@
                 </div>
                 <div class="flex flex-col gap-4 justify-between">
                     <div class="flex space-x-2">
-                        <a href="javascript:void(0)" class="flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm">
-                            Bìa Mềm
-                            <svg class="ml-2 w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 111.414-1.414L8.414 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        <a href="javascript:void(0)" class="px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100">
-                            Bìa Cứng
-                        </a>
+                        @foreach ($data->productSkus as $sku)
+
+                            <a href="javascript:void(0)" wire:click="selectSku({{$sku->id}})"
+                                class="{{ $currentSku->id === $sku->id ? "select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm"  : "select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100"}}">
+                                @foreach ($sku->skuValues as $value)
+                                    {{$value->option->name}} {{$value->value->value_name}}
+                                @endforeach
+                                @if ($currentSku->id === $sku->id)
+                                <svg class="ml-2 w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 111.414-1.414L8.414 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                @endif
+                            </a>
+                        @endforeach
                     </div>
                     <div class="quantity-container w-min">
                         <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>

@@ -6,11 +6,12 @@
         <div class="flex justify-center">
             <div>
                 <div class="detail-wrapper flex flex-col sm:flex-col md:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
-                    <x-detailmodule::thumbnail :data="$data"></x-detailmodule::thumbnail>
+                    <livewire:detailmodule::components.thumbnail :data="$data">
+                    </livewire:detailmodule::components.thumbnail>
                     <div class="flex flex-col detail-information-wrapper">
-                        <livewire:detailmodule::components.general-information :id="$id">
+                        <livewire:detailmodule::components.general-information :data="$data">
                         </livewire:detailmodule::components.general-information>
-                        <livewire:detailmodule::components.shipment-calculate>
+                        <livewire:detailmodule::components.shipment-calculate :data="$data">
                         </livewire:detailmodule::components.shipment-calculate>
                         <x-detailmodule::detail-information :data="$data"></x-detailmodule::detail-information>
                         <x-detailmodule::description :data="$data"></x-detailmodule::description>
@@ -31,7 +32,6 @@
 
 
     <x-slot name="scripts">
-
         <script>
             document.addEventListener('livewire:load', function () {
                 Livewire.on('showModal', () => {

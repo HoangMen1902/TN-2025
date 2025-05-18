@@ -85,7 +85,7 @@ class ProductResource extends Resource
                     ->required()
                     ->image()
                     ->multiple()
-                    ->maxFiles(5)
+                    ->maxFiles(10)
                     ->columnSpanFull()
                     ->validationMessages([
                         'required' => 'Vui lòng tải lên ít nhất 1 ảnh sản phẩm',
