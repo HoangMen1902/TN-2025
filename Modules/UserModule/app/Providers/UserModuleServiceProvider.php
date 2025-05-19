@@ -4,6 +4,7 @@ namespace Modules\UserModule\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -29,6 +30,7 @@ class UserModuleServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
         Blade::componentNamespace('Modules\\UserModule\\Resources\\views\\components', 'usermodule');
         $this->loadViewsFrom(__DIR__.'/../../Resources/views', 'usermodule');
+        Livewire::component('component.export-order-pdf', \Modules\UserModule\app\Http\Livewire\Component\ExportOrderPdf::class);
     }
 
     /**
