@@ -389,30 +389,40 @@
                                 </div>
                             </div>
                         </div> --}}
+                        @if (session('success'))
+                            <div class="bg-green-100 text-green-800 p-2 rounded mb-2">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         @foreach ($products as $product)
                             @php
                                 $firstSku = $product->productSkus->first();
                                 $price = $firstSku ? $firstSku->price : 0;
                             @endphp
                             <div class="product__slide mt-4 relative border border-gray-300 group rounded-lg">
-                                <div
-                                    class="absolute bottom-40 right-4 z-10 
-                                                                                    opacity-0 translate-y-4 
-                                                                                    group-hover:opacity-100 group-hover:translate-y-0 
-                                                                                    transition-all duration-500 ease-in-out">
-                                    <form action="{{ route('cart.add') }}" method="POST">
-                                        @csrf
-                                        <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button
-                                            class="bg-blue-500 text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                    border border-transparent transition duration-300 ease-in-out
-                                                                                    hover:bg-transparent hover:text-blue-600
-                                                                                    hover:border-blue-600 hover:shadow-lg hover:scale-105">
-                                            Mua ngay
-                                        </button>
-                                    </form>
-                                </div>
+
+                                @if ($firstSku)
+                                    <div
+                                        class="absolute bottom-40 right-4 z-10 
+                                                                                            opacity-0 translate-y-4 
+                                                                                            group-hover:opacity-100 group-hover:translate-y-0 
+                                                                                            transition-all duration-500 ease-in-out">
+                                        <form action="{{ route('cart.add') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="sku_id" value="{{ $firstSku->id }}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button
+                                                class="bg-blue-500 text-white px-4 py-2 rounded-3xl shadow-md
+                                                                                                        border border-transparent transition duration-300 ease-in-out
+                                                                                                        hover:bg-transparent hover:text-blue-600
+                                                                                                        hover:border-blue-600 hover:shadow-lg hover:scale-105">
+                                                Mua ngay
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endif
+
 
                                 <div style="cursor:pointer"
                                     onclick="window.location.href='/product-detail/{{ $product->id }}';"
@@ -443,7 +453,6 @@
                                         </span>
                                     @endforeach
 
-
                                     <div class="product__slide__number__imgs">
                                         <p class="product__slide__number__imgs__price">{{ number_format($price) }}đ</p>
                                         <span class="product__slide__number__imgs__price-sale ml-1 opacity-50">
@@ -453,6 +462,7 @@
                                 </div>
                             </div>
                         @endforeach
+
 
 
                     </div>
@@ -491,8 +501,8 @@
                     <a href="" class="h-[100px]">
 
                         <img src="https://cdn1.fahasa.com/media/wysiwyg/HUYEN-1/3900000245517.png" class="rounded"
-                            alt="Banner 1">  
-                            {{-- nào có hình trong database thì đổi lại đỡ xấu --}}
+                            alt="Banner 1">
+                        {{-- nào có hình trong database thì đổi lại đỡ xấu --}}
                         {{-- <img src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
                             class="rounded h-full w-auto object-contain" alt="{{ $category->name }}"> --}}
                     </a>
@@ -529,22 +539,29 @@
                             @foreach($tag->products as $product)
                                 <div
                                     class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
-
                                     <!-- Nút mua ngay -->
-                                    <div
+                                            
+
+                                           
+                                      <div
                                         class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 
-                                                                                                                                    group-hover:opacity-100 group-hover:translate-y-0 
-                                                                                                                                    transition-all duration-500 ease-in-out">
-                                        <form action="/add-to-cart" method="post">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $product->id }}">
-                                            <button
-                                                class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                                                                        border border-transparent transition duration-300 ease-in-out
-                                                                                                                                        hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
-                                                                                                                                        hover:scale-105 hover:bg-white">
-                                                Mua ngay
-                                            </button>
+                                                group-hover:opacity-100 group-hover:translate-y-0 
+                                                transition-all duration-500 ease-in-out">
+                                                    @php
+                                                    $firstSku = $product->productSkus->first();
+                                                @endphp
+
+                                        <form action="{{route('cart.add')}}" method="post">
+                                        @csrf
+                                        <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button
+                                            class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
+                                                                                                                                                        border border-transparent transition duration-300 ease-in-out
+                                                                                                                                                        hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
+                                                                                                                                                        hover:scale-105 hover:bg-white">
+                                            Mua ngay
+                                        </button>
                                         </form>
                                     </div>
 

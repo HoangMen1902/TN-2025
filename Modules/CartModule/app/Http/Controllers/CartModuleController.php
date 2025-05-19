@@ -22,6 +22,10 @@ class CartModuleController extends Controller
             'quantity' => 'required|integer|min:1',
         ]);
 
+        if ($request->sku_id && $request->combo_id) {
+            return redirect()->back()->withErrors(['error' => 'Chỉ được chọn SKU hoặc combo, không cả hai!']);
+        }
+
         if (!$request->sku_id && !$request->combo_id) {
             return redirect()->back()->withErrors(['error' => 'Phải chọn SKU hoặc combo!']);
         }
@@ -29,7 +33,7 @@ class CartModuleController extends Controller
         $sessionId = session()->getId();
         $userId = Auth::id();
 
-        $itemType = $request->sku_id ? 'sku' : 'combo';
+        $itemType = $request->combo_id ? 'combo' : 'sku';
         $itemIdField = $itemType === 'sku' ? 'sku_id' : 'combo_id';
         $itemId = $request->$itemIdField;
 
@@ -54,12 +58,12 @@ class CartModuleController extends Controller
         }
 
         if ($request->wantsJson()) {
-            return response()->json(['message' => 'Đã thêm vào giỏ hàng!']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Đã thêm vào giỏ hàng!',
+            ]);
         }
 
         return redirect()->back()->with('success', 'Đã thêm vào giỏ hàng!');
     }
-
-
-   
 }

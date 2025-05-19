@@ -22,13 +22,17 @@ class HomeModuleController extends Controller
     {
         $products = Product::with(['categories', 'publisher', 'productSkus'])
             ->where('product_status', 'active')
+            ->whereHas('productSkus')
             ->latest()
             ->take(20)
             ->get();
 
+
         $relatedTags = RelatedTag::where('related_tag_status', 'active')
             ->with(['products' => function ($query) {
-                $query->with('productSkus')->where('product_status', 'active');
+                $query->with('productSkus')
+                    ->where('product_status', 'active')
+                    ->whereHas('productSkus');
             }])
             ->get();
 
