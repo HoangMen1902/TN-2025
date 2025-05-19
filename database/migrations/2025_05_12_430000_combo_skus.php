@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('sku_id');
             $table->unsignedBigInteger('combo_id');
-            $table->integer('quantity');
             $table->foreign('sku_id')->references('id')->on('product_skus')->onDelete('cascade');
             $table->foreign('combo_id')->references('id')->on('product_combos')->onDelete('cascade');
 

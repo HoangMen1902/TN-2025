@@ -14,7 +14,6 @@ class ComboSku extends Model
     protected $fillable = [
         'sku_id',
         'combo_id',
-        'quantity',
     ];
  
     public function sku()
@@ -25,5 +24,5 @@ class ComboSku extends Model
     public function combo()
     {
         return $this->belongsTo(ProductCombo::class);
-    }
+    } 
 }

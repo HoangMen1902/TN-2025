@@ -21,5 +21,10 @@ class ProductCombo extends Model
     ];
 
     protected $dates = ['expired_at'];
-
+    
+    public function comboSkus()
+    {
+        return $this->hasMany(ComboSku::class, 'combo_id');
+    }
+    
 }
