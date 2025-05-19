@@ -20,12 +20,19 @@ class HomeModuleController extends Controller
 
     public function index()
     {
-        $products = Product::with(['categories', 'publisher', 'productSkus'])
-            ->where('product_status', 'active')
-            ->whereHas('productSkus')
-            ->latest()
-            ->take(20)
-            ->get();
+        $products = Product::with([
+            'publisher',
+            'productSkus',
+            'categories' => function ($query) {
+                $query->limit(3);
+            }
+        ])
+        ->where('product_status', 'active')
+        ->whereHas('productSkus')
+        ->latest()
+        ->take(20)
+        ->get();
+
 
 
         $relatedTags = RelatedTag::where('related_tag_status', 'active')
