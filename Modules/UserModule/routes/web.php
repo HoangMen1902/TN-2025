@@ -3,12 +3,16 @@
 use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
+
+use Modules\UserModule\App\Http\Controllers\WishlistController;
 use Modules\UserModule\Http\Controllers\UserModuleController;
 use Modules\UserModule\App\Http\Livewire\Login;
 use Modules\UserModule\App\Http\Livewire\Register;
 use Modules\UserModule\App\Http\Livewire\ForgotPassword;
 use Modules\UserModule\Http\Controllers\AuthController;
 use Modules\UserModule\Http\Controllers\NotificationController;
+
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('usermodules', UserModuleController::class)->names('usermodule');
@@ -32,4 +36,12 @@ Route::get('/don-hang',[AuthController::class, 'showOrderInfomation'])->name('or
 Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notification.index');
 Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
 Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->name('wishlist.remove');
+// Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
+// Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
 Route::get('/ma-giam-gia',[AuthController::class, 'voucherList'])->name('voucherlist');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+});

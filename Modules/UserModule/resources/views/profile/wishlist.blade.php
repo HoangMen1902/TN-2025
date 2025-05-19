@@ -10,120 +10,81 @@
                     <h1 class="text-lg md:text-2xl font-medium">Sản phẩm yêu thích</h1>
                 </div>
 
-                @php
-                    $tabs = [
-                        'all' => 'Tất cả',
-                    ];
-
-                    $products = [
-                        [
-                            'id' => 1,
-                            'category' => 'Tiểu thuyết',
-                            'name' => 'Nhật Ký Đặng Thùy Trâm (Tái Bản 2022)',
-                            'price' => '120.000 ₫',
-                            'image' => 'https://via.placeholder.com/150',
-                            'time' => '15/05/2025 - 09:00'
-                        ],
-                        [
-                            'id' => 2,
-                            'category' => 'Phát triển bản thân',
-                            'name' => 'Đắc Nhân Tâm',
-                            'price' => '90.000 ₫',
-                            'image' => 'https://via.placeholder.com/150',
-                            'time' => '14/05/2025 - 15:30'
-                        ],
-                        [
-                            'id' => 3,
-                            'category' => 'Lịch sử',
-                            'name' => 'Việt Nam Sử Lược',
-                            'price' => '150.000 ₫',
-                            'image' => 'https://via.placeholder.com/150',
-                            'time' => '13/05/2025 - 10:00'
-                        ],
-                        [
-                            'id' => 4,
-                            'category' => 'Tiểu thuyết',
-                            'name' => 'Người Đàn Ông Mang Tên Ove',
-                            'price' => '130.000 ₫',
-                            'image' => 'https://via.placeholder.com/150',
-                            'time' => '12/05/2025 - 11:20'
-                        ],
-                        [
-                            'id' => 5,
-                            'category' => 'Phát triển bản thân',
-                            'name' => 'Tư Duy Nhanh Và Chậm',
-                            'price' => '180.000 ₫',
-                            'image' => 'https://via.placeholder.com/150',
-                            'time' => '11/05/2025 - 17:45'
-                        ],
-                    ];
-                @endphp
-
                 <hr class="border-t border-gray-300 my-2 md:my-4 mx-4">
 
                 <div class="mb-4 border-b border-gray-200 relative">
                     <div class="flex overflow-x-auto scrollbar-hide" role="tablist">
                         <ul class="flex flex-nowrap whitespace-nowrap min-w-full">
-                            @foreach($tabs as $id => $label)
-                                <li class="mr-2" role="presentation">
-                                    <button
-                                        class="inline-block text-gray-500 p-4 border-b-2 border-transparent {{ $loop->first ? 'border-red-500 text-red-500' : 'hover:text-gray-600 hover:border-gray-300' }} rounded-t-lg"
-                                        id="{{ $id }}-tab" data-tabs-target="#{{ $id }}" type="button" role="tab"
-                                        aria-controls="{{ $id }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                                        {{ $label }}
-                                    </button>
-                                </li>
-                            @endforeach
+                            <li role="presentation">
+                                <button class="inline-block text-red-500 p-4 border-b-2 border-red-500 rounded-t-lg"
+                                    id="all-tab" type="button" role="tab" aria-controls="all" aria-selected="true">
+                                    Tất cả
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 </div>
 
                 <div id="notificationTabContent" class="p-4">
-                    @foreach($tabs as $id => $label)
-                        <div class="tab-content {{ !$loop->first ? 'hidden' : '' }}" id="{{ $id }}">
-                            <div class="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                                @foreach ($products as $product)
-                                    <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                                        <div class="flex items-center mb-3">
-                                            <h2 class="text-sm font-semibold text-gray-800 uppercase">
-                                                {{ $product['category'] }}
-                                            </h2>
-                                        </div>
-
-                                        <hr class="border-gray-200 mb-3">
-
-                                        <div class="flex items-start space-x-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="h-16 w-16 object-contain"
-                                                    src="{{ $product['image'] }}"
-                                                   >
+                    <div class="tab-content" id="all">
+                        @if (!isset($wishlists) || $wishlists->isEmpty())
+                            <p class="text-gray-500">Chưa có sản phẩm nào trong danh sách yêu thích.</p>
+                        @else
+                            <div
+                                class="space-y-4 max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                @foreach ($wishlists as $wishlist)
+                                    @if ($wishlist->product)
+                                        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                                            <div class="flex items-center mb-3">
+                                                <h2 class="text-sm font-semibold text-gray-800 uppercase">
+                                                    {{ $wishlist->product->categories->pluck('name')->join(', ') ?: 'Không có danh mục' }}
+                                                </h2>
                                             </div>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-bold text-gray-800 mb-1">
-                                                    {{ $product['name'] }}
-                                                </p>
-                                                <p class="text-sm font-medium text-gray-800 mb-1">
-                                                    Giá: {{ $product['price'] }}
-                                                </p>
-                                                <p class="text-xs text-gray-500">
-                                                    Thêm vào yêu thích: {{ $product['time'] }}
-                                                </p>
+
+                                            <hr class="border-gray-200 mb-3">
+
+                                            <div class="flex items-start space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <img class="h-16 w-16 object-contain"
+                                                        src="{{ $wishlist->product->image ?? 'https://via.placeholder.com/150' }}"
+                                                        alt="{{ $wishlist->product->name }}">
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-bold text-gray-800 mb-1">
+                                                        {{ $wishlist->product->name }}
+                                                    </p>
+                                                    <p class="text-sm font-medium text-gray-800 mb-1">
+                                                        Giá: {{ number_format($wishlist->product->price ?? 0, 0, ',', '.') }} ₫
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">
+                                                        Thêm vào yêu thích: {{ $wishlist->created_at->format('d/m/Y - H:i') }}
+                                                    </p>
+                                                </div>
+                                                <form action="{{ route('wishlist.destroy', $wishlist->id) }}" method="POST"
+                                                    class="flex items-center">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="product_id" value="{{ $wishlist->product_id }}">
+                                                    @if (Auth::check())
+                                                        <input type="hidden" name="wishlist_id" value="{{ $wishlist->id }}">
+                                                    @endif
+                                                    <button type="submit" class="text-red-500 hover:text-red-600 focus:outline-none"
+                                                        title="Xóa khỏi yêu thích">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                            xmlns="http://www.w3.org/2000/svg">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7v12m6-12v12M3 7h18" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
                                             </div>
-                                            <form action="{{ route('wishlist.remove') }}" method="POST" class="flex items-center">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $product['id'] }}">
-                                               <button type="submit" class="text-red-500 hover:text-red-600 focus:outline-none" title="Xóa khỏi yêu thích">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M9 7v12m6-12v12M3 7h18"/>
-                                                    </svg>
-                                                </button>
-                                            </form>
                                         </div>
-                                    </div>
+                                    @endif
                                 @endforeach
                             </div>
-                        </div>
-                    @endforeach
+                            {{ $wishlists->links() }}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,42 +94,13 @@
         .scrollbar-thin {
             scrollbar-width: thin;
         }
+
         .scrollbar-thumb-gray-300 {
             scrollbar-color: #d1d5db #f3f4f6;
         }
+
         .scrollbar-track-gray-100 {
             background: #f3f4f6;
         }
     </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabButtons = document.querySelectorAll('[data-tabs-target]');
-            const tabContents = document.querySelectorAll('#notificationTabContent > .tab-content');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetId = button.getAttribute('data-tabs-target').substring(1);
-
-                   
-                    tabContents.forEach(content => content.classList.add('hidden'));
-
-                   
-                    tabButtons.forEach(btn => {
-                        btn.classList.remove('border-red-500', 'text-red-500');
-                        btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
-                    });
-
-                   
-                    const targetContent = document.getElementById(targetId);
-                    if (targetContent) {
-                        targetContent.classList.remove('hidden');
-                    }
-
-                    button.classList.add('border-red-500', 'text-red-500');
-                    button.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
-                });
-            });
-        });
-    </script>
 </x-layouts.layout>
