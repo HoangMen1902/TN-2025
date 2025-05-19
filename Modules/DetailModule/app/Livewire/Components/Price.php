@@ -2,12 +2,12 @@
 
 namespace Modules\DetailModule\Livewire\Components;
 
-use App\Models\Product;
 use Livewire\Component;
-use Livewire\Attributes\On; 
+use Livewire\Attributes\On;
 
-class GeneralInformation extends Component
+class Price extends Component
 {
+
     public $data;
     public $sale_price;
     public $price;
@@ -27,8 +27,9 @@ class GeneralInformation extends Component
         $this->sale_percent = (1 - $this->sale_price/$this->price) * 100;
     }
 
+
     public function render()
     {
-        return view('detailmodule::livewire.components.general-information');
+        return view('detailmodule::livewire.components.price');
     }
 }

@@ -9,8 +9,8 @@
                     <livewire:detailmodule::components.thumbnail :data="$data">
                     </livewire:detailmodule::components.thumbnail>
                     <div class="flex flex-col detail-information-wrapper">
-                        <livewire:detailmodule::components.general-information :data="$data">
-                        </livewire:detailmodule::components.general-information>
+                        <x-detailmodule::general-information :data="$data"></x-detailmodule::general-information>
+
                         <livewire:detailmodule::components.shipment-calculate :data="$data">
                         </livewire:detailmodule::components.shipment-calculate>
                         <x-detailmodule::detail-information :data="$data"></x-detailmodule::detail-information>

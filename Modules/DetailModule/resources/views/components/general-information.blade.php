@@ -62,33 +62,6 @@
         <span class="text-sm font-thin">Đã bán</span>
         <span class="text-sm font-bold ml-0.5">100</span>
     </div>
-    <div class="flashsale flex items-center justify-between p-4 max-w-full">
-        <div class="flashsale-time m-[4px]">
-            <div class="flashsale-wrapper flex gap-[11px] px-5 py-1">
-                <img src="{{asset('storage/flashsale.png')}}" alt="flashsale" class="object-contain" class="max-w-full">
-                <div class="hour-box flashsale-time-box text-white">
-                    01
-                </div>
-                <div class="minute-box flashsale-time-box text-white">
-                    30
-                </div>
-                <div class="second-box flashsale-time-box text-white">
-                    05
-                </div>
-            </div>
-        </div>
-        <div class="flashsale-progress w-3/12">
-        </div>
-    </div>
-    <div class="price flex items-center pt-[8px]">
-        <div class="main-price text-[32px]" style="color: #C92127">
-            <span>{{number_format($sale_price, 0, ',', '.')}} đ</span>
-        </div>
-        <div class="old-price line-through text-sm mr-[8px] ml-[8px]" style="color: #888888">
-            {{number_format($price, 0, ',', '.')}} đ
-        </div>
-        <div class="discount-percent font-bold text-white flex items-center justify-center py-[4x] px-[2px]">
-            {{ '-' . round($sale_percent, 2) . '%' }}
-        </div>
-    </div>
+    <livewire:detailmodule::components.flashsale :data="$data"></livewire:detailmodule::components.flashsale>
+    <livewire:detailmodule::components.price :data="$data"></livewire:detailmodule::components.price>
 </div>
