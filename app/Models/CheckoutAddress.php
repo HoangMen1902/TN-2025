@@ -19,6 +19,8 @@ class CheckoutAddress extends Model
         'district_id',
         'ward_id',
         'phone',
+        'address_type',
+        'address_default'
     ];
 
  

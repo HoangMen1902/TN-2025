@@ -16,6 +16,7 @@
                 $table->string('name');
                 $table->string('email')->unique();
                 $table->string('phone')->nullable();
+                $table->string('gender')->nullable();
                 $table->string('password', 60);
                 $table->date('birthday')->nullable();
                 $table->text('avatar')->nullable();
