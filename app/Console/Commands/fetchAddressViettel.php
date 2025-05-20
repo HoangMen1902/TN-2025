@@ -80,5 +80,7 @@ class fetchAddressViettel extends Command
                 $this->warn('Failed: ' . $ward['WARDS_NAME']);
             }
         }
+        $output = shell_exec('py app/Tools/AddressConstraint/database.py');
+        echo $output;
     }
 }
