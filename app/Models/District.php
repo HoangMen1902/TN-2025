@@ -13,6 +13,7 @@ class District extends Model
 
     protected $fillable = [
         'name',
+        'district_code',
         'province_id',
     ];
  

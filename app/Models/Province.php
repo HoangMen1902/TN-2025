@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Province extends Model
 {
-    use HasFactory;
+    protected $fillable = ['name', 'province_code'];
 
-    protected $table = 'provinces';
-
-    protected $fillable = [
-        'name',
-    ];
+    public function districts()
+    {
+        return $this->hasMany(District::class);
+    }
 }
