@@ -46,15 +46,20 @@
                                             <div class="flex items-start space-x-4">
                                                 <div class="flex-shrink-0">
                                                     <img class="h-16 w-16 object-contain"
-                                                        src="{{ $wishlist->product->image ?? 'https://via.placeholder.com/150' }}"
-                                                        alt="{{ $wishlist->product->name }}">
+                                                        src="{{ $wishlist->product->thumbnail ? asset('storage/' . $wishlist->product->thumbnail) : 'https://via.placeholder.com/150' }}">
                                                 </div>
                                                 <div class="flex-1">
                                                     <p class="text-sm font-bold text-gray-800 mb-1">
                                                         {{ $wishlist->product->name }}
                                                     </p>
                                                     <p class="text-sm font-medium text-gray-800 mb-1">
-                                                        Giá: {{ number_format($wishlist->product->price ?? 0, 0, ',', '.') }} ₫
+                                                        Giá:
+                                                        @if ($wishlist->product->productSkus->isNotEmpty())
+                                                            {{ number_format($wishlist->product->productSkus->first()->sale_price ?? $wishlist->product->productSkus->first()->price, 0, ',', '.') }}
+                                                            ₫
+                                                        @else
+                                                            Chưa có giá
+                                                        @endif
                                                     </p>
                                                     <p class="text-xs text-gray-500">
                                                         Thêm vào yêu thích: {{ $wishlist->created_at->format('d/m/Y - H:i') }}

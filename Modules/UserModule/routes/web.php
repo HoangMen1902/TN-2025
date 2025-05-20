@@ -38,6 +38,8 @@ Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name(
 Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->name('wishlist.remove');
 // Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 // Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
+// Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
+
 Route::get('/ma-giam-gia',[AuthController::class, 'voucherList'])->name('voucherlist');
 
 Route::middleware(['auth'])->group(function () {
