@@ -10,67 +10,6 @@
                     <h1 class="text-lg md:text-2xl font-medium">Ví Voucher</h1>
                 </div>
 
-                @php
-                    $tabs = [
-                        'freeship' => 'Freeship',
-                        'exclusive' => 'Voucher độc quyền',
-                        'other' => 'Voucher tuyệt vời khác',
-                    ];
-
-                    $vouchers = [
-                        [
-                            'id' => 1,
-                            'category' => 'Freeship',
-                            'discount' => 'Miễn phí vận chuyển',
-                            'condition' => 'Cho đơn hàng từ 0K',
-                            'code' => 'FREESHIP05',
-                            'terms' => 'Điều kiện áp dụng: áp dụng cho đơn hàng khi mua Ván Phông Phạm - Dũng Cù Hóc Sinh từ 100K, không áp dụng cho đơn hàng có sản phẩm Phếu Quá Tàng, Máy Tính, Giấy Photo và Bia Carton. - Khách hàng có thể áp dụng cùng lúc với mã giảm giá khác.',
-                            'image' => 'https://via.placeholder.com/150',
-                            'expiry' => '31/05/2025'
-                        ],
-                        [
-                            'id' => 2,
-                            'category' => 'Voucher độc quyền',
-                            'discount' => 'Giảm 50.000 ₫',
-                            'condition' => 'Cho đơn hàng từ 200K',
-                            'code' => 'EXCLUSIVE50',
-                            'terms' => 'Điều kiện áp dụng: áp dụng cho đơn hàng từ 200K, không áp dụng cho sản phẩm điện tử. - Có thể kết hợp với mã miễn phí vận chuyển.',
-                            'image' => 'https://via.placeholder.com/150',
-                            'expiry' => '30/05/2025'
-                        ],
-                        [
-                            'id' => 3,
-                            'category' => 'Voucher tuyệt vời khác',
-                            'discount' => 'Giảm 10%',
-                            'condition' => 'Cho đơn hàng từ 100K',
-                            'code' => 'SAVE10',
-                            'terms' => 'Điều kiện áp dụng: áp dụng cho đơn hàng từ 100K, tối đa giảm 50K. - Không áp dụng cho sản phẩm quà tặng.',
-                            'image' => 'https://via.placeholder.com/150',
-                            'expiry' => '29/05/2025'
-                        ],
-                        [
-                            'id' => 4,
-                            'category' => 'Freeship',
-                            'discount' => 'Miễn phí vận chuyển',
-                            'condition' => 'Cho đơn hàng từ 0K',
-                            'code' => 'FREESHIP04',
-                            'terms' => 'Điều kiện áp dụng: áp dụng cho đơn hàng từ 0K, không áp dụng cho sản phẩm nhập khẩu. - Có thể kết hợp với mã giảm giá.',
-                            'image' => 'https://via.placeholder.com/150',
-                            'expiry' => '28/05/2025'
-                        ],
-                        [
-                            'id' => 5,
-                            'category' => 'Voucher độc quyền',
-                            'discount' => 'Giảm 100.000 ₫',
-                            'condition' => 'Cho đơn hàng từ 300K',
-                            'code' => 'EXCLUSIVE100',
-                            'terms' => 'Điều kiện áp dụng: áp dụng cho đơn hàng từ 300K, không áp dụng cho sản phẩm thời trang. - Không kết hợp với mã khác.',
-                            'image' => 'https://via.placeholder.com/150',
-                            'expiry' => '27/05/2025'
-                        ],
-                    ];
-                @endphp
-
                 <hr class="border-t border-gray-300 my-2 md:my-4 mx-4">
 
                 <div class="mb-4 border-b border-gray-200 relative">
@@ -93,12 +32,12 @@
                 <div id="notificationTabContent" class="p-4">
                     @foreach($tabs as $id => $label)
                         <div class="tab-content {{ !$loop->first ? 'hidden' : '' }}" id="{{ $id }}">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-300px)] overflow-y-hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto">
                                 @foreach ($vouchers as $voucher)
-                                    @if ($id == 'freeship' && $voucher['category'] == 'Freeship' || $id == 'exclusive' && $voucher['category'] == 'Voucher độc quyền' || $id == 'other' && $voucher['category'] == 'Voucher tuyệt vời khác')
+                                    @if ($id == 'percent' && $voucher['category'] == 'Phần trăm' || $id == 'amount' && $voucher['category'] == 'Cố định')
                                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex">
                                             <div class="bg-green-500" style="width: 85px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                                                <img src="https://cdn1.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_coupongreen.svg?q=11027" style="width: 80px; height: 40px;">
+                                                <img src="{{ $voucher['image'] }}" style="width: 80px; height: 40px;" alt="Voucher icon">
                                             </div>
 
                                             <div class="flex-1 p-4">
@@ -124,14 +63,18 @@
                                                     <p class="text-xs text-gray-500">
                                                         HSD: {{ $voucher['expiry'] }}
                                                     </p>
-                                                    <button type="button" class="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
-                                                        Copy mã
-                                                    </button>
+                                                    @if ($voucher['is_used'])
+                                                        <span class="text-xs text-gray-500 font-medium">Đã sử dụng</span>
+                                                    @else
+                                                        <button type="button" class="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
+                                                            Copy mã
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
 
-                                      
+                                        <!-- Modal chi tiết -->
                                         <div id="voucher-modal-{{ $voucher['id'] }}" class="fixed inset-0 flex items-center justify-center z-50 hidden">
                                             <div class="fixed inset-0" style="background-color: #261E1E; opacity: 0.5;" data-modal-backdrop="voucher-modal-{{ $voucher['id'] }}"></div>
                                             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
@@ -147,9 +90,13 @@
                                                 </div>
                                                 <div class="flex justify-between items-center">
                                                     <p class="text-xs text-gray-500">HSD: {{ $voucher['expiry'] }}</p>
-                                                    <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
-                                                        Copy mã
-                                                    </button>
+                                                    @if ($voucher['is_used'])
+                                                        <span class="text-xs text-gray-500 font-medium">Đã sử dụng</span>
+                                                    @else
+                                                        <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
+                                                            Copy mã
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -165,7 +112,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-         
             const tabButtons = document.querySelectorAll('[data-tabs-target]');
             const tabContents = document.querySelectorAll('#notificationTabContent > .tab-content');
 
@@ -190,7 +136,6 @@
                 });
             });
 
-       
             const modalButtons = document.querySelectorAll('[data-modal-id]');
             const modalCloses = document.querySelectorAll('[data-modal-close]');
             const modalBackdrops = document.querySelectorAll('[data-modal-backdrop]');

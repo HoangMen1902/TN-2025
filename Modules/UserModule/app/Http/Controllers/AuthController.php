@@ -111,7 +111,7 @@ class AuthController extends Controller
     //         public function wishListRemove(){
     //     return view('usermodule::profile.wishlist');
     // }
-            public function voucherList(){
-        return view('usermodule::profile.voucher');
-    }
+    //         public function voucherList(){
+    //     return view('usermodule::profile.voucher');
+    // }
 }

@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
-
+use Filament\Forms\Components\Card;
 class VoucherResource extends Resource
 {
     protected static ?string $model = Voucher::class;
@@ -28,8 +28,10 @@ class VoucherResource extends Resource
     protected static ?string $pluralModelLabel = 'Các Mã giảm giá';
 
     public static function form(Form $form): Form
-    {
-        return $form->schema([
+{
+    return $form->schema([
+        Card::make()->schema([
+
             TextInput::make('voucher_name')
                 ->label('Tên voucher')
                 ->rules(['required', 'max:255'])
@@ -39,7 +41,7 @@ class VoucherResource extends Resource
                 ]),
 
             TextInput::make('requirement_price')
-                ->label('Giá trị đơn hàng tối thiểu')
+                ->label('Giá trị đơn hàng tối thiểu (VNĐ)')
                 ->numeric()
                 ->rules(['required', 'numeric', 'min:0'])
                 ->validationMessages([
@@ -67,7 +69,18 @@ class VoucherResource extends Resource
                 ->rules(['required'])
                 ->validationMessages([
                     'required' => 'Vui lòng chọn loại voucher',
-                ]),
+                ])
+                ->reactive(),
+
+            TextInput::make('reduced_amount')
+                ->label(fn ($get) =>
+                    $get('voucher_type') === 'percent'
+                        ? 'Phần trăm giảm (%)'
+                        : 'Số tiền giảm (VNĐ)'
+                )
+                ->numeric()
+                ->minValue(fn ($get) => $get('voucher_type') === 'percent' ? 1 : 1000)
+                ->maxValue(fn ($get) => $get('voucher_type') === 'percent' ? 100 : null),
 
             DateTimePicker::make('expired_at')
                 ->label('Ngày hết hạn')
@@ -88,6 +101,7 @@ class VoucherResource extends Resource
                 ->validationMessages([
                     'required' => 'Vui lòng chọn trạng thái voucher',
                 ]),
+        ])
         ]);
     }
 

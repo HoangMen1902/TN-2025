@@ -4,6 +4,7 @@ use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 
+use Modules\UserModule\App\Http\Controllers\VoucherController;
 use Modules\UserModule\App\Http\Controllers\WishlistController;
 use Modules\UserModule\Http\Controllers\UserModuleController;
 use Modules\UserModule\App\Http\Livewire\Login;
@@ -40,7 +41,7 @@ Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->na
 // Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
 // Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 
-Route::get('/ma-giam-gia',[AuthController::class, 'voucherList'])->name('voucherlist');
+Route::get('/ma-giam-gia',[VoucherController::class, 'index'])->name('voucher.index');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
