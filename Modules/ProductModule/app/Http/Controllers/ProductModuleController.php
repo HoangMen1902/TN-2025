@@ -4,7 +4,11 @@ namespace Modules\ProductModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Models\Wishlist;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\RelatedTag;
+use Illuminate\Support\Facades\Auth;
 class ProductModuleController extends Controller
 {
     /**
@@ -12,7 +16,38 @@ class ProductModuleController extends Controller
      */
     public function index()
     {
-        return view('productmodule::index');
+         $products = Product::with([
+            'publisher',
+            'productSkus',
+            'categories' => function ($query) {
+                $query->limit(3);
+            }
+        ])
+        ->where('product_status', 'active')
+        ->whereHas('productSkus')
+        ->latest()
+        ->take(20)
+        ->get();
+
+
+
+       
+
+        $wishlistProducts = collect();
+
+        if (Auth::check()) {
+            $wishlistProducts = Wishlist::with('product.productSkus', 'product.categories')
+                ->where('user_id', Auth::id())
+                ->get()
+                ->pluck('product')
+                ->filter();
+        }
+        $childCategories = Category::active()
+            ->whereNotNull('parent_id')
+            ->get();
+
+        return view('productmodule::index', compact('products', 'wishlistProducts', 'childCategories'));
+       
     }
 
     /**

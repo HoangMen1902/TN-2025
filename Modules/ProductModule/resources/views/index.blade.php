@@ -8,7 +8,7 @@
             <div class="main-content rounded-r" style="border-top-left-radius: 0px !important; border-bottom-left-radius: 0px !important;">
                 <x-productmodule::sort-header />
                
-                <x-productmodule::product-card />
+                <x-productmodule::product-card :products="$products" />
                 <x-productmodule::pagination />
             </div>
         </div>
