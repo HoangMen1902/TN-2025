@@ -19,7 +19,6 @@ class ComboSkuFactory extends Factory
         return [
             'sku_id' => \App\Models\ProductSku::factory(),
             'combo_id' => \App\Models\ProductCombo::factory(),
-            'quantity' => $this->faker->numberBetween(1, 5),
         ];
     }
 }
