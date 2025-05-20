@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -7,12 +8,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('provider_wards', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('provider_id');
-            $table->unsignedBigInteger('ward_id');
+            $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
+            $table->foreignId('ward_id')->constrained('wards')->onDelete('cascade');
             $table->string('provider_ward_code', 255);
             $table->string('provider_ward_name', 255);
-            $table->foreignId('ward_id')->constrained('wards')->onDelete('cascade');
-            $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -21,4 +20,3 @@ return new class extends Migration {
         Schema::dropIfExists('provider_wards');
     }
 };
-

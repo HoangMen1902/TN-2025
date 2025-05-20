@@ -8,6 +8,7 @@ return new class extends Migration {
         Schema::create('districts', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
+            $table->string('district_code')->unique(); 
             $table->foreignId('province_id')->constrained('provinces')->onDelete('cascade');
             $table->timestamps();
         });
