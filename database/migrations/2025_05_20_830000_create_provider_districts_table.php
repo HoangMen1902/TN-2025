@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('provider_districts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
-            $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
+            $table->foreignId('district_id')->nullable()->constrained('districts')->onDelete('cascade');
             $table->string('provider_district_code', 255);
             $table->string('provider_district_name', 255);
             $table->timestamps();

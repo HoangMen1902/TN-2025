@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('provider_name', 255);
             $table->enum('provider_status', ['active', 'inactive'])->default('active');
-            $table->string('provider_token')->nullable();
+            $table->text('provider_token')->nullable();
             $table->timestamp('token_expired_time')->nullable();
             $table->softDeletes();
             $table->timestamps();

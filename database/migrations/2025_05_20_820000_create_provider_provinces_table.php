@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('provider_provinces', function (Blueprint $table) {
             $table->id();
             $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
-            $table->foreignId('province_id')->constrained('provinces')->onDelete('cascade');
+            $table->foreignId('province_id')->nullable()->constrained('provinces')->onDelete('cascade');
             $table->string('provider_province_code', 255);
             $table->string('provider_province_name', 255);
             $table->timestamps();
