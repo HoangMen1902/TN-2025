@@ -9,12 +9,12 @@ return new class extends Migration {
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
             $table->enum('rating_status', ['active', 'inactive']);
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('sku_id');
             $table->unsignedBigInteger('user_id');
             $table->text('review')->nullable();
             $table->tinyInteger('rating')->unsigned(); 
             
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->foreign('sku_id')->references('id')->on('product_skus')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });

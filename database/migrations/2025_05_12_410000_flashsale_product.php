@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('flashsale_products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('sku_id');
             $table->unsignedBigInteger('flashsale_id');
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->foreign('sku_id')->references('id')->on('product_skus');
             $table->foreign('flashsale_id')->references('id')->on('flashsales')->onDelete('cascade');
             $table->timestamps();
 
