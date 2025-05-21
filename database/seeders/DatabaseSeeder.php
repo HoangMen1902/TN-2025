@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
+use CategorySeeder;
+use Database\Seeders\CategorySeeder as SeedersCategorySeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +17,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\Category::factory(10)->create();
         \App\Models\Publisher::factory(5)->create();
         \App\Models\Product::factory(20)->create();
         \App\Models\ProductSku::factory(40)->create();
@@ -28,6 +30,9 @@ class DatabaseSeeder extends Seeder
         \App\Models\ProductTag::factory(20)->create();
         \App\Models\ProductCategory::factory(30)->create();
         Notification::factory(40)->create();
+                $this->call([
+            SeedersCategorySeeder::class,
+        ]);
         $this->call([
             ProviderSeeder::class,
         ]);
