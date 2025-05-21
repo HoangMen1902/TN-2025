@@ -11,6 +11,8 @@
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
 
 </head>
 {{ $styles ?? '' }}

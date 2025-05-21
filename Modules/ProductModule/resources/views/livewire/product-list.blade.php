@@ -2,81 +2,96 @@
     <div class="flex rounded-l  bg-light">
         <div class="wrapper">
             <div class="">
-                <div class="w-72 p-4  rounded-l space-y-4 border border-gray-300 ">
-                    <h2 class="text-lg font-semibold"></h2>
+                <div class="w-full space-y-6 p-4">
 
-                    <!-- Price Range -->
-                    <div>
-                        <label class="block border-gray-300  mb-1 font-bold">Khoản giá</label>
-                        <input type="range" class="w-full accent-blue-500" min="0" max="5000" />
-                        <div class="flex justify-between mt-2 gap-2">
-                            <input type="number" class="w-1/2 p-1 rounded  border border-gray-300 " value="300">
-                            <input type="number" class="w-1/2 p-1 rounded  border border-gray-300 " value="3500">
-                        </div>
-                    </div>
-
-                    <!-- Sales -->
-                    <div>
-                        <label class="block border-gray-300  mb-1 font-bold">Giảm giá</label>
-                        <input type="range" class="w-full accent-blue-500" min="0" max="100" />
-                        <div class="flex justify-between mt-2 gap-2">
-                            <input type="number" class="w-1/2 p-1 rounded  border border-gray-300 " value="1">
-                            <input type="number" class="w-1/2 p-1 rounded  border border-gray-300 " value="100">
-                        </div>
-                    </div>
-
-                    <!-- Category -->
-                    <div>
-                        <label class="block mb-1 font-bold">Loại sản phẩm</label>
-                        <div id="category-buttons" class="grid grid-cols-2 gap-2">
-                            <button type="button" data-value="Gaming"
-                                class="category-btn px-2 py-1 rounded  border border-gray-300 hover:bg-blue-500">Văn
-                                Học</button>
-                            <button type="button" data-value="Electronics"
-                                class="category-btn px-2 py-1 rounded  border border-gray-300 hover:bg-blue-500">Truyện</button>
-                            <button type="button" data-value="Phone"
-                                class="category-btn px-2 py-1 rounded  border border-gray-300 hover:bg-blue-500">Tiếng
-                                Anh</button>
-                            <button type="button" data-value="TV/Monitor"
-                                class="category-btn px-2 py-1 rounded border border-gray-300  hover:bg-blue-500">Thiếu
-                                Nhi</button>
-                            <button type="button" data-value="Laptop"
-                                class="category-btn px-2 py-1 rounded border border-gray-300  hover:bg-blue-500">Trinh
-                                Thám</button>
-                            <button type="button" data-value="Watch" class="category-btn px-2 py-1 rounded border border-gray-300  h
-                   over:bg-blue-500">Sách Giải</button>
-                        </div>
-                    </div>
-
-                    <!-- Hidden input to send to backend -->
-                    <input type="hidden" id="selected-categories" name="categories" value="">
-
-                    <!-- State -->
-                    {{-- <div>
-                        <label class="block border-gray-300  mb-1">State</label>
-                        <div class="space-y-2">
+                    <!-- DANH MỤC -->
+                    <div class="space-y-3 border-b pb-4">
+                        <h3 class="font-semibold text-gray-800 uppercase text-sm">DANH MỤC CHÍNH</h3>
+                        <div class="space-y-2 text-sm text-gray-700">
                             <label class="flex items-center gap-2">
-                                <input type="radio" name="state" checked class="accent-blue-500">
-                                <span>All</span>
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.2px] text-gray-400">
+                                <span class="text-gray-500">Sách Tiếng Việt</span><span class="ml-1 text-gray-400">(62)</span>
                             </label>
                             <label class="flex items-center gap-2">
-                                <input type="radio" name="state" class="accent-blue-500">
-                                <span>New</span>
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> Foreign Books</span><span class="ml-1 text-gray-400">(20)</span>
                             </label>
                             <label class="flex items-center gap-2">
-                                <input type="radio" name="state" class="accent-blue-500">
-                                <span>Refurbished</span>
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> Văn Phòng Phẩm - Dụng Cụ Học Sinh</span><span class="ml-1 text-gray-400">(6)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> Đồ Chơi</span><span class="ml-1 text-gray-400">(3)</span>
                             </label>
                         </div>
                     </div>
-                    --}}
-                    <!-- Buttons -->
-                    <div class="flex gap-2">
-                        {{-- <button class="flex-1 bg-blue-600 hover:bg-blue-700  px-4 py-2 rounded">Thêm kết quả
-                            khác</button> --}}
-                        <button class="bg-blue-600 text-white hover:bg-blue-700  px-4 py-2 rounded">Đặt lại</button>
+
+                    <!-- GIÁ -->
+                    <div class="space-y-3 border-b pb-4">
+                        <h3 class="font-semibold text-gray-800 uppercase text-sm">GIÁ</h3>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                             <span class="text-gray-500">   0đ - 150,000đ</span><span class="ml-1 text-gray-400">(74)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> 150,000đ - 300,000đ</span><span class="ml-1 text-gray-400">(11)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> 300,000đ - 500,000đ</span><span class="ml-1 text-gray-400">(6)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> 500,000đ - 700,000đ</span><span class="ml-1 text-gray-400">(6)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> 700,000đ Trở Lên</span>
+                            </label>
+                        </div>
+                        <div class="space-y-2 mt-4">
+                            <p class="text-sm text-gray-700">Hoặc chọn mức giá phù hợp</p>
+
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="priceInputMin" class="w-24 border rounded px-2 py-1 text-sm"
+                                    placeholder="Từ">
+                                <span>-</span>
+                                <input type="number" id="priceInputMax" class="w-24 border rounded px-2 py-1 text-sm"
+                                    placeholder="Đến">
+                            </div>
+
+                            <div id="price-slider"  class="mt-3 text-blue-600"></div>
+                        </div>
+
+
+
                     </div>
+
+                    <!-- THƯƠNG HIỆU -->
+                    <div class="space-y-3">
+                        <h3 class="font-semibold text-gray-800 uppercase text-sm">THƯƠNG HIỆU</h3>
+                        <div class="space-y-2 text-sm text-gray-700">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                                <span class="text-gray-500">Deli</span><span class="ml-1 text-gray-400">(3)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                               <span class="text-gray-500"> Paul Rubens</span><span class="ml-1 text-gray-400">(3)</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400">
+                              <span class="text-gray-500">  Chaang Chiia</span><span class="ml-1 text-gray-400">(1)</span>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
+
+
             </div>
         </div>
 
@@ -111,14 +126,14 @@
 
         <div class="">
             <div class="product__viewport">
-    
+
                 <div class=" grid grid-cols-3 gap-3 gap-[10px]">
 
                     @foreach ($products as $product)
                         <div
                             class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
 
-                     
+
                             <div
                                 class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
                                 <form action="/add-to-cart" method="post">
@@ -130,19 +145,19 @@
                                     </button>
                                 </form>
                             </div>
- 
+
                             <div style="cursor:pointer" onclick="window.location.href='/product-detail/{{ $product->id }}';"
                                 class="product__slide__image border-b border-gray-300 overflow-hidden">
                                 <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                                     class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105">
                             </div>
 
-         
+
                             <div class="product__slide__number flex flex-wrap content-around p-2">
                                 <div>
                                     <p class="text-base line-clamp-2">{{ $product->name }}</p>
                                 </div>
- 
+
                                 <div class="flex items-center space-x-1 w-[100%]">
                                     @for ($j = 1; $j <= 5; $j++)
                                         <svg class="w-4 h-4 {{ $j <= ($product->rating ?? 4) ? 'text-yellow-300' : 'text-gray-200' }}"
@@ -154,10 +169,10 @@
                                     <span class="text-xs">{{ $product->reviews_count ?? 20 }}</span>
                                 </div>
 
-                  
+
                                 <div>{{ $product->category->name ?? 'Không xác định' }}</div>
 
-            
+
                                 <div class="product__slide__number__imgs">
                                     <p class="product__slide__number__imgs__price">
                                         {{ number_format($product->productSkus->first()->price ?? 0) }}đ
@@ -182,13 +197,13 @@
         @endphp
 
         @for ($page = $start; $page <= $end; $page++)
-    
+
         @endfor
 
         <div class="mt-6 flex justify-evenly">
             <nav aria-label="Page navigation example">
                 <ul class="inline-flex -space-x-px text-base h-10">
-      
+
                     <li>
                         <a wire:click.prevent="previousPage" href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700
                    {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
@@ -196,11 +211,11 @@
                         </a>
                     </li>
 
- 
+
                     @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
                                     <li>
                                         <a wire:click.prevent="gotoPage({{ $page }})" href="#" class="flex items-center justify-center px-4 h-10 leading-tight
-                                                       {{ $products->currentPage() === $page
+                                                                                                                                                                                                       {{ $products->currentPage() === $page
                         ? 'text-white border border-gray-300 bg-blue-700 hover:bg-blue-100'
                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700' }}">
                                             {{ $page }}
@@ -208,7 +223,7 @@
                                     </li>
                     @endforeach
 
-          
+
                     <li>
                         <a wire:click.prevent="nextPage" href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700
                    {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
@@ -245,4 +260,48 @@
             hiddenInput.value = Array.from(selected).join(',');
         });
     });
+
+
+    var priceSlider = document.getElementById('price-slider');
+    var priceInputMin = document.getElementById('priceInputMin');
+    var priceInputMax = document.getElementById('priceInputMax');
+
+    if (priceSlider) {
+        noUiSlider.create(priceSlider, {
+            start: [0, 10000000],
+            connect: true,
+            step: 10000,
+            range: {
+                'min': 0,
+                'max': 10000000
+            },
+            format: {
+                to: function (value) {
+                    return Math.round(value);
+                },
+                from: function (value) {
+                    return Number(value);
+                }
+            }
+        });
+
+        priceSlider.noUiSlider.on('update', function (values, handle) {
+            const value = values[handle];
+            if (handle === 0) {
+                priceInputMin.value = value;
+            } else {
+                priceInputMax.value = value;
+            }
+        });
+ 
+        priceInputMin.addEventListener('change', function () {
+            priceSlider.noUiSlider.set([this.value, null]);
+        });
+        priceInputMax.addEventListener('change', function () {
+            priceSlider.noUiSlider.set([null, this.value]);
+        });
+    }
+
+
+
 </script>

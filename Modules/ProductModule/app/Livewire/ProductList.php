@@ -14,7 +14,7 @@ class ProductList extends Component
         $products = Product::with(['productSkus'])
             ->where('product_status', 'active')
             ->orderByDesc('published_at')
-            ->paginate(10);
+            ->paginate(12);
 
         return view('productmodule::livewire.product-list', [
             'products' => $products,
