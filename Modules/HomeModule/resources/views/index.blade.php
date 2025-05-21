@@ -401,18 +401,18 @@
                                 @if ($firstSku)
                                     <div
                                         class="absolute bottom-40 right-4 z-10 
-                                                                                            opacity-0 translate-y-4 
-                                                                                            group-hover:opacity-100 group-hover:translate-y-0 
-                                                                                            transition-all duration-500 ease-in-out">
+                                                                                                    opacity-0 translate-y-4 
+                                                                                                    group-hover:opacity-100 group-hover:translate-y-0 
+                                                                                                    transition-all duration-500 ease-in-out">
                                         <form action="{{ route('cart.add') }}" method="POST">
                                             @csrf
                                             <input type="hidden" name="sku_id" value="{{ $firstSku->id }}">
                                             <input type="hidden" name="quantity" value="1">
                                             <button
                                                 class="bg-blue-500 text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                                        border border-transparent transition duration-300 ease-in-out
-                                                                                                        hover:bg-transparent hover:text-blue-600
-                                                                                                        hover:border-blue-600 hover:shadow-lg hover:scale-105">
+                                                                                                                border border-transparent transition duration-300 ease-in-out
+                                                                                                                hover:bg-transparent hover:text-blue-600
+                                                                                                                hover:border-blue-600 hover:shadow-lg hover:scale-105">
                                                 Mua ngay
                                             </button>
                                         </form>
@@ -508,7 +508,34 @@
                 </div>
             @endforeach
         </div>
+        <div class=" bg-light p-2 my-3 rounded">
+            <div class="flex justify-between h-[50] ">
+                <div class="1/2">
+                    <div>
+                        <p class="ml-3 text-2xl font-bold">Danh mục sản phẩm</p>
+                    </div>
+                </div>
 
+            </div>
+
+            <div class="grid grid-cols-10 gap-2 h-[170px]">
+                @foreach ($childCategories as $category)
+                    <div class="p-2 flex flex-col items-center justify-between h-[100px]">
+                        <a href="" class="h-[100px]">
+
+                            <img src="https://cdn1.fahasa.com/media/wysiwyg/HUYEN-1/3900000245517.png" class="rounded"
+                                alt="Banner 1">
+                            {{-- nào có hình trong database thì đổi lại đỡ xấu --}}
+                            {{-- <img src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
+                                class="rounded h-full w-auto object-contain" alt="{{ $category->name }}"> --}}
+                        </a>
+                        <div class="text-center mt-1">
+                            <p class="text-sm">{{ $category->name }}</p>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
         <div class="my-3 bg-light rounded  p-4">
             <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
@@ -536,28 +563,27 @@
                                 <div
                                     class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
                                     <!-- Nút mua ngay -->
-                                            
 
-                                           
-                                      <div
-                                        class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 
-                                                group-hover:opacity-100 group-hover:translate-y-0 
-                                                transition-all duration-500 ease-in-out">
-                                                    @php
-                                                    $firstSku = $product->productSkus->first();
-                                                @endphp
+
+
+                                    <div class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 
+                                                        group-hover:opacity-100 group-hover:translate-y-0 
+                                                        transition-all duration-500 ease-in-out">
+                                        @php
+                                            $firstSku = $product->productSkus->first();
+                                        @endphp
 
                                         <form action="{{route('cart.add')}}" method="post">
-                                        @csrf
-                                        <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button
-                                            class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                                                                                        border border-transparent transition duration-300 ease-in-out
-                                                                                                                                                        hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
-                                                                                                                                                        hover:scale-105 hover:bg-white">
-                                            Mua ngay
-                                        </button>
+                                            @csrf
+                                            <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button
+                                                class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
+                                                                                                                                                                border border-transparent transition duration-300 ease-in-out
+                                                                                                                                                                hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
+                                                                                                                                                                hover:scale-105 hover:bg-white">
+                                                Mua ngay
+                                            </button>
                                         </form>
                                     </div>
 

@@ -30,7 +30,10 @@ class Flashsale extends Model
                     ->withPivot('discount_price')
                     ->withTimestamps();
     }
-
+    public function discount()
+    {
+        return $this->hasOne(FlashsaleDiscount::class);
+    }
  
     public function isStarted(): bool
     {
@@ -54,4 +57,14 @@ class Flashsale extends Model
         return $query->where('started_at', '<=', now())
                      ->where('expired_at', '>', now());
     }
+    
+    public function skus()
+    {
+        return $this->belongsToMany(ProductSku::class, 'flashsale_products', 'flashsale_id', 'sku_id');
+    }
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'flashsale_categories', 'flashsale_id', 'category_id');
+    }
+    
 }

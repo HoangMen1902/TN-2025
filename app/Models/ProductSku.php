@@ -45,4 +45,8 @@ class ProductSku extends Model
     public function optionValues() {
         return $this->belongsToMany(OptionValue::class, 'sku_values', 'sku_id', 'value_id');
     }
+    public function flashsales()
+    {
+        return $this->belongsToMany(FlashSale::class, 'flashsale_products', 'sku_id', 'flashsale_id');
+    }
 }
