@@ -15,6 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->text('description')->nullable();
+            $table->integer('product_released_year');
+            $table->string('author');
+            $table->string('slug');
+            $table->string('book_cover');
+            $table->integer('order_by')->default(1);
+            $table->integer('pages');
+            $table->double('weight');
+            $table->double('height');
+            $table->double('width');
             $table->text('short_description')->nullable();
             $table->enum('product_status', ['active', 'inactive', 'draft'])->default('active');
             $table->text('thumbnail')->nullable();

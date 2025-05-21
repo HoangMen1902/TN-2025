@@ -22,6 +22,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -53,23 +54,24 @@ class ProductResource extends Resource
             ->schema([
                 TextInput::make('name')->label('Tên sách')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Sản phẩm này đã tồn tại'])->unique(ignoreRecord: true),
                 TextInput::make('author')->label('Tác giả')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
+                TextInput::make('slug')->label('Đường dẫn sản phẩm')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Đã tồn tại'])->placeholder('VD: san-pham-vi-du')->unique(ignoreRecord: true)->columnSpanFull(),
                 RichEditor::make('short_description')->label('Mô tả ngắn')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 RichEditor::make('description')->label('Mô tả')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 Section::make('Thông tin sản phẩm')
-                ->description('Thông tin chi tiết của sản phẩm')
-                ->schema([
-                    YearPicker::make('product_released_year')->label('Năm xuất bản')->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
-                    TextInput::make('weight')->label('Trọng lượng')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
-                    TextInput::make('width')->label('Chiều rộng')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
-                    TextInput::make('height')->label('Chiều cao')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
-                    TextInput::make('pages')->label('Số trang')->numeric()->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này']),
-                    Select::make('book_cover')->label('Loại bìa')->options(['Bìa cứng' => 'Bìa cứng', 'Bìa mềm' => 'Bìa mềm'])->rules('required')->validationMessages(['required'=> 'Vui lòng điền thông tin này'])
-                ])->columns(2),
+                    ->description('Thông tin chi tiết của sản phẩm')
+                    ->schema([
+                        YearPicker::make('product_released_year')->label('Năm xuất bản')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        TextInput::make('weight')->label('Trọng lượng (gr)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        TextInput::make('width')->label('Chiều rộng (cm)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        TextInput::make('height')->label('Chiều cao (cm)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        TextInput::make('pages')->label('Số trang')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        Select::make('book_cover')->label('Loại bìa')->options(['Bìa cứng' => 'Bìa cứng', 'Bìa mềm' => 'Bìa mềm'])->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này'])
+                    ])->columns(2),
                 FileUpload::make('thumbnail')->label('Ảnh sản phẩm')->rules('required')->image()->validationMessages(['required' => 'Vui lòng nhập ảnh', 'image' => 'File tải lên không phải hình ảnh'])->columnSpanFull(),
                 Repeater::make('productSkus')->relationship()->schema([
                     TextInput::make('sku')->label('Mã SKU')->rules('required')->validationMessages(['required' => 'Vui lòng nhập thông tin *', 'unique' => 'Mã SKU đã tôn tại'])->columnSpanFull()->unique(ignoreRecord: true)->columnSpan(1),
-                    TextInput::make('price')->numeric()->label('Giá')->rules('required')->validationMessages(['required' => 'Vui lòng nhập thông tin *'])->columnSpan(1),
-                    TextInput::make('sale_price')->numeric()->label('Giá giảm (Tùy chọn)')->columnSpan(1),
+                    TextInput::make('price')->numeric()->label('Giá gốc')->rules('required')->validationMessages(['required' => 'Vui lòng nhập thông tin *'])->columnSpan(1),
+                    TextInput::make('sale_price')->numeric()->label('Giá bán hiện tại')->columnSpan(1),
                     TextInput::make('quantity')->numeric()->label('Số lượng')->rules('required')->validationMessages(['required' => 'Vui lòng nhập thông tin *']),
                     Repeater::make('skuValues')->relationship('skuValues')->label('Thuộc tính')->schema([
                         Select::make('option_id')->label('Thuộc tính')->options(Option::pluck('name', 'id'))->reactive()->afterStateUpdated(function (callable $set) {
@@ -81,25 +83,27 @@ class ProductResource extends Resource
                         })->searchable()->rules('required')->validationMessages(['required' => 'Vui lòng chọn giá trị *'])
                     ])->columns(2)->columnSpanFull(),
                     FileUpload::make('images')
-                    ->label('Ảnh sản phẩm')
-                    ->required()
-                    ->image()
-                    ->multiple()
-                    ->maxFiles(10)
-                    ->columnSpanFull()
-                    ->validationMessages([
-                        'required' => 'Vui lòng tải lên ít nhất 1 ảnh sản phẩm',
-                    ]),
+                        ->label('Ảnh sản phẩm')
+                        ->required()
+                        ->image()
+                        ->multiple()
+                        ->maxFiles(10)
+                        ->columnSpanFull()
+                        ->validationMessages([
+                            'required' => 'Vui lòng tải lên ít nhất 1 ảnh sản phẩm',
+                        ]),
                 ])->defaultItems(1)->addable(true)->deletable(true)->label('Biến thể')->rules(['min:1'])->validationMessages(['min' => 'Sản phẩm phải có ít nhất một thuộc tính.'])->columns(2)->columnSpanFull(),
+                select::make('tags')->relationship('tags', 'tag_name')->preload()->searchable()->label('Thẻ (Tùy chọn)')->multiple()->placeholder('Chọn các thẻ liên quan'),
                 SelectTree::make('categories')
-                ->label('Phân loại sản phẩm')
-                ->relationship('categories', 'name', 'parent_id')
-                ->placeholder('Vui lòng chọn phân loại sản phẩm')
-                ->searchable(),
+                    ->label('Phân loại sản phẩm')
+                    ->relationship('categories', 'name', 'parent_id')
+                    ->placeholder('Vui lòng chọn phân loại sản phẩm')
+                    ->rules('required')->validationMessages(['required' => 'Vui lòng chọn ít nhất 1 phân loại sản phẩm'])
+                    ->searchable(),
                 Select::make('publisher_id')->label('Nhà xuất bản')
-                ->preload()
-                ->relationship('publisher', 'publisher_name') 
-                ->rules('required')->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản']),
+                    ->preload()
+                    ->relationship('publisher', 'publisher_name')
+                    ->rules('required')->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản'])->searchable(),
                 Select::make('product_status')
                     ->label('Trạng thái')
                     ->default('active')
@@ -111,7 +115,7 @@ class ProductResource extends Resource
                     ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive')
                     ->rules('required')
                     ->validationMessages(['required' => 'Vui lòng chọn trạng thái *']),
-                DateTimePicker::make('published_at')->label('Thời gian mở bán')
+                DateTimePicker::make('published_at')->label('Thời gian mở bán')->native(false)->placeholder('Thời gian ra mắt')->minDate(now())
             ]);
     }
 
@@ -121,7 +125,9 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID'),
-                TextColumn::make('name')->label('Tên'),
+                TextColumn::make('name')->label('Tên')->limit(20),
+                TextColumn::make('publisher.publisher_name')->label('Nhà xuất bản'),
+                TextColumn::make('categories.name')->label('Phân loại')->limitList(1),
                 TextColumn::make('variant')->label('Biến thể')->getStateUsing(fn($record) => ProductSku::where('product_id', $record->id)->count('sku')),
                 TextColumn::make('product_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
                     return match ($state) {

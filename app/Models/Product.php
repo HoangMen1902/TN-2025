@@ -26,7 +26,8 @@ class Product extends Model
         'product_status',
         'thumbnail',
         'publisher_id',
-        'published_at'
+        'published_at',
+        'slug'
     ];
 
     
@@ -44,5 +45,9 @@ class Product extends Model
     public function productSkus()
     {
         return $this->hasMany(ProductSku::class);
+    }
+
+    public function tags() {
+        return $this->belongsToMany(RelatedTag::class, 'product_tags', 'product_id', 'tag_id');
     }
 }

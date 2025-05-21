@@ -67,7 +67,7 @@ for row in provider_district:
             limit=3
         )
         print(f"[??] Không tìm được quận/huyện phù hợp cho '{row['provider_district_name']}' (score={score})")
-        print(" → Gợi ý gần đúng:")
+        print(" Gợi ý gần đúng:")
         for sug_name, sug_score, _ in suggestions:
             print(f"    - {sug_name} (score={sug_score})")
         

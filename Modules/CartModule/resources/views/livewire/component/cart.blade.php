@@ -80,7 +80,7 @@
             </div>
             <p class="text-sm text-gray-600">Phí ship sẽ được tính khi thanh toán</p>
             <div class="mt-5 flex justify-center">
-                <a href="/checkout"
+                <a href="/thanh-toan"
                     class="bg-primary text-white font-bold py-2 px-4 rounded-xl transition duration-300 hover:bg-white hover:text-black">Thanh
                     toán</a>
             </div>
