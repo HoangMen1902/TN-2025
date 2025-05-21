@@ -30,7 +30,7 @@
                     <div class="coupon-scroller flex items-center overflow-x-auto w-full gap-3">
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -38,7 +38,7 @@
                         </div>
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -46,7 +46,7 @@
                         </div>
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -54,7 +54,7 @@
                         </div>
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -62,7 +62,7 @@
                         </div>
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -70,7 +70,7 @@
                         </div>
                         <div class="coupon-container flex items-center gap-1">
                             <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('storage/coupon.png')}}" alt="">
+                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
                             </div>
                             <div class="coupon-name truncate text-[13px] font-bold">
                                 Mã giảm giá 10K - cho đơn hàng 30K
@@ -120,7 +120,7 @@
         <div class="flashsale flex items-center justify-between p-4">
             <div class="flashsale-time m-[4px] w-full">
                 <div class="flashsale-wrapper flex items-center justify-between">
-                    <img src="{{asset('storage/whiteFlashsale.png')}}" alt="flashsale" class="object-contain">
+                    <img src="{{asset('assets/images/whiteFlashsale.png')}}" alt="flashsale" class="object-contain">
                     <div class="flex gap-[5px] items-center justify-center">
                         <div class="hour-box flashsale-time-box text-white text-sm">
                             01
