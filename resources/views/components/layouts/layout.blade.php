@@ -28,9 +28,8 @@
                 </div>
 
                 <div class="hidden md:block md:category-select md:relative md:group">
-                    <button id="category-trigger-desktop" type="button" data-drawer-target="drawer-top-example"
-                        data-drawer-show="drawer-top-example" data-drawer-placement="top"
-                        aria-controls="drawer-top-example" class="cursor-pointer flex items-center text-gray-600">
+                    <button id="category-trigger-desktop" type="button"
+                        class="cursor-pointer flex items-center text-gray-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-10">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -71,7 +70,8 @@
                         </a>
                     </div>
                     <div class="text-center">
-                        <a href="{{route('cart.index')}}" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                        <a href="{{route('cart.index')}}"
+                            class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6 mb-1">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -203,43 +203,231 @@
             </div>
         </div>
     </header>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categoryDrawer = document.getElementById('drawer-top-example');
+            const categoryToggleButton = document.getElementById('category-trigger-desktop');
+            const btn = document.getElementById('category-trigger-desktop');
+            const drawer = document.getElementById('drawer-top-example');
 
-    <div id="drawer-top-example" class="fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
-           w-full max-w-[1200px] sm:w-[90%] md:w-[1000px] lg:w-[1200px]
-           h-[90vh] sm:h-[600px] 
-           p-4 transition-transform -translate-y-full bg-white" tabindex="-1" aria-labelledby="drawer-top-label">
+            let isHoveringBtn = false;
+            let isHoveringDrawer = false;
 
-        <h5 id="drawer-top-label"
-            class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"><svg
-                class="w-4 h-4 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                viewBox="0 0 20 20">
-                <path
-                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>Top drawer</h5>
-        <button type="button" data-drawer-hide="drawer-top-example" aria-controls="drawer-top-example"
-            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white">
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-            </svg>
-            <span class="sr-only">Close menu</span>
-        </button>
-        <p class="max-w-lg mb-6 text-sm text-gray-500 dark:text-gray-400">Supercharge your hiring by taking advantage of
-            our <a href="#"
-                class="text-blue-600 underline font-medium dark:text-blue-500 hover:no-underline">limited-time sale</a>
-            for Flowbite Docs + Job Board. Unlimited access to over 190K top-ranked candidates and the #1 design job
-            board.</p>
-        <a href="#"
-            class="px-4 py-2 me-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-200 rounded-lg focus:outline-none hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Learn
-            more</a>
-        <a href="#"
-            class="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Get
-            access <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M1 5h12m0 0L9 1m4 4L9 9" />
-            </svg></a>
+            btn.addEventListener('mouseenter', () => {
+                isHoveringBtn = true;
+                drawer.classList.remove('hidden');
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                isHoveringBtn = false;
+                setTimeout(() => {
+                    if (!isHoveringBtn && !isHoveringDrawer) {
+                        drawer.classList.add('hidden');
+                    }
+                }, 150);
+            });
+
+            drawer.addEventListener('mouseenter', () => {
+                isHoveringDrawer = true;
+                drawer.classList.remove('hidden');
+            });
+
+            drawer.addEventListener('mouseleave', () => {
+                isHoveringDrawer = false;
+                setTimeout(() => {
+                    if (!isHoveringBtn && !isHoveringDrawer) {
+                        drawer.classList.add('hidden');
+                    }
+                }, 150);
+            });
+
+            const categoryItems = document.querySelectorAll('.category-item');
+            const defaultContent = document.querySelector('.default-content');
+            let activeSubmenu = null;
+            let submenuTimer = null;
+            let categoryTimer = null;
+
+            function hideAllSubmenus() {
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    menu.style.opacity = '0';
+                    menu.style.visibility = 'hidden';
+                    setTimeout(() => {
+                        if (menu.style.visibility === 'hidden') {
+                            menu.style.display = 'none';
+                        }
+                    }, 200);
+                });
+
+                if (defaultContent) {
+                    defaultContent.style.display = 'flex';
+                    setTimeout(() => {
+                        defaultContent.style.opacity = '1';
+                    }, 50);
+                }
+
+                activeSubmenu = null;
+            }
+
+            categoryItems.forEach(item => {
+                const submenu = item.querySelector('.submenu');
+
+                item.addEventListener('mouseenter', () => {
+                    clearTimeout(categoryTimer);
+                    clearTimeout(submenuTimer);
+
+                    document.querySelectorAll('.submenu').forEach(menu => {
+                        if (menu !== submenu) {
+                            menu.style.opacity = '0';
+                            menu.style.visibility = 'hidden';
+                            menu.style.display = 'none';
+                        }
+                    });
+
+                    if (submenu) {
+                        if (defaultContent) {
+                            defaultContent.style.opacity = '0';
+                            setTimeout(() => {
+                                defaultContent.style.display = 'none';
+                            }, 200);
+                        }
+
+                        submenu.style.display = 'block';
+                        setTimeout(() => {
+                            submenu.style.opacity = '1';
+                            submenu.style.visibility = 'visible';
+                        }, 10);
+
+                        activeSubmenu = submenu;
+                    }
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    categoryTimer = setTimeout(() => {
+                        if (submenu && !isMouseOverElement(submenu)) {
+                            submenu.style.opacity = '0';
+                            submenu.style.visibility = 'hidden';
+
+                            setTimeout(() => {
+                                if (submenu.style.visibility === 'hidden') {
+                                    submenu.style.display = 'none';
+
+                                    const visibleSubmenus = document.querySelectorAll('.submenu[style*="visibility: visible"]');
+                                    if (visibleSubmenus.length === 0) {
+                                        if (defaultContent) {
+                                            defaultContent.style.display = 'flex';
+                                            setTimeout(() => {
+                                                defaultContent.style.opacity = '1';
+                                            }, 50);
+                                        }
+                                    }
+                                }
+                            }, 200);
+                        }
+                    }, 100);
+                });
+
+                if (submenu) {
+                    submenu.addEventListener('mouseenter', () => {
+                        clearTimeout(categoryTimer);
+                        clearTimeout(submenuTimer);
+                    });
+
+                    submenu.addEventListener('mouseleave', () => {
+                        submenuTimer = setTimeout(() => {
+                            submenu.style.opacity = '0';
+                            submenu.style.visibility = 'hidden';
+                            setTimeout(() => {
+                                submenu.style.display = 'none';
+                                if (defaultContent) {
+                                    defaultContent.style.display = 'flex';
+                                    setTimeout(() => {
+                                        defaultContent.style.opacity = '1';
+                                    }, 50);
+                                }
+                            }, 200);
+                        }, 200);
+                    });
+                }
+            });
+
+            function isMouseOverElement(element) {
+                const rect = element.getBoundingClientRect();
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+
+                return mouseX >= rect.left &&
+                    mouseX <= rect.right &&
+                    mouseY >= rect.top &&
+                    mouseY <= rect.bottom;
+            }
+
+        });
+
+    </script>
+    <div id="drawer-top-example" class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
+            w-full max-w-[1200px] sm:w-[90%] md:w-[1000px] lg:w-[1200px]
+            h-[90vh] sm:h-[600px] 
+            shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden" tabindex="-1"
+        aria-labelledby="drawer-top-label">
+        <div class="flex items-center justify-between px-6 py-3 bg-blue-600 text-white">
+            <h2 class="text-lg font-semibold">Danh mục sản phẩm</h2>
+
+        </div>
+        <div class="flex w-full h-[calc(100%-52px)]">
+            <div class="w-1/4 bg-gray-50 border-r border-gray-200 overflow-hidden">
+                <ul class="category-sidebar">
+                    @foreach ($categories as $parent)
+                        <li class="category-item border-b border-gray-100 last:border-b-0">
+                            <a href="#"
+                                class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
+                                <span class="truncate">{{ $parent->name }}</span>
+                                @if ($parent->children->count())
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                @endif
+                            </a>
+                            @if ($parent->children->count())
+                                <div class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
+                                                  opacity-0 invisible 
+                                                  transition-opacity duration-200 ease-in-out">
+                                    <div class="h-full overflow-hidden">
+                                        <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                                            <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
+                                        </div>
+                                        <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
+                                            <div class="grid grid-cols-3 gap-y-4">
+                                                @foreach ($parent->children as $child)
+                                                    <a href="#"
+                                                        class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
+                                                        {{ $child->name }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="w-3/4 bg-white relative">
+                <div class="default-content h-full flex flex-col items-center justify-center p-8 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300 mb-4" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                            d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <h2 class="text-xl font-bold mb-2 text-gray-700">Danh mục sản phẩm</h2>
+                </div>
+            </div>
+        </div>
     </div>
+
+
 
     {{ $slot }}
 
