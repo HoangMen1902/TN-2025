@@ -65,17 +65,15 @@ class ShipmentCalculate extends Component
     {
         try {
             $this->modal_open = false;
-            $this->provinces = $ghn->getProvinces()['data'];
+            $this->provinces = $ghn->getProvinces();
             $this->setDefaultLocation($ghn);
             $this->setStoreLocation($ghn);
-            
             $res = $ghn->getEstimatedTime($this->store_district, $this->store_ward, (string)$this->district_default['DistrictID'], $this->ward_default['WardCode']);
             $estimated = $res['data']['leadtime_order']['to_estimate_date'];
             $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
             $this->estimatedTime = ucwords($date->translatedFormat('l - d/m'));
 
             $this->currentSku = $this->data->productSkus->first();
-
         } catch (\Throwable $th) {
             Log::error('Loi khi fetch du lieu: ' . $th->getMessage());
         }
