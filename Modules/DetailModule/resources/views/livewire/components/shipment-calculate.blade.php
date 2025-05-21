@@ -106,7 +106,7 @@
                     </div>
                     <div class="quantity-container w-min">
                         <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
-                        <input type="number" id="quantity" value="1" min="1" class="font-bold" form="addToCart" />
+                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold" form="addToCart" />
                         <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
                     </div>
 

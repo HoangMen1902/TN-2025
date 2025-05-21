@@ -29,8 +29,7 @@
                             <p>{{ number_format($item->sku->price ?? 0, 0, ',', '.') }}đ</p>
                             <div class="list-none p-0 text-sm ">
                                 <div class="my-1 line-clamp-2">
-                                    Mô tả sản phẩm:
-                                    {{ \Illuminate\Support\Str::limit($item->sku->product->description ?? 'Không có mô tả', 150) }}
+                                    {!! $item->sku->product->description ?? 'Không có mô tả' !!}
                                 </div>
                             </div>
                         </div>

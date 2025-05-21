@@ -21,7 +21,7 @@ class DetailModuleController extends Controller
         if($data != null) {
             return view('detailmodule::index', ['data' => $data, 'id' => $id]);
         } else {
-            return redirect('/home');
+            return redirect('/');
         }
     }
 

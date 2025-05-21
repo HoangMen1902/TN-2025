@@ -30,4 +30,5 @@ class Thumbnail extends Component
 
         return view('detailmodule::livewire.components.thumbnail');
     }
+
 }
