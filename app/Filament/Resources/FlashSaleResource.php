@@ -100,8 +100,6 @@ class FlashSaleResource extends Resource
                             ->searchable()
                             ->visible(fn(callable $get) => in_array($get('apply_type'), ['sku', 'both']))
                             ->required(fn(callable $get) => in_array($get('apply_type'), ['sku', 'both'])),
-
-                    git
                     ]),
             ]);
     }
