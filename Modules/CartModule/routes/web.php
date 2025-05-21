@@ -9,11 +9,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 
-Route::prefix('cart')->group(function () {
     Route::get('/gio-hang', [CartModuleController::class, 'index'])->name('cart.index');
     Route::post('/add', [CartModuleController::class, 'addToCart'])->name('cart.add');
      
-});
 
 
 

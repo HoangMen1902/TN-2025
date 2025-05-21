@@ -18,7 +18,11 @@ class DetailModuleController extends Controller
         ->where('product_status', 'active')
         ->where('deleted_at', '=', null)
         ->first();
-        return view('detailmodule::index', ['data' => $data, 'id' => $id]);
+        if($data != null) {
+            return view('detailmodule::index', ['data' => $data, 'id' => $id]);
+        } else {
+            return redirect('/home');
+        }
     }
 
     /**
