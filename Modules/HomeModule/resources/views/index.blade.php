@@ -389,11 +389,7 @@
                                 </div>
                             </div>
                         </div> --}}
-                        @if (session('success'))
-                            <div class="bg-green-100 text-green-800 p-2 rounded mb-2">
-                                {{ session('success') }}
-                            </div>
-                        @endif
+
 
                         @foreach ($products as $product)
                             @php

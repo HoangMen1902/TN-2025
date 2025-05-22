@@ -14,3 +14,4 @@ class CartModuleDatabaseSeeder extends Seeder
         // $this->call([]);
     }
 }
+

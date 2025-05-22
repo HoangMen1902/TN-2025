@@ -37,4 +37,12 @@ class ProductSku extends Model
     public function skuValues() {
         return $this->hasMany(SkuValue::class, 'sku_id');
     }
+
+    public function options() {
+        return $this->belongsToMany(Option::class, 'sku_values', 'sku_id', 'option_id');
+    }
+    
+    public function optionValues() {
+        return $this->belongsToMany(OptionValue::class, 'sku_values', 'sku_id', 'value_id');
+    }
 }

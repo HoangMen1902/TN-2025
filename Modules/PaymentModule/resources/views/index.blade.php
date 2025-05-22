@@ -1,3 +1,3 @@
 <x-layouts.layout>
-    <x-paymentmodule::page></x-paymentmodule::page>
+    <x-paymentmodule::page :carts="$carts"></x-paymentmodule::page>
 </x-layouts.layout>

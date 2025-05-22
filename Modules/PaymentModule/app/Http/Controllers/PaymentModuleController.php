@@ -3,6 +3,7 @@
 namespace Modules\PaymentModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 
 class PaymentModuleController extends Controller
@@ -12,12 +13,19 @@ class PaymentModuleController extends Controller
      */
     public function index()
     {
-        return view('paymentmodule::index');
+        return redirect('/gio-hang');
     }
 
     /**
      * Show the form for creating a new resource.
      */
+
+    public function paymentPage(Request $request) {
+        $cartIds = $request->input('cart_id');
+
+        $carts = Cart::whereIn('id', $cartIds)->get();
+        return view('paymentmodule::index', ['carts' => $carts]);
+    }
     public function create()
     {
         return view('paymentmodule::create');
