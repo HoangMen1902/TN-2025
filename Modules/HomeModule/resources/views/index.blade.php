@@ -221,7 +221,7 @@
             </div>
         </div>
 
-                <livewire:homemodule::flashsale />
+        <livewire:homemodule::flashsale />
 
 
         {{-- @auth
@@ -347,392 +347,206 @@
         </div>
         @endauth --}}
 
-        <div class="h-[500] my-3 bg-light rounded  p-4">
-            <div class="flex justify-between h-[50] ">
-                <div class="1/2">
-                    <div class="w-[150px]">
-                        <img class=" block w-full h-full"
-                            src="https://scontent.fsgn5-5.fna.fbcdn.net/v/t39.30808-6/495134330_122093663798876622_5731153365420282121_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=F2y7w2NWNDYQ7kNvwH6d7_3&_nc_oc=AdlRtGSPaYJBpmsXho3k0SWs47erA2qRUBUnJeBJtqoY7fxzfv66EGwjPuYcU1vndrM&_nc_zt=23&_nc_ht=scontent.fsgn5-5.fna&_nc_gid=FBnoP0rtQIUuP1qDssVVsQ&oh=00_AfKnRvDJp7-JnQh4olQOYEKAzM0JyaqvEMKDtJD8tqcJ-Q&oe=68227425"
-                            alt="">
-                    </div>
-                </div>
-                <div class="flex items-center justify-center hover:text-sky-600 ">
-                    <a href="" class="flex items-center">
-                        <span class=" mr-1">Xem tất cả</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-chevron-right">
-                            <path d="m9 18 6-6-6-6" />
-                        </svg>
-                    </a>
-                </div>
+        
 
-            </div>
-
-            <div class="product">
-                <div class="product__viewport">
-                    <div class="products__container">
-                        {{-- <div class="product__slide">
-                            <div style="cursor:pointer" onclick="window.location.href='/product-detail/1';"
-                                class="product__slide__image">
-                                <img src="/public/uploads/product_a.jpg" alt="Sản phẩm A" width="100px"
-                                    class="embla__slide__background">
-                            </div>
-                            <div class="product__slide__number">
-                                <div>
-                                    <p class="product__slide__text clamp-text">Sản phẩm A</p>
-                                </div>
-                                <div class="product__slide__number__imgs">
-                                    <p class="product__slide__number__imgs__price">100,000đ</p>
-                                    <form action="/add-to-cart" method="post">
-                                        <input type="hidden" name="method" value="POST">
-                                        <input type="hidden" name="id" value="1">
-                                        <button name="add-to-cart" style="cursor:pointer"
-                                            class="product__slide__number__imgs__buy">Mua ngay</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> --}}
-
-
-                        @foreach ($products as $product)
-                            @php
-                                $firstSku = $product->productSkus->first();
-                                $price = $firstSku ? $firstSku->price : 0;
-                            @endphp
-                            <div class="product__slide mt-4 relative border border-gray-300 group rounded-lg">
-
-                                @if ($firstSku)
-                                    <div
-                                        class="absolute bottom-40 right-4 z-10 
-                                                                                                    opacity-0 translate-y-4 
-                                                                                                    group-hover:opacity-100 group-hover:translate-y-0 
-                                                                                                    transition-all duration-500 ease-in-out">
-                                        <form action="{{ route('cart.add') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="sku_id" value="{{ $firstSku->id }}">
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button
-                                                class="bg-blue-500 text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                                                border border-transparent transition duration-300 ease-in-out
-                                                                                                                hover:bg-transparent hover:text-blue-600
-                                                                                                                hover:border-blue-600 hover:shadow-lg hover:scale-105">
-                                                Mua ngay
-                                            </button>
-                                        </form>
-                                    </div>
-                                @endif
-
-
-                                <div style="cursor:pointer"
-                                    onclick="window.location.href='/product-detail/{{ $product->id }}';"
-                                    class="product__slide__image border-b border-gray-300">
-                                    <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                        width="100px" class="embla__slide__background block w-full h-full">
-                                </div>
-
-                                <div class="product__slide__number flex flex-wrap content-around">
-                                    <div>
-                                        <p class="text-base line-clamp-2">{{ $product->name }}</p>
-                                    </div>
-
-                                    <div class="flex items-center space-x-1 w-[100%]">
-                                        @for ($j = 1; $j <= 5; $j++)
-                                            <svg class="w-4 h-4 {{ $j <= 4 ? 'text-yellow-300' : 'text-gray-200' }}"
-                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                                <path
-                                                    d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                            </svg>
-                                        @endfor
-                                        <span class="text-xs">20</span>
-                                    </div>
-
-                                    @foreach ($product->categories as $category)
-                                        <span class="inline-block bg-gray-200 text-sm text-gray-700 px-2 py-1 rounded mr-1">
-                                            {{ $category->name }}
-                                        </span>
-                                    @endforeach
-
-                                    <div class="product__slide__number__imgs">
-                                        <p class="product__slide__number__imgs__price">{{ number_format($price) }}đ</p>
-                                        <span class="product__slide__number__imgs__price-sale ml-1 opacity-50">
-                                            {{ number_format($price) }}đ
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-
-
-
-                    </div>
-                </div>
-
-                <div class="product__controls">
-                    <div class="product__progress">
-                        <div class="product__progress__bar" style="transform:translate3d(0%,0px,0px)"></div>
-                    </div>
-                    <div class="product__buttons">
-                        <button class="product__button product__button--prev" type="button" disabled="">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left">
-                                <path d="m15 18-6-6 6-6" />
-                            </svg>
-                        </button>
-                        <button class="product__button product__button--next" type="button" disabled="">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-chevron-right">
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
-
-        <div class="grid grid-cols-10 gap-2 h-[170px]">
-            @foreach ($childCategories as $category)
-                <div class="p-2 flex flex-col items-center justify-between h-[100px]">
-                    <a href="" class="h-[100px]">
-
-                        <img src="https://cdn1.fahasa.com/media/wysiwyg/HUYEN-1/3900000245517.png" class="rounded"
-                            alt="Banner 1">
-                        {{-- nào có hình trong database thì đổi lại đỡ xấu --}}
-                        {{-- <img src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
-                            class="rounded h-full w-auto object-contain" alt="{{ $category->name }}"> --}}
-                    </a>
-                    <div class="text-center mt-1">
-                        <p class="text-sm">{{ $category->name }}</p>
-                    </div>
-                </div>
-            @endforeach
+        <div class=" bg-light p-2 my-6 rounded">
+            <livewire:homemodule::components.product-category :childCategories="$childCategories">
+            </livewire:homemodule::components.product-category :childCategories="$childCategories">
         </div>
         <div class=" bg-light p-2 my-3 rounded">
-            <div class="flex justify-between h-[50] ">
-                <div class="1/2">
-                    <div>
-                        <p class="ml-3 text-2xl font-bold">Danh mục sản phẩm</p>
-                    </div>
+            <div class="my-3 bg-light rounded  p-4">
+                <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab"
+                        data-tabs-toggle="#default-tab-content" role="tablist">
+                        @foreach($relatedTags as $index => $tag)
+                            <li class="me-2" role="presentation">
+                                <button
+                                    class="inline-block p-4 border-b-2 rounded-t-lg {{ $index == 0 ? 'border-blue-600 text-blue-600' : '' }}"
+                                    id="tag-tab-{{ $tag->id }}" data-tabs-target="#tag-{{ $tag->id }}" type="button"
+                                    role="tab" aria-controls="tag-{{ $tag->id }}"
+                                    aria-selected="{{ $index == 0 ? 'true' : 'false' }}">
+                                    {{ $tag->tag_name }}
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                </div>
+                <div id="default-tab-content">
+                    @foreach($relatedTags as $index => $tag)
+                        <div class="{{ $index != 0 ? 'hidden' : '' }}" id="tag-{{ $tag->id }}" role="tabpanel"
+                            aria-labelledby="tag-tab-{{ $tag->id }}">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                                @foreach($tag->products as $product)
+                                    <div
+                                        class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
+                                        <!-- Nút mua ngay -->
+
+
+
+                                        <div class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 
+                                                                                group-hover:opacity-100 group-hover:translate-y-0 
+                                                                                transition-all duration-500 ease-in-out">
+                                            @php
+                                                $firstSku = $product->productSkus->first();
+                                            @endphp
+
+                                            <form action="{{route('cart.add')}}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button
+                                                    class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
+                                                                                                                                                                                        border border-transparent transition duration-300 ease-in-out
+                                                                                                                                                                                        hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
+                                                                                                                                                                                        hover:scale-105 hover:bg-white">
+                                                    Mua ngay
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <!-- Ảnh -->
+                                        <div style="cursor:pointer"
+                                            onclick="window.location.href='/product-detail/{{ $product->id }}';"
+                                            class="product__slide__image border-b border-gray-300 overflow-hidden">
+                                            <img src="{{ $product->thumbnail ?? 'https://via.placeholder.com/300x200' }}"
+                                                alt="{{ $product->name }}" width="100px"
+                                                class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105">
+                                        </div>
+
+                                        <!-- Thông tin -->
+                                        <div class="product__slide__number flex flex-wrap content-around p-2">
+                                            <div>
+                                                <p class="text-base line-clamp-2">{{ $product->name }}</p>
+                                            </div>
+                                            <div class="flex items-center space-x-1 w-[100%]">
+                                                @for ($j = 1; $j <= 5; $j++)
+                                                    <svg class="w-4 h-4 {{ $j <= 4 ? 'text-yellow-300' : 'text-gray-200' }}"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
+                                                        <path
+                                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                                                    </svg>
+                                                @endfor
+                                                <span class="text-xs">20</span>
+                                            </div>
+                                            <div>{{ optional($product->categories->first())->name ?? 'Chưa rõ' }}</div>
+                                            <div class="product__slide__number__imgs">
+                                                @php
+                                                    $sku = $product->productSkus->first();
+                                                @endphp
+                                                <p class="product__slide__number__imgs__price">
+                                                    {{ number_format($sku?->price ?? 0) }}đ
+                                                </p>
+                                                <span class="product__slide__number__imgs__price-sale ml-1 opacity-50">
+                                                    {{ number_format(($sku?->price ?? 0) * 1.2) }}đ
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
             </div>
 
-            <div class="grid grid-cols-10 gap-2 h-[170px]">
-                @foreach ($childCategories as $category)
-                    <div class="p-2 flex flex-col items-center justify-between h-[100px]">
-                        <a href="" class="h-[100px]">
-
-                            <img src="https://cdn1.fahasa.com/media/wysiwyg/HUYEN-1/3900000245517.png" class="rounded"
-                                alt="Banner 1">
-                            {{-- nào có hình trong database thì đổi lại đỡ xấu --}}
-                            {{-- <img src="{{ asset('images/categories/' . $category->id . '.jpg') }}"
-                                class="rounded h-full w-auto object-contain" alt="{{ $category->name }}"> --}}
-                        </a>
-                        <div class="text-center mt-1">
-                            <p class="text-sm">{{ $category->name }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const emblaNode = document.querySelector('.product')
+                const viewportNode = emblaNode.querySelector('.product__viewport')
+                const prevBtn = emblaNode.querySelector('.product__button--prev')
+                const nextBtn = emblaNode.querySelector('.product__button--next')
+                const progressNode = emblaNode.querySelector('.product__progress__bar')
 
-        <div class="my-3 bg-light rounded  p-4">
-            <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
-                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab"
-                    data-tabs-toggle="#default-tab-content" role="tablist">
-                    @foreach($relatedTags as $index => $tag)
-                        <li class="me-2" role="presentation">
-                            <button
-                                class="inline-block p-4 border-b-2 rounded-t-lg {{ $index == 0 ? 'border-blue-600 text-blue-600' : '' }}"
-                                id="tag-tab-{{ $tag->id }}" data-tabs-target="#tag-{{ $tag->id }}" type="button" role="tab"
-                                aria-controls="tag-{{ $tag->id }}" aria-selected="{{ $index == 0 ? 'true' : 'false' }}">
-                                {{ $tag->tag_name }}
-                            </button>
-                        </li>
-                    @endforeach
-                </ul>
+                const OPTIONS = { dragFree: true, containScroll: 'trimSnaps' }
 
-            </div>
-            <div id="default-tab-content">
-                @foreach($relatedTags as $index => $tag)
-                    <div class="{{ $index != 0 ? 'hidden' : '' }}" id="tag-{{ $tag->id }}" role="tabpanel"
-                        aria-labelledby="tag-tab-{{ $tag->id }}">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
-                            @foreach($tag->products as $product)
-                                <div
-                                    class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
-                                    <!-- Nút mua ngay -->
+                const emblaApi = EmblaCarousel(viewportNode, OPTIONS)
 
+                const addTogglePrevNextBtnsActive = (emblaApi, prevBtn, nextBtn) => {
+                    const togglePrevNextBtnsState = () => {
+                        if (emblaApi.canScrollPrev()) prevBtn.removeAttribute('disabled')
+                        else prevBtn.setAttribute('disabled', 'disabled')
 
+                        if (emblaApi.canScrollNext()) nextBtn.removeAttribute('disabled')
+                        else nextBtn.setAttribute('disabled', 'disabled')
+                    }
 
-                                    <div class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 
-                                                        group-hover:opacity-100 group-hover:translate-y-0 
-                                                        transition-all duration-500 ease-in-out">
-                                        @php
-                                            $firstSku = $product->productSkus->first();
-                                        @endphp
+                    emblaApi
+                        .on('select', togglePrevNextBtnsState)
+                        .on('init', togglePrevNextBtnsState)
+                        .on('reInit', togglePrevNextBtnsState)
 
-                                        <form action="{{route('cart.add')}}" method="post">
-                                            @csrf
-                                            <input type="hidden" name="sku_id" value="{{ $firstSku->id ?? '' }}">
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button
-                                                class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md
-                                                                                                                                                                border border-transparent transition duration-300 ease-in-out
-                                                                                                                                                                hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg
-                                                                                                                                                                hover:scale-105 hover:bg-white">
-                                                Mua ngay
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <!-- Ảnh -->
-                                    <div style="cursor:pointer"
-                                        onclick="window.location.href='/product-detail/{{ $product->id }}';"
-                                        class="product__slide__image border-b border-gray-300 overflow-hidden">
-                                        <img src="{{ $product->thumbnail ?? 'https://via.placeholder.com/300x200' }}"
-                                            alt="{{ $product->name }}" width="100px"
-                                            class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105">
-                                    </div>
-
-                                    <!-- Thông tin -->
-                                    <div class="product__slide__number flex flex-wrap content-around p-2">
-                                        <div>
-                                            <p class="text-base line-clamp-2">{{ $product->name }}</p>
-                                        </div>
-                                        <div class="flex items-center space-x-1 w-[100%]">
-                                            @for ($j = 1; $j <= 5; $j++)
-                                                <svg class="w-4 h-4 {{ $j <= 4 ? 'text-yellow-300' : 'text-gray-200' }}"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                                    <path
-                                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                                </svg>
-                                            @endfor
-                                            <span class="text-xs">20</span>
-                                        </div>
-                                        <div>{{ optional($product->categories->first())->name ?? 'Chưa rõ' }}</div>
-                                        <div class="product__slide__number__imgs">
-                                            @php
-                                                $sku = $product->productSkus->first();
-                                            @endphp
-                                            <p class="product__slide__number__imgs__price">
-                                                {{ number_format($sku?->price ?? 0) }}đ
-                                            </p>
-                                            <span class="product__slide__number__imgs__price-sale ml-1 opacity-50">
-                                                {{ number_format(($sku?->price ?? 0) * 1.2) }}đ
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-        </div>
-
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const emblaNode = document.querySelector('.product')
-            const viewportNode = emblaNode.querySelector('.product__viewport')
-            const prevBtn = emblaNode.querySelector('.product__button--prev')
-            const nextBtn = emblaNode.querySelector('.product__button--next')
-            const progressNode = emblaNode.querySelector('.product__progress__bar')
-
-            const OPTIONS = { dragFree: true, containScroll: 'trimSnaps' }
-
-            const emblaApi = EmblaCarousel(viewportNode, OPTIONS)
-
-            const addTogglePrevNextBtnsActive = (emblaApi, prevBtn, nextBtn) => {
-                const togglePrevNextBtnsState = () => {
-                    if (emblaApi.canScrollPrev()) prevBtn.removeAttribute('disabled')
-                    else prevBtn.setAttribute('disabled', 'disabled')
-
-                    if (emblaApi.canScrollNext()) nextBtn.removeAttribute('disabled')
-                    else nextBtn.setAttribute('disabled', 'disabled')
+                    return () => {
+                        prevBtn.removeAttribute('disabled')
+                        nextBtn.removeAttribute('disabled')
+                    }
                 }
 
-                emblaApi
-                    .on('select', togglePrevNextBtnsState)
-                    .on('init', togglePrevNextBtnsState)
-                    .on('reInit', togglePrevNextBtnsState)
+                const addPrevNextBtnsClickHandlers = (emblaApi, prevBtn, nextBtn) => {
+                    const scrollPrev = () => {
+                        emblaApi.scrollPrev()
+                    }
+                    const scrollNext = () => {
+                        emblaApi.scrollNext()
+                    }
+                    prevBtn.addEventListener('click', scrollPrev, false)
+                    nextBtn.addEventListener('click', scrollNext, false)
 
-                return () => {
-                    prevBtn.removeAttribute('disabled')
-                    nextBtn.removeAttribute('disabled')
-                }
-            }
+                    const removeTogglePrevNextBtnsActive = addTogglePrevNextBtnsActive(
+                        emblaApi,
+                        prevBtn,
+                        nextBtn
+                    )
 
-            const addPrevNextBtnsClickHandlers = (emblaApi, prevBtn, nextBtn) => {
-                const scrollPrev = () => {
-                    emblaApi.scrollPrev()
-                }
-                const scrollNext = () => {
-                    emblaApi.scrollNext()
-                }
-                prevBtn.addEventListener('click', scrollPrev, false)
-                nextBtn.addEventListener('click', scrollNext, false)
-
-                const removeTogglePrevNextBtnsActive = addTogglePrevNextBtnsActive(
-                    emblaApi,
-                    prevBtn,
-                    nextBtn
-                )
-
-                return () => {
-                    removeTogglePrevNextBtnsActive()
-                    prevBtn.removeEventListener('click', scrollPrev, false)
-                    nextBtn.removeEventListener('click', scrollNext, false)
-                }
-            }
-
-            const setupProgressBar = (emblaApi, progressNode) => {
-                const applyProgress = () => {
-                    const progress = Math.max(0, Math.min(1, emblaApi.scrollProgress()))
-                    progressNode.style.transform = `translate3d(${progress * 100}%,0px,0px)`
+                    return () => {
+                        removeTogglePrevNextBtnsActive()
+                        prevBtn.removeEventListener('click', scrollPrev, false)
+                        nextBtn.removeEventListener('click', scrollNext, false)
+                    }
                 }
 
-                const removeProgress = () => {
-                    progressNode.removeAttribute('style')
+                const setupProgressBar = (emblaApi, progressNode) => {
+                    const applyProgress = () => {
+                        const progress = Math.max(0, Math.min(1, emblaApi.scrollProgress()))
+                        progressNode.style.transform = `translate3d(${progress * 100}%,0px,0px)`
+                    }
+
+                    const removeProgress = () => {
+                        progressNode.removeAttribute('style')
+                    }
+
+                    return {
+                        applyProgress,
+                        removeProgress
+                    }
                 }
 
-                return {
-                    applyProgress,
-                    removeProgress
+                if (emblaApi) {
+                    const { applyProgress, removeProgress } = setupProgressBar(
+                        emblaApi,
+                        progressNode
+                    )
+
+                    const removePrevNextBtnsClickHandlers = addPrevNextBtnsClickHandlers(
+                        emblaApi,
+                        prevBtn,
+                        nextBtn
+                    )
+
+                    emblaApi
+                        .on('init', applyProgress)
+                        .on('reInit', applyProgress)
+                        .on('scroll', applyProgress)
+                        .on('slideFocus', applyProgress)
+                        .on('destroy', removeProgress)
+                        .on('destroy', removePrevNextBtnsClickHandlers)
                 }
-            }
-
-            if (emblaApi) {
-                const { applyProgress, removeProgress } = setupProgressBar(
-                    emblaApi,
-                    progressNode
-                )
-
-                const removePrevNextBtnsClickHandlers = addPrevNextBtnsClickHandlers(
-                    emblaApi,
-                    prevBtn,
-                    nextBtn
-                )
-
-                emblaApi
-                    .on('init', applyProgress)
-                    .on('reInit', applyProgress)
-                    .on('scroll', applyProgress)
-                    .on('slideFocus', applyProgress)
-                    .on('destroy', removeProgress)
-                    .on('destroy', removePrevNextBtnsClickHandlers)
-            }
-        })
+            })
 
 
-    </script>
+        </script>
 
 
 

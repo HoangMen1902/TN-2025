@@ -19,45 +19,61 @@ class HomeModuleController extends Controller
 
 
     public function index()
-    {
-        $products = Product::with([
-            'publisher',
-            'productSkus',
-            'categories' => function ($query) {
-                $query->limit(3);
-            }
-        ])
-        ->where('product_status', 'active')
-        ->whereHas('productSkus')
-        ->latest()
-        ->take(20)
+{
+   
+    $products = Product::with([
+        'publisher',
+        'productSkus',
+        'categories' => function ($query) {
+            $query->limit(3);
+        }
+    ])
+    ->where('product_status', 'active')
+    ->whereHas('productSkus')
+    ->latest()
+    ->take(20)
+    ->get();
+
+   
+    $relatedTags = RelatedTag::where('related_tag_status', 'active')
+        ->with(['products' => function ($query) {
+            $query->with('productSkus')
+                ->where('product_status', 'active')
+                ->whereHas('productSkus');
+        }])
         ->get();
 
-
-
-        $relatedTags = RelatedTag::where('related_tag_status', 'active')
-            ->with(['products' => function ($query) {
-                $query->with('productSkus')
-                    ->where('product_status', 'active')
-                    ->whereHas('productSkus');
-            }])
-            ->get();
-
-        $wishlistProducts = collect();
-
-        if (Auth::check()) {
-            $wishlistProducts = Wishlist::with('product.productSkus', 'product.categories')
-                ->where('user_id', Auth::id())
-                ->get()
-                ->pluck('product')
-                ->filter();
-        }
-        $childCategories = Category::active()
-            ->whereNotNull('parent_id')
-            ->get();
-
-        return view('homemodule::index', compact('products', 'relatedTags', 'wishlistProducts', 'childCategories'));
+    
+    $wishlistProducts = collect();
+    if (Auth::check()) {
+        $wishlistProducts = Wishlist::with('product.productSkus', 'product.categories')
+            ->where('user_id', Auth::id())
+            ->get()
+            ->pluck('product')
+            ->filter();
     }
+
+   
+  $childCategories = Category::active()
+  ->whereNotNull('parent_id')
+  
+        ->with(['products' => function ($query) {
+            $query->where('product_status', 'active')
+                ->latest('products.created_at')
+                ->take(1)
+                ->with(['productSkus', 'categories']);
+        }])
+        ->get();
+  
+    $category = Category::active()->first(); 
+    
+    $latestProduct = $category ? $category->products()
+        ->where('product_status', 'active')
+        ->latest('products.created_at')
+        ->first() : null;
+
+    return view('homemodule::index', compact('products', 'relatedTags', 'wishlistProducts', 'childCategories', 'latestProduct'));
+}
 
 
 
