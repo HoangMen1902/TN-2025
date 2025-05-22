@@ -387,9 +387,10 @@ $gutter: 48px;
 
         &__imgs {
             width: 100%;
-
+      
+         
             display: flex;
-
+        
             align-items: center;
             &__price {
                 color: #e12825;
@@ -426,8 +427,9 @@ $gutter: 48px;
         }
     }
 }
-.bg-transparent {
-    background-color: transparent;
+.bg-transparent{
+        background-color: transparent;
+      
 }
 .product__controls {
     max-width: 1600px;
@@ -521,10 +523,4 @@ $gutter: 48px;
     font-size: 15px;
     background-color: $color-text-light;
     color: $color-text-dark;
-}
-
-
-.swiper-button-next::after,
-.swiper-button-prev::after {
-    display: none !important;
 }

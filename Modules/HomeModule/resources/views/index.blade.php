@@ -220,6 +220,10 @@
                 </div>
             </div>
         </div>
+
+                <livewire:homemodule::flashsale />
+
+
         {{-- @auth
         <div class="h-[500] my-3 bg-light rounded  p-4">
             <div class="flex justify-between h-[50] ">
