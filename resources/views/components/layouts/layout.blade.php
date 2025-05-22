@@ -46,10 +46,12 @@
                 </div>
 
 
-                <div class="hidden md:relative md:flex-1 md:flex md:mx-5 md:max-w-xl md:min-w-[250px]">
-                    <input type="text" placeholder="Sách giải hỗ trợ học tập"
+                <form action="{{ route('store') }}" method="GET"
+                    class="hidden md:relative md:flex-1 md:flex md:mx-5 md:max-w-xl md:min-w-[250px]">
+                    <input type="text" name="search" placeholder="Sách giải hỗ trợ học tập"
+                        value="{{ request('search') }}"
                         class="w-full py-2 px-3 border border-gray-300 rounded-lg pr-14">
-                    <button
+                    <button type="submit"
                         class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1 rounded hover:bg-blue-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="size-6">
@@ -57,7 +59,9 @@
                                 d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                         </svg>
                     </button>
-                </div>
+                </form>
+
+
 
                 <div class="hidden md:flex md:items-center md:gap-6">
                     <div class="text-center">
@@ -393,8 +397,8 @@
                             </a>
                             @if ($parent->children->count())
                                 <div class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                  opacity-0 invisible 
-                                                  transition-opacity duration-200 ease-in-out">
+                                                                  opacity-0 invisible 
+                                                                  transition-opacity duration-200 ease-in-out">
                                     <div class="h-full overflow-hidden">
                                         <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
