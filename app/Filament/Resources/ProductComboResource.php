@@ -23,7 +23,6 @@ use App\Models\Category;
 use App\Models\ProductSku;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
-// ... các namespace như cũ
 
 class ProductComboResource extends Resource
 {
@@ -60,7 +59,7 @@ class ProductComboResource extends Resource
 
                 Select::make('category_filter')
                     ->label('Lọc theo loại sản phẩm')
-                    ->options(fn () => Category::pluck('name', 'id'))
+                    ->options(fn() => Category::pluck('name', 'id'))
                     ->reactive()
                     ->afterStateUpdated(fn($state, callable $set) => $set('combo_items', static::getFilteredSkus($state)))
                     ->columnSpan(2),
@@ -83,7 +82,8 @@ class ProductComboResource extends Resource
 
                         Placeholder::make('Tên sản phẩm')
                             ->content(fn($get) => $get('productName')),
-
+                        Placeholder::make('Giá sản phẩm')
+                            ->content(fn($get) => $get('price')),
                         Placeholder::make('Số lượng còn')
                             ->content(fn($get) => $get('quantity')),
 
@@ -103,22 +103,12 @@ class ProductComboResource extends Resource
                                 return 'Không có ảnh';
                             }),
                     ])
-                    ->columns(4)
+                    ->columns(5)
                     ->default(fn() => static::getFilteredSkus(null))
                     ->label('Danh sách SKU')
                     ->hiddenLabel()
                     ->columnSpanFull()
-                    ->afterStateHydrated(function ($state, callable $get, callable $set) {
-                        // Validate tổng số lượng SKU trong combo không vượt quá quantityCombo
-                        $quantityCombo = $get('quantityCombo');
-                        $totalSelected = collect($state)
-                            ->filter(fn ($item) => $item['selected'] ?? false)
-                            ->sum(fn ($item) => $item['sku_quantity'] ?? 0);
 
-                        if ($quantityCombo !== null && $totalSelected > $quantityCombo) {
-                            // Đây là điểm kiểm tra, trong thực tế nên đưa về validation rule
-                        }
-                    }),
             ]),
         ]);
     }
@@ -158,20 +148,20 @@ class ProductComboResource extends Resource
     {
         $skus = $categoryId
             ? ProductSku::query()
-                ->join('products', 'products.id', '=', 'product_skus.product_id')
-                ->join('product_categories', 'product_categories.product_id', '=', 'products.id')
-                ->join('categories', 'categories.id', '=', 'product_categories.category_id')
-                ->where('categories.id', $categoryId)
-                ->select('product_skus.*')
-                ->with('product')
-                ->get()
+            ->join('products', 'products.id', '=', 'product_skus.product_id')
+            ->join('product_categories', 'product_categories.product_id', '=', 'products.id')
+            ->join('categories', 'categories.id', '=', 'product_categories.category_id')
+            ->where('categories.id', $categoryId)
+            ->select('product_skus.*')
+            ->with('product')
+            ->get()
             : ProductSku::with('product')->get();
 
         return $skus->map(function ($sku) {
             return [
                 'selected' => false,
                 'sku_id' => $sku->id,
-                'productName' => $sku->product->name ?? 'Không tên',
+                'productName' => $sku->product->name . ' - ' . $sku->sku ?? 'Không tên',
                 'quantity' => $sku->quantity,
                 'sku_quantity' => 1,
                 'image_url' => is_string($sku->images) ? json_decode($sku->images, true) : ($sku->images ?? []),

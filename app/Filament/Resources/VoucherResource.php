@@ -22,11 +22,15 @@ class VoucherResource extends Resource
     protected static ?string $model = Voucher::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-
+    protected static ?string $navigationGroup = 'Chương trình giảm giá';
     protected static ?string $navigationLabel = 'Mã giảm giá';
     protected static ?string $modelLabel = 'Mã giảm giá';
     protected static ?string $pluralModelLabel = 'Các Mã giảm giá';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
 {
     return $form->schema([
