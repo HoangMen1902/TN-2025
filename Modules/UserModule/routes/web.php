@@ -31,20 +31,20 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
 Route::get('/cap-nhat-mat-khau', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
 Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
-Route::get('/ho-so',[AuthController::class, 'showProfileInfomation'])->name('infomation');
-Route::get('/dia-chi',[AuthController::class, 'showAddressInfomation'])->name('address');
-Route::get('/don-hang',[AuthController::class, 'showOrderInfomation'])->name('order');
+Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('infomation');
+Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
+Route::get('/don-hang', [AuthController::class, 'showOrderInfomation'])->name('order');
+// Route::get('/wishlist', [AuthController::class, 'showWishList'])->name('wishlist');
+
 Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notification.index');
-Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
-Route::post('/san-pham-yeu-thich',[AuthController::class, 'wishListRemove'])->name('wishlist.remove');
-// Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
-// Route::get('/san-pham-yeu-thich',[AuthController::class, 'showWishList'])->name('wishlist');
+
 // Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 
-Route::get('/ma-giam-gia',[VoucherController::class, 'index'])->name('voucher.index');
+Route::get('/ma-giam-gia', [VoucherController::class, 'index'])->name('voucher.index');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
-    Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+  Route::delete('wishlist/{product_id}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 });

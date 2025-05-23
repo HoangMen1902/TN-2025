@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Contracts\Support\Renderable;
+use App\Models\Wishlist;
 class AuthController extends Controller
 {
     public function showLoginForm()
@@ -105,13 +106,19 @@ class AuthController extends Controller
            public function showNotification(){
         return view('usermodule::profile.notification');
     }
-    //          public function showWishList(){
-    //     return view('usermodule::profile.wishlist');
+    //          public function showWishList(): Renderable
+    // {
+    //     $wishLists = Wishlist::where('user_id', Auth::id())
+    //         ->with('product')
+    //         ->paginate(10);
+
+    //     return view('usermodule::profile.wishlist', compact('wishLists'));
     // }
+    }
     //         public function wishListRemove(){
     //     return view('usermodule::profile.wishlist');
     // }
     //         public function voucherList(){
     //     return view('usermodule::profile.voucher');
     // }
-}
+
