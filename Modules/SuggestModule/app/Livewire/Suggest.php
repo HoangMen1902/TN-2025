@@ -8,7 +8,7 @@ use App\Models\Product;
 class Suggest extends Component
 {
     public $products;
-    public $displayLimit = 25; 
+    public $displayLimit = 10; 
     public $maxLimit = 70; 
     public $showAll = false;
 
@@ -53,7 +53,7 @@ class Suggest extends Component
     public function loadMore()
     {
         if ($this->displayLimit < $this->maxLimit) {
-            $this->displayLimit += 25;
+            $this->displayLimit += 15;
             if ($this->displayLimit > $this->maxLimit) {
                 $this->displayLimit = $this->maxLimit;
             }
@@ -62,7 +62,7 @@ class Suggest extends Component
 
     public function collapse()
     {
-        $this->displayLimit = 25;
+        $this->displayLimit = 10;
     }
 
     public function getDisplayedProductsProperty()
