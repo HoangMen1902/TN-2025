@@ -17,7 +17,7 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->words(3, true);
+        $name = $this->faker->realTextBetween(80, 150);
         $releasedYear = $this->faker->year('-10 years'); 
 
         return [

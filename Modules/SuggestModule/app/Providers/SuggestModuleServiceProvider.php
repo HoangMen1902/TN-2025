@@ -1,22 +1,20 @@
 <?php
 
-namespace Modules\HomeModule\Providers;
+namespace Modules\SuggestModule\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Livewire\Livewire;
-use Modules\SuggestModule\App\Http\Livewire\Suggest;
 
-class HomeModuleServiceProvider extends ServiceProvider
+class SuggestModuleServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 
-    protected string $name = 'HomeModule';
+    protected string $name = 'SuggestModule';
 
-    protected string $nameLower = 'homemodule';
+    protected string $nameLower = 'suggestmodule';
 
     /**
      * Boot the application events.
@@ -29,7 +27,6 @@ class HomeModuleServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
-        Livewire::component('suggest-products', Suggest::class);
     }
 
     /**

@@ -224,17 +224,18 @@
         <livewire:homemodule::flashsale />
 
 
-        
+
 
         <div class=" bg-light p-2 my-6 rounded">
             <livewire:homemodule::components.product-category :childCategories="$childCategories">
             </livewire:homemodule::components.product-category :childCategories="$childCategories">
         </div>
 
-    
-        <livewire:homemodule::components.publisher-product/>
-       
-        
+
+        <livewire:homemodule::components.publisher-product />
+        <livewire:suggest-products />
+
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const emblaNode = document.querySelector('.product')
