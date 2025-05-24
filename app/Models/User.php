@@ -67,4 +67,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Notification::class, 'user_notifications');
 
     }
+
+    public function emailChangeOtps()
+{
+    return $this->hasMany(EmailChangeOtp::class);
+}
+
 }
