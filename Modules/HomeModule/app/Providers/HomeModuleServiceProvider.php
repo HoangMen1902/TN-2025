@@ -9,6 +9,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Livewire\Livewire;
 use Modules\SuggestModule\App\Http\Livewire\Suggest;
+use Modules\HomeModule\App\Livewire\Components\FlashSale;
 
 class HomeModuleServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,7 @@ class HomeModuleServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
         Livewire::component('suggest-products', Suggest::class);
+        Livewire::component('homemodule.components.flash-sale', FlashSale::class);
     }
 
     /**

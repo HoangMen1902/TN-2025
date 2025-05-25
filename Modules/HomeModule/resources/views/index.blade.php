@@ -44,14 +44,14 @@
                             class="absolute z-30 flex -translate-x-1/2 space-x-3 rtl:space-x-reverse bottom-5 left-1/2">
                             <button type="button" class="w-3 h-3 rounded-full" aria-current="true" aria-label="Slide 1"
                                 data-carousel-slide-to="0"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 2"
-                                data-carousel-slide-to="1"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 3"
-                                data-carousel-slide-to="2"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 4"
-                                data-carousel-slide-to="3"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 5"
-                                data-carousel-slide-to="4"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
+                                aria-label="Slide 2" data-carousel-slide-to="1"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
+                                aria-label="Slide 3" data-carousel-slide-to="2"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
+                                aria-label="Slide 4" data-carousel-slide-to="3"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
+                                aria-label="Slide 5" data-carousel-slide-to="4"></button>
                         </div>
                         <!-- Slider controls -->
                         <button type="button"
@@ -221,11 +221,7 @@
             </div>
         </div>
 
-        <livewire:homemodule::flashsale />
-
-
-
-
+        <livewire:homemodule.components.flash-sale />
         <div class=" bg-light p-2 my-6 rounded">
             <livewire:homemodule::components.product-category :childCategories="$childCategories">
             </livewire:homemodule::components.product-category :childCategories="$childCategories">
@@ -244,7 +240,10 @@
                 const nextBtn = emblaNode.querySelector('.product__button--next')
                 const progressNode = emblaNode.querySelector('.product__progress__bar')
 
-                const OPTIONS = { dragFree: true, containScroll: 'trimSnaps' }
+                const OPTIONS = {
+                    dragFree: true,
+                    containScroll: 'trimSnaps'
+                }
 
                 const emblaApi = EmblaCarousel(viewportNode, OPTIONS)
 
@@ -308,7 +307,10 @@
                 }
 
                 if (emblaApi) {
-                    const { applyProgress, removeProgress } = setupProgressBar(
+                    const {
+                        applyProgress,
+                        removeProgress
+                    } = setupProgressBar(
                         emblaApi,
                         progressNode
                     )
@@ -328,8 +330,6 @@
                         .on('destroy', removePrevNextBtnsClickHandlers)
                 }
             })
-
-
         </script>
 
 
