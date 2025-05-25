@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\User;
 use CategorySeeder;
 use Database\Seeders\CategorySeeder as SeedersCategorySeeder;
+use Database\Seeders\FlashSaleSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -33,8 +34,10 @@ class DatabaseSeeder extends Seeder
                 $this->call([
             SeedersCategorySeeder::class,
         ]);
+
         $this->call([
             ProviderSeeder::class,
         ]);
+        $this->call(FlashSaleSeeder::class);
     }
 }
