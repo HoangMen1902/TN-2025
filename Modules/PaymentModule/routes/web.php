@@ -12,3 +12,7 @@ Route::get('/thanh-toan', [PaymentModuleController::class, 'index']);
 Route::middleware(['web', CartCheckoutMiddleware::class])->group(function () {
     Route::post('/thanh-toan', [PaymentModuleController::class, 'paymentPage']);
 });
+
+ 
+Route::post('/checkout', [PaymentModuleController::class, 'store'])->name('checkout.store');
+
