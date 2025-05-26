@@ -69,7 +69,9 @@
             @endforeach
         </div>
     </div>
-@endif
+
+@else
 <div>
     
 </div>
+@endif
