@@ -25,7 +25,7 @@
                         @php
                         $percent = (($product->productSkus->first()->price - $product->productSkus->first()->sale_price)/$product->productSkus->first()->price) * 100
                         @endphp
-                            <a href="/chi-tiet/{{$product->id}}">
+                            <a href="/chi-tiet/{{$product->slug}}">
                                 <div
                                     class="product-card w-full h-[360px] flex flex-col justify-between cursor-pointer p-2 bg-white hover:shadow rounded">
                                     {{-- Nội dung trên --}}

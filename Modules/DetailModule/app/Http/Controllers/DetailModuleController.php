@@ -12,13 +12,16 @@ class DetailModuleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($id)
+    public function index($slug)
     {
-        $data = Product::where('id', $id)
+        $data = Product::where('slug', $slug)
         ->where('product_status', 'active')
         ->where('deleted_at', '=', null)
         ->first();
         if($data != null) {
+            
+            $id = $data->id;
+
             return view('detailmodule::index', ['data' => $data, 'id' => $id]);
         } else {
             return redirect('/');

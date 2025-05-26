@@ -5,7 +5,7 @@
         <div class="mx-auto w-full max-w-[1400px] px-4 pt-30 pb-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 @foreach ($displayedProducts->take(5) as $product)
-                    <a href="/chi-tiet/{{ $product->id }}" class="block">
+                    <a href="/chi-tiet/{{ $product->slug }}" class="block">
                         <div
                             class="bg-white p-4 rounded-[10px] shadow-sm hover:shadow-lg transition duration-300 flex flex-col h-full">
                             <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="ảnh sản phẩm"

@@ -37,6 +37,7 @@ class Suggest extends Component
 
                 return (object) [
                     'id' => $product->id,
+                    'slug' => $product->slug,
                     'name' => $product->name,
                     'thumbnail' => $product->thumbnail,
                     'price' => $price,
