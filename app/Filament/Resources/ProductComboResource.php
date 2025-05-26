@@ -22,6 +22,7 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\HtmlString;
 use App\Models\Category;
 use App\Models\ProductSku;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
 
@@ -31,20 +32,29 @@ class ProductComboResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Quản lý Sản phẩm';
-    protected static ?string $navigationLabel = 'Combo';
-    protected static ?string $pluralModelLabel = 'Combo';
-    protected static ?string $modelLabel = 'Combo';
+    protected static ?string $navigationLabel = 'Combo sản phẩm';
+    protected static ?string $pluralModelLabel = 'Combo sản phẩm';
+    protected static ?string $modelLabel = 'Combo sản phẩm';
 
     public static function form(Form $form): Form
     {
         return $form->schema([
             Grid::make(4)->schema([
                 TextInput::make('combo_name')->label('Tên Combo')->rules('required')->validationMessages(['required' => 'Vui lòng nhập tên combo'])->unique(ignoreRecord: true)->columnSpanFull(),
-                RichEditor
-                ::make('description')
+                TextInput::make('slug')->label('Đường dẫn')->rules('required')->validationMessages(['required' => 'Vui lòng nhập đường dẫn'])->unique(ignoreRecord: true)->columnSpanFull(),
+                RichEditor::make('description')
                     ->label('Mô tả combo')
                     ->columnSpanFull(),
-
+                    FileUpload::make('images')
+                    ->label('Ảnh sản phẩm')
+                    ->required()
+                    ->image()
+                    ->multiple()
+                    ->maxFiles(10)
+                    ->columnSpanFull()
+                    ->validationMessages([
+                        'required' => 'Vui lòng tải lên ít nhất 1 ảnh combo',
+                    ]),
                 TextInput::make('original_price')
                     ->label('Giá gốc')
                     ->numeric()
@@ -120,7 +130,10 @@ class ProductComboResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID'),
-                TextColumn::make('description')->label('Mô tả'),
+                TextColumn::make('description')->label('Mô tả')->html()->limit(50),
+                TextColumn::make('original_price')->label('Giá gốc')->money('VND'),
+                TextColumn::make('sale_price')->label('Giá Sale')->money('VND'),
+                TextColumn::make('expired_at')->label('Thời gian hết hạn')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
