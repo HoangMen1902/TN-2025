@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductComboResource\Pages;
 use App\Models\ProductCombo;
 use App\Models\comboSku;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -38,10 +39,11 @@ class ProductComboResource extends Resource
     {
         return $form->schema([
             Grid::make(4)->schema([
-                Textarea::make('description')
+                TextInput::make('combo_name')->label('Tên Combo')->rules('required')->validationMessages(['required' => 'Vui lòng nhập tên combo'])->unique(ignoreRecord: true)->columnSpanFull(),
+                RichEditor
+                ::make('description')
                     ->label('Mô tả combo')
-                    ->rows(3)
-                    ->columnSpan(4),
+                    ->columnSpanFull(),
 
                 TextInput::make('original_price')
                     ->label('Giá gốc')
@@ -55,7 +57,7 @@ class ProductComboResource extends Resource
 
                 DatePicker::make('expired_at')
                     ->label('Ngày hết hạn')
-                    ->columnSpan(1),
+                    ->columnSpan(2),
 
                 Select::make('category_filter')
                     ->label('Lọc theo loại sản phẩm')
@@ -69,7 +71,7 @@ class ProductComboResource extends Resource
                     ->numeric()
                     ->required()
                     ->minValue(1)
-                    ->columnSpan(1),
+                    ->columnSpan(2),
 
                 Repeater::make('combo_items')
                     ->schema([

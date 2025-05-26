@@ -34,7 +34,7 @@
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-b-[20px] pb-6 px-4">
+    <div class="rounded-b-[20px] pb-6 px-4">
         {{-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             @foreach ($displayedProducts as $product)
                 <a href="/chi-tiet/{{ $product->id }}" class="block">

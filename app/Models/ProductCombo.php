@@ -18,6 +18,7 @@ class ProductCombo extends Model
         'sale_price',
         'quantity',
         'expired_at',
+        'combo_name'
     ];
 
     protected $dates = ['expired_at'];
