@@ -1,5 +1,5 @@
 <div>
-    <div class="flex flex-col md:flex-row md:h-[600px] w-full">
+    <div class="flex flex-col md:flex-row w-full">
         <div class="w-full h-[500px] md:w-[300px] md:h-[500px] mb-4 md:mb-0">
             <x-usermodule::sidebar></x-usermodule::sidebar>
         </div>
@@ -32,7 +32,7 @@
                                 {{ $address->address }}
                             </p>
                             <p class="text-gray-600 text-sm">
-                               {{ $address->ward->name }}, {{ $address->district->name }}, {{ $address->province->name }}
+                                {{ $address->ward->name }}, {{ $address->district->name }}, {{ $address->province->name }}
 
                             </p>
                             @if($address->address_default)
@@ -70,8 +70,7 @@
                 @endforeach
 
             </div>
-            @if($showDeleteModal)
-            <div class="fixed inset-0 z-50  bg-opacity-50 flex items-center justify-center">
+            <div class="fixed {{$showDeleteModal ? '' : 'hidden'}} inset-0 z-50  bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6">
                     <h2 class="text-lg font-semibold text-center mb-4">Xác nhận xóa</h2>
                     <p class="text-center text-gray-700 mb-6">Bạn có chắc chắn muốn xóa địa chỉ này không?</p>
@@ -87,11 +86,9 @@
                     </div>
                 </div>
             </div>
-            @endif
 
             <!-- Modal Form Cập nhật -->
-            @if($showUpdateModal)
-            <div class="fixed inset-0 bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="fixed {{$showUpdateModal ? '' : 'hidden'}} inset-0 bg-opacity-50 z-50 flex items-center justify-center">
                 <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 transform transition-transform duration-300">
                     <div class="p-4 md:p-6">
                         <div class="flex items-center justify-between mb-4 md:mb-6">
@@ -105,70 +102,87 @@
                         </div>
 
                         <form wire:submit.prevent="updateAddress">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
-                                <input type="text" wire:model="update_name" placeholder="Họ và tên"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <input type="tel" wire:model="update_phone" placeholder="Số điện thoại"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-
-                            <div class="mb-4">
-                                <div class="relative">
-                                    <select wire:model="update_province_id" class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="" selected disabled>Tỉnh/Thành phố</option>
-                                        @foreach($provinces as $province)
-                                        <option value="{{ $province['ProvinceID'] }}">{{ $province['ProvinceName'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-1">
+                                <div>
+                                    <input type="text" wire:model="update_name" placeholder="Họ và tên"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    @error('update_name')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <input type="tel" wire:model="update_phone" placeholder="Số điện thoại"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    @error('update_phone')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <div class="relative">
-                                    <select wire:model="update_district_id" class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="" selected disabled>Quận/Huyện</option>
-                                        @foreach($districts as $district)
-                                        <option value="{{ $district['DistrictID'] }}">{{ $district['DistrictName'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </div>
+                                <label class="block text-sm font-medium mb-1">Tỉnh/Thành phố</label>
+                                <select wire:model="update_province_id" wire:change="getDistrict('update')"
+                                    class="w-full border border-gray-300 p-2 rounded-md">
+                                    <option value="">-- Chọn tỉnh/thành --</option>
+                                    @foreach ($provinces as $province)
+                                    <option value="{{ $province['ProvinceID'] }}">{{ $province['ProvinceName'] }}</option>
+                                    @endforeach
+                                </select>
+                                @error('update_province_id')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-4">
-                                <div class="relative">
-                                    <select wire:model="update_ward_id" class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="" selected disabled>Phường/Xã</option>
-                                        @foreach($wards as $ward)
-                                        <option value="{{ $ward['WardCode'] }}">{{ $ward['WardName'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </div>
+                                <label class="block text-sm font-medium mb-1">Quận/Huyện</label>
+                                <select wire:model="update_district_id" wire:change="getWard('update')"
+                                    class="w-full border border-gray-300 p-2 rounded-md">
+                                    <option value="">-- Chọn quận/huyện --</option>
+                                    @foreach ($districts as $district)
+                                    <option value="{{ $district['DistrictID'] }}">{{ $district['DistrictName'] }}</option>
+                                    @endforeach
+                                </select>
+                                @error('update_district_id')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-1">Phường/Xã</label>
+                                <select wire:model="update_ward_id" class="w-full border border-gray-300 p-2 rounded-md">
+                                    <option value="">-- Chọn phường/xã --</option>
+                                    @foreach ($wards as $ward)
+                                    <option value="{{ $ward['WardCode'] }}">{{ $ward['WardName'] }}</option>
+                                    @endforeach
+                                </select>
+                                @error('update_ward_id')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-4 md:mb-6">
-                                <textarea wire:model="update_detail" placeholder="Địa chỉ cụ thể"
+                                <textarea wire:model="update_addresses" placeholder="Địa chỉ cụ thể"
                                     class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 md:h-24"></textarea>
+                                @error('update_addresses')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4 md:mb-6">
+                                <p class="text-sm mb-2">Loại địa chỉ:</p>
+                                <div class="flex gap-3 md:gap-4">
+                                    <label>
+                                        <input type="radio" wire:model="update_address_type" value="home" class="hidden peer">
+                                        <span class="px-3 py-2 border rounded cursor-pointer peer-checked:bg-blue-100">Nhà riêng</span>
+                                    </label>
+                                    <label>
+                                        <input type="radio" wire:model="update_address_type" value="office" class="hidden peer">
+                                        <span class="px-3 py-2 border rounded cursor-pointer peer-checked:bg-blue-100">Văn phòng</span>
+                                    </label>
+                                </div>
+                                @error('update_address_type')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="flex gap-3 md:gap-4">
@@ -179,14 +193,13 @@
                                     class="flex-1 py-2 bg-blue-500 hover:bg-blue-600 rounded font-medium text-white text-sm md:text-base">Cập nhật</button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
-            @endif
         </div>
     </div>
-    @if($showModal)
-    <div class="fixed inset-0  bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="fixed inset-0  {{$showModal ? '' : 'hidden'}}  bg-opacity-50 z-50 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 transform transition-transform duration-300">
             <div class="p-4 md:p-6">
                 <div class="flex items-center justify-between mb-4 md:mb-6">
@@ -200,90 +213,91 @@
                 </div>
 
                 <form wire:submit.prevent="saveAddress">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
-                        <input type="text" wire:model="customer_name" placeholder="Họ và tên"
-                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="tel" wire:model="phone" placeholder="Số điện thoại"
-                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="relative">
-                            <select wire:model.defer="province_id" id="province"
-                                class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="" selected disabled>Tỉnh/Thành phố</option>
-                                @foreach ($provinces as $province)
-                                <option value="{{ $province['ProvinceID'] }}">{{ $province['ProvinceName'] }}</option>
-                                @endforeach
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-1">
+                        <div>
+                            <input type="text" wire:model="customer_name" placeholder="Họ và tên"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('customer_name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <input type="tel" wire:model="phone" placeholder="Số điện thoại"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            @error('phone')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <div class="relative">
-                            <select wire:model="district_id"
-                                id="district"
-                                class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="" selected disabled>Quận/Huyện</option>
-                                @foreach ($districts as $district)
-                                <option value="{{ $district['DistrictID'] }}">{{ $district['DistrictName'] }}</option>
-                                @endforeach
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
+                        <label class="block text-sm font-medium mb-1">Tỉnh/Thành phố</label>
+                        <select wire:model="province_id" wire:change="getDistrict('create')"
+                            class="w-full border border-gray-300 p-2 rounded-md">
+                            <option value="">-- Chọn tỉnh/thành --</option>
+                            @foreach ($provinces as $province)
+                            <option value="{{ $province['ProvinceID'] }}">{{ $province['ProvinceName'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('province_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
+
                     <div class="mb-4">
-                        <div class="relative">
-                            <select wire:model="ward_id" id="ward"
-                                class="appearance-none w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="" selected disabled>Phường/Xã</option>
-                                @foreach ($wards as $ward)
-                                <option value="{{ $ward['WardCode'] }}">{{ $ward['WardName'] }}</option>
-                                @endforeach
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
+                        <label class="block text-sm font-medium mb-1">Quận/Huyện</label>
+                        <select wire:model="district_id" wire:change="getWard('create')"
+                            class="w-full border border-gray-300 p-2 rounded-md">
+                            <option value="">-- Chọn quận/huyện --</option>
+                            @foreach ($districts as $district)
+                            <option value="{{ $district['DistrictID'] }}">{{ $district['DistrictName'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('district_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
+
+
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Phường/Xã</label>
+                        <select wire:model="ward_id" class="w-full border border-gray-300 p-2 rounded-md">
+                            <option value="">-- Chọn phường/xã --</option>
+                            @foreach ($wards as $ward)
+                            <option value="{{ $ward['WardCode'] }}">{{ $ward['WardName'] }}</option>
+                            @endforeach
+                        </select>
+                        @error('ward_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
 
                     <div class="mb-4 md:mb-6">
                         <textarea wire:model="address" placeholder="Địa chỉ cụ thể"
                             class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 md:h-24"></textarea>
+                        @error('address')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="mb-4 md:mb-6">
                         <p class="text-sm mb-2">Loại địa chỉ:</p>
                         <div class="flex gap-3 md:gap-4">
                             <label>
-                                <input type="radio" wire:model="address_type" value="home"
-                                    class="hidden peer">
+                                <input type="radio" wire:model="address_type" value="home" class="hidden peer">
                                 <span class="px-3 py-2 border rounded cursor-pointer peer-checked:bg-blue-100">Nhà riêng</span>
                             </label>
                             <label>
-                                <input type="radio" wire:model="address_type" value="office"
-                                    class="hidden peer">
+                                <input type="radio" wire:model="address_type" value="office" class="hidden peer">
                                 <span class="px-3 py-2 border rounded cursor-pointer peer-checked:bg-blue-100">Văn phòng</span>
                             </label>
                         </div>
+                        @error('address_type')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="flex items-center mb-4 md:mb-6">
@@ -300,27 +314,8 @@
                             class="flex-1 py-2 bg-blue-500 hover:bg-blue-600 rounded font-medium text-white text-sm md:text-base">Hoàn thành</button>
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
-    @endif
-    <!-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const provinceSelect = document.getElementById('province');
-            const districtSelect = document.getElementById('district');
-
-            if (provinceSelect) {
-                provinceSelect.addEventListener('change', function() {
-                    Livewire.dispatch('updateProvince');
-                });
-            }
-
-            if (districtSelect) {
-                districtSelect.addEventListener('change', function() {
-                    Livewire.dispatch('updateDistrict');
-                });
-            }
-        });
-    </script> -->
-
 </div>
