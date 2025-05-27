@@ -5,5 +5,5 @@ use Modules\DetailModule\Http\Controllers\DetailModuleController;
 
 
 
-Route::get('/chi-tiet/combo/{id}', [DetailModuleController::class, 'index']);
+// Route::get('/chi-tiet/combo/{id}', [DetailModuleController::class, 'index']);
 Route::get('/chi-tiet/{slug}', [DetailModuleController::class, 'index']);
