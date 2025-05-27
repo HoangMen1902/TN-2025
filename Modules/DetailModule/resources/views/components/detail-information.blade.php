@@ -14,16 +14,31 @@
             <tr>
                 <th class="text-sm font-light">Tác giả</th>
                 <td class="text-sm">
-                    {{$data->author}}</td>
+                    @if ($type === "product")
+                        {{$data->author}}
+                    @elseif ($type === "combo")
+                        {{ $data->productSkus->pluck('product.author')->unique()->implode(', ') }}
+                    @endif
+                </td>
             </tr>
             <tr>
                 <th class="text-sm font-light">NXB</th>
-                <td class="text-sm">{{$data->publisher->publisher_name}}</td>
+                <td class="text-sm">
+                    @if ($type === "product")
+                        {{$data->publisher->publisher_name}}
+                    @elseif ($type === "combo")
+                        @foreach ($data->productSkus->pluck('product.publisher.publisher_name')->unique() as $publisher)
+                            {{ $publisher }}
+                        @endforeach
+                    @endif
+                </td>
             </tr>
-            <tr>
-                <th class="text-sm font-light">Năm XB</th>
-                <td class="text-sm">{{$data->product_released_year}}</td>
-            </tr>
+            @if ($type === "product")
+                <tr>
+                    <th class="text-sm font-light">Năm XB</th>
+                    <td class="text-sm">{{$data->product_released_year}}</td>
+                </tr>
+            @endif
             <tr>
                 <th class="text-sm font-light">Trọng lượng (gr)</th>
                 <td class="text-sm">{{$data->weight}}</td>
@@ -31,15 +46,24 @@
 
             <tr>
                 <th class="text-sm font-light">Kích Thước Bao Bì</th>
-                <td class="text-sm">{{$data->width}} x {{$data->height}} cm</td>
+                <td class="text-sm">{{$data->width}} x {{$data->length}} x {{$data->height}} cm</td>
             </tr>
-            <tr>
-                <th class="text-sm font-light">Số trang</th>
-                <td class="text-sm">{{$data->pages}}</td>
-            </tr>
+            @if ($type === "product")
+                <tr>
+                    <th class="text-sm font-light">Số trang</th>
+                    <td class="text-sm">{{$data->pages}}</td>
+                </tr>
+            @endif
+
             <tr>
                 <th class="text-sm font-light">Hình thức</th>
-                <td class="text-sm">{{$data->book_cover}}</td>
+                <td class="text-sm">
+                    @if ($type === "product")
+                        {{$data->book_cover}}
+                    @elseif ($type === "combo")
+                        {{ $data->productSkus->pluck('product.book_cover')->unique()->implode('/ ') }}
+                    @endif
+                </td>
             </tr>
         </tbody>
 

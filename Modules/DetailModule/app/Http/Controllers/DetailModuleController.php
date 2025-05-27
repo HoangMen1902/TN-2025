@@ -4,6 +4,7 @@ namespace Modules\DetailModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\ProductCombo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,20 @@ class DetailModuleController extends Controller
             
             $id = $data->id;
 
-            return view('detailmodule::index', ['data' => $data, 'id' => $id]);
+            return view('detailmodule::index', ['data' => $data, 'id' => $id, 'type' => 'product']);
+        } else {
+            return redirect('/');
+        }
+    }
+
+
+    public function combo($slug) {
+        $data = ProductCombo::where('slug', $slug)->first();
+        if($data != null) {
+            
+            $id = $data->id;
+
+            return view('detailmodule::index', ['data' => $data, 'id' => $id, 'type' => 'combo']);
         } else {
             return redirect('/');
         }

@@ -28,6 +28,8 @@ class ShipmentCalculate extends Component
     public $data;
 
     public $currentSku;
+
+    public $type;
     protected $rules = [
         'province_id' => 'required',
         'district_id' => 'required',

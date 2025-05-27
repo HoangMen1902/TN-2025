@@ -6,15 +6,15 @@
         <div class="flex justify-center">
             <div>
                 <div class="detail-wrapper flex flex-col sm:flex-col md:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
-                    <livewire:detailmodule::components.thumbnail :data="$data">
+                    <livewire:detailmodule::components.thumbnail :data="$data" :type="$type">
                     </livewire:detailmodule::components.thumbnail>
                     <div class="flex flex-col detail-information-wrapper">
-                        <x-detailmodule::general-information :data="$data"></x-detailmodule::general-information>
+                        <x-detailmodule::general-information :data="$data" :type="$type"></x-detailmodule::general-information>
 
-                        <livewire:detailmodule::components.shipment-calculate :data="$data">
+                        <livewire:detailmodule::components.shipment-calculate :data="$data" :type="$type">
                         </livewire:detailmodule::components.shipment-calculate>
-                        <x-detailmodule::detail-information :data="$data"></x-detailmodule::detail-information>
-                        <x-detailmodule::description :data="$data"></x-detailmodule::description>
+                        <x-detailmodule::detail-information :data="$data" :type="$type"></x-detailmodule::detail-information>
+                        <x-detailmodule::description :data="$data" :type="$type"></x-detailmodule::description>
                     </div>
                 </div>
                 <div>

@@ -11,6 +11,9 @@ class ProductCombo extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'product_combos';
+    protected $casts = [
+        'images' => 'array' 
+    ];
 
     protected $fillable = [
         'description',
@@ -18,7 +21,13 @@ class ProductCombo extends Model
         'sale_price',
         'quantity',
         'expired_at',
-        'combo_name'
+        'combo_name',
+        'slug',
+        'images',
+        'length',
+        'width',
+        'height',
+        'weight'
     ];
 
     protected $dates = ['expired_at'];
@@ -26,6 +35,10 @@ class ProductCombo extends Model
     public function comboSkus()
     {
         return $this->hasMany(ComboSku::class, 'combo_id');
+    }
+
+    public function productSkus() {
+        return $this->belongsToMany(ProductSku::class, 'combo_skus', 'combo_id', 'sku_id');
     }
     
 }

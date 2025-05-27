@@ -14,9 +14,15 @@ class Thumbnail extends Component
     public $currentSku;
     public $data;
 
+    public $type;
     public function mount() {
-        $this->currentSku = $this->data->productSkus->first();
-        $this->thumbnail = $this->currentSku->images[0];
+        if($this->type === "product") {
+            $this->currentSku = $this->data->productSkus->first();
+            $this->thumbnail = $this->currentSku->images[0];
+        } elseif ($this->type === "combo") {
+            $this->thumbnail = $this->data->images[0];
+        }
+
     }
 
     #[On('updatedSku')]

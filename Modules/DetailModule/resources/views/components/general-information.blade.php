@@ -1,7 +1,7 @@
 <div class="general-information-wrapper p-4 lg:block hidden lg:block sm:w-full">
     <div class="flex items-center gap-2">
-        <h2 class="text-2xl font-semibold product-name">{{ $data->name }}</h2>
-         <livewire:detailmodule::components.wish-list :data="$data" />
+        <h2 class="text-2xl font-semibold product-name">{{ $type === 'product' ? $data->name : $data->combo_name }}</h2>
+        <livewire:detailmodule::components.wish-list :data="$data" />
     </div>
 
     <div class="public-information grid grid-cols-2 gap-y-2 gap-x-4">
@@ -11,15 +11,33 @@
         </div>
         <div class="text-sm">
             <span>Nhà xuất bản: </span>
-            <span class="font-bold">{{ $data->publisher->publisher_name }}</span>
+            <span class="font-bold">
+                @if ($type === "product")
+                    {{$data->publisher->publisher_name}}
+                @elseif ($type === "combo")
+                    {{ $data->productSkus->pluck('product.publisher.publisher_name')->unique()->implode(', ') }}
+                @endif
+            </span>
         </div>
         <div class="text-sm">
             <span>Tác giả:</span>
-            <span class="font-bold">{{ $data->author }}</span>
+            <span class="font-bold">
+                @if ($type === "product")
+                    {{$data->author}}
+                @elseif ($type === "combo")
+                    {{ $data->productSkus->pluck('product.author')->unique()->implode(', ') }}
+                @endif
+            </span>
         </div>
         <div class="text-sm">
             <span>Hình thức bìa:</span>
-            <span class="font-bold">{{ $data->book_cover }}</span>
+            <span class="font-bold">
+                @if ($type === "product")
+                    {{$data->book_cover}}
+                @elseif ($type === "combo")
+                    {{ $data->productSkus->pluck('product.book_cover')->unique()->implode('/ ') }}
+                @endif
+            </span>
         </div>
     </div>
     <div class="rating-box flex py-[8px]">
@@ -54,12 +72,12 @@
         <span class="text-sm mx-1">|</span>
         <span class="text-sm font-thin">Đã bán</span>
         <span class="text-sm font-bold ml-0.5">100</span>
-        
+
     </div>
     <livewire:detailmodule::components.flashsale :data="$data"></livewire:detailmodule::components.flashsale>
     <livewire:detailmodule::components.price :data="$data"></livewire:detailmodule::components.price>
 
 
 
-  
+
 </div>

@@ -82,13 +82,19 @@
             </div>
             <div class="flex items-center gap-12 mt-4">
                 <div class="flex flex-col gap-4 justify-between">
+                    @if ($type==="product")
                     <h1>Phân loại</h1>
+                    
+                    @endif
                     <h1 class="font-bold text-base">Số lượng:</h1>
                 </div>
+
+              
                 <div class="flex flex-col gap-4 justify-between">
+                    @if ($type==="product")
                     <div class="flex space-x-2">
                         @foreach ($data->productSkus as $sku)
-
+    
                             <a href="javascript:void(0)" wire:click="selectSku({{$sku->id}})"
                                 class="{{ $currentSku->id === $sku->id ? "select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm"  : "select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100"}}">
                                 @foreach ($sku->skuValues as $value)
@@ -104,6 +110,7 @@
                             </a>
                         @endforeach
                     </div>
+                    @endif
                     <div class="quantity-container w-min">
                         <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
                         <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold" form="addToCart" />

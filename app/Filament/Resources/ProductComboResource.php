@@ -45,43 +45,47 @@ class ProductComboResource extends Resource
                 RichEditor::make('description')
                     ->label('Mô tả combo')
                     ->columnSpanFull(),
-                    FileUpload::make('images')
+                TextInput::make('width')->label('Chiều rộng (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
+                TextInput::make('length')->label('Chiều dài (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
+                TextInput::make('height')->label('Chiều cao (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
+                TextInput::make('weight')->label('Cân nặng (g)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
+                FileUpload::make('images')
                     ->label('Ảnh sản phẩm')
                     ->required()
                     ->image()
                     ->multiple()
                     ->maxFiles(10)
-                    ->columnSpanFull()
+                    ->columnSpan(4)
                     ->validationMessages([
                         'required' => 'Vui lòng tải lên ít nhất 1 ảnh combo',
                     ]),
                 TextInput::make('original_price')
                     ->label('Giá gốc')
                     ->numeric()
-                    ->columnSpan(1),
+                    ->columnSpan(2),
 
                 TextInput::make('sale_price')
                     ->label('Giá giảm')
                     ->numeric()
-                    ->columnSpan(1),
+                    ->columnSpan(2),
 
                 DatePicker::make('expired_at')
                     ->label('Ngày hết hạn')
                     ->columnSpan(2),
 
+                    TextInput::make('quantity')
+                        ->label('Số lượng Combo')
+                        ->numeric()
+                        ->required()
+                        ->minValue(1)
+                        ->columnSpan(2),
                 Select::make('category_filter')
                     ->label('Lọc theo loại sản phẩm')
                     ->options(fn() => Category::pluck('name', 'id'))
                     ->reactive()
                     ->afterStateUpdated(fn($state, callable $set) => $set('combo_items', static::getFilteredSkus($state)))
-                    ->columnSpan(2),
+                    ->columnSpan(4),
 
-                TextInput::make('quantity')
-                    ->label('Số lượng Combo')
-                    ->numeric()
-                    ->required()
-                    ->minValue(1)
-                    ->columnSpan(2),
 
                 Repeater::make('combo_items')
                     ->schema([

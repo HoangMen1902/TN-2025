@@ -12,6 +12,8 @@ class WishList extends Component
 
      public $isInWishlist = false;
 
+     public $type;
+
     public function mount($data)
     {
         $this->isInWishlist = Auth::check() && ModelsWishlist::where('user_id', Auth::id())
