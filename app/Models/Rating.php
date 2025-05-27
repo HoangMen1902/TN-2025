@@ -13,23 +13,19 @@ class Rating extends Model
 
     protected $fillable = [
         'status',
-        'product_id',
+        'order_detail_id',
         'user_id',
         'review',
         'rating',
     ];
 
-
-
-    public function product()
+    public function orderDetail()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(OrderDetail::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-  
 }

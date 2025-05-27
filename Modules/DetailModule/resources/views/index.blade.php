@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div>
-                    <livewire:detailmodule::components.comment>
+                    <livewire:detailmodule::components.comment :id="$id"> 
                     </livewire:detailmodule::components.comment>
                 </div>
             </div>
