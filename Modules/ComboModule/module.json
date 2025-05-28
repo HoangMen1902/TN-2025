@@ -1,0 +1,11 @@
+{
+    "name": "ComboModule",
+    "alias": "combomodule",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ComboModule\\Providers\\ComboModuleServiceProvider"
+    ],
+    "files": []
+}

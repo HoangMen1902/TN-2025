@@ -227,10 +227,10 @@
             </livewire:homemodule::components.product-category :childCategories="$childCategories">
         </div>
 
-
+        
         <livewire:homemodule::components.publisher-product />
         <livewire:suggest-products />
-
+        <livewire:combomodule::component.combo/>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
