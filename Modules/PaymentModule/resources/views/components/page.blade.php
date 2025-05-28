@@ -104,20 +104,27 @@
 
                     @foreach ($carts as $cart)
                         @php
-                            $totalPrice += $cart->quantity * $cart->sku->sale_price;
+                            $salePrice = $cart->sku->sale_price ?? $cart->combo->sale_price ?? 0;
+                            $totalPrice += $cart->quantity * $salePrice;
+                            $image = $cart->sku->images[0] ?? $cart->combo->images[0];
                         @endphp
 
                         <div class="flex items-start space-x-4 mb-4 pb-2 border-b border-b-neutral-300">
-                            <img src="{{ asset('storage/' . $cart->sku->product->thumbnail)}}"
-                                alt="{{ $cart->sku->product->thumbnail }}" class="w-20 h-20 rounded-lg">
+                            <img src="{{ asset('storage/' . $image)}}" alt="Product Image" class="w-20 h-20 rounded-lg">
                             <div class="flex-1">
-                                <h3 class="font-medium line-clamp-2">{{ $cart->sku->product->name }}</h3>
-                                <p class="text-sm text-gray-600">{{ $cart->sku->options->first()?->name }}:
-                                    {{ $cart->sku->optionValues->first()?->value_name }}
-                                </p>
+                                <h3 class="font-medium line-clamp-2">
+                                    {{ $cart->sku->product->name ?? $cart->combo->combo_name }}</h3>
+                                @if ($cart->sku)
+                                    <p class="text-sm text-gray-600">
+                                        {{ $cart->sku->options->first()?->name ?? 'Không có tùy chọn' }}:
+                                        {{ $cart->sku->optionValues->first()?->value_name ?? 'Không có giá trị' }}
+                                    </p>
+                                @else
+                                    <p class="text-sm text-gray-600">Loại: Combo</p>
+                                @endif
                                 <p class="text-sm text-gray-600">Số lượng: {{ $cart->quantity }}</p>
                                 <p class="font-medium text-sm text-red-600 mt-1">Tổng:
-                                    {{ number_format($cart->quantity * $cart->sku->sale_price) }} VNĐ
+                                    {{ number_format($cart->quantity * $cart->sku ? $cart->sku->sale_price : $cart->combo->sale_price ?? 'Lỗi') }} VNĐ
                                 </p>
                             </div>
                         </div>

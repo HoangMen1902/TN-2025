@@ -95,7 +95,7 @@ class Cart extends Component
 
         $subtotal = 0;
         foreach ($cartItems as $item) {
-            $price = $item->sku->price ?? 0;
+            $price = $item->sku->sale_price ?? $item->combo->sale_price ?? 0;
             $quantity = $this->quantities[$item->id] ?? 1;
             $subtotal += $price * $quantity;
         }

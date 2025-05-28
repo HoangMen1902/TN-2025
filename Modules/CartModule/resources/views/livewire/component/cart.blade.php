@@ -21,27 +21,32 @@
                 <div class="w-full mb-5">
                     <div class="border-b p-2 flex border-gray-400">
                         <div class="inline-flex items-center w-1/7 p-2">
-                            <label class="relative flex items-center cursor-pointer" for="blue-600-{{$item->sku->id}}">
+                            <label class="relative flex items-center cursor-pointer"
+                                for="blue-600-{{$item->sku->id ?? $item->combo->id}}">
                                 <input type="checkbox"
                                     class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all"
-                                    id="blue-600-{{$item->sku->id}}" name="cart_id[]" value="{{$item->id}}" form="addItemCheckout"/>
+                                    id="blue-600-{{$item->sku->id ?? $item->combo->id}}" name="cart_id[]"
+                                    value="{{$item->id}}" form="addItemCheckout" />
                                 <span
                                     class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
                             </label>
                         </div>
                         <div class="w-1/7 p-2">
+                            @php
+                                $image = $item->sku->images[0] ?? $item->combo->images[0];
+                            @endphp
                             <img class="w-24 h-auto"
-                                src="{{ asset('storage/' .$item->sku->product->thumbnail) ?? 'https://via.placeholder.com/150' }}"
+                                src="{{ asset('storage/' . $image) }}"
                                 alt="{{ $item->sku->sku ?? 'SKU Image' }}" style="object-cover w-full h-full">
                         </div>
                         <div class="w-4/7 p-2">
                             <h2 class="text-base font-bold truncate max-w-100 mt-1">
-                                {{ $item->sku->product->name ?? 'Tên sản phẩm' }} - {{ $item->sku->sku ?? 'SKU' }}
+                                {{ $item->sku->product->name ?? $item->combo->combo_name ?? 'Tên sản phẩm' }} - {{ $item->sku->sku ?? 'Combo' }}
                             </h2>
-                            <p class="text-red-600 font-bold">{{ number_format($item->sku->price ?? 0, 0, ',', '.') }}đ</p>
+                            <p class="text-red-600 font-bold">{{ number_format($item->sku->sale_price ?? $item->combo->sale_price ?? 0, 0, ',', '.') }}đ</p>
                             <div class="list-none p-0 text-sm ">
                                 <div class="my-1 line-clamp-2">
-                                    {!! $item->sku->product->short_description ?? 'Không có mô tả' !!}
+                                    {!! $item->sku->product->short_description ?? $item->combo->description ?? 'Không có mô tả' !!}
                                 </div>
                             </div>
                         </div>
@@ -67,7 +72,7 @@
                             </button>
                         </div>
                         <div class="w-1/7 text-center text-red-600 flex justify-center items-center ">
-                            {{ number_format(($item->sku->price ?? 0) * ($quantities[$item->id] ?? $item->quantity ?? 1), 0, ',', '.') }}
+                            {{ number_format(($item->sku->sale_price ?? $item->combo->sale_price ?? 0) * ($quantities[$item->id] ?? $item->quantity ?? 1), 0, ',', '.') }}
                             VNĐ
                         </div>
                     </div>
@@ -91,8 +96,9 @@
             </div>
             <p class="text-sm text-gray-600">Phí ship sẽ được tính khi thanh toán</p>
             <div class="mt-5 flex justify-center">
-                <button 
-                    class="bg-primary text-white font-bold py-2 px-4 rounded-xl transition duration-300 hover:bg-white cursor-pointer" form="addItemCheckout">Thanh
+                <button
+                    class="bg-primary text-white font-bold py-2 px-4 rounded-xl transition duration-300 hover:bg-white cursor-pointer"
+                    form="addItemCheckout">Thanh
                     toán</button>
             </div>
         </div>
