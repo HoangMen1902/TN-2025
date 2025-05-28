@@ -31,7 +31,7 @@
                                     {{-- Nội dung trên --}}
                                     <div class="flex flex-col gap-2">
                                         <div class="product-img w-full">
-                                            <img class="w-full max-h-[200px] min-h-[160px] object-contain"
+                                            <img class="w-full max-h-[200px] min-h-[200px] object-contain"
                                                 src="{{asset('storage/' . $product->thumbnail)}}" alt="">
                                         </div>
 

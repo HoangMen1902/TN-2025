@@ -124,7 +124,7 @@
                                 @endif
                                 <p class="text-sm text-gray-600">Số lượng: {{ $cart->quantity }}</p>
                                 <p class="font-medium text-sm text-red-600 mt-1">Tổng:
-                                    {{ number_format($cart->quantity * $cart->sku ? $cart->sku->sale_price : $cart->combo->sale_price ?? 'Lỗi') }} VNĐ
+                                    {{ number_format($cart->quantity * ($cart->sku ? $cart->sku->sale_price : $cart->combo->sale_price)) }} VNĐ
                                 </p>
                             </div>
                         </div>
