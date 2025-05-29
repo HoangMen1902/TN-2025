@@ -117,7 +117,8 @@ class Address extends Component
         $this->dispatch('addressSaved');
         $this->mount();
 
-        session()->flash('message', 'Đã chọn địa chỉ giao hàng.');
+
+        $this->dispatch('toast', type: 'success', message: 'Đã chọn địa chỉ giao hàng..');
     }
     public function canSubmit()
     {

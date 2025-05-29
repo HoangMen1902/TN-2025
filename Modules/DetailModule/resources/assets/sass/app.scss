@@ -3,7 +3,27 @@
 .detail-wrapper {
     margin: auto;
 }
+    .rating {
+        direction: rtl;
+        display: flex;
+        gap: 5px;
+    }
 
+    .rating input {
+        display: none;
+    }
+
+    .rating label {
+        font-size: 24px;
+        color: #ccc;
+        cursor: pointer;
+    }
+
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+        color: #FFD700; /* màu vàng sao */
+    }
 
 .thumbnail-holder {
     position: sticky;

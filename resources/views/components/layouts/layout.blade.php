@@ -597,7 +597,45 @@
             });
         </script>
     @endif
+    <script>
+               Livewire.on('toast', ({ type, message }) => {
+                    console.log('Toast received:', type, message);
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-end',
+                        icon: type, // success, error, warning
+                        title: message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        background: '#333333',  // màu nền bạn muốn (ví dụ nền tối)
+                        color: '#fff',          // màu chữ trắng để nổi bật trên nền tối
+                    });
 
+                });
+    </script>
+<div 
+    x-data="{ show: false, message: '', type: 'success' }"
+    x-show="show"
+    x-transition
+    x-init="
+        Livewire.on('toast', ({ type: t, message: m }) => {
+            type = t;
+            message = m;
+            show = true;
+            setTimeout(() => show = false, 3000);
+        });
+    "
+    class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded text-white text-sm shadow-lg"
+    :class="{
+        'bg-green-500': type === 'success',
+        'bg-red-500': type === 'danger',
+        'bg-yellow-500': type === 'warning',
+    }"
+    style="display: none;"
+>
+    <span x-text="message"></span>
+</div>
 </body>
 
 </html>

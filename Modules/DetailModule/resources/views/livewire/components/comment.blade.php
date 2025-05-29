@@ -73,17 +73,71 @@
                 </div>
             </div>
         </div>
-        <div>
-            <div class="comment-btn-wrapper flex items-center justify-center">
-                <a href="javascript:void(0)" class="comment-btn font-bold text-lg flex gap-2"><svg
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="#0A68FF" class="w-[19px]">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                    </svg>
-                    Viết đánh giá</a>
+        <!-- Nút mở modal -->
+        <!-- Nút mở modal -->
+        <button wire:click="writeReview"
+            class="comment-btn-wrapper flex items-center justify-center border-blue-500 gap-2 text-blue-600 font-bold text-lg hover:opacity-80 ">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0A68FF"
+                class="w-[19px]">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+            </svg>
+            Viết đánh giá
+        </button>
+
+
+        <!-- Modal -->
+        @if ($showModal)
+            <div class="fixed inset-0 bg-white/200 bg-opacity-30 flex items-center justify-center z-50"
+                aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6 relative">
+                    <button wire:click="$set('showModal', false)"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition" aria-label="Đóng modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <h2 id="modal-title" class="text-2xl font-semibold text-center mb-6">
+                        Viết đánh giá
+                    </h2>
+
+                    <form wire:submit.prevent="submitReview" class="space-y-5">
+                        <div class="flex justify-center space-x-2 text-4xl select-none">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <button type="button" wire:click="$set('rating', {{ $i }})"
+                                    class="focus:outline-none transition-colors duration-200"
+                                    aria-label="Đánh giá {{ $i }} sao">
+                                    <span class="{{ $rating >= $i ? 'text-yellow-400' : 'text-gray-300' }}">
+                                        ★
+                                    </span>
+                                </button>
+                            @endfor
+                        </div>
+                        @error('rating')
+                            <p class="text-red-600 text-sm text-center">{{ $message }}</p>
+                        @enderror
+
+                        <textarea wire:model.defer="review"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
+                            rows="5" placeholder="Nhập nội dung đánh giá..."></textarea>
+                        @error('review')
+                            <p class="text-red-600 text-sm">{{ $message }}</p>
+                        @enderror
+
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                            Gửi đánh giá
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+        @endif
+
+
+
+
 
     </div>
     <div class="border-b-1 border-b-neutral-600 flex gap-6 text-sm mt-3 comment-choice">
@@ -158,6 +212,7 @@
             </div>
         </div>
     @endforeach
+
 
 
 
