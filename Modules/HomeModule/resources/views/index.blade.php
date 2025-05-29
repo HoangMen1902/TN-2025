@@ -229,8 +229,8 @@
 
         
         <livewire:homemodule::components.publisher-product />
-        <livewire:suggest-products />
         <livewire:combomodule::component.combo/>
+        <livewire:suggest-products />
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {

@@ -9,7 +9,7 @@ use Livewire\WithPagination;
 class Combo extends Component
 {
     use WithPagination;
-
+    
     public function render()
     {
         $combos = ProductCombo::with(['productSkus.product'])
