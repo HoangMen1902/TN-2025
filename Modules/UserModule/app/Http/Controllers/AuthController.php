@@ -2,9 +2,10 @@
 
 namespace Modules\UserModule\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +13,9 @@ use Illuminate\Contracts\Support\Renderable;
 use App\Models\Wishlist;
 use App\Models\Cart;
 use Illuminate\Support\Facades\DB;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -21,15 +25,14 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|min:6',
+            'email' => 'required|email|max:320',
+            'password' => 'required',
         ], [
-            'email.required' => 'Trường email là bắt buộc.',
-            'email.email' => 'Email không hợp lệ.',
-            'password.required' => 'Trường mật khẩu là bắt buộc.',
-            'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Địa chỉ email không hợp lệ.',
+            'email.max' => 'Email không được vượt quá 320 ký tự.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
         ]);
 
         if ($validator->fails()) {
@@ -68,7 +71,6 @@ class AuthController extends Controller
             'email' => 'Email hoặc mật khẩu không đúng.',
         ])->withInput();
     }
-
     public function logout(Request $request)
     {
         Auth::logout();
@@ -87,7 +89,19 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'password_confirmation' => 'required|same:password',
+        ], [
+            'name.required' => 'Vui lòng nhập họ tên.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không hợp lệ.',
+            'email.unique' => 'Email đã được sử dụng.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+            'password_confirmation.required' => 'Vui lòng nhập lại mật khẩu.',
+            'password_confirmation.same' => 'Mật khẩu xác nhận không khớp.',
         ]);
+
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
@@ -100,6 +114,7 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
         return redirect('/')->with('success', 'Đăng ký thành công!');
     }
     //reser password
@@ -184,10 +199,71 @@ class AuthController extends Controller
 
     //     return view('usermodule::profile.wishlist', compact('wishLists'));
     // }
-}
     //         public function wishListRemove(){
     //     return view('usermodule::profile.wishlist');
     // }
     //         public function voucherList(){
     //     return view('usermodule::profile.voucher');
     // }
+
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // public function handleGoogleCallback()
+    // {
+    //     try {
+    //         $googleUser = Socialite::driver('google')->user();
+    //         $user = User::where('email', $googleUser->getEmail())->first();
+    //         if (!$user) {
+    //             $user = User::create([
+    //                 'name'     => $googleUser->getName(),
+    //                 'email'    => $googleUser->getEmail(),
+    //                 'password' => bcrypt(Str::random(16)),
+    //             ]);
+    //         }
+    //         Auth::login($user);
+    //         return redirect('/')->with('success', 'Đăng nhập Google thành công!');
+    //     } catch (\Exception $e) {
+    //         return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thát bại!');
+    //     }
+    // }
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            // Ghi log thông tin người dùng Google
+            Log::info('Google login callback', [
+                'google_id' => $googleUser->getId(),
+                'name'      => $googleUser->getName(),
+                'email'     => $googleUser->getEmail(),
+            ]);
+
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name'     => $googleUser->getName(),
+                    'email'    => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(16)),
+                ]);
+
+                Log::info('Created new user from Google login', ['user_id' => $user->id]);
+            }
+
+            Auth::login($user);
+
+            Log::info('User logged in via Google', ['user_id' => $user->id]);
+
+            return redirect('/')->with('success', 'Đăng nhập Google thành công!');
+        } catch (\Exception $e) {
+            // Ghi log lỗi
+            Log::error('Google login failed', ['error' => $e->getMessage()]);
+
+            return redirect('/')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
+        }
+    }
+}

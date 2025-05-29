@@ -42,7 +42,8 @@ Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notifi
 // Route::get('/thong-bao',[AuthController::class, 'showNotification'])->name('notification');
 
 Route::get('/ma-giam-gia', [VoucherController::class, 'index'])->name('voucher.index');
-
+Route::get('login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
