@@ -8,8 +8,8 @@ use App\Models\Product;
 class Suggest extends Component
 {
     public $products;
-    public $displayLimit = 10; 
-    public $maxLimit = 70; 
+    public $displayLimit = 10;
+    public $maxLimit = 70;
     public $showAll = false;
 
     public function mount()
@@ -34,7 +34,9 @@ class Suggest extends Component
                 if ($price > $sale_price && $price > 0) {
                     $discount = round((($price - $sale_price) / $price) * 100);
                 }
-
+                $total = $product->productSkus->sum('quantity');
+                $sold = $total > 0 ? rand(1, $total) : 0;
+                $percentSold = $total > 0 ? round(($sold / $total) * 100) : 0;
                 return (object) [
                     'id' => $product->id,
                     'slug' => $product->slug,
@@ -47,9 +49,13 @@ class Suggest extends Component
                     'first_sku' => $firstSku,
                     'rating' => rand(3, 5),
                     'review_count' => rand(5, 100),
+                    'sold' => $sold,
+                    'total' => $total,
+                    'percent_sold' => $percentSold,
                 ];
             });
     }
+
 
     public function loadMore()
     {

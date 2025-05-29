@@ -101,7 +101,7 @@
                             @auth
                                 <span>{{ auth()->user()->name }}</span>
                             @else
-                                <span>Đăng nhập</span>
+                                <span>Tài khoản</span>
                             @endauth
                         </div>
 
