@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Support\Renderable;
 use App\Models\Wishlist;
 use App\Models\Cart;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -101,13 +102,57 @@ class AuthController extends Controller
         Auth::login($user);
         return redirect('/')->with('success', 'Đăng ký thành công!');
     }
+    //reser password
+    public function handleResetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|confirmed|min:6',
+        ], [
+            'token.required' => 'Token không được để trống.',
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không hợp lệ.',
+            'email.exists' => 'Email không tồn tại trong hệ thống.',
+            'password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp.',
+            'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
+        ]);
+
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$record || now()->diffInMinutes($record->created_at) > 30) {
+            return redirect()->route('forgot-password')->withErrors([
+                'token' => 'Liên kết đã hết hạn hoặc không hợp lệ.',
+            ]);
+        }
+
+        if (!$record) {
+            return back()->withErrors(['token' => 'Token không hợp lệ hoặc đã hết hạn.']);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')->with('success', 'Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.');
+    }
+
     public function showForgotPasswordForm()
     {
         return view('usermodule::auth.forgot-password');
     }
-    public function showChangeForgotPasswordForm()
+    public function showChangeForgotPasswordForm(Request $request, $token)
     {
-        return view('usermodule::auth.change-forgot-password');
+        return view('usermodule::auth.change-forgot-password', [
+            'token' => $token,
+        ]);
     }
     public function showChangePasswordForm()
     {

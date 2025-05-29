@@ -29,7 +29,8 @@ Route::middleware(RedirectIfAuthenticatedCustom::class)->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
-Route::get('/cap-nhat-mat-khau', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
+Route::get('/dat-lai-mat-khau/{token}', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
+Route::post('/dat-lai-mat-khau', [AuthController::class, 'handleResetPassword'])->name('update-password');
 Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
 Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('infomation');
 Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
