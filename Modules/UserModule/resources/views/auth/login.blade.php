@@ -1,58 +1,97 @@
 <x-layouts.layout>
     <x-slot name="title">BeeBook - Đăng Nhập</x-slot>
-    <div class="flex items-center justify-center bg-white px-4 py-32 ">
-        <div class="w-full max-w-md space-y-6">
-            <div class="text-center">
-                <h2 class="text-3xl font-bold text-[#2b4f60]">Đăng nhập</h2>
-                <p class="text-sm text-gray-500 mt-2">Chào mừng đến với BeeBook - Thế giới sách</p>
-            </div>
+            <div class=" bg-gray-100 text-gray-900 flex mx-auto w-[1200px] justify-center">
+                <div class="w-full m-0 mb-8 bg-white shadow sm:rounded-lg flex justify-center flex-1">
+                    <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
+                        <div class="mt-12 flex flex-col items-center">
+                            <h1 class="text-2xl xl:text-3xl font-bold">
+                                Đăng nhập
+                            </h1>
+                            <div class="w-full flex-1 mt-4">
+                                <div class="flex flex-col items-center">
+                                    <a href="{{ route('login.google') }}"
+                                              class="w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline mt-5">
+                                            <div class="bg-white p-2 rounded-full">
+                                                <svg class="w-4" viewBox="0 0 533.5 544.3">
+                                                    <path
+                                                        d="M533.5 278.4c0-18.5-1.5-37.1-4.7-55.3H272.1v104.8h147c-6.1 33.8-25.7 63.7-54.4 82.7v68h87.7c51.5-47.4 81.1-117.4 81.1-200.2z"
+                                                        fill="#4285f4" />
+                                                    <path
+                                                        d="M272.1 544.3c73.4 0 135.3-24.1 180.4-65.7l-87.7-68c-24.4 16.6-55.9 26-92.6 26-71 0-131.2-47.9-152.8-112.3H28.9v70.1c46.2 91.9 140.3 149.9 243.2 149.9z"
+                                                        fill="#34a853" />
+                                                    <path
+                                                        d="M119.3 324.3c-11.4-33.8-11.4-70.4 0-104.2V150H28.9c-38.6 76.9-38.6 167.5 0 244.4l90.4-70.1z"
+                                                        fill="#fbbc04" />
+                                                    <path
+                                                        d="M272.1 107.7c38.8-.6 76.3 14 104.4 40.8l77.7-77.7C405 24.6 339.7-.8 272.1 0 169.2 0 75.1 58 28.9 150l90.4 70.1c21.5-64.5 81.8-112.4 152.8-112.4z"
+                                                        fill="#ea4335" />
+                                                </svg>
+                                            </div>
+                                            <span class="ml-4">
+                                                Đăng nhập với Google
+                                            </span>
+                                    </a>
+                                    
+                                </div>
 
-            <form wire:submit.prevent="login" method="POST" class="space-y-4">
-                @csrf
-                <div>
-                    <input type="email" name="email" value="{{ old('email') }}"
-                        class="w-full px-4 py-3 mb-1 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2] transition {{ $errors->has('email') ? 'border border-red-500 focus:ring-[#5cb8b2]' : '' }}"
-                        placeholder="Email" />
-                    @error('email') <span class="error text-red-500">{{ $message }}</span> @enderror
+                                <div class="my-12 border-b text-center">
+                                    <div
+                                        class="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
+                                        Hoặc đăng nhập bằng tài khoản BeeBook
+                                    </div>
+                                </div>
+                                <form action="" wire:submit.prevent="login" method="post">
+                                    @csrf
+                                    <div class="mx-auto max-w-xs">
+                                        <input value="{{ old('email') }}"
+                                            class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                                            name='email' type="email" placeholder="Email" />
+                                        @error('email') <span class="error text-red-500">{{ $message }}</span> @enderror
+                                        <input name="password" class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200
+                                placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white
+                                mt-5" type="password" placeholder="Mật khẩu" />
+                                @error('password') <span class="error text-red-500">{{ $message }}</span> @enderror
+                                        <button type="submit"
+                                            class="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                                            <span class="ml-3 mr-3">
+                                                Đăng nhập
+                                            </span> <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                class="w-6 h-6 -ml-2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+
+                                            </svg>
+                                        </button>
+                                        <a href="{{ route('register') }}"
+
+                                                class="mt-5 tracking-wide font-semibold bg-gray-400 text-gray-100 w-full py-4 rounded-lg hover:bg-gray-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none">
+                                                <svg class="w-6 h-6 -ml-2" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                                                    <circle cx="8.5" cy="7" r="4" />
+                                                    <path d="M20 8v6M23 11h-6" />
+                                                </svg>
+                                                <span class="ml-3">
+                                                    Đăng ký
+                                                </span>
+</a>
+                                        <p class="mt-6 text-xs text-gray-600 text-center">
+                                            Quên mật khẩu? 
+                                            <a href="{{ route('forgot-password') }}" class="border-b border-gray-500 border-dotted">
+                                                Khôi phục mật khẩu 
+                                            </a>
+                                        </p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
+                        <div class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
+                            style="background-image: url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg');">
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <input type="password" name="password"
-                        class="w-full px-4 py-3 mb-1 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#5cb8b2] transition {{ $errors->has('password') ? 'border border-red-500 focus:ring-[#5cb8b2]' : '' }}"
-                        placeholder="Mật khẩu" />
-                    @error('password') <span class="error text-red-500">{{ $message }}</span> @enderror
-                </div>
-                <div class="text-right text-sm">
-                    <a href="{{ route('forgot-password') }}" class="text-[#5cb8b2] hover:underline">Quên mật khẩu?</a>
-                </div>
-
-                <button type="submit"
-                    class="w-full py-3 bg-[#5cb8b2] text-white font-semibold rounded-full hover:bg-[#469a95] transition">Đăng
-                    nhập</button>
-            </form>
-
-            <div class="flex items-center justify-center gap-4 mt-4">
-                <a href="{{ route('login.google') }}"
-                    class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition"
-                    title="Google">
-                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M21.35 11.1H12v2.8h5.4c-.6 2.5-2.8 4.2-5.4 4.2-3.2 0-5.8-2.6-5.8-5.8s2.6-5.8 5.8-5.8c1.5 0 2.9.6 3.9 1.6l2-2C17.7 3.8 15 2.5 12 2.5 6.9 2.5 2.5 6.9 2.5 12s4.4 9.5 9.5 9.5c4.9 0 9-4 9-9 0-.6-.1-1.2-.2-1.4z" />
-                    </svg>
-                </a>
-                <a href=""
-                    class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition"
-                    title="Facebook">
-                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.5 9.9v-7H8v-3h2.5V9.5c0-2.5 1.5-3.9 3.7-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.3 0-1.7.8-1.7 1.6V12H17l-.5 3h-2v7c4.8-.8 8.5-4.9 8.5-9.9z" />
-                    </svg>
-                </a>
             </div>
-
-            <div class="text-center text-sm text-gray-600">
-                Chưa có tài khoản?
-                <a href="{{ route('register') }}" class="text-[#5cb8b2] font-medium hover:underline">Đăng ký ngay</a>
-            </div>
-        </div>
-    </div>
 </x-layouts.layout>

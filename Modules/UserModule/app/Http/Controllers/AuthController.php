@@ -173,6 +173,10 @@ class AuthController extends Controller
     {
         return view('usermodule::auth.change-password');
     }
+    public function showVerifyOTPForm()
+    {
+        return view('usermodule::auth.verify-otp');
+    }
     public function showProfileInfomation()
     {
         return view('usermodule::profile.infomation');
