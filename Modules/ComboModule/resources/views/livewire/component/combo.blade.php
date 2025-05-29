@@ -34,10 +34,10 @@
     </div>
     <!-- Grid Slider Content -->
     <div>
-        <div class="ontainer mx-auto px-4flex flex-wrap gap-4">
-            @forelse ($combos as $combo)
-                <div
-                    class="bg-white w-full sm:w-[calc(50%-1rem)] md:w-[calc(20%-1rem)] mb-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+       <div class="container mx-auto px-4 flex flex-wrap gap-4">
+        @forelse ($combos as $combo)
+            <a href="/chi-tiet-combo/{{ $combo->slug }}" class="block w-full sm:w-[calc(50%-1rem)] md:w-[calc(20%-1rem)] mb-4">
+                <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                     <div>
                         @if (!empty($combo->images) && is_array($combo->images))
                             <img src="{{ asset('storage/' . $combo->images[0]) }}" class="w-full h-64 object-contain"
@@ -63,10 +63,11 @@
                             {{ number_format($combo->original_price, 0, ',', '.') }}đ</p>
                     </div>
                 </div>
-            @empty
-                <p class="text-gray-600">Không tìm thấy combo sách nào.</p>
-            @endforelse
-        </div>
+            </a>
+        @empty
+            <p class="text-gray-600">Không tìm thấy combo sách nào.</p>
+        @endforelse
+    </div>
 
        
         <div class="mt-6">
