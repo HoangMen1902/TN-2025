@@ -10,11 +10,25 @@ use Illuminate\Support\Facades\Log;
 
 class Comment extends Component
 {
-    public $id; // product_id
+    public $id;
     public $rating = 0;
     public $review = '';
     public $showModal = false;
-
+    public $averageRating = 0;
+    public $totalReviews = 0;
+    public $ratingsCount = [
+        5 => 0,
+        4 => 0,
+        3 => 0,
+        2 => 0,
+        1 => 0,
+    ];
+    public $likedRatings = [];
+    public $selectedFavorite = false;
+    public $ratingsPercentage = [];
+    public $ratings;
+    public $ratingsNewest;
+    public $ratingsFavorite;
     public function writeReview()
     {
         if (!Auth::check()) {
@@ -24,10 +38,89 @@ class Comment extends Component
         $this->showModal = true;
     }
 
+
+
+    public function loadRatings()
+    {
+        $ratingsQuery = Rating::whereHas('orderDetail.sku', function ($q) {
+            $q->where('product_id', $this->id);
+        })->with(['user', 'likedUsers']);
+
+        $this->ratings = $ratingsQuery->get();
+        $this->ratingsNewest = $this->ratings->sortByDesc('created_at');
+        $this->ratingsFavorite = $this->ratings->sortByDesc(function ($rating) {
+            return $rating->likedUsers->count();
+        });
+    }
+
     public function mount($id)
     {
         $this->id = $id;
+
+        if (Auth::check()) {
+            $this->likedRatings = \App\Models\UserLikedRating::where('user_id', Auth::id())
+                ->pluck('rating_id')
+                ->toArray();
+        }
+
+        $this->loadStats();
+        $this->loadRatings();
     }
+    public function toggleLike($ratingId)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $liked = \App\Models\UserLikedRating::where('user_id', Auth::id())
+            ->where('rating_id', $ratingId)
+            ->first();
+
+        if ($liked) {
+            $liked->delete();
+            $this->likedRatings = array_diff($this->likedRatings, [$ratingId]);
+        } else {
+            \App\Models\UserLikedRating::create([
+                'user_id' => Auth::id(),
+                'rating_id' => $ratingId,
+            ]);
+            $this->likedRatings[] = $ratingId;
+        }
+
+        $this->loadRatings();
+    }
+
+
+    public function loadStats()
+    {
+        $ratings = Rating::whereHas('orderDetail.sku', function ($query) {
+            $query->where('product_id', $this->id);
+        })->get();
+
+        $this->totalReviews = $ratings->count();
+
+        $this->ratingsCount = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        foreach ($ratings as $rating) {
+            $this->ratingsCount[$rating->rating]++;
+        }
+
+        if ($this->totalReviews > 0) {
+            $sum = 0;
+            foreach ($this->ratingsCount as $star => $count) {
+                $sum += $star * $count;
+            }
+            $this->averageRating = round($sum / $this->totalReviews, 1);
+
+            foreach ($this->ratingsCount as $star => $count) {
+                $this->ratingsPercentage[$star] = round(($count / $this->totalReviews) * 100);
+            }
+        } else {
+            $this->averageRating = 0;
+            $this->ratingsPercentage = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+        }
+    }
+
+    public function update() {}
 
     public function submitReview()
     {
@@ -53,7 +146,6 @@ class Comment extends Component
             'review.max' => 'Nội dung đánh giá không được vượt quá :max ký tự.',
         ]);
 
-
         $orderDetail = OrderDetail::whereHas('order', function ($q) {
             $q->where('user_id', Auth::id())
                 ->where('orders_status', 'Đã giao');
@@ -67,9 +159,19 @@ class Comment extends Component
                 'product_id' => $this->id,
             ]);
             $this->dispatch('toast', type: 'error', message: 'Bạn chỉ có thể đánh giá sau khi mua và nhận hàng.');
-
             return;
         }
+
+
+        $alreadyRated = Rating::where('order_detail_id', $orderDetail->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($alreadyRated) {
+            $this->dispatch('toast', type: 'warning', message: 'Bạn đã đánh giá sản phẩm này.');
+            return;
+        }
+
 
         Rating::create([
             'order_detail_id' => $orderDetail->id,
@@ -92,12 +194,10 @@ class Comment extends Component
 
     public function render()
     {
-        $ratings = Rating::whereHas('orderDetail.sku', function ($q) {
-            $q->where('product_id', $this->id);
-        })->with(['user'])->get();
-
         return view('detailmodule::livewire.components.comment', [
-            'ratings' => $ratings,
+            'ratings' => $this->ratings,
+            'ratingsNewest' => $this->ratingsNewest,
+            'ratingsFavorite' => $this->ratingsFavorite,
         ]);
     }
 }

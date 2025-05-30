@@ -28,4 +28,8 @@ class Rating extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function likedUsers()
+    {
+        return $this->hasMany(UserLikedRating::class, 'rating_id');
+    }
 }
