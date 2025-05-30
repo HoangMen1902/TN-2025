@@ -13,6 +13,7 @@ use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
@@ -29,6 +30,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 use function Laravel\Prompts\select;
 
@@ -116,7 +118,32 @@ class ProductResource extends Resource
                     ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive')
                     ->rules('required')
                     ->validationMessages(['required' => 'Vui lòng chọn trạng thái *']),
-                DateTimePicker::make('published_at')->label('Thời gian mở bán')->native(false)->placeholder('Thời gian ra mắt')->minDate(now())
+                DateTimePicker::make('published_at')->label('Thời gian mở bán')->native(false)->placeholder('Thời gian ra mắt')->minDate(now())->columnSpanFull(),
+                Repeater::make('previews')
+                    ->label('Bản đọc thử (Tùy chọn)')
+                    ->relationship('productPreview')
+                    ->schema([
+                        FileUpload::make('file_path')
+                        ->maxSize(100480)
+                            ->label('File đọc thử (PDF hoặc PUB)')
+                            ->disk('public')
+                            ->directory('previews')
+                            ->preserveFilenames()
+                            ->afterStateUpdated(function (callable $set, $state) {
+                                if ($state instanceof TemporaryUploadedFile) {
+                                    $set('file_name', $state->getClientOriginalName());
+                                    $set('file_size', $state->getSize());
+                                    $set('format', $state->getClientOriginalExtension());
+                                }
+                            }),
+                        Hidden::make('file_name'),
+                        Hidden::make('file_size'),
+                        Hidden::make('format'),
+                    ])
+                    ->collapsible()
+                    ->columnSpanFull()
+                    ->deletable(false)
+                    ->addable(false),
             ]);
     }
 

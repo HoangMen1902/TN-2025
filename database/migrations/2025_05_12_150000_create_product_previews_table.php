@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('product_previews', function (Blueprint $table) {
             $table->id();
             $table->text('file_path');
-            $table->enum('format', ['image', 'video', 'pdf', 'other']);
+            $table->enum('format', ['image', 'video', 'pdf', 'other', 'pub']);
             $table->string('file_name');
             $table->bigInteger('file_size')->unsigned();
             $table->boolean('is_active')->default(true);
