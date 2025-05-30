@@ -27,7 +27,8 @@ class Product extends Model
         'thumbnail',
         'publisher_id',
         'published_at',
-        'slug'
+        'slug',
+        'length'
     ];
 
     

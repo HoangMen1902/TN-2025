@@ -62,10 +62,11 @@ class ProductResource extends Resource
                     ->schema([
                         YearPicker::make('product_released_year')->label('Năm xuất bản')->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
                         TextInput::make('weight')->label('Trọng lượng (gr)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
+                        TextInput::make('length')->label('Chiều dài (cm)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
                         TextInput::make('width')->label('Chiều rộng (cm)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
                         TextInput::make('height')->label('Chiều cao (cm)')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
                         TextInput::make('pages')->label('Số trang')->numeric()->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này']),
-                        Select::make('book_cover')->label('Loại bìa')->options(['Bìa cứng' => 'Bìa cứng', 'Bìa mềm' => 'Bìa mềm'])->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này'])
+                        Select::make('book_cover')->label('Loại bìa')->options(['Bìa cứng' => 'Bìa cứng', 'Bìa mềm' => 'Bìa mềm'])->rules('required')->validationMessages(['required' => 'Vui lòng điền thông tin này'])->columnSpan(2)
                     ])->columns(2),
                 FileUpload::make('thumbnail')->label('Ảnh sản phẩm')->rules('required')->image()->validationMessages(['required' => 'Vui lòng nhập ảnh', 'image' => 'File tải lên không phải hình ảnh'])->columnSpanFull(),
                 Repeater::make('productSkus')->relationship()->schema([
