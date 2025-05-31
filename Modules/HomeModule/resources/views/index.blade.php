@@ -229,9 +229,9 @@
 
         
         <livewire:homemodule::components.publisher-product />
-        <livewire:combomodule::component.combo/>
+      
         <livewire:suggest-products />
-
+        <livewire:homemodule::components.combo-home />
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const emblaNode = document.querySelector('.product')

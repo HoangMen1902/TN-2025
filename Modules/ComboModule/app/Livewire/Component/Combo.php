@@ -4,20 +4,46 @@ namespace Modules\ComboModule\Livewire\Component;
 
 use App\Models\ProductCombo;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Combo extends Component
 {
-    use WithPagination;
-    
+    public $combos;
+    public $displayLimit = 5;  // Hiển thị ban đầu 5 combo
+    public $maxLimit;
+
+    public function mount()
+    {
+        $this->maxLimit = ProductCombo::whereNull('deleted_at')->count();
+        $this->loadCombos();
+    }
+
+    public function loadCombos()
+    {
+        $this->combos = ProductCombo::with(['productSkus.product'])
+            ->whereNull('deleted_at')
+            ->limit($this->displayLimit)
+            ->get();
+    }
+
+    // Tham số $count cho biết số combo muốn load thêm lần này
+    public function loadMore($count = 5)
+    {
+        if ($this->displayLimit < $this->maxLimit) {
+            $this->displayLimit += $count;
+
+            if ($this->displayLimit > $this->maxLimit) {
+                $this->displayLimit = $this->maxLimit;
+            }
+
+            $this->loadCombos();
+        }
+    }
+
     public function render()
     {
-        $combos = ProductCombo::with(['productSkus.product'])
-            ->whereNull('deleted_at')
-            ->paginate(12);
-
         return view('combomodule::livewire.component.combo', [
-            'combos' => $combos
+            'combos' => $this->combos,
+            'canLoadMore' => $this->displayLimit < $this->maxLimit,
         ]);
     }
 }
