@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\CheckoutAddress;
 
 class PaymentModuleController extends Controller
 {
@@ -46,17 +47,13 @@ class PaymentModuleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'cart_id' => 'required|array',
-            'shipment_unit' => 'required|string',
-            'address' => 'nullable|string',
-            'phone' => 'required|string|regex:/^0[0-9]{9}$/',
-            'contact_email' => 'nullable|email',
-            'customer_name' => 'required|string',
-            'full_address' => 'nullable|string',  
+
+            'selected_address' => 'required|exists:checkout_addresses,id',
+
         ]);
 
-        DB::beginTransaction();
 
+        DB::beginTransaction();
         try {
             $user = Auth::user();
 
@@ -68,17 +65,40 @@ class PaymentModuleController extends Controller
                 return back()->with('error', 'Giỏ hàng không hợp lệ.');
             }
 
+
             $totalPrice = $cartItems->sum(function ($item) {
                 return $item->quantity * $item->sku->price;
             });
 
+            $selectedAddressId = $request->selected_address;
+            $addressModel = CheckoutAddress::with(['ward', 'district', 'province'])->where('user_id', $user->id)->find($selectedAddressId);
+
+            $fullAddress = null;
+
+            if ($addressModel) {
+                $fullAddress = $addressModel->address;
+
+                if ($addressModel->ward?->name) {
+                    $fullAddress .= ', ' . $addressModel->ward->name;
+                }
+
+                if ($addressModel->district?->name) {
+                    $fullAddress .= ', ' . $addressModel->district->name;
+                }
+
+                if ($addressModel->province?->name) {
+                    $fullAddress .= ', ' . $addressModel->province->name;
+                }
+            }
+
+
             $order = Order::create([
                 'orders_status' => 'Đang xử lý',
                 'user_id' => $user->id,
-                'address' => session('shipping_address.full_address'),
-                'phone' => $request->phone,
-                'contact_email' => $request->contact_email,
-                'customer_name' => $request->customer_name,
+                'address' => $fullAddress ?? $request->full_address,
+                'phone' => $addressModel?->phone ?? $request->phone,
+                'contact_email' => $addressModel?->user->email ?? $request->contact_email,
+                'customer_name' => $addressModel?->customer_name ?? $request->customer_name,
                 'total_price' => $totalPrice,
             ]);
 
@@ -109,18 +129,19 @@ class PaymentModuleController extends Controller
 
             DB::commit();
 
-            session()->forget('shipping_address');  
+            session()->forget('shipping_address');
+            session()->forget('selected_address_id');
 
             return redirect()->route('orders.success')->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
 
-         
             Log::error('Lỗi khi tạo đơn hàng:', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
 
             return back()->with('error', 'Đã xảy ra lỗi: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Show the specified resource.

@@ -1,5 +1,5 @@
 <main class="w-full max-w-[1200px] mx-auto px-4 py-8">
-    <form wire:submit.live="submitAddress" method="POST" action="{{ route('checkout.store') }}">
+    <form method="POST" action="{{ route('checkout.store') }}">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Checkout Form -->
@@ -165,13 +165,17 @@
                     <!-- Place Order Button -->
                     {{-- wire:click="submitAddress" --}}
                     @php
-                        $isConfirmed = session()->has('shipping_address'); 
+                        $hasSelectedAddress = session()->has('selected_address_id');
                     @endphp
+
                     <button id="place-order-btn" type="submit" class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center
-    {{ !$isConfirmed ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$isConfirmed ? 'disabled' : '' }}>
+    {{ !$hasSelectedAddress ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$hasSelectedAddress ? 'disabled' : '' }}>
                         <span>Đặt hàng</span>
                         <i class="fas fa-lock ml-2"></i>
                     </button>
+
+
+
 
 
 

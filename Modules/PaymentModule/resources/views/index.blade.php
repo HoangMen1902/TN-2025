@@ -75,6 +75,30 @@
                 }
             });
 
+
+            window.addEventListener('address-selected', function () {
+                const placeOrderBtn = document.getElementById('place-order-btn');
+                if (placeOrderBtn) {
+                    placeOrderBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    placeOrderBtn.removeAttribute('disabled');
+                }
+            });
+
+            const placeOrderBtn = document.getElementById('place-order-btn');
+
+            window.addEventListener('address-selected', function () {
+                if (placeOrderBtn) {
+                    placeOrderBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    placeOrderBtn.removeAttribute('disabled');
+                }
+            });
+
+            window.addEventListener('address-unselected', function () {
+                if (placeOrderBtn) {
+                    placeOrderBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    placeOrderBtn.setAttribute('disabled', true);
+                }
+            });
         </script>
 
 
