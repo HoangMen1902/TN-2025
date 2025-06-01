@@ -56,4 +56,8 @@ class Product extends Model
     public function productPreview() {
         return $this->hasOne(ProductPreview::class);
     }
+    public function preview()
+{
+    return $this->hasOne(ProductPreview::class);
+}
 }

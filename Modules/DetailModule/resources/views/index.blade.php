@@ -8,6 +8,7 @@
                 <div class="detail-wrapper flex flex-col sm:flex-col md:flex-col lg:flex-row mt-10 gap-4 lg:py-4">
                     <livewire:detailmodule::components.thumbnail :data="$data" :type="$type">
                     </livewire:detailmodule::components.thumbnail>
+
                     <div class="flex flex-col detail-information-wrapper">
                         <x-detailmodule::general-information :data="$data"
                             :type="$type"></x-detailmodule::general-information>
@@ -28,7 +29,8 @@
                 </div>
             </div>
         </div>
-        <x-detailmodule::add-to-cart-responsive></x-detailmodule::add-to-cart-responsive>
+    </div>
+    <x-detailmodule::add-to-cart-responsive  :data="$data"></x-detailmodule::add-to-cart-responsive>
 
 
 

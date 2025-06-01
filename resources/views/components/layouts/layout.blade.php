@@ -16,7 +16,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+        <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs"></script>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
 
 </head>
 {{ $styles ?? '' }}
@@ -402,8 +406,8 @@
                             @if ($parent->children->count())
                                 <div
                                     class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                                                                  opacity-0 invisible 
-                                                                                                  transition-opacity duration-200 ease-in-out">
+                                                                                                          opacity-0 invisible 
+                                                                                                          transition-opacity duration-200 ease-in-out">
                                     <div class="h-full overflow-hidden">
                                         <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>

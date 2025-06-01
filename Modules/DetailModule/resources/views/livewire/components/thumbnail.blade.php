@@ -149,7 +149,8 @@ $fifthImg;
                 Đặt trước sản phẩm</button>
         </form>
         @endif
-  
+                                              <livewire:detailmodule::components.product-preview-modal :data="$data">
+                    </livewire:detailmodule::components.product-preview-modal>
     </div>
     <div class="hidden lg:block preferential-policy w-full">
         <span class="font-bold">Chính sách ưu đãi của BeeBook</span>
