@@ -6,7 +6,7 @@
             <div class="lg:col-span-2 space-y-8">
 
                 <!-- Delivery Options -->
-                <livewire:paymentmodule::components.delivery />
+                <livewire:paymentmodule::components.delivery :carts="$carts" />
 
                 <!-- Shipping Address -->
                 <section class="bg-white p-6 rounded-lg shadow-sm">

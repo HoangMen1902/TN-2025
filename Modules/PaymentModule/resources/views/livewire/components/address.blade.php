@@ -12,7 +12,7 @@
         <ul class="space-y-3">
             @foreach ($addresses as $address)
                 <li class="relative">
-                    <label class="flex border p-4 rounded-lg items-start gap-4 relative">
+                    <label class="flex border p-4 rounded-lg items-center gap-4 relative">
                         <input type="radio" name="selected_address" wire:model.live="selectedAddressId"
                             value="{{ $address->id }}" />
 
@@ -22,11 +22,6 @@
                             
                         </div>
 
-                        {{-- Nút xoá --}}
-                        <button type="button" wire:click="confirmDelete({{ $address->id }})"
-                            class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                            Xóa
-                        </button>
                     </label>
                 </li>
             @endforeach

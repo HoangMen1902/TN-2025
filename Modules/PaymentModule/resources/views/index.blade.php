@@ -2,7 +2,17 @@
     <x-paymentmodule::page :carts="$carts"></x-paymentmodule::page>
 
     <x-slot name="scripts">
+
         <script>
+
+            $(document).ready(function () {
+                $('input[name="selected_address"]').on('change', function () {
+                    let id = $(this).val();
+                    Livewire.dispatch('user_selected_address', {id: id});
+                });
+            });
+
+
             document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('province').addEventListener('change', function () {
                     Livewire.dispatch('updateProvince');

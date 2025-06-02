@@ -73,8 +73,7 @@
             $hasSelectedAddress = session()->has('selected_address_id');
         @endphp
 
-        <button id="place-order-btn" type="submit" class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center
-{{ !$hasSelectedAddress ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$hasSelectedAddress ? 'disabled' : '' }}>
+        <button id="place-order-btn" type="submit" class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center">
             <span>Đặt hàng</span>
             <i class="fas fa-lock ml-2"></i>
         </button>

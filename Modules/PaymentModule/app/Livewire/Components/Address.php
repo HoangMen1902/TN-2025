@@ -49,7 +49,6 @@ class Address extends Component
 
     public $isConfirmed = false;
 
-
     public function updatedSelectedAddressId($id)
     {
         $address = CheckoutAddress::where('user_id', Auth::id())->find($id);
@@ -121,6 +120,7 @@ class Address extends Component
         ]);
         $this->showModal = true;
     }
+
 
     public function closeModal()
     {
