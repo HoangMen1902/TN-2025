@@ -8,6 +8,7 @@ use Livewire\Livewire;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Modules\UserModule\Console\SendBirthdayVouchers;
 
 class UserModuleServiceProvider extends ServiceProvider
 {
@@ -40,6 +41,9 @@ class UserModuleServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->commands([
+            SendBirthdayVouchers::class,
+        ]);
     }
 
     /**

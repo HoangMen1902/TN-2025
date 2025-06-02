@@ -63,6 +63,7 @@ class NotificationResource extends Resource
                         'Đơn hàng' => 'Đơn hàng',
                         'Tài khoản' => 'Tài khoản',
                         'Ưu đãi độc quyền' => 'Ưu đãi độc quyền',
+                        'Chúc mừng sinh nhật' => 'Chúc mừng sinh nhật',
                     ])
                     ->columnSpanFull(),
 
