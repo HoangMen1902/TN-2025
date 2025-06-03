@@ -13,20 +13,24 @@ class Order extends Component
 
     public $statusFilter = 'all';
     public $search = '';
+    public $showCancelModal = false;
+    public $orderId;
+    public $selectedReason = '';
+    public $customReason = '';
 
-   
+
     protected $updatesQueryString = ['search', 'statusFilter'];
     protected $paginationTheme = 'tailwind';
 
     public function setStatusFilter($status)
     {
         $this->statusFilter = $status;
-        $this->resetPage();  
+        $this->resetPage();
     }
 
     public function updatedSearch()
     {
-        $this->resetPage(); 
+        $this->resetPage();
     }
 
     public function getOrdersProperty()
@@ -68,6 +72,34 @@ class Order extends Component
         return $query->with('orderDetails.sku.product.categories')
             ->orderBy('created_at', 'desc')
             ->paginate(5);
+    }
+
+    public function openCancelModal($orderId)
+    {
+        $this->orderId = $orderId;
+        $this->reset(['selectedReason', 'customReason']);
+        $this->showCancelModal = true;
+    }
+
+
+    public function cancelOrder()
+    {
+        $reason = $this->selectedReason === 'Lý do khác'
+            ? trim($this->customReason)
+            : $this->selectedReason;
+
+        if (!$reason) {
+            $this->addError('reason', 'Vui lòng chọn hoặc nhập lý do hủy.');
+            return;
+        }
+
+        OrderModel::find($this->orderId)?->update([
+            'orders_status' => 'Đã hủy',
+            'reason' => $reason,
+        ]);
+
+        $this->reset(['showCancelModal', 'selectedReason', 'customReason']);
+      $this->dispatch('toast', type: 'success', message: 'Đã hủy đơn thành công');
     }
 
     public function render()
