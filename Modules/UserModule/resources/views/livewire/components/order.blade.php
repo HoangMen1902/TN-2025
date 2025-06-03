@@ -125,33 +125,116 @@
                                     </div>
                                 </div>
                             @endforeach
+                            @php
+                                $statusMessages = [
+                                    'Đang xử lý' => [
+                                        'label' => 'Đang xử lý',
+                                        'color' => 'text-yellow-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                                                                                                                                                                                                                                                      <circle cx="12" cy="12" r="10" stroke-width="2" />
+                                                                                                                                                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                                                                                                                                                                                                                                                                                    </svg>
+                                                                                                                                                                                                                                                                                    '
+                                    ],
+                                    'Đã thanh toán' => [
+                                        'label' => 'Đã thanh toán',
+                                        'color' => 'text-blue-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
+                                    ],
+                                    'Vận chuyển' => [
+                                        'label' => 'Đang vận chuyển',
+                                        'color' => 'text-indigo-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18M5 16h14l-1-4H6l-1 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                    ],
+                                    'Chờ hoàn tiền' => [
+                                        'label' => 'Chờ hoàn tiền',
+                                        'color' => 'text-yellow-600',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v4M8 8h8M12 12v4M8 16h8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                    ],
+                                    'Đã hoàn tiền' => [
+                                        'label' => 'Đã hoàn tiền',
+                                        'color' => 'text-green-600',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                    ],
+                                    'Đã giao' => [
+                                        'label' => 'Giao hàng thành công',
+                                        'color' => 'text-green-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                    ],
+                                    'Đã hủy' => [
+                                        'label' => 'Đã hủy',
+                                        'color' => 'text-red-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
+                                    ],
+                                ];
+
+                                $status = $order->orders_status;
+                                $statusInfo = $statusMessages[$status] ?? ['label' => 'Không rõ trạng thái', 'color' => 'text-gray-500', 'icon' => ''];
+                                $total_price = $order->orderDetails->sum(function ($detail) {
+                                    return $detail->price * $detail->quantity;
+                                });
+                            @endphp
 
                             <div class="p-3 md:p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
                                 <div class="flex items-center">
-                                    <svg class="text-green-500 w-4 h-4 md:w-5 md:h-5 mr-1" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span class="text-green-500 text-sm">Giao hàng thành công</span>
-                                    <span
-                                        class="text-red-500 font-medium ml-2 text-sm">{{ strtoupper($order->orders_status) }}</span>
+                                    {!! $statusInfo['icon'] !!}
+                                    <span class="{{ $statusInfo['color'] }} text-sm">{{ $statusInfo['label'] }}</span>
                                 </div>
+                                <!-- Phần thành tiền hay khác -->
                                 <div>
                                     <div class="text-gray-600 text-sm text-right">
                                         Thành tiền: <span class="text-red-500 text-base md:text-lg font-medium">
-                                            ₫{{ number_format($order->total, 0, ',', '.') }}
+                                            ₫{{ number_format($total_price, 0, ',', '.') }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
+
+                            @php
+                                $status = $order->orders_status;
+                                $reviewDeadline = $order->updated_at->addDays(5)->format('d-m-Y');
+                            @endphp
+
                             <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                <div class="text-xs md:text-sm text-gray-500">Đánh giá sản phẩm trước
-                                    {{ $order->updated_at->addDays(15)->format('d-m-Y') }}
-                                </div>
-                                <div class="text-xs md:text-sm text-red-500">Đánh giá ngay và nhận 200 Xu</div>
+                                @if($status === 'Đang xử lý')
+                                    <div class="text-sm text-gray-700">
+                                        Hiện tại chúng tôi đang kiểm tra và sẽ xử lý đơn hàng sớm nhất.
+                                    </div>
+                                @elseif($status === 'Đã thanh toán')
+                                    <div class="text-sm text-blue-600">
+                                        Bạn đã thanh toán và đơn hàng của bạn sẽ được chuẩn bị để vận chuyển.
+                                    </div>
+                                @elseif($status === 'Vận chuyển')
+                                    <div class="text-sm text-indigo-600">
+                                        Đơn hàng đang được vận chuyển đến bạn, vui lòng chờ nhận hàng.
+                                    </div>
+                                @elseif($status === 'Chờ hoàn tiền')
+                                    <div class="text-sm text-yellow-600">
+                                        Đơn hàng đang chờ xử lý hoàn tiền, xin vui lòng chờ.
+                                    </div>
+                                @elseif($status === 'Đã hoàn tiền')
+                                    <div class="text-sm text-green-600">
+                                        Đơn hàng đã được hoàn tiền thành công.
+                                    </div>
+                                @elseif($status === 'Đã giao')
+                                    <div class="flex flex-col md:flex-row gap-2 items-center">
+                                        <div class="text-xs md:text-sm text-gray-500">
+                                            Đánh giá sản phẩm trước {{ $reviewDeadline }}
+                                        </div>
+
+                                    </div>
+                                @elseif($status === 'Đã hủy')
+                                    <div class="text-sm text-red-500">
+                                        Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.
+                                    </div>
+                                @else
+                                    <div class="text-sm text-gray-500">
+                                        Trạng thái đơn hàng không xác định.
+                                    </div>
+                                @endif
                             </div>
+
 
                             @php
                                 $product = $order->orderDetails->first()?->sku?->product;
@@ -175,14 +258,14 @@
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Yêu cầu trả hàng
                                     </button>
-                                    <button data-modal-target="rating-modal" data-modal-toggle="rating-modal"
+                                    <button wire:click="openRatingModal({{ $order->id }})"
                                         class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Đánh giá
                                     </button>
-                                    <button wire:click="reorder({{ $order->id }})"
+                                    <a href="{{ url('/chi-tiet/' . $product->slug) }}"
                                         class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Mua lại
-                                    </button>
+                                    </a>
 
                                 @elseif ($order->orders_status === 'Đã hủy' && $product)
                                     <a href="{{ url('/chi-tiet/' . $product->slug) }}"
@@ -198,6 +281,131 @@
 
                         </div>
                     </div>
+                    @if ($showRatingModal)
+                        <div class="fixed inset-0 z-50  flex items-center justify-center p-4 bg-black/30">
+
+                            <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                                <div class="p-4 border-b rounded-t flex justify-between items-center">
+                                    <h3 class="text-xl font-semibold text-gray-900">
+                                        Đánh giá sản phẩm
+                                    </h3>
+                                    <button type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        data-modal-hide="rating-modal">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span class="sr-only">Đóng</span>
+                                    </button>
+                                </div>
+
+                                <div class="p-6 space-y-6">
+                                    @foreach ($orderProducts as $detail)
+                                        <div class="flex items-start border-b border-gray-200 pb-4">
+                                            <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
+                                                <img src="https://cdn1.fahasa.com/media/catalog/product/9/7/9786326020120.jpg"
+                                                    alt="Sản phẩm" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">Tuyển Sinh 10 & Các Đề
+                                                    Toán Thực
+                                                    Tế
+                                                    (Theo Chương Trình Giáo Dục Phổ Thông 2018)</p>
+                                                <p class="text-gray-500 text-xs md:text-sm mb-1">Phân loại hàng: 1 đôi dài đen</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div class="text-center">
+                                                <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
+                                                <div class="flex items-center justify-center space-x-1 mb-2">
+                                                    @for ($i = 1; $i <= 5; $i++)
+
+                                                        <button type="button" wire:click="setRating({{ $i }})"
+                                                            class="{{ $rating >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400">
+                                                            <!-- icon -->
+                                                        </button>
+                                                    @endfor
+                                                </div>
+
+                                                <p id="rating-text" class="text-sm text-gray-500">Hãy chọn đánh giá</p>
+                                            </div>
+
+                                            <div class="flex flex-wrap gap-2 justify-center">
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đúng
+                                                    mô tả</button>
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Chất
+                                                    lượng tốt</button>
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giao
+                                                    hàng nhanh</button>
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đóng
+                                                    gói cẩn thận</button>
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giá
+                                                    cả hợp lý</button>
+                                                <button type="button"
+                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Sẽ
+                                                    mua lại</button>
+                                            </div>
+
+                                            <div>
+                                                <textarea id="review-comment" rows="4"
+                                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
+                                                    placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                                            </div>
+
+                                            <div class="space-y-2">
+                                                <div class="text-sm text-gray-700">Hình ảnh sản phẩm (không bắt buộc)</div>
+                                                <div class="flex gap-2">
+                                                    <div
+                                                        class="relative w-16 h-16 border border-dashed border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 cursor-pointer">
+                                                        <input type="file" class="absolute inset-0 opacity-0 cursor-pointer"
+                                                            accept="image/*">
+                                                        <svg class="w-6 h-6 text-gray-400" aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M10 12V1m0 0L5 6m5-5 5 5M1 1h18M1 17h18" />
+                                                        </svg>
+                                                    </div>
+                                                    <div
+                                                        class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
+                                                        <span class="text-xs text-gray-400">Xem trước</span>
+                                                    </div>
+                                                    <div
+                                                        class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
+                                                        <span class="text-xs text-gray-400">Xem trước</span>
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs text-gray-500">Tối đa 3 hình ảnh (định dạng JPG, PNG)</p>
+                                            </div>
+
+                                            <div class="flex items-center">
+                                                <input id="anonymous-checkbox" type="checkbox" value=""
+                                                    class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
+                                                <label for="anonymous-checkbox" class="ml-2 text-sm font-medium text-gray-700">Đánh giá
+                                                    ẩn
+                                                    danh</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                                    <button data-modal-hide="rating-modal" type="button"
+                                        class="border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
+                                    <button type="button" id="submit-rating"
+                                        class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
+                                        đánh giá</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     @php
                         $reasons = ['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'];
                     @endphp
@@ -379,158 +587,6 @@
 
     </div>
 
-
-    <div id="rating-modal" tabindex="-1" aria-hidden="true"
-        class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/30">
-
-        <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
-            <div class="p-4 border-b rounded-t flex justify-between items-center">
-                <h3 class="text-xl font-semibold text-gray-900">
-                    Đánh giá sản phẩm
-                </h3>
-                <button type="button"
-                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                    data-modal-hide="rating-modal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                    <span class="sr-only">Đóng</span>
-                </button>
-            </div>
-
-            <div class="p-6 space-y-6">
-                <div class="flex items-start border-b border-gray-200 pb-4">
-                    <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                        <img src="https://cdn1.fahasa.com/media/catalog/product/9/7/9786326020120.jpg" alt="Sản phẩm"
-                            class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">Tuyển Sinh 10 & Các Đề Toán Thực
-                            Tế
-                            (Theo Chương Trình Giáo Dục Phổ Thông 2018)</p>
-                        <p class="text-gray-500 text-xs md:text-sm mb-1">Phân loại hàng: 1 đôi dài đen</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="text-center">
-                        <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
-                        <div class="flex items-center justify-center space-x-1 mb-2">
-                            <button type="button" class="rating-star text-gray-300 hover:text-yellow-400"
-                                data-rating="1">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                            </button>
-                            <button type="button" class="rating-star text-gray-300 hover:text-yellow-400"
-                                data-rating="2">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                            </button>
-                            <button type="button" class="rating-star text-gray-300 hover:text-yellow-400"
-                                data-rating="3">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                            </button>
-                            <button type="button" class="rating-star text-gray-300 hover:text-yellow-400"
-                                data-rating="4">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                            </button>
-                            <button type="button" class="rating-star text-gray-300 hover:text-yellow-400"
-                                data-rating="5">
-                                <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-                                </svg>
-                            </button>
-                        </div>
-                        <p id="rating-text" class="text-sm text-gray-500">Hãy chọn đánh giá</p>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 justify-center">
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đúng
-                            mô tả</button>
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Chất
-                            lượng tốt</button>
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giao
-                            hàng nhanh</button>
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đóng
-                            gói cẩn thận</button>
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giá
-                            cả hợp lý</button>
-                        <button type="button"
-                            class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Sẽ
-                            mua lại</button>
-                    </div>
-
-                    <div>
-                        <textarea id="review-comment" rows="4"
-                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
-                            placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="text-sm text-gray-700">Hình ảnh sản phẩm (không bắt buộc)</div>
-                        <div class="flex gap-2">
-                            <div
-                                class="relative w-16 h-16 border border-dashed border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 cursor-pointer">
-                                <input type="file" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
-                                <svg class="w-6 h-6 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 20 18">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="M10 12V1m0 0L5 6m5-5 5 5M1 1h18M1 17h18" />
-                                </svg>
-                            </div>
-                            <div
-                                class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
-                                <span class="text-xs text-gray-400">Xem trước</span>
-                            </div>
-                            <div
-                                class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
-                                <span class="text-xs text-gray-400">Xem trước</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-500">Tối đa 3 hình ảnh (định dạng JPG, PNG)</p>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input id="anonymous-checkbox" type="checkbox" value=""
-                            class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
-                        <label for="anonymous-checkbox" class="ml-2 text-sm font-medium text-gray-700">Đánh giá ẩn
-                            danh</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
-                <button data-modal-hide="rating-modal" type="button"
-                    class="border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
-                <button type="button" id="submit-rating"
-                    class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
-                    đánh giá</button>
-            </div>
-        </div>
-    </div>
     <!-- Chờ thanh toán -->
     {{-- <div class="hidden" id="pending-payment" role="tabpanel" aria-labelledby="pending-payment-tab">
         <div class="flex flex-col items-center justify-center py-12">

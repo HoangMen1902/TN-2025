@@ -17,6 +17,8 @@ class Rating extends Model
         'user_id',
         'review',
         'rating',
+        'images',
+        'is_anonymous',
     ];
 
     public function orderDetail()
