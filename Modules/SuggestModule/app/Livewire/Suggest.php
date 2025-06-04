@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\SuggestModule\App\Http\Livewire;
+namespace Modules\SuggestModule\Livewire;
 
-use Livewire\Component;
 use App\Models\Product;
+use Livewire\Component;
 
 class Suggest extends Component
 {
@@ -79,7 +79,7 @@ class Suggest extends Component
 
     public function render()
     {
-        return view('suggestmodule::livewire.suggest-module', [
+        return view('suggestmodule::livewire.suggest', [
             'displayedProducts' => $this->displayedProducts,
             'canLoadMore' => $this->displayLimit < $this->maxLimit,
         ]);
