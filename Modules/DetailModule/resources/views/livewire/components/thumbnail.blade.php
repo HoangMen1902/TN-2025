@@ -124,7 +124,7 @@ $fifthImg;
 @endif
     </div>
     <div class="action-button w-full lg:py-4 hidden lg:block">
-        @if (!isset($currentSku->product->published_at))
+        @if (!isset($currentSku->product->published_at) || new DateTime($currentSku->product->published_at) < new DateTime())
         <form action="{{route("cart.add")}}" method="POST"" class=" flex items-center" id="addToCart">
             @csrf
             <button class="w-1/2 cart-add-item font-bold flex items-center justify-center sm:hidden lg:flex"
