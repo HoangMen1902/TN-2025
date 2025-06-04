@@ -21,7 +21,7 @@ class PaymentMethodResource extends Resource
     protected static ?string $model = PaymentMethod::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-    protected static ?string $navigationGroup = 'Quản lý phương thức thanh toán';
+    protected static ?string $navigationGroup = 'Quản lý tích hợp';
     protected static ?string $navigationLabel = 'Phương thức thanh toán';
     protected static ?string $pluralModelLabel = 'Phương thức thanh toán';
     protected static ?string $modelLabel = 'Phương thức thanh toán';
