@@ -71,9 +71,14 @@ class Delivery extends Component
                 return;
             } else {
                 $fee = $ghnService->getFee($this->size, $data->district_id, $data->ward_id);
+                if($fee) {
                 $ghnFeeRes = json_decode($fee, true);
-                $this->ghnFee = $ghnFeeRes['data']['total'];
-                $this->getEstimatedTimeGhn($ghnService, $data);
+                    $this->ghnFee = $ghnFeeRes['data']['total'];
+                    $this->getEstimatedTimeGhn($ghnService, $data);
+                } else {
+                    Log::info('Đã có lỗi xảy ra khi lấy phí ');
+                    return;
+                }
             }
         }
     }

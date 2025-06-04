@@ -138,7 +138,7 @@ class GhnService
                 "from_district" => (int)$shop_district,
                 "to_district" => (int)$district
             ]);
-            if($response->ok()) {
+            if ($response->ok()) {
                 return $response;
             } else {
                 return false;
@@ -148,7 +148,7 @@ class GhnService
         }
     }
 
-    public function getEstimatedTime( $district_id,  $ward_id)
+    public function getEstimatedTime($district_id,  $ward_id)
     {
         try {
             $serviceTypeId = collect($this->getServiceList($this->shop_district_id, $district_id)['data'] ?? [])
@@ -198,11 +198,11 @@ class GhnService
         try {
 
             $serviceTypeId = collect($this->getServiceList($this->shop_district_id, 1935)['data'] ?? [])
-            ->firstWhere('short_name', 'Hàng nhẹ')['service_type_id'] ?? null;
+                ->firstWhere('short_name', 'Hàng nhẹ')['service_type_id'] ?? null;
             if (!isset($serviceTypeId) || empty($serviceTypeId)) {
                 throw new Exception('Not Found Service Type');
             }
-            $respone = Http::withHeaders([
+            $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'ShopId' => (int)env('GHN_SHOPID'),
                 'Token' => $this->token
@@ -218,7 +218,12 @@ class GhnService
                 "insurance_value" => 3,
                 "coupon" => null,
             ]);
-            return $respone->body();
+            if($response->successful()) {
+                return $response->body();
+            } else {
+                Log::error('Lỗi xảy ra khi lấy phí giao hàng' . $response->body());
+                return [];
+            }
         } catch (Exception $e) {
             Log::error('Lỗi khi tính phí: ' . $e->getMessage());
             return false;
