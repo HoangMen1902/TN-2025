@@ -1,18 +1,18 @@
 <?php
 
-namespace Modules\HomeModule\App\Livewire\Components;
+namespace Modules\HomeModule\Livewire\Components;
 
+use App\Models\Flashsale;
 use Livewire\Component;
-use App\Models\Flashsale as FlashsaleModel;
 
-class FlashSale extends Component
+class FlashsaleProduct extends Component
 {
     public $products = [];
     public $expiredAt;
 
     public function mount()
     {
-        $flashSales = FlashsaleModel::active()
+        $flashSales = Flashsale::active()
             ->where('expired_at', '<=', now()->addHours(24))
             ->where('expired_at', '>', now())
             ->with(['skus.product', 'discount'])
@@ -71,6 +71,6 @@ class FlashSale extends Component
 
     public function render()
     {
-        return view('homemodule::livewire.components.flash-sale');
+        return view('homemodule::livewire.components.flashsale-product');
     }
 }

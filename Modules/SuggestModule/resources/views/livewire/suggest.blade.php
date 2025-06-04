@@ -9,7 +9,7 @@
                             class="bg-white p-4 rounded-[10px] shadow-sm hover:shadow-lg transition duration-300 flex flex-col h-[400px]">
                             <div class="w-full aspect-[3/4]">
                                 <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="ảnh sản phẩm"
-                                    class="w-full h-full object-contain mx-auto">
+                                    class="w-full h-full object-contain mx-auto max-h-[250px]">
                             </div>
 
                             <h3 class="text-sm font-medium leading-5 line-clamp-2 mt-2 min-h-[2.5rem]">
@@ -58,7 +58,7 @@
                         class="bg-white p-4 rounded-[10px] shadow-sm hover:shadow-lg transition duration-300 flex flex-col h-[400px]">
                         <div class="w-full aspect-[3/4]">
                             <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="ảnh sản phẩm"
-                                class="w-full h-full object-contain mx-auto">
+                                class="w-full h-full object-contain mx-auto max-h-[250px]">
                         </div>
                         <h3 class="text-sm font-medium leading-5 line-clamp-2 mt-2 min-h-[2.5rem]">
                             {{ $product->name ?? '' }}
@@ -100,16 +100,16 @@
         <div class="text-center mt-6">
             @if ($canLoadMore)
                 <button wire:click="loadMore"
-                    class="bg-pink-100 text-pink-600 border border-pink-300 font-semibold px-6 py-3 rounded-full shadow hover:bg-pink-200 transition duration-300 transform hover:scale-105">
-                    🌸 <span class="mr-2">Xem thêm</span>
+                    class="inline-block px-10 py-2 border-2 border-red-600 rounded-full text-red-600 font-bold hover:bg-red-600 hover:text-white transition-all duration-300 cursor-pointer ">
+                     <span class="">Xem thêm</span>
                     <svg class="inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
             @else
                 <button wire:click="collapse"
-                    class="bg-pink-100 text-pink-600 border border-pink-300 font-semibold px-6 py-3 rounded-full shadow hover:bg-pink-200 transition duration-300 transform hover:scale-105">
-                    🌸 <span class="mr-2">Rút gọn</span>
+                    class="inline-block px-10 py-2 border-2 border-red-600 rounded-full text-red-600 font-bold hover:bg-red-600 hover:text-white transition-all duration-300 cursor-pointer">
+                    <span class="">Rút gọn</span>
                     <svg class="inline w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                     </svg>

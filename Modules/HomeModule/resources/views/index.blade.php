@@ -221,7 +221,7 @@
             </div>
         </div>
 
-        <livewire:homemodule.components.flash-sale />
+        <livewire:homemodule::components.flashsale-product />
         <div class=" bg-light p-2 my-6 rounded">
             <livewire:homemodule::components.product-category :childCategories="$childCategories">
             </livewire:homemodule::components.product-category :childCategories="$childCategories">
