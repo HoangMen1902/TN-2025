@@ -319,10 +319,10 @@
                                     </button>
                                 </form>
                             </div>
-
-                            <div style="cursor:pointer" onclick="window.location.href='/product-detail/{{ $product->id }}';"
+ 
+                            <div style="cursor:pointer" onclick="window.location.href='/chi-tiet/{{ $product->id }}';"
                                 class="product__slide__image border-b border-gray-300 overflow-hidden">
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
                                     class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105">
                             </div>
 
@@ -342,9 +342,12 @@
                                     @endfor
                                     <span class="text-xs">{{ $product->reviews_count ?? 20 }}</span>
                                 </div>
+                                <div>
 
-
-                                <div>{{ $product->category->name ?? 'Không xác định' }}</div>
+                                </div>
+                                @foreach ($product->categories as  $category)
+                                {{ $category->name ?? 'Không xác định' }}
+                                @endforeach
 
 
                                 <div class="product__slide__number__imgs">
