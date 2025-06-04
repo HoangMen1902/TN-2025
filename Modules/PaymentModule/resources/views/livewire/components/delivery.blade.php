@@ -5,7 +5,8 @@
             <input type="radio" name="shipment_unit" value="Giao Hàng Nhanh" class="form-radio text-black" checked>
             <div class="ml-4">
                 <div class="font-semibold text-sm">Giao tận nơi - Đơn vị Giao Hàng Nhanh</div>
-                <div class="text-sm text-gray-600">
+                <div class="text-sm text-gray-600" wire:loading>Đang lấy phí vận chuyển..</div>
+                <div class="text-sm text-gray-600" wire:loading.remove>
                     {{ 
                         $ghnFee
     ? number_format($ghnFee, 0, '', '.') . 'đ'
