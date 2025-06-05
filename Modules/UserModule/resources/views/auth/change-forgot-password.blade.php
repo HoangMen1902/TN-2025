@@ -1,9 +1,9 @@
 <x-layouts.layout>
     <x-slot name="title">BeeBook - Đặt lại mật khẩu</x-slot>
 
-    <div class="bg-gray-100 text-gray-900 flex mx-auto w-[1200px] justify-center">
-        <div class="w-full m-0 mb-8 bg-white shadow sm:rounded-lg flex justify-center flex-1">
-            <div class="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
+    <div class="bg-gray-100 text-gray-900 flex justify-center min-h-screen px-4">
+        <div class="w-full max-w-[1200px] m-0 mb-8 bg-white shadow sm:rounded-lg flex flex-col lg:flex-row justify-center flex-1">
+            <div class="w-full lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
                 <div class="mt-12 flex flex-col items-center">
                     <h1 class="text-2xl xl:text-3xl font-bold text-[#2b4f60]">
                         Đặt lại mật khẩu
@@ -13,7 +13,18 @@
                     </p>
                 </div>
 
-                <div class="w-full flex-1 mt-4">
+                @if (session('status'))
+                    <div class="text-green-600 text-center font-semibold mb-4">
+                        {{ session('status') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="text-red-600 text-center font-semibold mb-4">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                <div class="w-full mt-4">
                     <form action="{{ route('update-password') }}" method="POST" class="mx-auto max-w-xs" novalidate>
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
@@ -22,8 +33,9 @@
                             type="email"
                             name="email"
                             placeholder="Email"
-                            value="{{ old('email') }}"
+                            value="{{ request()->email ?? old('email') }}"
                             required
+                            autocomplete="email"
                             class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 
                                    placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                         />
@@ -36,6 +48,7 @@
                             name="password"
                             placeholder="Mật khẩu mới"
                             required
+                            autocomplete="new-password"
                             class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 
                                    placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                         />
@@ -48,6 +61,7 @@
                             name="password_confirmation"
                             placeholder="Xác nhận mật khẩu"
                             required
+                            autocomplete="new-password"
                             class="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 
                                    placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                         />
@@ -61,9 +75,7 @@
                                    hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center 
                                    justify-center focus:shadow-outline focus:outline-none"
                         >
-                            <span class="ml-3 mr-3">
-                                Đặt lại mật khẩu
-                            </span> 
+                            <span class="ml-3 mr-3">Đặt lại mật khẩu</span> 
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 class="w-6 h-6 -ml-2">
@@ -81,7 +93,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 bg-indigo-100 text-center hidden lg:flex">
+            <div class="hidden lg:flex flex-1 bg-indigo-100 text-center">
                 <div class="m-12 xl:m-16 w-full bg-contain bg-center bg-no-repeat"
                     style="background-image: url('https://storage.googleapis.com/devitary-image-host.appspot.com/15848031292911696601-undraw_designer_life_w96d.svg');">
                 </div>
