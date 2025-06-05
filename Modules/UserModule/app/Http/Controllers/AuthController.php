@@ -256,4 +256,32 @@ class AuthController extends Controller
             return redirect('/')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
         }
     }
+    //doi mat khau
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Bạn chưa nhập mật khẩu hiện tại.',
+            'password.required' => 'Bạn chưa nhập mật khẩu mới.',
+            'password.string' => 'Mật khẩu mới phải là chuỗi ký tự.',
+            'password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+        ]);
+
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()
+                ->withErrors(['current_password' => 'Mật khẩu hiện tại không chính xác'])
+                ->withInput();
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return redirect('/ho-so')->with('success', 'Đổi mật khẩu thành công!');
+    }
 }

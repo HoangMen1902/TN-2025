@@ -117,11 +117,7 @@
                         </div>
                     </div>
                 </form>
-                @if (session('success'))
-                <div class="mb-4 text-sm text-green-700  p-3 rounded xl:text-center ">
-                    {{ session('success') }}
-                </div>
-                @endif
+            
             </div>
 
 

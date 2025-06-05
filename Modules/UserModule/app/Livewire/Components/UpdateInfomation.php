@@ -48,6 +48,32 @@ class UpdateInfomation extends Component
             'gender' => 'nullable',
         ];
 
+        $messages = [
+            'name.required' => 'Tên không được để trống.',
+            'name.string' => 'Tên phải là chuỗi ký tự.',
+            'name.min' => 'Tên phải có ít nhất 2 ký tự.',
+            'name.max' => 'Tên không được vượt quá 100 ký tự.',
+
+            'username.required' => 'Tên đăng nhập không được để trống.',
+            'username.string' => 'Tên đăng nhập phải là chuỗi ký tự.',
+            'username.min' => 'Tên đăng nhập phải có ít nhất 2 ký tự.',
+            'username.max' => 'Tên đăng nhập không được vượt quá 100 ký tự.',
+
+            'newEmail.required' => 'Email mới không được để trống.',
+            'newEmail.email' => 'Email mới phải đúng định dạng email.',
+
+            'phone.required' => 'Số điện thoại không được để trống.',
+            'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
+
+            'birthday.date' => 'Ngày sinh phải đúng định dạng ngày tháng.',
+
+            // gender nullable, không cần lỗi custom
+        ];
+
+        // Cách dùng validate:
+        $this->validate($rules, $messages);
+
+
         if ($this->newAvatar) {
             $rules['newAvatar'] = 'nullable|image|max:1024';
         }
@@ -114,7 +140,7 @@ class UpdateInfomation extends Component
         });
 
         $this->otpSent = true;
-        session()->flash('success', 'Đã gửi mã OTP đến email mới.');
+        $this->dispatch('toast', type: 'success', message: 'Đã gửi mã otp đến email mới');
     }
 
 
@@ -133,7 +159,7 @@ class UpdateInfomation extends Component
                 ->first();
 
             if (!$record || !Hash::check($this->otp, $record->otp_code)) {
-                session()->flash('error', 'Mã OTP không đúng hoặc đã hết hạn.');
+                $this->dispatch('toast', type: 'error', message: 'Mã otp không đúng!');
                 return;
             }
 
@@ -159,7 +185,7 @@ class UpdateInfomation extends Component
         $user->gender = $this->gender;
         $user->save();
 
-        session()->flash('success', 'Cập nhật hồ sơ thành công.');
+        $this->dispatch('toast', type: 'success', message: 'Cập nhật hồ sơ thành công.');
     }
 
 
