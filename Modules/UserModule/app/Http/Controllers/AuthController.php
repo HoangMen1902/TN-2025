@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Services\CartService;
 
 class AuthController extends Controller
 {
@@ -45,24 +46,7 @@ class AuthController extends Controller
         $currCart = Cart::where('session_id', '=',    $oldSessionId)->get();
 
         if (Auth::attempt($credentials)) {
-            $userId = Auth::id();
-            foreach ($currCart  as $cart) {
-                $existingCart = Cart::where('user_id', $userId)
-                    ->where('item_type', $cart->item_type)
-                    ->where($cart->item_type === 'sku' ? 'sku_id' : 'combo_id', $cart->sku_id ?? $cart->combo_id)
-                    ->first();
-
-                if ($existingCart) {
-
-                    $existingCart->quantity += $cart->quantity;
-                    $existingCart->save();
-
-                    $cart->delete();
-                } else {
-                    $cart->user_id = $userId;
-                    $cart->save();
-                }
-            }
+            CartService::syncCartAfterLogin($currCart, Auth::id());
             return redirect()->intended('/')->with('success', 'Đăng nhập thành công!');
         }
 
@@ -257,7 +241,9 @@ class AuthController extends Controller
 
                 Log::info('Created new user from Google login', ['user_id' => $user->id]);
             }
-
+            $oldSessionId = session()->getId();
+            $currCart = Cart::where('session_id', '=',    $oldSessionId)->get();
+            CartService::syncCartAfterLogin($currCart, $user->id);
             Auth::login($user);
 
             Log::info('User logged in via Google', ['user_id' => $user->id]);
