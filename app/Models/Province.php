@@ -13,4 +13,9 @@ class Province extends Model
     {
         return $this->hasMany(District::class);
     }
+
+    public function provider_province() {
+        return $this->hasOne(providerProvinces::class);
+    }
+
 }

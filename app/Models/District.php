@@ -22,6 +22,11 @@ class District extends Model
         return $this->belongsTo(Province::class);
     }
 
+    public function provider_district() {
+        return $this->hasOne(providerDistrict::class);
+    }
+
+
  
     public function wards()
     {

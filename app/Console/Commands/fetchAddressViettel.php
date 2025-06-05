@@ -9,6 +9,8 @@ use App\Models\providerWard;
 use App\Services\ViettelPostService;
 use Illuminate\Console\Command;
 
+use function PHPUnit\Framework\isNull;
+
 class fetchAddressViettel extends Command
 {
     /**
@@ -35,8 +37,18 @@ class fetchAddressViettel extends Command
         $wardData = $vtps->fetchWard();
 
 
-        $providerId = Provider::where('provider_name', '=', 'Viettel Post')->first()->id;
-        foreach ($provinceData as $province) {
+        $providerId = Provider::where('provider_name', '=', 'Viettel Post')->first();
+        if (is_null($providerId)) {
+            Provider::updateOrCreate([
+                'provider_name' => 'Viettel Post',
+            ], [
+                'provider_status' => 'active'
+            ]);
+        } else {
+            $providerId = $providerId->id;
+        }
+
+        foreach ($provinceData as $province) {  
             $result = providerProvinces::updateOrCreate(
                 ['provider_province_code' => $province['PROVINCE_ID']],
                 [

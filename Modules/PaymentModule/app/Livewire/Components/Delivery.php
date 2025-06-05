@@ -4,6 +4,7 @@ namespace Modules\PaymentModule\Livewire\Components;
 
 use App\Models\CheckoutAddress;
 use App\Services\GhnService;
+use App\Services\ViettelPostService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +24,9 @@ class Delivery extends Component
     public $ghnFee;
     public $ghnFrom;
     public $ghnTime;
+    public $viettelFee;
+    public $viettelFrom;
+    public $viettelTime;
 
 
     public function mount()
@@ -63,37 +67,61 @@ class Delivery extends Component
     }
 
     #[On('user_selected_address')]
-    public function updateFee($id, GhnService $ghnService)
+    public function updateFee($id)
     {
         if (Auth::id()) {
+
+            //GHN
             $data = CheckoutAddress::find($id);
             if ($data->user_id !== Auth::id()) {
                 return;
             } else {
-                $fee = $ghnService->getFee($this->size, $data->district_id, $data->ward_id);
-                if($fee) {
-                $ghnFeeRes = json_decode($fee, true);
-                    $this->ghnFee = $ghnFeeRes['data']['total'];
-                    $this->getEstimatedTimeGhn($ghnService, $data);
-                } else {
-                    Log::info('Đã có lỗi xảy ra khi lấy phí ');
-                    return;
-                }
+                $this->getGhnFee($data);
+                $this->getViettelFee($data);
             }
+        }
+    }
+
+    public function getGhnFee($data, GhnService $ghnService = new GhnService())
+    {
+        $fee = $ghnService->getFee($this->size, $data->district_id, $data->ward_id);
+        if ($fee) {
+            $ghnFeeRes = json_decode($fee, true);
+            $this->ghnFee = $ghnFeeRes['data']['total'];
+            $this->getEstimatedTimeGhn($ghnService, $data);
+        } else {
+            Log::info('Đã có lỗi xảy ra khi lấy phí ');
+            return;
+        }
+    }
+    public function getViettelFee($data, ViettelPostService $viettel = new ViettelPostService())
+    {
+        $total = session(['finalPrice']);
+        $reciver_province = $data->province->provider_province->provider_province_code ?? 0;
+        $reciver_district = $data->district->provider_district->provider_district_code ?? 0;
+        if($reciver_district === 0 || $reciver_province === 0) {
+            return;
+        }
+        $viettelFee = $viettel->getFee($total, $this->size, $reciver_province, $reciver_district);
+        if ($viettelFee) {
+            $res = json_decode($viettelFee, true)['data'];
+            $this->viettelFee = $res['MONEY_TOTAL'];
+        } else {
+            return;
         }
     }
 
     public function getEstimatedTimeGhn(GhnService $ghn, $data)
     {
-                $ghnResponse = $ghn->getEstimatedTime(1935, "600401");
-                $resData = json_decode($ghnResponse->getBody(), true);
-                $data = $resData['data'];
-                $estimated = $data['leadtime_order']['to_estimate_date'];
-                $estimatedFrom = $data['leadtime_order']['from_estimate_date'];
-                $fromDate = Carbon::parse($estimatedFrom)->setTimezone('Asia/Ho_Chi_Minh');
-                $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
-                $this->ghnFrom = ucwords($date->translatedFormat('d/m'));
-                $this->ghnTime = ucwords($fromDate->translatedFormat('d/m'));
+        $ghnResponse = $ghn->getEstimatedTime(1935, "600401");
+        $resData = json_decode($ghnResponse->getBody(), true);
+        $data = $resData['data'];
+        $estimated = $data['leadtime_order']['to_estimate_date'];
+        $estimatedFrom = $data['leadtime_order']['from_estimate_date'];
+        $fromDate = Carbon::parse($estimatedFrom)->setTimezone('Asia/Ho_Chi_Minh');
+        $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
+        $this->ghnTime = ucwords($date->translatedFormat('d/m'));
+        $this->ghnFrom = ucwords($fromDate->translatedFormat('d/m'));
     }
 
     public function render()

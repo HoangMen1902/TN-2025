@@ -13,21 +13,32 @@ class Summary extends Component
     public $voucherMessage = '';
     public $voucherDiscount = 0;
     public $availableVouchers;
+    public $finalPrice;
+    public $originalPrice = 0;
     public function mount()
     {
+        foreach ($this->carts as $index => $cart) {
+            if($cart->item_type === 'combo') {
+                $this->originalPrice += $cart->combo->sale_price * $cart->quantity;
+            } elseif ($cart->item_type === 'sku') {
+                $this->originalPrice += $cart->quantity * $cart->sku->sale_price;
+            }
+        }
+        $this->finalPrice = $this->originalPrice;
+
         $this->voucherCode = session('voucher_code', '');
         $this->voucherDiscount = session('voucher_discount', 0);
         $this->availableVouchers = Voucher::where('voucher_status', 'active')
             ->get();
+            session([
+                'finalPrice' => $this->finalPrice
+            ]);
     }
 
     public function applyVoucher()
     {
-        $totalPrice = 0;
-        foreach ($this->carts as $cart) {
-            $price = $cart->sku->sale_price ?? $cart->combo->sale_price ?? 0;
-            $totalPrice += $cart->quantity * $price;
-        }
+
+        $totalPrice = $this->originalPrice;
 
         $voucher = Voucher::where('voucher_name', $this->voucherCode)
             ->where('voucher_status', 'active')
@@ -55,9 +66,11 @@ class Summary extends Component
         $this->voucherDiscount = $discount;
         $this->voucherMessage = 'Áp dụng mã giảm giá thành công!';
 
+        $this->finalPrice = $this->originalPrice - $this->voucherDiscount;
         session([
             'voucher_code' => $this->voucherCode,
             'voucher_discount' => $discount,
+            'finalPrice' => $this->finalPrice
         ]);
     }
     public function render()

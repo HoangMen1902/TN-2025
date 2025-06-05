@@ -17,6 +17,9 @@ class Ward extends Model
         'ward_code'
     ];
 
+    public function providerWard() {
+        return $this->hasOne(providerWard::class);
+    }
     public function district()
     {
         return $this->belongsTo(District::class);

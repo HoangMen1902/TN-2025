@@ -38,9 +38,6 @@
             <input type="hidden" name="cart_id[]" value="{{ $cart->id }}">
         @endforeach
 
-        @php
-            $finalTotal = $totalPrice - $voucherDiscount;
-        @endphp
 
         <!-- Promo Code -->
         <!-- Promo Code -->
@@ -113,7 +110,7 @@
         <div class="space-y-2 mb-4 pb-4 border-b border-b-neutral-300">
             <div class="flex justify-between">
                 <span class="text-gray-600">Tổng</span>
-                <span>{{ number_format($totalPrice) }} VNĐ</span>
+                <span>{{ number_format($originalPrice) }} VNĐ</span>
             </div>
             @if ($voucherDiscount > 0)
                 <div class="flex justify-between">
@@ -129,7 +126,7 @@
 
         <div class="flex justify-between items-center mb-6">
             <span class="text-lg font-semibold">Tổng</span>
-            <span class="text-lg font-semibold">{{ number_format($finalTotal) }} VNĐ</span>
+            <span class="text-lg font-semibold">{{ number_format($finalPrice) }} VNĐ</span>
         </div>
 
         @php

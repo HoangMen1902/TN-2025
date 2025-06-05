@@ -111,7 +111,7 @@ with open("output.txt", "w", encoding="utf-8") as f:
                 cleaned_name,
                 internal_ward,
                 scorer=fuzz.ratio,
-                limit=3
+                limit=10
             )
             
             print(f"[??] Không tìm được phường/xã phù hợp cho '{row['provider_ward_name']}' (score={score})", file=f)
