@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\PaymentDetail;
-use App\Models\ProductSku;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -17,47 +16,35 @@ use App\Models\CheckoutAddress;
 
 class PaymentModuleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return redirect('/gio-hang');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-
     public function paymentPage(Request $request)
     {
         $cartIds = $request->input('cart_id');
-
         $carts = Cart::whereIn('id', $cartIds)->get();
         return view('paymentmodule::index', ['carts' => $carts]);
     }
+
     public function create()
     {
         return view('paymentmodule::create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-
             'selected_address' => 'required|exists:checkout_addresses,id',
-
+            'cart_id' => 'required|array',
+            'payment_method' => 'required|string',
+            'shipment_unit' => 'nullable|string',
         ]);
-
 
         DB::beginTransaction();
         try {
             $user = Auth::user();
-
-            Log::info('Địa chỉ full_address từ request:', ['full_address' => $request->full_address]);
 
             $cartItems = Cart::with('sku')->whereIn('id', $request->cart_id)->get();
 
@@ -65,32 +52,28 @@ class PaymentModuleController extends Controller
                 return back()->with('error', 'Giỏ hàng không hợp lệ.');
             }
 
-
             $totalPrice = $cartItems->sum(function ($item) {
                 return $item->quantity * $item->sku->price;
             });
 
             $selectedAddressId = $request->selected_address;
-            $addressModel = CheckoutAddress::with(['ward', 'district', 'province'])->where('user_id', $user->id)->find($selectedAddressId);
+            $addressModel = CheckoutAddress::with(['ward', 'district', 'province', 'user'])
+                ->where('user_id', $user->id)
+                ->find($selectedAddressId);
 
             $fullAddress = null;
-
             if ($addressModel) {
                 $fullAddress = $addressModel->address;
-
                 if ($addressModel->ward?->name) {
                     $fullAddress .= ', ' . $addressModel->ward->name;
                 }
-
                 if ($addressModel->district?->name) {
                     $fullAddress .= ', ' . $addressModel->district->name;
                 }
-
                 if ($addressModel->province?->name) {
                     $fullAddress .= ', ' . $addressModel->province->name;
                 }
             }
-
 
             $order = Order::create([
                 'orders_status' => 'Đang xử lý',
@@ -101,8 +84,6 @@ class PaymentModuleController extends Controller
                 'customer_name' => $addressModel?->customer_name ?? $request->customer_name,
                 'total_price' => $totalPrice,
             ]);
-
-            Log::info('Đơn hàng đã tạo:', ['order_id' => $order->id, 'address' => $order->address]);
 
             foreach ($cartItems as $item) {
                 OrderDetail::create([
@@ -117,9 +98,11 @@ class PaymentModuleController extends Controller
                 $trackingId = strtoupper(Str::random(10));
             } while (PaymentDetail::where('tracking_id', $trackingId)->exists());
 
+            $paymentMethod = $request->payment_method;
+
             PaymentDetail::create([
                 'order_id' => $order->id,
-                'payment_method' => 'cod',
+                'payment_method' => $paymentMethod,
                 'payment_id' => null,
                 'tracking_id' => $trackingId,
                 'shipment_unit' => $request->shipment_unit,
@@ -132,40 +115,195 @@ class PaymentModuleController extends Controller
             session()->forget('shipping_address');
             session()->forget('selected_address_id');
 
-            return redirect()->route('orders.success')->with('success', 'Đặt hàng thành công.');
+            if ($paymentMethod === 'vnpay') {
+                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+                $vnp_Returnurl = route('vnpay.callback');
+                $vnp_TmnCode = env('VNP_TMN_CODE');
+                $vnp_HashSecret = env('VNP_HASH_SECRET');
+                $vnp_TxnRef = $order->id;
+                $vnp_OrderInfo = 'Thanh toan don hang ' . $order->id;
+                $vnp_OrderType = 'billpayment';
+                $vnp_Locale = 'vn';
+                $vnp_BankCode = '';
+                $vnp_IpAddr = $request->ip();
+                $vnp_Amount = (int) round($totalPrice * 100);
+                Log::info('Tổng tiền thanh toán:', [
+                    'total_price' => $totalPrice,
+                    'vnp_Amount' => $vnp_Amount,
+                    'order_id' => $order->id
+                ]);
+
+                $inputData = [
+                    "vnp_Version" => "2.1.0",
+                    "vnp_TmnCode" => $vnp_TmnCode,
+                    "vnp_Amount" => $vnp_Amount,
+                    "vnp_Command" => "pay",
+                    "vnp_CreateDate" => now()->format('YmdHis'),
+                    "vnp_CurrCode" => "VND",
+                    "vnp_IpAddr" => $vnp_IpAddr,
+                    "vnp_Locale" => $vnp_Locale,
+                    "vnp_OrderInfo" => $vnp_OrderInfo,
+                    "vnp_OrderType" => $vnp_OrderType,
+                    "vnp_ReturnUrl" => $vnp_Returnurl,
+                    "vnp_TxnRef" => $vnp_TxnRef,
+                ];
+
+                if (!empty($vnp_BankCode)) {
+                    $inputData['vnp_BankCode'] = $vnp_BankCode;
+                }
+
+                ksort($inputData);
+
+                $inputData = array_filter($inputData, function ($value) {
+                    return $value !== null && $value !== '';
+                });
+
+                $hashDataArray = [];
+                foreach ($inputData as $key => $value) {
+                    if ($value !== null && $value !== '') {
+                        $hashDataArray[] = $key . '=' . urlencode($value);
+                    }
+                }
+                $hashData = implode('&', $hashDataArray);
+
+                $vnp_SecureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+                Log::info('VNPAY Payment Hash Data:', [
+                    'hash_data' => $hashData,
+                    'secure_hash' => $vnp_SecureHash,
+                    'input_data' => $inputData
+                ]);
+
+                $query = http_build_query($inputData);
+                $vnp_Url .= "?" . $query . '&vnp_SecureHash=' . $vnp_SecureHash;
+
+                return redirect($vnp_Url);
+            }
+
+
+            return redirect()->route('home')->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
-
-            Log::error('Lỗi khi tạo đơn hàng:', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
-
             return back()->with('error', 'Đã xảy ra lỗi: ' . $e->getMessage());
         }
     }
 
+    public function vnpayCallback(Request $request)
+    {
+        $vnp_HashSecret = env('VNP_HASH_SECRET');
+        $inputData = $request->all();
 
-    /**
-     * Show the specified resource.
-     */
+        Log::info('VNPAY callback dữ liệu nhận được:', $inputData);
+
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? null;
+
+        $dataToHash = $inputData;
+        unset($dataToHash['vnp_SecureHash']);
+        unset($dataToHash['vnp_SecureHashType']);
+
+        ksort($dataToHash);
+
+        $dataToHash = array_filter($dataToHash, function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        $hashDataArray = [];
+        foreach ($dataToHash as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $hashDataArray[] = $key . '=' . urlencode($value);
+            }
+        }
+        $hashData = implode('&', $hashDataArray);
+
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        Log::info('Hash comparison:', [
+            'calculated_hash' => $secureHash,
+            'received_hash' => $vnp_SecureHash,
+            'hash_data' => $hashData,
+            'hash_secret_length' => strlen($vnp_HashSecret),
+            'data_to_hash' => $dataToHash
+        ]);
+
+        if ($secureHash === $vnp_SecureHash) {
+            $orderId = $request->input('vnp_TxnRef');
+            $responseCode = $request->input('vnp_ResponseCode');
+
+            $order = Order::find($orderId);
+
+            if ($order) {
+                if ($responseCode === '00') {
+                    $paymentDetail = PaymentDetail::where('order_id', $orderId)->first();
+                    if ($paymentDetail) {
+                        $paymentDetail->update([
+                            'payment_id' => $request->input('vnp_TransactionNo')
+                        ]);
+                    }
+
+                    $order->orders_status = 'Đã thanh toán';
+                    $order->save();
+
+                    Log::info('Thanh toán VNPAY thành công cho đơn hàng:', ['order_id' => $orderId]);
+
+                    return redirect()->route('home')->with('success', 'Thanh toán thành công!');
+                } else {
+                    $order->orders_status = 'Thanh toán thất bại';
+                    $order->save();
+
+                    Log::warning('Thanh toán VNPAY thất bại:', [
+                        'order_id' => $orderId,
+                        'response_code' => $responseCode,
+                        'message' => $this->getVNPayResponseMessage($responseCode)
+                    ]);
+
+                    return redirect()->route('home')->with('error', 'Thanh toán thất bại: ' . $this->getVNPayResponseMessage($responseCode));
+                }
+            } else {
+                Log::error('Không tìm thấy đơn hàng khi callback VNPAY:', ['order_id' => $orderId]);
+                return redirect()->route('home')->with('error', 'Không tìm thấy đơn hàng.');
+            }
+        } else {
+            Log::error('Chữ ký VNPAY không hợp lệ.', [
+                'calculated_hash' => $secureHash,
+                'received_hash' => $vnp_SecureHash,
+                'hash_data' => $hashData
+            ]);
+            return redirect()->route('home')->with('error', 'Chữ ký không hợp lệ.');
+        }
+    }
+
+    private function getVNPayResponseMessage($responseCode)
+    {
+        $messages = [
+            '00' => 'Giao dịch thành công',
+            '07' => 'Trừ tiền thành công. Giao dịch bị nghi ngờ (liên quan tới lừa đảo, giao dịch bất thường).',
+            '09' => 'Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng chưa đăng ký dịch vụ InternetBanking tại ngân hàng.',
+            '10' => 'Giao dịch không thành công do: Khách hàng xác thực thông tin thẻ/tài khoản không đúng quá 3 lần',
+            '11' => 'Giao dịch không thành công do: Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch.',
+            '12' => 'Giao dịch không thành công do: Thẻ/Tài khoản của khách hàng bị khóa.',
+            '13' => 'Giao dịch không thành công do Quý khách nhập sai mật khẩu xác thực giao dịch (OTP).',
+            '24' => 'Giao dịch không thành công do: Khách hàng hủy giao dịch',
+            '51' => 'Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư để thực hiện giao dịch.',
+            '65' => 'Giao dịch không thành công do: Tài khoản của Quý khách đã vượt quá hạn mức giao dịch trong ngày.',
+            '75' => 'Ngân hàng thanh toán đang bảo trì.',
+            '79' => 'Giao dịch không thành công do: KH nhập sai mật khẩu thanh toán quá số lần quy định.',
+            '99' => 'Các lỗi khác (lỗi còn lại, không có trong danh sách mã lỗi đã liệt kê)'
+        ];
+
+        return $messages[$responseCode] ?? 'Lỗi không xác định';
+    }
+
     public function show($id)
     {
         return view('paymentmodule::show');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         return view('paymentmodule::edit');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id) {}
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id) {}
 }

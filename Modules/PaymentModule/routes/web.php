@@ -3,6 +3,8 @@
 use App\Http\Middleware\CartCheckoutMiddleware;
 use Illuminate\Support\Facades\Route;
 use Modules\PaymentModule\Http\Controllers\PaymentModuleController;
+use Illuminate\Http\Request;
+use App\Models\Order;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('paymentmodules', PaymentModuleController::class)->names('paymentmodule');
@@ -16,3 +18,4 @@ Route::middleware(['web', CartCheckoutMiddleware::class])->group(function () {
  
 Route::post('/checkout', [PaymentModuleController::class, 'store'])->name('checkout.store');
 
+Route::get('/vnpay/return', [PaymentModuleController::class, 'vnpayCallback'])->name('vnpay.callback');
