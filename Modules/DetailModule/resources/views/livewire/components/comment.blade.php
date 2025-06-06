@@ -119,7 +119,11 @@
                             <div class="author-name">
                                 {{-- Ẩn 3 ký tự cuối tên user --}}
                                 <span class="text-sm">
-                                    {{ \Str::limit($rating->user->name, strlen($rating->user->name) - 3, '') . '***' }}
+                                    @if ($rating->is_anonymous ?? false)
+                                        Ẩn danh
+                                    @else
+                                        {{ \Str::limit($rating->user->name, strlen($rating->user->name) - 3, '') . '***' }}
+                                    @endif
                                 </span>
                             </div>
                             <div class="day-commented text-sm text-neutral-500">
@@ -155,6 +159,20 @@
                                 {{ $rating->review }}
                             </p>
 
+                            @if (!empty($rating->images))
+                                @php
+                                    $images = is_array($rating->images) ? $rating->images : json_decode($rating->images, true);
+                                @endphp
+                                @if (!empty($images))
+                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                        @foreach ($images as $img)
+                                            <a href="{{ asset('storage/' . $img) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $img) }}" class="w-20 h-20 object-cover rounded border" />
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
                             <div class="flex items-center gap-4 mt-4">
                                 <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500"
                                     wire:click="toggleLike({{ $rating->id }})">
@@ -196,7 +214,11 @@
                             <div class="author-name">
                                 {{-- Ẩn 3 ký tự cuối tên user --}}
                                 <span class="text-sm">
-                                    {{ \Str::limit($rating->user->name, strlen($rating->user->name) - 3, '') . '***' }}
+                                    @if ($rating->is_anonymous ?? false)
+                                        Ẩn danh
+                                    @else
+                                        {{ \Str::limit($rating->user->name, strlen($rating->user->name) - 3, '') . '***' }}
+                                    @endif
                                 </span>
                             </div>
                             <div class="day-commented text-sm text-neutral-500">
@@ -231,7 +253,20 @@
                             <p class="text-[15px] mt-2">
                                 {{ $rating->review }}
                             </p>
-
+                            @if (!empty($rating->images))
+                                @php
+                                    $images = is_array($rating->images) ? $rating->images : json_decode($rating->images, true);
+                                @endphp
+                                @if (!empty($images))
+                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                        @foreach ($images as $img)
+                                            <a href="{{ asset('storage/' . $img) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $img) }}" class="w-20 h-20 object-cover rounded border" />
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
                             <div class="flex items-center gap-4 mt-4">
                                 <div wire:key="rating-favorite-{{ $rating->id }}">
                                     <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500"
@@ -242,7 +277,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
                                         </svg>
-                                        
+
                                         <span class="ml-1">
                                             {{ in_array($rating->id, $likedRatings) ? 'Đã thích' : 'Thích' }}
                                             ({{ $rating->likedUsers->count() }})

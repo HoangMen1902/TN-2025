@@ -7,10 +7,11 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Order as OrderModel;
 use App\Models\Rating;
+use Livewire\WithFileUploads;
 
 class Order extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     // Filtering & Searching
     public $statusFilter = 'all';
@@ -26,12 +27,14 @@ class Order extends Component
     public $customReason = '';
 
     // Rating Modal
+    public $currentDetailId = null;
     public $showRatingModal = false;
     public $selectedOrderId = null;
     public $ratings = [];
     public $comments = [];
     public $rating = 0;
-
+    public $images = [];
+    public $anonymous = [];
     // =====================
     // FILTER + SEARCH
     // =====================
@@ -87,38 +90,88 @@ class Order extends Component
         $this->rating = $value;
     }
 
-    public function openRatingModal($orderId): void
+    public function openRatingModal($orderId)
     {
         $this->selectedOrderId = $orderId;
-        $this->resetValidation();
         $this->showRatingModal = true;
+
+        $order = OrderModel::with('orderDetails.sku.product')->find($orderId);
+        foreach ($order->orderDetails as $detail) {
+            $this->ratings[$detail->id] = 5;
+            $this->comments[$detail->id] = '';
+        }
     }
 
-    public function submitRatings(): void
+
+    public function submitRatings()
     {
+        if (!Auth::check()) {
+            $this->dispatch('toast', type: 'error', message: 'Bạn cần đăng nhập để đánh giá!');
+            return;
+        }
+
         $order = OrderModel::with('orderDetails.sku.product')->find($this->selectedOrderId);
 
-        if (!$order) return;
+        if (!$order || $order->orders_status !== 'Đã giao') {
+            $this->dispatch('toast', type: 'error', message: 'Chỉ đánh giá được đơn hàng đã giao!');
+            return;
+        }
 
+        // Kiểm tra nếu có sản phẩm đã đánh giá thì báo lỗi và dừng lại
         foreach ($order->orderDetails as $detail) {
-            $rating = $this->ratings[$detail->id] ?? null;
-            $comment = $this->comments[$detail->id] ?? '';
-
-            if ($rating) {
-                Rating::create([
-                    'user_id' => Auth::id(),
-                    'product_id' => $detail->sku->product->id,
-                    'rating' => $rating,
-                    'comment' => $comment,
-                    'order_id' => $order->id,
-                ]);
+            $exists = Rating::where('user_id', Auth::id())
+                ->where('order_detail_id', $detail->id)
+                ->exists();
+            if ($exists) {
+                $this->dispatch('toast', type: 'error', message: 'Bạn đã đánh giá sản phẩm này rồi!');
+                return;
             }
         }
 
-        $this->reset(['ratings', 'comments', 'selectedOrderId', 'showRatingModal']);
+        // Validate tất cả sản phẩm
+        foreach ($order->orderDetails as $detail) {
+            $this->validate([
+                "ratings.{$detail->id}" => 'required|integer|min:1|max:5',
+                "comments.{$detail->id}" => 'required|string|min:10',
+            ], [
+                "ratings.{$detail->id}.required" => 'Vui lòng chọn số sao.',
+                "comments.{$detail->id}.required" => 'Vui lòng nhập nhận xét.',
+                "comments.{$detail->id}.min" => 'Nhận xét tối thiểu 10 ký tự.',
+            ]);
+        }
+
+        // Lưu đánh giá
+        foreach ($order->orderDetails as $detail) {
+            $rating = $this->ratings[$detail->id] ?? null;
+            $comment = $this->comments[$detail->id] ?? '';
+            $isAnonymous = $this->anonymous[$detail->id] ?? false;
+            $imagePaths = [];
+            if (!empty($this->images[$detail->id])) {
+                foreach ($this->images[$detail->id] as $img) {
+                    $imagePaths[] = $img->store('ratings', 'public');
+                }
+            }
+            Rating::create([
+                'user_id' => Auth::id(),
+                'order_detail_id' => $detail->id,
+                'review' => $comment,
+                'rating' => $rating,
+                'status' => 'active',
+                'is_anonymous' => $isAnonymous,
+                'images' => json_encode($imagePaths),
+            ]);
+        }
+
+        $this->showRatingModal = false;
         $this->dispatch('toast', type: 'success', message: 'Đã gửi đánh giá!');
     }
-
+    public function removeImage($detailId, $index)
+    {
+        if (isset($this->images[$detailId][$index])) {
+            unset($this->images[$detailId][$index]);
+            $this->images[$detailId] = array_values($this->images[$detailId]);
+        }
+    }
     // =====================
     // ORDERS PROPERTY
     // =====================

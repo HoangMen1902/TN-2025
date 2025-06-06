@@ -131,10 +131,10 @@
                                         'label' => 'Đang xử lý',
                                         'color' => 'text-yellow-500',
                                         'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                                                                                                                                                                                                                                      <circle cx="12" cy="12" r="10" stroke-width="2" />
-                                                                                                                                                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-                                                                                                                                                                                                                                                                                    </svg>
-                                                                                                                                                                                                                                                                                    '
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <circle cx="12" cy="12" r="10" stroke-width="2" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </svg>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    '
                                     ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
@@ -282,130 +282,124 @@
                         </div>
                     </div>
                     @if ($showRatingModal)
-                        <div class="fixed inset-0 z-50  flex items-center justify-center p-4 bg-black/30">
-
+                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
                             <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
                                 <div class="p-4 border-b rounded-t flex justify-between items-center">
-                                    <h3 class="text-xl font-semibold text-gray-900">
-                                        Đánh giá sản phẩm
-                                    </h3>
+                                    <h3 class="text-xl font-semibold text-gray-900">Đánh giá sản phẩm</h3>
                                     <button type="button"
                                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                                        data-modal-hide="rating-modal">
-                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                            viewBox="0 0 14 14">
+                                        wire:click="$set('showRatingModal', false)">
+                                        <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                                 stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                                         </svg>
                                         <span class="sr-only">Đóng</span>
                                     </button>
                                 </div>
-
                                 <div class="p-6 space-y-6">
-                                    @foreach ($orderProducts as $detail)
-                                        <div class="flex items-start border-b border-gray-200 pb-4">
-                                            <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                                <img src="https://cdn1.fahasa.com/media/catalog/product/9/7/9786326020120.jpg"
-                                                    alt="Sản phẩm" class="w-full h-full object-cover">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">Tuyển Sinh 10 & Các Đề
-                                                    Toán Thực
-                                                    Tế
-                                                    (Theo Chương Trình Giáo Dục Phổ Thông 2018)</p>
-                                                <p class="text-gray-500 text-xs md:text-sm mb-1">Phân loại hàng: 1 đôi dài đen</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="space-y-4">
-                                            <div class="text-center">
-                                                <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
-                                                <div class="flex items-center justify-center space-x-1 mb-2">
-                                                    @for ($i = 1; $i <= 5; $i++)
-
-                                                        <button type="button" wire:click="setRating({{ $i }})"
-                                                            class="{{ $rating >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400">
-                                                            <!-- icon -->
-                                                        </button>
-                                                    @endfor
+                                    @php
+                                        $order = $orders->find($selectedOrderId);
+                                    @endphp
+                                    @foreach ($order->orderDetails as $detail)
+                                        <div class="mb-6 border-b pb-4">
+                                            <!-- Thông tin sản phẩm -->
+                                            <div class="flex items-start border-b border-gray-200 pb-4">
+                                                <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
+                                                    <img src="{{ $detail->sku->images[0] ?? '/default.jpg' }}" alt="Sản phẩm"
+                                                        class="w-full h-full object-cover">
                                                 </div>
-
-                                                <p id="rating-text" class="text-sm text-gray-500">Hãy chọn đánh giá</p>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
+                                                        {{ $detail->sku->product->name ?? 'Tên sản phẩm' }}
+                                                    </p>
+                                                    @if ($detail->sku && $detail->sku->option_values)
+                                                        <p class="text-gray-500 text-xs md:text-sm mb-1">
+                                                            Phân loại hàng: {{ $detail->sku->option_values->pluck('value')->join(', ') }}
+                                                        </p>
+                                                    @endif
+                                                </div>
                                             </div>
-
-                                            <div class="flex flex-wrap gap-2 justify-center">
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đúng
-                                                    mô tả</button>
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Chất
-                                                    lượng tốt</button>
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giao
-                                                    hàng nhanh</button>
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Đóng
-                                                    gói cẩn thận</button>
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Giá
-                                                    cả hợp lý</button>
-                                                <button type="button"
-                                                    class="rating-tag px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-100">Sẽ
-                                                    mua lại</button>
-                                            </div>
-
-                                            <div>
-                                                <textarea id="review-comment" rows="4"
-                                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
-                                                    placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
-                                            </div>
-
-                                            <div class="space-y-2">
-                                                <div class="text-sm text-gray-700">Hình ảnh sản phẩm (không bắt buộc)</div>
-                                                <div class="flex gap-2">
-                                                    <div
-                                                        class="relative w-16 h-16 border border-dashed border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 cursor-pointer">
-                                                        <input type="file" class="absolute inset-0 opacity-0 cursor-pointer"
-                                                            accept="image/*">
-                                                        <svg class="w-6 h-6 text-gray-400" aria-hidden="true"
-                                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 18">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M10 12V1m0 0L5 6m5-5 5 5M1 1h18M1 17h18" />
+                                            <div class="space-y-4 mt-2">
+                                                <!-- Đánh giá sao -->
+                                                <div class="text-center">
+                                                    <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
+                                                    <div class="flex items-center justify-center space-x-1 mb-2">
+                                                        @for ($i = 1; $i <= 5; $i++)
+                                                            <button type="button" wire:click="set('ratings.{{ $detail->id }}', {{ $i }})"
+                                                                class="{{ ($ratings[$detail->id] ?? 5) >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 text-xl">
+                                                                ★
+                                                            </button>
+                                                        @endfor
+                                                        @error('ratings.' . $detail->id) <span
+                                                        class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                    </div>
+                                                </div>
+                                                <!-- Nội dung đánh giá -->
+                                                <div>
+                                                    <textarea wire:model="comments.{{ $detail->id }}" rows="4"
+                                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
+                                                        placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                                                    @error('comments.' . $detail->id) <span
+                                                    class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                </div>
+                                                <!-- Upload ảnh -->
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá (tối đa 3
+                                                        ảnh):</label>
+                                                    <label
+                                                        class="flex flex-row items-center gap-1 w-30 px-1 py-1 h-12 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150">
+                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4">
+                                                            </path>
                                                         </svg>
-                                                    </div>
-                                                    <div
-                                                        class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
-                                                        <span class="text-xs text-gray-400">Xem trước</span>
-                                                    </div>
-                                                    <div
-                                                        class="w-16 h-16 border border-gray-200 rounded flex items-center justify-center bg-gray-50">
-                                                        <span class="text-xs text-gray-400">Xem trước</span>
-                                                    </div>
-                                                </div>
-                                                <p class="text-xs text-gray-500">Tối đa 3 hình ảnh (định dạng JPG, PNG)</p>
-                                            </div>
+                                                        <span class=" text-sm leading-normal">Chọn ảnh</span>
+                                                        <input type="file" multiple accept="image/*"
+                                                            wire:model="images.{{ $detail->id }}" class="hidden" />
+                                                    </label>
+                                                    @if (!empty($images[$detail->id]))
+                                                        <div class="flex mt-2 gap-2">
+                                                            @foreach ($images[$detail->id] as $img)
+                                                                <div class="relative group">
+                                                                    <img src="{{ $img->temporaryUrl() }}"
+                                                                        class="w-16 h-16 object-cover rounded border" />
+                                                                    <button type="button"
+                                                                        wire:click="removeImage({{ $detail->id }}, {{ $loop->index }})"
+                                                                        class="absolute top-0 right-0 text-black rounded-full p-1 opacity-70 hover:opacity-100 transition text-2xl leading-none">
+                                                                        &times;
+                                                                    </button>
 
-                                            <div class="flex items-center">
-                                                <input id="anonymous-checkbox" type="checkbox" value=""
-                                                    class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
-                                                <label for="anonymous-checkbox" class="ml-2 text-sm font-medium text-gray-700">Đánh giá
-                                                    ẩn
-                                                    danh</label>
+                                                                </div>
+                                                            @endforeach
+
+                                                        </div>
+                                                    @endif
+                                                    @error('images.' . $detail->id) <span
+                                                    class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                </div>
+                                                <!-- Đánh giá ẩn danh -->
+                                                <div class="flex items-center">
+                                                    <input type="checkbox" wire:model="anonymous.{{ $detail->id }}"
+                                                        id="anonymous-{{ $detail->id }}" class="mr-2">
+                                                    <label for="anonymous-{{ $detail->id }}" class="text-sm text-gray-600">Đánh giá ẩn
+                                                        danh</label>
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
                                 </div>
-
                                 <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
-                                    <button data-modal-hide="rating-modal" type="button"
-                                        class="border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
-                                    <button type="button" id="submit-rating"
-                                        class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
+                                    <button type="button" wire:click="$set('showRatingModal', false)"
+                                        class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
+                                    <button type="button" wire:click="submitRatings"
+                                        class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
                                         đánh giá</button>
                                 </div>
                             </div>
                         </div>
                     @endif
+
+
                     @php
                         $reasons = ['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'];
                     @endphp
