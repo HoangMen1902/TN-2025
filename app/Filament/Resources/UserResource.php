@@ -23,6 +23,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Model;
 
 class UserResource extends Resource
 {
@@ -76,16 +77,16 @@ class UserResource extends Resource
                 ->numeric()
                 ->nullable(),
 
-            Select::make('role')
-                ->label('Vai trò')
-                ->options([
-                    'user' => 'Khách hàng',
-                    'admin' => 'Quản trị',
-                ])
-                ->required()
-                ->native(false),
+            Forms\Components\Select::make('roles')
+                ->relationship('roles', 'name')
+                ->saveRelationshipsUsing(function (Model $record, $state) {
+                    $record->roles()->sync($state);
+                })
+                ->multiple()
+                ->preload()
+                ->searchable(),
 
-               Toggle::make('publisher_status')
+            Toggle::make('publisher_status')
                 ->label('Kích hoạt')
                 ->default(true)
                 ->columnSpan(2),
@@ -113,11 +114,11 @@ class UserResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
                     ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
-                TextColumn::make('role')
+                TextColumn::make('roles.name')
                     ->label('Vai trò')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'Quản trị' : 'Khách hàng')
-                    ->color(fn($state) => $state === 'admin' ? 'primary' : 'info'),
+                    ->formatStateUsing(fn($state) => is_array($state) ? implode(', ', $state) : $state)
+                    ->color('primary'),
             ])
             ->filters([
                 TrashedFilter::make(),

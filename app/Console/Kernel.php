@@ -5,11 +5,12 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Modules\UserModule\Console\SendBirthdayVouchers;
-
+use App\Console\Commands\CreateSuperAdmin;
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
         SendBirthdayVouchers::class,
+        CreateSuperAdmin::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -19,7 +20,7 @@ class Kernel extends ConsoleKernel
 
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

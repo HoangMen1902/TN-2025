@@ -9,24 +9,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-
-     function canAccessPanel(Panel $panel): bool
-     {
-        if($this->role !== "user") {
-            return true;
-        }
-        return false;
-     }
+    
+    function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'product staff', 'sales staff', 'marketing staff']);
+    }
     protected $fillable = [
         'name',
         'email',
@@ -70,17 +68,16 @@ class User extends Authenticatable implements FilamentUser
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->map(fn ($name) => Str::substr($name, 0, 1))
+            ->map(fn($name) => Str::substr($name, 0, 1))
             ->implode('');
     }
-    public function notifications() {
+    public function notifications()
+    {
         return $this->belongsToMany(Notification::class, 'user_notifications');
-
     }
 
     public function emailChangeOtps()
-{
-    return $this->hasMany(EmailChangeOtp::class);
-}
-
+    {
+        return $this->hasMany(EmailChangeOtp::class);
+    }
 }

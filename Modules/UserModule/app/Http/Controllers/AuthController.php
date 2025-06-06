@@ -96,7 +96,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
+        $user->assignRole('user');
         Auth::login($user);
 
         return redirect('/')->with('success', 'Đăng ký thành công!');
@@ -238,7 +238,7 @@ class AuthController extends Controller
                     'email'    => $googleUser->getEmail(),
                     'password' => bcrypt(Str::random(16)),
                 ]);
-
+                $user->assignRole('user');
                 Log::info('Created new user from Google login', ['user_id' => $user->id]);
             }
             $oldSessionId = session()->getId();
