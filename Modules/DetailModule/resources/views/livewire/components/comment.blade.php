@@ -48,48 +48,84 @@
 
         <!-- Modal -->
         @if ($showModal)
-            <div class="fixed inset-0 bg-white/200 bg-opacity-30 flex items-center justify-center z-50"
-                aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6  relative">
-                    <button wire:click="$set('showModal', false)"
-                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition" aria-label="Đóng modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-
-                    <h2 id="modal-title" class="text-2xl font-semibold  text-center mb-6">
-                        Viết đánh giá
-                    </h2>
-
-                    <form wire:submit.prevent="submitReview" class="space-y-5">
-                        <div class="flex justify-center space-x-2 text-4xl select-none">
-                            @for ($i = 1; $i <= 5; $i++)
-                                <button type="button" wire:click="$set('rating', {{ $i }})"
-                                    class="focus:outline-none transition-colors duration-200 cursor-pointer"
-                                    aria-label="Đánh giá {{ $i }} sao">
-                                    <span class="{{ $rating >= $i ? 'text-yellow-400' : 'text-gray-300' }}">
-                                        ★
-                                    </span>
-                                </button>
-                            @endfor
-                        </div>
-                        @error('rating')
-                            <p class="text-red-600 text-sm text-center">{{ $message }}</p>
-                        @enderror
-
-                        <textarea wire:model.defer="review"
-                            class="w-full px-4 py-3 border cursor-pointer border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
-                            rows="5" placeholder="Nhập nội dung đánh giá..."></textarea>
-                        @error('review')
-                            <p class="text-red-600 text-sm">{{ $message }}</p>
-                        @enderror
-
-                        <button type="submit"
-                            class="w-full bg-blue-600 hover:bg-blue-700 cursor-pointer text-white font-semibold py-3 rounded-lg transition">
-                            Gửi đánh giá
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
+                <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                    <div class="p-4 border-b rounded-t flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-900">Viết đánh giá sản phẩm</h3>
+                        <button type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                            wire:click="$set('showModal', false)">
+                            <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Đóng</span>
                         </button>
+                    </div>
+                    <form wire:submit.prevent="submitReview">
+                        <div class="p-6 space-y-6">
+                            <!-- Đánh giá sao -->
+                            <div class="text-center">
+                                <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
+                                <div class="flex items-center justify-center space-x-1 mb-2">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <button type="button" wire:click="$set('rating', {{ $i }})"
+                                            class="{{ ($rating ?? 0) >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 text-2xl">
+                                            ★
+                                        </button>
+                                    @endfor
+                                </div>
+                                @error('rating') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <!-- Nội dung đánh giá -->
+                            <div>
+                                <textarea wire:model.defer="review" rows="4"
+                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
+                                    placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                                @error('review') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <!-- Upload ảnh -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá (tối đa 3
+                                    ảnh):</label>
+                                <label
+                                    class="flex flex-row items-center gap-2 px-3 py-2 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150 w-fit">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    <span class="text-sm leading-normal">Chọn ảnh</span>
+                                    <input type="file" multiple accept="image/*" wire:model="images" class="hidden" />
+                                </label>
+                                @if (!empty($images))
+                                    <div class="flex mt-2 gap-2">
+                                        @foreach ($images as $img)
+                                            <div class="relative group">
+                                                <img src="{{ $img->temporaryUrl() }}"
+                                                    class="w-16 h-16 object-cover rounded border" />
+                                                <button type="button" wire:click="removeImage({{ $loop->index }})"
+                                                    class="absolute top-0 right-0 text-black rounded-full p-1 opacity-70 hover:opacity-100 transition text-2xl leading-none">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                @error('images') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <!-- Đánh giá ẩn danh -->
+                            <div class="flex items-center">
+                                <input type="checkbox" wire:model="is_anonymous" id="anonymous" class="mr-2">
+                                <label for="anonymous" class="text-sm text-gray-600">Đánh giá ẩn danh</label>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                            <button type="button" wire:click="$set('showModal', false)"
+                                class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
+                            <button type="submit"
+                                class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
+                                đánh giá</button>
+                        </div>
                     </form>
                 </div>
             </div>

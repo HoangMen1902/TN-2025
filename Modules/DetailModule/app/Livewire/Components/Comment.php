@@ -7,12 +7,16 @@ use App\Models\Rating;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Livewire\WithFileUploads;
 
 class Comment extends Component
 {
+    use WithFileUploads;
     public $id;
     public $rating = 0;
     public $review = '';
+    public $images = [];
+    public $is_anonymous = false;
     public $showModal = false;
     public $averageRating = 0;
     public $totalReviews = 0;
@@ -40,6 +44,11 @@ class Comment extends Component
 
 
 
+    public function removeImage($index)
+    {
+        unset($this->images[$index]);
+        $this->images = array_values($this->images);
+    }
     public function loadRatings()
     {
         $ratingsQuery = Rating::whereHas('orderDetail.sku', function ($q) {
@@ -129,17 +138,22 @@ class Comment extends Component
             'product_id' => $this->id,
             'rating' => $this->rating,
             'review' => $this->review,
+
         ]);
 
         $this->validate([
             'rating' => 'required|integer|min:1|max:5',
             'review' => 'required|string|min:5|max:500',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'image|max:2048',
         ], [
             'rating.required' => 'Bạn chưa chọn đánh giá sao.',
             'rating.integer' => 'Giá trị đánh giá không hợp lệ.',
             'rating.min' => 'Đánh giá phải lớn hơn hoặc bằng 1 sao.',
             'rating.max' => 'Đánh giá không được vượt quá 5 sao.',
-
+            'images.max' => 'Chỉ được chọn tối đa 3 ảnh.',
+            'images.*.image' => 'File phải là ảnh.',
+            'images.*.max' => 'Mỗi ảnh tối đa 2MB.',
             'review.required' => 'Bạn chưa nhập nội dung đánh giá.',
             'review.string' => 'Nội dung đánh giá không hợp lệ.',
             'review.min' => 'Nội dung đánh giá phải có ít nhất :min ký tự.',
@@ -154,14 +168,9 @@ class Comment extends Component
         })->first();
 
         if (!$orderDetail) {
-            Log::warning('User tried to review without valid order detail', [
-                'user_id' => Auth::id(),
-                'product_id' => $this->id,
-            ]);
             $this->dispatch('toast', type: 'error', message: 'Bạn chỉ có thể đánh giá sau khi mua và nhận hàng.');
             return;
         }
-
 
         $alreadyRated = Rating::where('order_detail_id', $orderDetail->id)
             ->where('user_id', Auth::id())
@@ -172,6 +181,12 @@ class Comment extends Component
             return;
         }
 
+        $imagePaths = [];
+        if (!empty($this->images)) {
+            foreach ($this->images as $img) {
+                $imagePaths[] = $img->store('ratings', 'public');
+            }
+        }
 
         Rating::create([
             'order_detail_id' => $orderDetail->id,
@@ -179,8 +194,9 @@ class Comment extends Component
             'review' => $this->review,
             'rating' => $this->rating,
             'status' => 1,
+            'is_anonymous' => $this->is_anonymous ? 1 : 0,
+            'images' => json_encode($imagePaths),
         ]);
-
         Log::info('Review created successfully', [
             'user_id' => Auth::id(),
             'product_id' => $this->id,
