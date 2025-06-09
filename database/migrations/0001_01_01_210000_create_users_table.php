@@ -24,7 +24,6 @@
                 $table->integer('score')->nullable();
                 $table->timestamp('email_verified_at')->nullable();
                 $table->timestamp('phone_verified_at')->nullable();
-                $table->enum('role', ['admin', 'user'])->default('user');
                 $table->enum('user_status', ['active', 'inactive'])->default('active');
                 $table->softDeletes();
                 $table->rememberToken();
