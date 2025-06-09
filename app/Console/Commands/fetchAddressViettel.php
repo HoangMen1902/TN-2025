@@ -48,7 +48,7 @@ class fetchAddressViettel extends Command
             $providerId = $providerId->id;
         }
 
-        foreach ($provinceData as $province) {  
+        foreach ($provinceData as $province) {
             $result = providerProvinces::updateOrCreate(
                 ['provider_province_code' => $province['PROVINCE_ID']],
                 [
@@ -92,7 +92,10 @@ class fetchAddressViettel extends Command
                 $this->warn('Failed: ' . $ward['WARDS_NAME']);
             }
         }
-        $output = shell_exec('py app/Tools/AddressConstraint/database.py');
+        $pythonCmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'py' : 'python3';
+        $scriptPath = 'app/Tools/AddressConstraint/database.py';
+
+        $output = shell_exec("$pythonCmd $scriptPath");
         echo $output;
     }
 }
