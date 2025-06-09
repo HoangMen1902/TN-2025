@@ -27,7 +27,7 @@ return [
     |
     */
 
-    'volt_view_namespaces' => ['livewire', 'pages'],
+    'volt_view_namespaces' => ['pages'],
 
     /*
     |--------------------------------------------------------------------------
