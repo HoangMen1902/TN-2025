@@ -18,6 +18,9 @@ class ProductComboFactory extends Factory
     {
         return [
             'description' => $this->faker->sentence,
+            'combo_name' => $this->faker->sentence,
+            'images' => $this->faker->sentence,
+            'slug' => $this->faker->sentence,
             'original_price' => $this->faker->numberBetween(100000, 300000),
             'sale_price' => $this->faker->numberBetween(50000, 250000),
             'quantity' => $this->faker->numberBetween(1, 10),
