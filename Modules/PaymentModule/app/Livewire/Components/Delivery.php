@@ -28,9 +28,29 @@ class Delivery extends Component
     public $viettelFrom;
     public $viettelTime;
 
+    public $selected_unit;
 
+    #[On("updated_selected_address")]
+    public function updatedSelectedUnit()
+    {
+        switch ($this->selected_unit) {
+            case 'Giao Hàng Nhanh':
+                $this->dispatch('updated_selected_unit', fee: $this->ghnFee);
+                break;
+            case 'Viettel Post':
+                $this->dispatch('updated_selected_unit', fee: $this->viettelFee);
+                break;
+            case 'Giao Hàng Tiết Kiệm':
+                //tam thoi chua co
+            break;
+            default:
+                $this->dispatch('updated_selected_unit', fee: $this->ghnFee);
+                break;
+        }
+    }
     public function mount()
     {
+        $this->selected_unit = "Giao Hàng Nhanh";
         $length = [];
         $width = [];
         $packageHeight = 0;
@@ -78,6 +98,7 @@ class Delivery extends Component
             } else {
                 $this->getGhnFee($data);
                 $this->getViettelFee($data);
+                $this->dispatch('updated_fee');
             }
         }
     }

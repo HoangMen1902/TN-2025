@@ -5,6 +5,7 @@ namespace Modules\PaymentModule\Livewire\Components;
 use Livewire\Component;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Session;
+use Livewire\Attributes\On; 
 
 class Summary extends Component
 {
@@ -13,8 +14,24 @@ class Summary extends Component
     public $voucherMessage = '';
     public $voucherDiscount = 0;
     public $availableVouchers;
+
+    public $shipping_fee = 0;
     public $finalPrice;
     public $originalPrice = 0;
+
+
+    
+    #[On('updated_selected_unit')] 
+
+
+    public function updatePrice($fee) {
+        if($fee === null) {
+            return;
+        }
+        $this->finalPrice  -= $this->shipping_fee;
+        $this->shipping_fee = $fee;
+        $this->finalPrice += $this->shipping_fee;
+    }
     public function mount()
     {
         foreach ($this->carts as $index => $cart) {

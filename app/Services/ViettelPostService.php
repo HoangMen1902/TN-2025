@@ -39,8 +39,7 @@ class   ViettelPostService
         if ($provider->provider_token &&  $now < $token_expired_time) {
             $this->token = Crypt::decrypt($provider->provider_token);
         } else {
-            Info('Vui lòng cập nhật token');
-            Log::info('Vui lòng cập nhật token');
+            Log::info('Vui lòng cập nhật token ViettelPost');
         }
 
         $provinceNameFromConfig = config('shopConfig.shop_province');

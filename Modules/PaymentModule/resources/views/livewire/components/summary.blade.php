@@ -68,7 +68,7 @@
                     class="bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl relative border border-gray-200 transition-transform scale-100">
 
                     <!-- Nút đóng -->
-                    <button onclick="toggleVoucherModal()"
+                    <button type="button" onclick="toggleVoucherModal()"
                         class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl leading-none focus:outline-none">&times;</button>
 
                     <!-- Tiêu đề -->
@@ -120,7 +120,7 @@
             @endif
             <div class="flex justify-between">
                 <span class="text-gray-600">Phí ship</span>
-                <span class="text-green-600">Miễn phí</span>
+                <span class="text-green-600">{{ number_format($shipping_fee) }} VNĐ</span>
             </div>
         </div>
 
@@ -133,11 +133,18 @@
             $hasSelectedAddress = session()->has('selected_address_id');
         @endphp
 
-        <button id="place-order-btn" type="submit"
-            class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center">
+        <button type="button" wire:loading wire:loading.attr="disabled"
+            class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center transition duration-300">
+            <span>Đang xác thực thông tin..</span>
+            <i class="fas fa-lock ml-2"></i>
+        </button>
+
+        <button wire:loading.remove
+            class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center transition duration-300">
             <span>Đặt hàng</span>
             <i class="fas fa-lock ml-2"></i>
         </button>
+
 
 
 
