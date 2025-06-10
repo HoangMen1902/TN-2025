@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\FlashSaleResource\Pages;
-use App\Models\FlashSale;
 use App\Models\ProductSku;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -47,13 +46,14 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\HtmlString;
 use App\Models\Category;
+use App\Models\Flashsale;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
 
 
 class FlashSaleResource extends Resource
 {
-    protected static ?string $model = FlashSale::class;
+    protected static ?string $model = Flashsale::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bolt';
     protected static ?string $navigationLabel = 'Flash Sale';
