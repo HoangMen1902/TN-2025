@@ -47,6 +47,6 @@ class ProductSku extends Model
     }
     public function flashsales()
     {
-        return $this->belongsToMany(FlashSale::class, 'flashsale_products', 'sku_id', 'flashsale_id');
+        return $this->belongsToMany(Flashsale::class, 'flashsale_products', 'sku_id', 'flashsale_id');
     }
 }

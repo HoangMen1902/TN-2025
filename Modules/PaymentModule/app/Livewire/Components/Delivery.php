@@ -36,15 +36,20 @@ class Delivery extends Component
         switch ($this->selected_unit) {
             case 'Giao Hàng Nhanh':
                 $this->dispatch('updated_selected_unit', fee: $this->ghnFee);
+                session()->put('shipping_fee', $this->ghnFee);
+
                 break;
             case 'Viettel Post':
                 $this->dispatch('updated_selected_unit', fee: $this->viettelFee);
+                session()->put('shipping_fee', $this->viettelFee);
+
                 break;
             case 'Giao Hàng Tiết Kiệm':
                 //tam thoi chua co
-            break;
+                break;
             default:
                 $this->dispatch('updated_selected_unit', fee: $this->ghnFee);
+                session()->flash('shipping_fee', $this->ghnFee);
                 break;
         }
     }
@@ -120,7 +125,7 @@ class Delivery extends Component
         $total = session(['finalPrice']);
         $reciver_province = $data->province->provider_province->provider_province_code ?? 0;
         $reciver_district = $data->district->provider_district->provider_district_code ?? 0;
-        if($reciver_district === 0 || $reciver_province === 0) {
+        if ($reciver_district === 0 || $reciver_province === 0) {
             return;
         }
         $viettelFee = $viettel->getFee($total, $this->size, $reciver_province, $reciver_district);

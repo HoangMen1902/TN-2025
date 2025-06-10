@@ -31,6 +31,7 @@ class Summary extends Component
         $this->finalPrice  -= $this->shipping_fee;
         $this->shipping_fee = $fee;
         $this->finalPrice += $this->shipping_fee;
+        session()->put('order_total', $this->finalPrice);
     }
     public function mount()
     {
@@ -89,6 +90,8 @@ class Summary extends Component
             'voucher_discount' => $discount,
             'finalPrice' => $this->finalPrice
         ]);
+        session()->put('order_total', $this->finalPrice);
+
     }
     public function render()
     {

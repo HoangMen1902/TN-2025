@@ -14,6 +14,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\CheckoutAddress;
+use App\Services\Stripe;
+use App\Services\StripeService;
 
 class PaymentModuleController extends Controller
 {
@@ -110,25 +112,30 @@ class PaymentModuleController extends Controller
                 'shipment_unit' => $request->shipment_unit,
             ]);
 
-            Cart::whereIn('id', $request->cart_id)->delete();
+            // Cart::whereIn('id', $request->cart_id)->delete();
 
             DB::commit();
 
             session()->forget('shipping_address');
             session()->forget('selected_address_id');
-
             if ($paymentMethod === 'vnpay') {
                 $vnPayService = new VnPay();
-                $vnPay = $vnPayService->vnpayPayment($order, 200, $request->ip());
+                $vnPay = $vnPayService->vnpayPayment($order, session('order_total'), $request->ip());
                 session()->forget('order_total');
                 return redirect($vnPay);
             } elseif ($paymentMethod === "international") {
+                    $voucher = session('voucher');
+                    $stripeService = new StripeService;
+                    $session = $stripeService->createCheckoutSession($cartItems, session('shipping_fee'), isset($voucher) && !empty($voucher) ? $voucher : null);
+                    session()->forget('shipping_fee');
+                    return redirect($session->url);
             }
 
 
             return redirect()->route('home')->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Đã xảy ra lỗi: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
             return back()->with('error', 'Đã xảy ra lỗi: ' . $e->getMessage());
         }
     }
