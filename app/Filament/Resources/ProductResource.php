@@ -124,7 +124,9 @@ class ProductResource extends Resource
                     ->relationship('productPreview')
                     ->schema([
                         FileUpload::make('file_path')
-                        ->maxSize(100480)
+                            ->rules('required')->validationMessages(['required' => 'Vui lòng tải l file đọc thử (pdf hoặc pub)'])
+                            ->maxSize(100480)
+                            ->acceptedFileTypes(['application/pdf', 'application/x-mspublisher'])
                             ->label('File đọc thử (PDF hoặc PUB)')
                             ->disk('public')
                             ->directory('previews')
@@ -142,8 +144,10 @@ class ProductResource extends Resource
                     ])
                     ->collapsible()
                     ->columnSpanFull()
-                    ->deletable(false)
-                    ->addable(false),
+                    ->deletable(true)
+                    ->addable(true)
+                    ->maxItems(1)
+                    ->defaultItems(0),
             ]);
     }
 

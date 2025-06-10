@@ -56,9 +56,11 @@ class PaymentModuleController extends Controller
                 return back()->with('error', 'Giỏ hàng không hợp lệ.');
             }
 
-            $totalPrice = $cartItems->sum(function ($item) {
-                return $item->quantity * $item->sku->price;
-            });
+            $totalPrice = session('order_total');
+            $shipment_fee = session('shipping_fee');
+            session()->forget('order_total');
+            session()->forget('shipping_fee');
+
 
             $selectedAddressId = $request->selected_address;
             $addressModel = CheckoutAddress::with(['ward', 'district', 'province', 'user'])
@@ -87,13 +89,14 @@ class PaymentModuleController extends Controller
                 'contact_email' => $addressModel?->user->email ?? $request->contact_email,
                 'customer_name' => $addressModel?->customer_name ?? $request->customer_name,
                 'total_price' => $totalPrice,
+                'shipment_price' => $shipment_fee
             ]);
 
             foreach ($cartItems as $item) {
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'sku_id' => $item->sku_id,
-                    'price' => $item->sku->price,
+                    'price' => $item->sku->sale_price,
                     'quantity' => $item->quantity,
                 ]);
             }
@@ -120,15 +123,13 @@ class PaymentModuleController extends Controller
             session()->forget('selected_address_id');
             if ($paymentMethod === 'vnpay') {
                 $vnPayService = new VnPay();
-                $vnPay = $vnPayService->vnpayPayment($order, session('order_total'), $request->ip());
-                session()->forget('order_total');
+                $vnPay = $vnPayService->vnpayPayment($order, $totalPrice, $request->ip());
                 return redirect($vnPay);
             } elseif ($paymentMethod === "international") {
-                    $voucher = session('voucher');
-                    $stripeService = new StripeService;
-                    $session = $stripeService->createCheckoutSession($cartItems, session('shipping_fee'), isset($voucher) && !empty($voucher) ? $voucher : null);
-                    session()->forget('shipping_fee');
-                    return redirect($session->url);
+                $voucher = session('voucher');
+                $stripeService = new StripeService;
+                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, isset($voucher) && !empty($voucher) ? $voucher : null);
+                return redirect($session->url);
             }
 
 

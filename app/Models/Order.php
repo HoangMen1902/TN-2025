@@ -21,6 +21,8 @@ class Order extends Model
         'reason',
         'contact_email',
         'customer_name',
+        'total_price',
+        'shipment_price'
     ];
 
     protected $casts = [
