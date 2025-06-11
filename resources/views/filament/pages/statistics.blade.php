@@ -1,48 +1,58 @@
 <x-filament-panels::page>
-  <div class="flex flex-col xl:flex-row gap-6 mt-6">
-
-    <!-- Cột trái -->
-    <div class="w-full xl:w-4/12 space-y-4">
-      
-      <!-- Sản phẩm -->
-      <div class="bg-white p-4 rounded-xl border">
-        <p class="text-gray-800 font-semibold text-sm">Sản phẩm</p>
-        <h2 class="text-2xl font-bold mt-2">{{ $this->getProductCount() }}</h2>
-        <p class="text-sm text-red-500 mt-1">-3.65% <span class="text-gray-600">so với tuần trước</span></p>
-      </div>
-
-      <!-- Nhà xuất bản -->
-      <div class="bg-white p-4 rounded-xl border">
-        <p class="text-gray-800 font-semibold text-sm">Nhà xuất bản</p>
-        <h2 class="text-2xl font-bold mt-2">{{ $this->getPublisherCount() }}</h2>
-        <p class="text-sm text-green-500 mt-1">+5.25% <span class="text-gray-600">so với tuần trước</span></p>
-      </div>
-
-      <!-- Đơn hàng -->
-      <div class="bg-white p-4 rounded-xl border">
-        <p class="text-gray-800 font-semibold text-sm">Đơn hàng</p>
-        <h2 class="text-2xl font-bold mt-2">{{ $this->getOrderCount() }}</h2>
-        <p class="text-sm text-red-500 mt-1">-2.25% <span class="text-gray-600">so với tuần trước</span></p>
-      </div>
-
-      <!-- Doanh thu -->
-      <div class="bg-white p-4 rounded-xl border">
-        <p class="text-gray-800 font-semibold text-sm">Doanh thu</p>
-        <h2 class="text-2xl font-bold mt-2">${{ number_format($this->getRevenue(), 2) }}</h2>
-        <p class="text-sm text-green-500 mt-1">+6.65% <span class="text-gray-600">so với tuần trước</span></p>
-      </div>
-
+  <div class="flex flex-col  gap-6 mt-6">
+ 
+  <div class="flex w-full gap-4">
+   
+    <div class="w-1/4 bg-white p-4 rounded-xl border">
+      <p class="text-gray-800 font-semibold text-sm">Sản phẩm</p>
+      <h2 class="text-2xl font-bold mt-2">{{ $this->getProductCount() }}</h2>
+      <p class="text-sm text-red-500 mt-1">-3.65% <span class="text-gray-600">so với tuần trước</span></p>
     </div>
 
-    <!-- Cột phải -->
-    <div class="w-full xl:w-8/12">
-      <div class="bg-white p-6 rounded-xl border h-full flex flex-col">
-        <h3 class="text-lg font-semibold mb-4">📊 Đơn hàng theo ngày</h3>
-        <canvas id="ordersChart" class="w-full h-72 grow"></canvas>
-      </div>
+   
+    <div class="w-1/4 bg-white p-4 rounded-xl border">
+      <p class="text-gray-800 font-semibold text-sm">Nhà xuất bản</p>
+      <h2 class="text-2xl font-bold mt-2">{{ $this->getPublisherCount() }}</h2>
+      <p class="text-sm text-green-500 mt-1">+5.25% <span class="text-gray-600">so với tuần trước</span></p>
     </div>
 
+    <div class="w-1/4 bg-white p-4 rounded-xl border">
+      <p class="text-gray-800 font-semibold text-sm">Mã giảm giá</p>
+      <h2 class="text-2xl font-bold mt-2">{{ $this->getVoucherCount() }}</h2>
+     <p class="text-sm {{ $this->getVoucherChangePercent() < 0 ? 'text-red-500' : 'text-green-500' }} mt-1">
+    {{ $this->getVoucherChangePercent() > 0 ? '+' : '' }}{{ $this->getVoucherChangePercent() }}% 
+    <span class="text-gray-600">so với tuần trước</span>
+</p>
+    </div>
+
+   
+    <div class="w-1/4 bg-white p-4 rounded-xl border">
+      <p class="text-gray-800 font-semibold text-sm">Đơn hàng</p>
+      <h2 class="text-2xl font-bold mt-2">{{ $this->getOrderCount() }}</h2>
+      <p class="text-sm {{ $this->getOrderChangePercent() < 0 ? 'text-red-500' : 'text-green-500' }} mt-1">
+    {{ $this->getOrderChangePercent() > 0 ? '+' : '' }}{{ $this->getOrderChangePercent() }}% 
+    <span class="text-gray-600">so với tuần trước</span>
+</p>
+
+    </div>  
+
+    
+    <div class="w-1/4 bg-white p-4 rounded-xl border">
+      <p class="text-gray-800 font-semibold text-sm">Doanh thu</p>
+      <h2 class="text-2xl font-bold mt-2">{{ number_format($this->getRevenue(), 0) }} VNĐ</h2>
+      <p class="text-sm text-green-500 mt-1">+6.65% <span class="text-gray-600">so với tuần trước</span></p>
+    </div>
   </div>
+
+ 
+  <div class="w-full xl:w-6/12">
+    <div class="bg-white p-6 rounded-xl border h-full flex flex-col">
+      <h3 class="text-lg font-semibold mb-4">📊 Đơn hàng theo ngày</h3>
+      <canvas id="ordersChart" class="w-full h-72 grow"></canvas>
+    </div>
+  </div>
+</div>
+
 </x-filament-panels::page>
 
 @push('scripts')
@@ -52,8 +62,7 @@
       const ctx = document.getElementById('ordersChart').getContext('2d');
       const chart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: {!! $this->getOrderChartData()->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m'))->toJson() !!},
+        data: {labels: {!! $this->getOrderChartData()->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m'))->toJson() !!},
           datasets: [{
             label: 'Số đơn hàng',
             data: {!! $this->getOrderChartData()->pluck('total')->toJson() !!},
@@ -70,8 +79,15 @@
             legend: { display: true }
           },
           scales: {
-            y: { beginAtZero: true }
-          }
+  y: {
+    beginAtZero: true,
+    ticks: {
+      stepSize: 1,       
+      precision: 0      
+    }
+  }
+}
+
         }
       });
     });
