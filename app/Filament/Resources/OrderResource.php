@@ -11,6 +11,7 @@ use App\Filament\Resources\OrderResource\Pages;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Illuminate\Support\Facades\Auth;
 
 class OrderResource extends Resource
 {
@@ -90,13 +91,17 @@ class OrderResource extends Resource
                         ->requiresConfirmation()
                         ->visible(
                             fn(Order $record) =>
-                            !$record->is_approved // chỉ hiện khi chưa duyệt
+                            !$record->is_approved
                         )
                         ->action(function (Order $record) {
                             $record->update([
                                 'is_approved' => true,
                                 'orders_status' => 'Vận chuyển',
                             ]);
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Duyệt đơn hàng: ' . $record->id);
                         })
                         ->color('success'),
 
@@ -113,6 +118,10 @@ class OrderResource extends Resource
                                 'orders_status' => 'Đã hủy',
                                 'reason' => 'Lỗi hệ thống',
                             ]);
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Hủy đơn hàng: ' . $record->id);
                         })
                         ->color('danger'),
                 ])

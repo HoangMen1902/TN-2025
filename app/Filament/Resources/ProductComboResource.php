@@ -25,6 +25,9 @@ use App\Models\ProductSku;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Actions\RestoreAction;
+use Filament\Tables\Actions\ForceDeleteAction;
+use Illuminate\Support\Facades\Auth;
 
 class ProductComboResource extends Resource
 {
@@ -73,12 +76,12 @@ class ProductComboResource extends Resource
                     ->label('Ngày hết hạn')
                     ->columnSpan(2),
 
-                    TextInput::make('quantity')
-                        ->label('Số lượng Combo')
-                        ->numeric()
-                        ->required()
-                        ->minValue(1)
-                        ->columnSpan(2),
+                TextInput::make('quantity')
+                    ->label('Số lượng Combo')
+                    ->numeric()
+                    ->required()
+                    ->minValue(1)
+                    ->columnSpan(2),
                 Select::make('category_filter')
                     ->label('Lọc theo loại sản phẩm')
                     ->options(fn() => Category::pluck('name', 'id'))
@@ -141,6 +144,30 @@ class ProductComboResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function ($record) {
+                        $record->delete();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa combo: ' . $record->combo_name);
+                    }),
+                RestoreAction::make()
+                    ->action(function ($record) {
+                        $record->restore();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Khôi phục combo: ' . $record->combo_name);
+                    }),
+                ForceDeleteAction::make()
+                    ->action(function ($record) {
+                        $record->forceDelete();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa vĩnh viễn combo: ' . $record->combo_name);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

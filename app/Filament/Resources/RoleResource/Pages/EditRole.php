@@ -8,6 +8,7 @@ use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class EditRole extends EditRecord
 {
@@ -50,5 +51,10 @@ class EditRole extends EditRecord
         });
 
         $this->record->syncPermissions($permissionModels);
+
+        activity()
+        ->causedBy(Auth::user())
+        ->performedOn($this->record)
+        ->log('Cập nhật vai trò: ' . $this->record->name);
     }
 }

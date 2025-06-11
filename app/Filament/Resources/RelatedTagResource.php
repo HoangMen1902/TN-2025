@@ -22,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Illuminate\Support\Facades\Auth;
 
 class RelatedTagResource extends Resource
 {
@@ -65,9 +66,18 @@ class RelatedTagResource extends Resource
                 TextColumn::make('related_tag_status')
                     ->label('Trạng thái')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
-                    ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
-
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->deleted_at) {
+                            return 'Khóa';
+                        }
+                        return $state ? 'Hoạt động' : 'Khóa';
+                    })
+                    ->color(function ($state, $record) {
+                        if ($record->deleted_at) {
+                            return 'danger';
+                        }
+                        return $state ? 'success' : 'danger';
+                    }),
                 TextColumn::make('created_at')
                     ->label('Ngày tạo')
                     ->dateTime('d/m/Y H:i')
@@ -94,9 +104,30 @@ class RelatedTagResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function ($record) {
+                        $record->delete();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa mềm thẻ sản phẩm: ' . $record->tag_name);
+                    }),
+                RestoreAction::make()
+                    ->action(function ($record) {
+                        $record->restore();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Khôi phục thẻ sản phẩm: ' . $record->tag_name);
+                    }),
+                ForceDeleteAction::make()
+                    ->action(function ($record) {
+                        $record->forceDelete();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa vĩnh viễn thẻ sản phẩm: ' . $record->tag_name);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),

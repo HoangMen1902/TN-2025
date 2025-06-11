@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Log;
 
 class UserResource extends Resource
 {
@@ -66,7 +68,11 @@ class UserResource extends Resource
 
             DatePicker::make('birthday')
                 ->label('Ngày sinh')
-                ->nullable(),
+                ->nullable()
+                ->before(now()->subYears(16))
+                ->rule('date')
+                ->rule('before:' . now()->subYears(16)->toDateString())
+                ->helperText('Người dùng phải trên 16 tuổi'),
 
             TextInput::make('avatar')
                 ->label('Ảnh đại diện (URL)')
@@ -121,25 +127,29 @@ class UserResource extends Resource
                     ->color('primary'),
             ])
             ->filters([
-                TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()->default('with'),
                 SelectFilter::make('role')
                     ->label('Lọc theo vai trò')
                     ->options([
                         'admin' => 'Quản trị',
                         'user' => 'Khách hàng',
-                    ]),
-
+                    ])
+                    ->default(null),
                 SelectFilter::make('user_status')
                     ->label('Lọc theo trạng thái')
                     ->options([
                         'active' => 'Hoạt động',
                         'inactive' => 'Khóa',
-                    ]),
-
-                TrashedFilter::make(),
+                    ])
+                    ->default(null),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->action(function ($record) {
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($record)
+                        ->log('Cập nhật thông tin người dùng: ' . $record->name);
+                }),
                 Tables\Actions\DeleteAction::make()->action(function ($record) {
                     if ($record->id === Auth::id()) {
                         Notification::make()
@@ -148,16 +158,24 @@ class UserResource extends Resource
                             ->send();
                         return;
                     }
-
-                    $record->users_status = 'inactive';
+                    $record->user_status = 'inactive';
                     $record->save();
                     $record->delete();
+
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($record)
+                        ->log('Xóa người dùng: ' . $record->name);
                 }),
                 Tables\Actions\RestoreAction::make()->action(function ($record) {
-                    $record->users_status = 'active';
+                    $record->user_status = 'active';
                     $record->save();
-
                     $record->restore();
+
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($record)
+                        ->log('Khôi phục người dùng: ' . $record->name);
                 }),
                 Tables\Actions\ViewAction::make(),
             ])

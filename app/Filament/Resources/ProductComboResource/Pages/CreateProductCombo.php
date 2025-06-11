@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductComboResource;
 use App\Models\ComboSku;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 
 class CreateProductCombo extends CreateRecord
@@ -36,6 +37,10 @@ class CreateProductCombo extends CreateRecord
                 ]);
             }
         }
+         activity()
+            ->causedBy(Auth::user())
+            ->performedOn($this->record)
+            ->log('Tạo mới combo sản phẩm: ' . $this->record->name);
     }
 
 

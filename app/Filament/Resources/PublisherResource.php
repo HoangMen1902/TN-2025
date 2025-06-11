@@ -24,6 +24,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Support\Facades\Auth;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\DatePicker;
 
 class PublisherResource extends Resource
 {
@@ -62,8 +66,18 @@ class PublisherResource extends Resource
                 TextColumn::make('publisher_status')
                     ->label('Trạng thái')
                     ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
-                    ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->deleted_at) {
+                            return 'Khóa';
+                        }
+                        return $state ? 'Hoạt động' : 'Khóa';
+                    })
+                    ->color(function ($state, $record) {
+                        if ($record->deleted_at) {
+                            return 'danger';
+                        }
+                        return $state ? 'success' : 'danger';
+                    }),
                 TextColumn::make('products_count')
                     ->label('Số sản phẩm')
                     ->counts('products'),
@@ -74,14 +88,54 @@ class PublisherResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()->default('with'),
+
+                SelectFilter::make('publisher_status')
+                    ->label('Trạng thái')
+                    ->options([
+                        true => 'Hoạt động',
+                        false => 'khóa',
+                    ]),
+
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('from')->label('Từ ngày'),
+                        DatePicker::make('until')->label('Đến ngày'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['from'], fn($q) => $q->whereDate('created_at', '>=', $data['from']))
+                            ->when($data['until'], fn($q) => $q->whereDate('created_at', '<=', $data['until']));
+                    }),
+
             ])
             ->actions([
                 ActionGroup::make([
                     EditAction::make()->label('Sửa'),
-                    DeleteAction::make()->label('Xóa'),
-                    RestoreAction::make()->label('Khôi phục'),
-                    ForceDeleteAction::make()->label('Xóa vĩnh viễn'),
+                    DeleteAction::make()
+                        ->action(function ($record) {
+                            $record->delete();
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Xóa nhà xuất bản: ' . $record->publisher_name);
+                        }),
+                    RestoreAction::make()
+                        ->action(function ($record) {
+                            $record->restore();
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Khôi phục nhà xuất bản: ' . $record->publisher_name);
+                        }),
+                    ForceDeleteAction::make()
+                        ->action(function ($record) {
+                            $record->forceDelete();
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Xóa vĩnh viễn nhà xuất bản: ' . $record->publisher_name);
+                        }),
                 ]),
             ])
             ->bulkActions([

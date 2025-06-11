@@ -7,6 +7,7 @@ use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class CreateRole extends CreateRecord
 {
@@ -43,5 +44,10 @@ class CreateRole extends CreateRecord
         });
 
         $this->record->syncPermissions($permissionModels);
+
+        activity()
+        ->causedBy(Auth::user())
+        ->performedOn($this->record)
+        ->log('Tạo mới vai trò: ' . $this->record->name);
     }
 }
