@@ -80,9 +80,9 @@
                         <ul class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                             @foreach ($availableVouchers as $voucher)
                                 <li class="border border-gray-200 p-4 rounded-xl hover:bg-blue-50 cursor-pointer transition"
-                                    onclick="selectVoucher('{{ $voucher->voucher_name }}')">
+                                    onclick="selectVoucher('{{ $voucher->voucher_code }}')">
                                     <div class="flex justify-between items-center">
-                                        <p class="font-semibold text-blue-600 text-base">{{ $voucher->voucher_name }}</p>
+                                        <p class="font-semibold text-blue-600 text-base">{{ $voucher->voucher_code }}</p>
                                         <span class="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded">
                                             @if ($voucher->voucher_type === 'percent')
                                                 {{ $voucher->reduced_amount }}%

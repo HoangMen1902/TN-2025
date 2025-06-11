@@ -39,9 +39,25 @@ class VoucherResource extends Resource
     {
         return $form->schema([
             Card::make()->schema([
+                TextInput::make('voucher_code')
+                    ->label('Mã voucher')
+                    ->required()
+                    ->maxLength(50)
+                    ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập mã voucher',
+                        'unique' => 'Mã voucher đã tồn tại',
+                        'max' => 'Mã không được vượt quá 50 ký tự',
+                    ])
+
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập mã voucher',
+                        'unique' => 'Mã voucher đã tồn tại',
+                        'max' => 'Mã không được vượt quá 50 ký tự',
+                    ]),
 
                 TextInput::make('voucher_name')
-                    ->label('Tên voucher')
+                    ->label('Tên hiển thị')
                     ->rules(['required', 'max:255'])
                     ->validationMessages([
                         'required' => 'Vui lòng nhập tên voucher',
@@ -51,25 +67,15 @@ class VoucherResource extends Resource
                 TextInput::make('requirement_price')
                     ->label('Giá trị đơn hàng tối thiểu (VNĐ)')
                     ->numeric()
-                    ->rules(['required', 'numeric', 'min:0'])
+                    ->minValue(0)
+                    ->rules(['required', 'numeric'])
                     ->validationMessages([
                         'required' => 'Vui lòng nhập giá trị tối thiểu',
-                        'numeric' => 'Giá trị tối thiểu phải là số',
-                        'min' => 'Giá trị tối thiểu không được âm',
-                    ]),
-
-                TextInput::make('reduced_amount')
-                    ->label('Số tiền giảm')
-                    ->numeric()
-                    ->rules(['required', 'numeric', 'min:0'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập số tiền giảm',
-                        'numeric' => 'Số tiền giảm phải là số',
-                        'min' => 'Số tiền giảm không được âm',
+                        'numeric' => 'Phải là số',
                     ]),
 
                 Select::make('voucher_type')
-                    ->label('Loại voucher')
+                    ->label('Loại giảm giá')
                     ->options([
                         'percent' => 'Phần trăm',
                         'amount' => 'Cố định',
@@ -89,15 +95,49 @@ class VoucherResource extends Resource
                     )
                     ->numeric()
                     ->minValue(fn($get) => $get('voucher_type') === 'percent' ? 1 : 1000)
-                    ->maxValue(fn($get) => $get('voucher_type') === 'percent' ? 100 : null),
+                    ->maxValue(fn($get) => $get('voucher_type') === 'percent' ? 100 : null)
+                    ->rules(['required'])
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập giá trị giảm',
+                    ]),
+
+                TextInput::make('max_discount_amount')
+                    ->label('Giảm tối đa (chỉ áp dụng nếu là %)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->visible(fn($get) => $get('voucher_type') === 'percent'),
+
+                TextInput::make('quantity')
+                    ->label('Tổng số lượng')
+                    ->numeric()
+                    ->minValue(1)
+                    ->nullable(),
+
+                TextInput::make('usage_per_user')
+                    ->label('Số lần mỗi người dùng được dùng')
+                    ->numeric()
+                    ->minValue(1)
+                    ->nullable(),
+
+                Select::make('voucher_scope')
+                    ->label('Phạm vi áp dụng')
+                    ->options([
+                        'global' => 'Toàn sàn',
+                        'shipping' => 'Miễn phí vận chuyển',
+                        'category' => 'Theo danh mục',
+                    ])
+                    ->default('global'),
+
+                DateTimePicker::make('start_at')
+                    ->label('Thời gian bắt đầu')
+                    ->nullable(),
 
                 DateTimePicker::make('expired_at')
-                    ->label('Ngày hết hạn')
-                    ->rules(['required', 'date', 'after:now'])
+                    ->label('Thời gian hết hạn')
+                    ->rules(['required', 'after:now'])
                     ->validationMessages([
-                        'required' => 'Vui lòng chọn ngày hết hạn',
-                        'date' => 'Ngày hết hạn không hợp lệ',
-                        'after' => 'Ngày hết hạn phải sau thời điểm hiện tại',
+                        'required' => 'Vui lòng chọn thời gian hết hạn',
+                        'after' => 'Phải sau thời điểm hiện tại',
                     ]),
 
                 Select::make('voucher_status')
@@ -114,17 +154,19 @@ class VoucherResource extends Resource
         ]);
     }
 
+
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('voucher_name')->label('Tên voucher')->searchable()->sortable(),
-            TextColumn::make('requirement_price')->label('Giá trị tối thiểu')->sortable(),
-            TextColumn::make('reduced_amount')
-                ->label('Số tiền giảm')
-                ->sortable()
-                ->formatStateUsing(function ($state) {
-                    return number_format($state, 0, ',', ',') . ' VNĐ';
-                }),
+            TextColumn::make('voucher_code')
+                ->label('Mã voucher')
+                ->searchable()
+                ->sortable(),
+
+            TextColumn::make('voucher_name')
+                ->label('Tên hiển thị')
+                ->searchable()
+                ->sortable(),
 
             TextColumn::make('voucher_type')
                 ->label('Loại')
@@ -135,66 +177,40 @@ class VoucherResource extends Resource
                 })
                 ->sortable(),
 
+            TextColumn::make('reduced_amount')
+                ->label('Giảm')
+                ->sortable()
+                ->formatStateUsing(function ($state, $record) {
+                    return $record->voucher_type === 'percent'
+                        ? $state . ' %'
+                        : number_format($state, 0, ',', '.') . ' VNĐ';
+                }),
 
+            TextColumn::make('expired_at')
+                ->label('Hết hạn')
+                ->dateTime()
+                ->sortable(),
 
-            TextColumn::make('expired_at')->label('Hết hạn')->dateTime(),
             TextColumn::make('voucher_status')
                 ->label('Trạng thái')
                 ->badge()
-                ->formatStateUsing(function ($state, $record) {
-                    if ($record->deleted_at) {
-                        return 'Đã xóa';
-                    }
-                    return $state === 'active' ? 'Hoạt động' : 'Khóa';
-                })
-                ->color(function ($state, $record) {
-                    if ($record->deleted_at) {
-                        return 'gray';
-                    }
-                    return $state === 'active' ? 'success' : 'danger';
-                }),
-        ])->filters([
-            Tables\Filters\TrashedFilter::make()->default('with'),
-            Tables\Filters\SelectFilter::make('voucher_status')
-                ->label('Trạng thái')
-                ->options([
-                    'active' => 'Hoạt động',
-                    'inactive' => 'Không hoạt động',
-                ]),
-        ])->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make()
-                ->action(function ($record) {
-                    $record->delete();
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Xóa mã giảm giá: ' . $record->voucher_name);
-                }),
-            Tables\Actions\RestoreAction::make()
-                ->action(function ($record) {
-                    $record->restore();
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Khôi phục mã giảm giá: ' . $record->voucher_name);
-                }),
-            Tables\Actions\ForceDeleteAction::make()
-                ->action(function ($record) {
-                    $record->forceDelete();
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Xóa vĩnh viễn mã giảm giá: ' . $record->voucher_name);
-                }),
-        ])->bulkActions([
-            Tables\Actions\DeleteBulkAction::make()->label('Xoá hàng loạt'),
-        ]);
+                ->formatStateUsing(fn($state) => $state === 'active' ? 'Hoạt động' : 'Khóa')
+                ->color(fn($state) => $state === 'active' ? 'success' : 'danger'),
+        ])
+            ->filters([
+                // Có thể thêm lọc theo trạng thái, loại, phạm vi...
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make()->label('Chỉnh sửa'),
+                Tables\Actions\DeleteAction::make()->label('Xoá'),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make()->label('Xoá hàng loạt'),
+            ]);
     }
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->withTrashed();
-    }
+
+
+
     public static function getRelations(): array
     {
         return [

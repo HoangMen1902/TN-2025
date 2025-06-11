@@ -13,13 +13,20 @@ class Voucher extends Model
     protected $table = 'vouchers';
 
     protected $fillable = [
-        'voucher_name',
-        'requirement_price',
-        'reduced_amount',
-        'voucher_type',
-        'expired_at',
-        'vouchers_status',
-    ];
+    'voucher_code',            
+    'voucher_name',
+    'requirement_price',
+    'reduced_amount',
+    'voucher_type',
+    'expired_at',
+    'voucher_status',          
+    'max_discount_amount',
+    'quantity',
+    'usage_per_user',
+    'voucher_scope',
+    'start_at',
+];
+
 
     protected $casts = [
         'requirement_price' => 'float',

@@ -54,45 +54,48 @@ class Summary extends Component
     }
 
     public function applyVoucher()
-    {
+{
+    $totalPrice = $this->originalPrice;
 
-        $totalPrice = $this->originalPrice;
+    $voucher = Voucher::where('voucher_code', $this->voucherCode)
+        ->where('voucher_status', 'active')
+        ->where('expired_at', '>', now())
+        ->first();
 
-        $voucher = Voucher::where('voucher_name', $this->voucherCode)
-            ->where('voucher_status', 'active')
-            ->where('expired_at', '>', now())
-            ->first();
-
-        if (!$voucher) {
-            $this->voucherMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
-            $this->voucherDiscount = 0;
-            Session::forget(['voucher_code', 'voucher_discount']);
-            return;
-        }
-
-        if ($totalPrice < $voucher->requirement_price) {
-            $this->voucherMessage = 'Đơn hàng chưa đủ điều kiện áp dụng mã.';
-            $this->voucherDiscount = 0;
-            Session::forget(['voucher_code', 'voucher_discount']);
-            return;
-        }
-
-        $discount = $voucher->voucher_type === 'percent'
-            ? $totalPrice * $voucher->reduced_amount / 100
-            : $voucher->reduced_amount;
-
-        $this->voucherDiscount = $discount;
-        $this->voucherMessage = 'Áp dụng mã giảm giá thành công!';
-
-        $this->finalPrice = $this->originalPrice - $this->voucherDiscount;
-        session([
-            'voucher_code' => $this->voucherCode,
-            'voucher_discount' => $discount,
-            'finalPrice' => $this->finalPrice
-        ]);
+    if (!$voucher) {
+        $this->voucherMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
+        $this->voucherDiscount = 0;
+        $this->finalPrice = $this->originalPrice;
+        Session::forget(['voucher_code', 'voucher_discount']);
         session()->put('order_total', $this->finalPrice);
-
+        return;
     }
+
+    if ($totalPrice < $voucher->requirement_price) {
+        $this->voucherMessage = 'Đơn hàng chưa đủ điều kiện áp dụng mã.';
+        $this->voucherDiscount = 0;
+        $this->finalPrice = $this->originalPrice; 
+        Session::forget(['voucher_code', 'voucher_discount']);
+        session()->put('order_total', $this->finalPrice); 
+        return;
+    }
+
+    $discount = $voucher->voucher_type === 'percent'
+        ? $totalPrice * $voucher->reduced_amount / 100
+        : $voucher->reduced_amount;
+
+    $this->voucherDiscount = $discount;
+    $this->voucherMessage = 'Áp dụng mã giảm giá thành công!';
+
+    $this->finalPrice = $this->originalPrice - $this->voucherDiscount;
+    session([
+        'voucher_code' => $this->voucherCode,
+        'voucher_discount' => $discount,
+        'finalPrice' => $this->finalPrice
+    ]);
+    session()->put('order_total', $this->finalPrice);
+}
+
     public function render()
     {
         return view('paymentmodule::livewire.components.summary');
