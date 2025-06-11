@@ -15,12 +15,13 @@ class DetailModuleController extends Controller
      */
     public function index($slug)
     {
-        $data = Product::where('slug', $slug)
-        ->where('product_status', 'active')
-        ->where('deleted_at', '=', null)
-        ->first();
-        if($data != null) {
-            
+        $data = Product::with('sku')
+            ->where('slug', $slug)
+            ->where('product_status', 'active')
+            ->where('deleted_at', '=', null)
+            ->first();
+        if ($data != null) {
+
             $id = $data->id;
 
             return view('detailmodule::index', ['data' => $data, 'id' => $id, 'type' => 'product']);
@@ -30,10 +31,11 @@ class DetailModuleController extends Controller
     }
 
 
-    public function combo($slug) {
+    public function combo($slug)
+    {
         $data = ProductCombo::where('slug', $slug)->first();
-        if($data != null) {
-            
+        if ($data != null) {
+
             $id = $data->id;
 
             return view('detailmodule::index', ['data' => $data, 'id' => $id, 'type' => 'combo']);

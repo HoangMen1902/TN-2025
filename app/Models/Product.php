@@ -31,7 +31,7 @@ class Product extends Model
         'length'
     ];
 
-    
+
     public function publisher()
     {
         return $this->belongsTo(Publisher::class, 'publisher_id');
@@ -48,16 +48,22 @@ class Product extends Model
         return $this->hasMany(ProductSku::class);
     }
 
-    public function tags() {
+    public function tags()
+    {
         return $this->belongsToMany(RelatedTag::class, 'product_tags', 'product_id', 'tag_id');
     }
 
 
-    public function productPreview() {
+    public function productPreview()
+    {
         return $this->hasOne(ProductPreview::class);
     }
     public function preview()
-{
-    return $this->hasOne(ProductPreview::class);
-}
+    {
+        return $this->hasOne(ProductPreview::class);
+    }
+    public function sku()
+    {
+        return $this->hasOne(ProductSku::class);
+    }
 }

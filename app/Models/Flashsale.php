@@ -60,4 +60,9 @@ class Flashsale extends Model
     {
         return $this->isStarted() && !$this->isExpired();
     }
+
+    public function products()
+    {
+        return $this->hasMany(FlashsaleProduct::class);
+    }
 }

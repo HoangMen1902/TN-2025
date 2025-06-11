@@ -74,8 +74,10 @@
         <span class="text-sm font-bold ml-0.5">100</span>
 
     </div>
-    <livewire:detailmodule::components.flashsale :data="$data"></livewire:detailmodule::components.flashsale>
-    <livewire:detailmodule::components.price :data="$data"></livewire:detailmodule::components.price>
+<livewire:detailmodule::components.flashsale :sku-id="$data->productSkus->first()->id" />
+<livewire:detailmodule::components.price :data="$data" />
+
+
 
 
 

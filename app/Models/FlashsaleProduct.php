@@ -22,7 +22,13 @@ class FlashsaleProduct extends Model
     }
 
     public function flashsale()
-    {
-        return $this->belongsTo(Flashsale::class);
-    }
+{
+    return $this->belongsTo(\App\Models\Flashsale::class);
+}
+
+public function sku()
+{
+    return $this->belongsTo(\App\Models\ProductSku::class);
+}
+
 }
