@@ -18,9 +18,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Support\Facades\Auth;
 
 class OptionResource extends Resource
 {
+    use SoftDeletes;
     protected static ?string $model = Option::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
@@ -34,9 +38,9 @@ class OptionResource extends Resource
                 TextInput::make('name')->label('Tên thuộc tính')->columnSpanFull(),
                 Repeater::make('optionValues')->label('Giá trị thuộc tính')->relationship('optionValues')->schema([
                     TextInput::make('value_name')
-                    ->label('Tên giá trị')
-                    ->rule(['required'])
-                    ->validationMessages(['required' => 'Vui lòng nhập giá trị *']),
+                        ->label('Tên giá trị')
+                        ->rule(['required'])
+                        ->validationMessages(['required' => 'Vui lòng nhập giá trị *']),
                 ])->columnSpanFull()->deletable()->addable()->minItems(1)->rules(['min:1'])->validationMessages(['min' => 'Phải có ít nhất 1 giá trị']),
                 Toggle::make('option_status')
                     ->label('Kích hoạt')
@@ -61,12 +65,35 @@ class OptionResource extends Resource
                 }),
             ])
             ->filters([
-                //
+                TrashedFilter::make()->default('with'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->label('Xem chi tiết'),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->action(function ($record) {
+                        $record->delete();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa mềm thuộc tính: ' . $record->name);
+                    }),
+                Tables\Actions\RestoreAction::make()
+                    ->action(function ($record) {
+                        $record->restore();
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Khôi phục thuộc tính: ' . $record->name);
+                    }),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->action(function ($record) {
+                        $record->forceDelete();
+                        activity()
+                            ->causedBy(modelOrId: Auth::user())
+                            ->performedOn($record)
+                            ->log('Xóa vĩnh viễn thuộc tính: ' . $record->name);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -74,7 +101,10 @@ class OptionResource extends Resource
                 ]),
             ]);
     }
-
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withTrashed();
+    }
     public static function getRelations(): array
     {
         return [
