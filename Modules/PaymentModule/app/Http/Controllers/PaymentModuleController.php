@@ -134,8 +134,7 @@ class PaymentModuleController extends Controller
                 return redirect($session->url);
             }
 
-            $encrypted_payment_id = Crypt::encrypt($payment->id);
-            return redirect()->route('thanks', ['payment_id' => $encrypted_payment_id])->with('success', 'Đặt hàng thành công.');
+            return redirect()->route('thanks', ['payment_id' => $payment->id])->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Đã xảy ra lỗi: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
@@ -199,8 +198,7 @@ class PaymentModuleController extends Controller
                     $order->save();
 
                     // Log::info('Thanh toán VNPAY thành công cho đơn hàng:', ['order_id' => $orderId]);
-                    $encrypted_id = Crypt::encrypt($paymentDetail->id);
-                    return redirect()->route('thanks', ['payment_id' => $encrypted_id])->with('success', 'Thanh toán thành công!');
+                    return redirect()->route('thanks', ['payment_id' => $paymentDetail->id])->with('success', 'Thanh toán thành công!');
                 } else {
                     $order->orders_status = 'Thanh toán thất bại';
                     $order->save();
@@ -250,8 +248,7 @@ class PaymentModuleController extends Controller
 
     public function internationalCallback($checkout_id, $payment_id) {
         $stripeService = new StripeService();
-        $paymentDecrypted = Crypt::decrypt($payment_id);
-        $payment = PaymentDetail::find($paymentDecrypted);
+        $payment = PaymentDetail::find($payment_id);
         
         if(!$stripeService->checkCheckoutId($checkout_id)|| !$payment || $payment->order->user_id !== Auth::id()) {
             return redirect()->route(route('home'))->with('error','Đường dẫn không hợp lệ');
@@ -280,8 +277,7 @@ class PaymentModuleController extends Controller
 
     public function thanks($payment_id)
     {
-        $payment_id_decrypted = Crypt::decrypt($payment_id);
-        $payment = PaymentDetail::find($payment_id_decrypted);
+        $payment = PaymentDetail::find($payment_id);
         if(!$payment) {
             return redirect(route('home'))->with('error', 'Không hợp lệ');
         }

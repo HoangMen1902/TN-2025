@@ -40,10 +40,9 @@ class StripeService
 
     public function createCheckoutSession($carts, $shipping_fee, $payment_id, $voucher = null)
     {
-        $payment_id_encrypted = Crypt::encrypt($payment_id);
         $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
         $session = $this->stripe->checkout->sessions->create([
-            'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id_encrypted,
+            'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
             'line_items' => $lineItems,
             'mode' => 'payment',
             'cancel_url' => route('cart.index'),
