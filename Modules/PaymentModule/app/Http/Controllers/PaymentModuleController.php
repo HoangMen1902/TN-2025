@@ -256,11 +256,11 @@ class PaymentModuleController extends Controller
         if(!$stripeService->checkCheckoutId($checkout_id)|| !$payment || $payment->order->user_id !== Auth::id()) {
             return redirect()->route(route('home'))->with('error','Đường dẫn không hợp lệ');
         }
-        $payment_id = $stripeService->getChargeId($checkout_id);
+        $stripe_payment_id = $stripeService->getChargeId($checkout_id);
         if(!$payment_id) {
             return redirect(route('home'))->with('error', 'Có lỗi khi truy cập trang');
         }
-        $payment->payment_id = $payment_id;
+        $payment->payment_id = $stripe_payment_id;
         $payment->save();
         return redirect(route('thanks', ['payment_id' => $payment_id,]))->with('success','Đã đặt hàng thành công');
     }
@@ -278,8 +278,17 @@ class PaymentModuleController extends Controller
 
     public function destroy($id) {}
 
-    public function thanks()
+    public function thanks($payment_id)
     {
-        return view('paymentmodule::components.thanks');
+        $payment_id_decrypted = Crypt::decrypt($payment_id);
+        $payment = PaymentDetail::find($payment_id_decrypted);
+        if(!$payment) {
+            return redirect(route('home'))->with('error', 'Không hợp lệ');
+        }
+        if($payment->order->user_id !== Auth::id()) {
+            return redirect(route('home'))->with('error', 'Không hợp lệ');
+        }
+
+        return view('paymentmodule::components.thanks', ['payment' => $payment]);
     }
 }

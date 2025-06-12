@@ -4,7 +4,7 @@
     <h1 class="text-3xl font-bold text-blue-600 mb-2">Cảm ơn bạn đã đặt hàng!</h1>
     <p class="text-gray-600">Chúng tôi đã nhận được đơn hàng của bạn và đang xử lý.</p>
   </div>
-
+@dd($payment)
   <!-- Thông tin đơn hàng -->
   <div class="mt-8">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Chi tiết đơn hàng</h2>
