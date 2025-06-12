@@ -70,6 +70,7 @@ class PaymentModuleController extends Controller
 
             $fullAddress = null;
             if ($addressModel) {
+
                 $fullAddress = $addressModel->address;
                 if ($addressModel->ward?->name) {
                     $fullAddress .= ', ' . $addressModel->ward->name;
@@ -103,7 +104,7 @@ class PaymentModuleController extends Controller
             }
 
             do {
-                $trackingId = strtoupper(Str::random(10));
+                $trackingId = Str::uuid();
             } while (PaymentDetail::where('tracking_id', $trackingId)->exists());
 
             $paymentMethod = $request->payment_method;
