@@ -26,7 +26,7 @@
                                 <input type="checkbox"
                                     class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all"
                                     id="blue-600-{{$item->sku->id ?? $item->combo->id}}" name="cart_id[]"
-                                    value="{{$item->id}}" wire:model="selected_cart" />
+                                    value="{{$item->id}}" wire:model="selected_cart" form="addItemCheckout" />
                                 <span
                                     class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
                             </label>
@@ -35,15 +35,17 @@
                             @php
                                 $image = $item->sku->images[0] ?? $item->combo->images[0];
                             @endphp
-                            <img class="w-24 h-auto"
-                                src="{{ asset('storage/' . $image) }}"
+                            <img class="w-24 h-auto" src="{{ asset('storage/' . $image) }}"
                                 alt="{{ $item->sku->sku ?? 'SKU Image' }}" style="object-cover w-full h-full">
                         </div>
                         <div class="w-4/7 p-2">
                             <h2 class="text-base font-bold truncate max-w-100 mt-1">
-                                {{ $item->sku->product->name ?? $item->combo->combo_name ?? 'Tên sản phẩm' }} - {{ $item->sku->sku ?? 'Combo' }}
+                                {{ $item->sku->product->name ?? $item->combo->combo_name ?? 'Tên sản phẩm' }} -
+                                {{ $item->sku->sku ?? 'Combo' }}
                             </h2>
-                            <p class="text-red-600 font-bold">{{ number_format($item->sku->sale_price ?? $item->combo->sale_price ?? 0, 0, ',', '.') }}đ</p>
+                            <p class="text-red-600 font-bold">
+                                {{ number_format($item->sku->sale_price ?? $item->combo->sale_price ?? 0, 0, ',', '.') }}đ
+                            </p>
                             <div class="list-none p-0 text-sm ">
                                 <div class="my-1 line-clamp-2">
                                     {!! $item->sku->product->short_description ?? $item->combo->description ?? 'Không có mô tả' !!}
@@ -89,12 +91,14 @@
         <div class="cart__summary w-2/7 ml-8 p-5 max-h-[230px] border border-gray-300 rounded-xl text-justify self-end">
             <div class="cart__summary-item flex justify-between mb-3">
                 <span class="font-medium">Tổng phụ</span>
-                <span class="text-red-700" wire:loading.remove>{{ number_format($total_price ?? 0, 0, ',', '.') }} VNĐ</span>
+                <span class="text-red-700" wire:loading.remove>{{ number_format($total_price ?? 0, 0, ',', '.') }}
+                    VNĐ</span>
                 <span class="text-red-700" wire:loading>Đang tính giá tiền..</span>
 
             </div>
             <div class="cart__summary-item flex justify-between mb-3">
-                <h3 class="font-bold text-xl text-red-700" wire:loading.remove>{{ number_format($total_price ?? 0, 0, ',', '.') }} VNĐ</h3>
+                <h3 class="font-bold text-xl text-red-700" wire:loading.remove>
+                    {{ number_format($total_price ?? 0, 0, ',', '.') }} VNĐ</h3>
                 <h3 class="font-bold text-xl text-red-700" wire:loading>Đang tính giá tiền..</h3>
 
             </div>

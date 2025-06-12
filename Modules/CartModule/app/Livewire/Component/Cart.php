@@ -19,6 +19,9 @@ class Cart extends Component
     public function updatePrice()
     {
         $this->total_price = 0;
+        if(empty($this->selected_cart)) {
+            return;
+        }
         foreach ($this->selected_cart as $cart) {
             $check = $this->checkUserCart($cart);
             if (!$check) {
@@ -40,6 +43,9 @@ class Cart extends Component
     private function checkUserCart($cartId): bool
     {
         $cart = CartModel::find($cartId)->first();
+        if(!$cart) {
+            return false;
+        }
         if (Auth::check() && $cart->user_id == Auth::user()->id) {
             return true;
         } elseif (!Auth::check() && $cart->session_id === session()->getId()) {

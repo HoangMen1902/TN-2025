@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\CheckoutAddress;
 use App\Services\Stripe;
 use App\Services\StripeService;
+use Illuminate\Support\Facades\Crypt;
 
 class PaymentModuleController extends Controller
 {
@@ -107,7 +108,7 @@ class PaymentModuleController extends Controller
 
             $paymentMethod = $request->payment_method;
 
-            PaymentDetail::create([
+            $payment = PaymentDetail::create([
                 'order_id' => $order->id,
                 'payment_method' => $paymentMethod,
                 'payment_id' => null,
@@ -115,7 +116,7 @@ class PaymentModuleController extends Controller
                 'shipment_unit' => $request->shipment_unit,
             ]);
 
-            // Cart::whereIn('id', $request->cart_id)->delete();
+            Cart::whereIn('id', $request->cart_id)->delete();
 
             DB::commit();
 
@@ -128,12 +129,13 @@ class PaymentModuleController extends Controller
             } elseif ($paymentMethod === "international") {
                 $voucher = session('voucher');
                 $stripeService = new StripeService;
-                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, isset($voucher) && !empty($voucher) ? $voucher : null);
+                $order_id = $payment->order_id;
+                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $order_id, isset($voucher) && !empty($voucher) ? $voucher : null);
                 return redirect($session->url);
             }
 
-
-            return redirect()->route('home')->with('success', 'Đặt hàng thành công.');
+            $encrypted_payment_id = Crypt::encrypt($payment->id);
+            return redirect()->route('thanks', ['payment_id' => $encrypted_payment_id])->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Đã xảy ra lỗi: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
@@ -196,9 +198,9 @@ class PaymentModuleController extends Controller
                     $order->orders_status = 'Đã thanh toán';
                     $order->save();
 
-                    Log::info('Thanh toán VNPAY thành công cho đơn hàng:', ['order_id' => $orderId]);
-
-                    return redirect()->route('home')->with('success', 'Thanh toán thành công!');
+                    // Log::info('Thanh toán VNPAY thành công cho đơn hàng:', ['order_id' => $orderId]);
+                    $encrypted_id = Crypt::encrypt($paymentDetail->id);
+                    return redirect()->route('thanks', ['payment_id' => $encrypted_id])->with('success', 'Thanh toán thành công!');
                 } else {
                     $order->orders_status = 'Thanh toán thất bại';
                     $order->save();
@@ -246,6 +248,22 @@ class PaymentModuleController extends Controller
         return $messages[$responseCode] ?? 'Lỗi không xác định';
     }
 
+    public function internationalCallback($checkout_id, $payment_id) {
+        $stripeService = new StripeService();
+        $paymentDecrypted = Crypt::decrypt($payment_id);
+        $payment = PaymentDetail::find($paymentDecrypted);
+        
+        if(!$stripeService->checkCheckoutId($checkout_id)|| !$payment || $payment->order->user_id !== Auth::id()) {
+            return redirect()->route(route('home'))->with('error','Đường dẫn không hợp lệ');
+        }
+        $payment_id = $stripeService->getChargeId($checkout_id);
+        if(!$payment_id) {
+            return redirect(route('home'))->with('error', 'Có lỗi khi truy cập trang');
+        }
+        $payment->payment_id = $payment_id;
+        $payment->save();
+        return redirect(route('thanks', ['payment_id' => $payment_id,]))->with('success','Đã đặt hàng thành công');
+    }
     public function show($id)
     {
         return view('paymentmodule::show');
@@ -260,7 +278,8 @@ class PaymentModuleController extends Controller
 
     public function destroy($id) {}
 
-    public function thanks(){
+    public function thanks()
+    {
         return view('paymentmodule::components.thanks');
     }
 }

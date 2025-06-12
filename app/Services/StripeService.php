@@ -2,7 +2,13 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
+use Stripe\Stripe;
 use Stripe\StripeClient;
+use Stripe\Checkout\Session as StripeSession;
+use Stripe\Exception\OAuth\InvalidRequestException;
+use Stripe\PaymentIntent;
 
 class StripeService
 {
@@ -11,21 +17,47 @@ class StripeService
     private $stripe;
     public function __construct()
     {
+        
         $this->private_token = env("STRIPE_API_SECRET");
         $this->public_token = env("STRIPE_API_PUBLIC");
         $this->stripe = new StripeClient($this->private_token);
+        Stripe::setApiKey(env('STRIPE_API_SECRET'));
     }
 
-    public function createCheckoutSession($carts, $shipping_fee, $voucher = null)
+    public function checkCheckoutId($checkoutId)
     {
+        try {
+            $session = StripeSession::retrieve($checkoutId);
+            return !empty($session) && $session->id === $checkoutId;
+        } catch (InvalidRequestException $e) {
+            Log::error($e->getMessage());
+            return false;
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return false;
+        }
+    }
+
+    public function createCheckoutSession($carts, $shipping_fee, $payment_id, $voucher = null)
+    {
+        $payment_id_encrypted = Crypt::encrypt($payment_id);
         $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
         $session = $this->stripe->checkout->sessions->create([
-            'success_url' => env('APP_URL') . '/cam-on',
+            'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id_encrypted,
             'line_items' => $lineItems,
             'mode' => 'payment',
             'cancel_url' => route('cart.index'),
         ]);
         return $session;
+    }
+
+
+    public static function getChargeId(string $checkoutId): mixed
+    {
+        $session = StripeSession::retrieve($checkoutId);
+        $paymentIntentId = $session->payment_intent;
+        $findIntent = PaymentIntent::retrieve($paymentIntentId);
+        return $findIntent->latest_charge;
     }
 
     public function formartItems($items, $shipping_fee, $voucher = null)
