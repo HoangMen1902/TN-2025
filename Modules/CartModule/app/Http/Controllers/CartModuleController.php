@@ -41,10 +41,19 @@ class CartModuleController extends Controller
         $itemIdField = $itemType === 'sku' ? 'sku_id' : 'combo_id';
         $itemId = $request->$itemIdField;
 
-        $cartItem = Cart::where('session_id', $sessionId)
-            ->where('item_type', $itemType)
-            ->where($itemIdField, $itemId)
-            ->first();
+        if (Auth::check()) {
+
+            $cartItem = Cart::where('user_id', $userId)
+                ->where('item_type', $itemType)
+                ->where($itemIdField, $itemId)
+                ->first();
+        } else {
+            $cartItem = Cart::where('session_id', $sessionId)
+                ->where('item_type', $itemType)
+                ->where($itemIdField, $itemId)
+                ->first();
+        }
+
         if ($request->sku_id) {
             $sku = ProductSku::find($request->sku_id);
         } elseif ($request->combo_id) {
