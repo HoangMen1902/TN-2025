@@ -5,4 +5,14 @@
             <livewire:cartmodule::component.cart />
         </div>
     </div>
+    <x-slot name="scripts">
+<script>
+    $(document).ready(function () {
+        $('input[name="cart_id[]"]').on('change', function () {
+
+            Livewire.dispatch('selected_cart')
+        });
+    });
+</script>
+    </x-slot>
 </x-layouts.layout>

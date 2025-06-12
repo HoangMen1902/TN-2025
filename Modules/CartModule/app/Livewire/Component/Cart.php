@@ -5,11 +5,50 @@ namespace Modules\CartModule\Livewire\Component;
 use Livewire\Component;
 use App\Models\Cart as CartModel;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 
 class Cart extends Component
 {
 
     public $quantities = [];
+    public $total_price = 0;
+    public $selected_cart = [];
+
+
+    #[On('selected_cart')]
+    public function updatePrice()
+    {
+        $this->total_price = 0;
+        foreach ($this->selected_cart as $cart) {
+            $check = $this->checkUserCart($cart);
+            if (!$check) {
+                return false;
+            } else {
+                $cartData = CartModel::find($cart);
+                $itemType = $cartData->item_type;
+                if ($itemType === "sku") {
+                    $this->total_price += $cartData->sku->sale_price * $cartData->quantity;
+                } elseif ($itemType === "combo") {
+                    $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
+                }
+            }
+        }
+    }
+
+
+
+    private function checkUserCart($cartId): bool
+    {
+        $cart = CartModel::find($cartId)->first();
+        if (Auth::check() && $cart->user_id == Auth::user()->id) {
+            return true;
+        } elseif (!Auth::check() && $cart->session_id === session()->getId()) {
+            return true;
+        }
+        return false;
+    }
+
+
 
     public function mount()
     {
@@ -36,12 +75,14 @@ class Cart extends Component
             $value = 1;
         }
         CartModel::where('id', $key)->update(['quantity' => $value]);
+        $this->dispatch('selected_cart');
     }
 
     public function removeItem($itemId)
     {
         CartModel::where('id', $itemId)->delete();
         unset($this->quantities[$itemId]);
+        $this->dispatch('selected_cart');
     }
     public function deleteAll()
     {
@@ -56,19 +97,48 @@ class Cart extends Component
         })->delete();
 
         $this->quantities = [];
+        $this->total_price = 0;
     }
     public function increaseQuantity($itemId)
     {
+        $cart = CartModel::where('id', $itemId)->first();
+        $itemType = $cart->item_type;
+        $quantity = 0;
+        if ($itemType === 'sku') {
+            $quantity = $cart->sku->quantity;
+        } elseif ($itemType === 'combo') {
+            $quantity = $cart->combo->quantity;
+        }
+
+        if ($this->quantities[$itemId] + 1 > $quantity) {
+            return;
+        }
         $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) + 1;
-        CartModel::where('id', $itemId)->update(['quantity' => $this->quantities[$itemId]]);
+        $cart->quantity = $this->quantities[$itemId];
+        $cart->save();
+        $this->dispatch('selected_cart');
     }
 
     public function decreaseQuantity($itemId)
     {
         $current = $this->quantities[$itemId] ?? 1;
         if ($current > 1) {
-            $this->quantities[$itemId] = $current - 1;
-            CartModel::where('id', $itemId)->update(['quantity' => $this->quantities[$itemId]]);
+            $cart = CartModel::where('id', $itemId)->first();
+            $itemType = $cart->item_type;
+            $quantity = 0;
+            if ($itemType === 'sku') {
+                $quantity = $cart->sku->quantity;
+            } elseif ($itemType === 'combo') {
+                $quantity = $cart->combo->quantity;
+            }
+
+            if ($this->quantities[$itemId] - 1 > $quantity) {
+                return; //bat loi sau
+            }
+            $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) - 1;
+            $cart->quantity = $this->quantities[$itemId];
+            $cart->save();
+            $this->dispatch('selected_cart');
         }
     }
 
@@ -93,16 +163,8 @@ class Cart extends Component
         }
 
 
-        $subtotal = 0;
-        foreach ($cartItems as $item) {
-            $price = $item->sku->sale_price ?? $item->combo->sale_price ?? 0;
-            $quantity = $this->quantities[$item->id] ?? 1;
-            $subtotal += $price * $quantity;
-        }
-
         return view('cartmodule::livewire.component.cart', [
             'cartItems' => $cartItems,
-            'subtotal' => $subtotal,
         ]);
     }
 }
