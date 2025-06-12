@@ -47,6 +47,7 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\HtmlString;
 use App\Models\Category;
 use App\Models\Flashsale;
+use Closure;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
 
@@ -75,18 +76,53 @@ class FlashSaleResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->label('Tên Flash Sale')
-                            ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->rules(['required', 'string', 'max:255'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng nhập tên Flash Sale.',
+                                'string'   => 'Tên Flash Sale phải là chuỗi ký tự.',
+                                'max'      => 'Tên Flash Sale không được vượt quá 255 ký tự.',
+                            ]),
 
+                        // DateTimePicker::make('started_at')
+                        //     ->label('Thời gian bắt đầu')
+                        //     ->required()
+                        //     ->native(false),
+
+                        // DateTimePicker::make('expired_at')
+                        //     ->label('Thời gian kết thúc')
+                        //     ->required()
+                        //     ->native(false),
                         DateTimePicker::make('started_at')
                             ->label('Thời gian bắt đầu')
                             ->required()
+                            ->reactive()
+                            ->rules(['required', 'date', 'after_or_equal:now'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng chọn thời gian bắt đầu.',
+                                'after_or_equal' => 'Thời gian bắt đầu không được trước thời điểm hiện tại.',
+                            ])
                             ->native(false),
 
                         DateTimePicker::make('expired_at')
                             ->label('Thời gian kết thúc')
                             ->required()
+                            ->reactive()
+                            ->rule(function (callable $get) {
+                                $start = $get('started_at');
+                                return function (string $attribute, $value, Closure $fail) use ($start) {
+                                    if ($start && $value <= $start) {
+                                        $fail('Thời gian kết thúc phải sau thời gian bắt đầu.');
+                                    }
+                                };
+                            })
+                            ->validationMessages([
+                                'required' => 'Vui lòng chọn thời gian kết thúc.',
+                            ])
                             ->native(false),
+
+
+
                     ])->columns(2),
 
                 Section::make('Giảm giá áp dụng')
@@ -99,11 +135,17 @@ class FlashSaleResource extends Resource
                                 'percent' => 'Phần trăm (%)',
                                 'specific' => 'Giá trị cố định',
                             ]),
-
                         TextInput::make('discount_amount')
                             ->label('Giá trị')
+                            ->required()
                             ->numeric()
-                            ->required(),
+                            ->rules(['required', 'numeric', 'min:1'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng nhập giá trị.',
+                                'numeric'  => 'Giá trị phải là một số.',
+                                'min'      => 'Giá trị phải lớn hơn 0.',
+                            ])
+
                     ])->columns(2),
 
                 Section::make('Hình thức áp dụng')
@@ -181,8 +223,7 @@ class FlashSaleResource extends Resource
                                 fn($state, callable $set) =>
                                 $set('skus', static::getFilteredSkus($state))
                             )
-                            ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
-,
+                            ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both'])),
 
                         Repeater::make('skus')
                             ->schema([

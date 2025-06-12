@@ -32,7 +32,10 @@ class ProductEbookResource extends Resource
     protected static ?string $navigationLabel = 'Ebook';
     protected static ?string $pluralModelLabel = 'Ebook';
     protected static ?string $modelLabel = 'Ebook';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form->schema([
