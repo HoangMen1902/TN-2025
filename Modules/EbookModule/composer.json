@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/ebookmodule",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\EbookModule\\": "app/",
+            "Modules\\EbookModule\\Database\\Factories\\": "database/factories/",
+            "Modules\\EbookModule\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\EbookModule\\Tests\\": "tests/"
+        }
+    }
+}

@@ -19,6 +19,7 @@ use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
+use Smalot\PdfParser\Parser;
 
 use function Laravel\Prompts\select;
 
@@ -74,6 +75,9 @@ class ProductEbookResource extends Resource
             TextColumn::make('id'),
             TextColumn::make('product.name')->label('Sản phẩm')->sortable()->limit(30)->searchable(),
             TextColumn::make('price')->label('Giá')->money('VND')->sortable(),
+            TextColumn::make('content')
+                ->label('Tên Combo')
+                ->limit(30),
             TextColumn::make('ebook_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
                 return match ($state) {
                     'active' => 'Hoạt động',

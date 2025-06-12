@@ -14,6 +14,7 @@ class ProductEbook extends Model
     protected $fillable = [
         'product_id',
         'filetype',
+        'content',
         'filepath',
         'price',
         'ebook_status',
