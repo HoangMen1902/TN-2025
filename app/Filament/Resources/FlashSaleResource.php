@@ -97,6 +97,7 @@ class FlashSaleResource extends Resource
                             ->label('Thời gian bắt đầu')
                             ->required()
                             ->reactive()
+                            ->minDate(now())
                             ->rules(['required', 'date', 'after_or_equal:now'])
                             ->validationMessages([
                                 'required' => 'Vui lòng chọn thời gian bắt đầu.',
@@ -108,6 +109,7 @@ class FlashSaleResource extends Resource
                             ->label('Thời gian kết thúc')
                             ->required()
                             ->reactive()
+                            ->minDate(now())
                             ->rule(function (callable $get) {
                                 $start = $get('started_at');
                                 return function (string $attribute, $value, Closure $fail) use ($start) {
@@ -130,14 +132,13 @@ class FlashSaleResource extends Resource
                     ->schema([
                         Select::make('discount_type')
                             ->label('Loại giảm')
-                            ->required()
+                            ->default('percent')
                             ->options([
                                 'percent' => 'Phần trăm (%)',
                                 'specific' => 'Giá trị cố định',
                             ]),
                         TextInput::make('discount_amount')
                             ->label('Giá trị')
-                            ->required()
                             ->numeric()
                             ->rules(['required', 'numeric', 'min:1'])
                             ->validationMessages([
@@ -269,11 +270,11 @@ class FlashSaleResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Tên chương trình')->searchable(),
-                TextColumn::make('started_at')->label('Bắt đầu')->dateTime(),
-                TextColumn::make('expired_at')->label('Kết thúc')->dateTime(),
+                TextColumn::make('name')->label('Tên chương trình')->searchable()->sortable(),
+                TextColumn::make('started_at')->label('Bắt đầu')->dateTime()->sortable(),
+                TextColumn::make('expired_at')->label('Kết thúc')->dateTime()->sortable(),
                 TextColumn::make('discount.discount_type')
-                    ->label('Loại giảm')
+                    ->label('Loại giảm')->sortable()
                     ->formatStateUsing(function ($state) {
                         return match ($state) {
                             'percent' => 'Phần trăm (%)',
@@ -281,7 +282,7 @@ class FlashSaleResource extends Resource
                             default => 'Không xác định',
                         };
                     }),
-                TextColumn::make('discount.discount_amount')->label('Giá trị'),
+                TextColumn::make('discount.discount_amount')->label('Giá trị') ->sortable(),
                 TextColumn::make('skus_count')
                     ->label('Số SKU')
                     ->counts('skus')

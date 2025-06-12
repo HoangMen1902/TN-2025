@@ -22,12 +22,15 @@ use Filament\Forms\Components\Placeholder;
 use Illuminate\Support\HtmlString;
 use App\Models\Category;
 use App\Models\ProductSku;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Illuminate\Support\Facades\Auth;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Validation\ValidationException;
 
 class ProductComboResource extends Resource
 {
@@ -47,7 +50,10 @@ class ProductComboResource extends Resource
                 TextInput::make('slug')->label('Đường dẫn')->rules('required')->validationMessages(['required' => 'Vui lòng nhập đường dẫn'])->unique(ignoreRecord: true)->columnSpanFull(),
                 RichEditor::make('description')
                     ->label('Mô tả combo')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập thông tin này.',
+                    ]),
                 TextInput::make('width')->label('Chiều rộng (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
                 TextInput::make('length')->label('Chiều dài (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
                 TextInput::make('height')->label('Chiều cao (cm)')->numeric()->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin này']),
@@ -65,23 +71,55 @@ class ProductComboResource extends Resource
                 TextInput::make('original_price')
                     ->label('Giá gốc')
                     ->numeric()
-                    ->columnSpan(2),
+                    ->rules(['required', 'min:0'])
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập thông tin này.',
+                        'min' => 'Giá không được nhỏ hơn 0.',
+                    ]),
+
 
                 TextInput::make('sale_price')
-                    ->label('Giá giảm')
+                    ->label('Giá khuyến mãi')
                     ->numeric()
-                    ->columnSpan(2),
+                    ->minValue(0)
+                    ->rules(['nullable', 'min:0', 'required'])
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập thông tin này.',
+                        'min' => 'Giá khuyến mãi không được nhỏ hơn 0.',
+                    ]),
 
                 DatePicker::make('expired_at')
                     ->label('Ngày hết hạn')
+                    ->minDate(now())
+                    ->rules(['required'])
+                    ->validationMessages([
+                        'required' => 'Vui lòng chọn ngày hết hạn.',
+                    ])
                     ->columnSpan(2),
+
 
                 TextInput::make('quantity')
                     ->label('Số lượng Combo')
                     ->numeric()
-                    ->required()
-                    ->minValue(1)
-                    ->columnSpan(2),
+                    ->rules(['required', 'integer', 'min:1'])
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập số lượng combo.',
+                        'integer' => 'Số lượng phải là số nguyên.',
+                        'min' => 'Số lượng combo phải lớn hơn hoặc bằng 1.',
+                    ])
+                    ->columnSpan(1),
+
+                Select::make('product_combos_status')
+                    ->label('Trạng thái')
+                    ->default('active')
+                    ->options([
+                        'active' => 'Hoạt động',
+                        'intactive' => 'Khóa'
+                    ])
+                    ->formatStateUsing(fn($state) => $state ? 'active' : 'inactive')
+                    ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive')
+                    ->rules(['required'])
+                    ->validationMessages(['required' => 'Vui lòng chọn trạng thái *']),
                 Select::make('category_filter')
                     ->label('Lọc theo loại sản phẩm')
                     ->options(fn() => Category::pluck('name', 'id'))
@@ -137,10 +175,25 @@ class ProductComboResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->label('ID'),
-                TextColumn::make('description')->label('Mô tả')->html()->limit(50),
+                TextColumn::make('combo_name')->label('Tên combo')->html()->limit(50)->searchable(),
                 TextColumn::make('original_price')->label('Giá gốc')->money('VND'),
-                TextColumn::make('sale_price')->label('Giá Sale')->money('VND'),
-                TextColumn::make('expired_at')->label('Thời gian hết hạn')
+                TextColumn::make('sale_price')->label('Giá Sale')->money('VND')->sortable(),
+                TextColumn::make('expired_at')->label('Thời gian hết hạn') ->sortable(),
+                TextColumn::make('product_combos_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
+                    return match ($state) {
+                        'active' => 'Hoạt động',
+                        'inactive' => 'Khóa',
+                        default => 'Không xác định'
+                    };
+                })->color(fn($state) => $state === 'active' ? 'success' : 'danger')->searchable(),
+            ])->filters([
+                SelectFilter::make('product_combos_status')
+                    ->label('Lọc theo trạng thái')
+                    ->options([
+                        'active' => 'Hoạt động',
+                        'inactive' => 'Khóa',
+                    ]),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -174,6 +227,19 @@ class ProductComboResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $selectedItems = collect($data['combo_items'] ?? [])
+            ->where('selected', true);
+
+        if ($selectedItems->count() < 2) {
+            throw ValidationException::withMessages([
+                'combo_items' => 'Bạn phải chọn ít nhất 2 sản phẩm cho combo.',
+            ]);
+        }
+
+        return $data;
     }
 
     public static function getRelations(): array

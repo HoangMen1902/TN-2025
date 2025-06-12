@@ -72,9 +72,15 @@ class ProductEbookResource extends Resource
     {
         return $table->columns([
             TextColumn::make('id'),
-            TextColumn::make('product.name')->label('Sản phẩm')->sortable()->searchable(),
-            TextColumn::make('price')->label('Giá')->money('VND'),
-            TextColumn::make('ebook_status')->label('Trạng thái'),
+            TextColumn::make('product.name')->label('Sản phẩm')->sortable()->limit(30)->searchable(),
+            TextColumn::make('price')->label('Giá')->money('VND')->sortable(),
+            TextColumn::make('ebook_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
+                return match ($state) {
+                    'active' => 'Hoạt động',
+                    'inactive' => 'Khóa',
+                    default => 'Không xác định'
+                };
+            })->color(fn($state) => $state === 'active' ? 'success' : 'danger')->searchable(),
             TextColumn::make('created_at')->label('Tạo lúc')->dateTime('d/m/Y H:i'),
         ])
             ->filters([])
