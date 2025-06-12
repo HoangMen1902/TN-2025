@@ -259,4 +259,8 @@ class PaymentModuleController extends Controller
     public function update(Request $request, $id) {}
 
     public function destroy($id) {}
+
+    public function thanks(){
+        return view('paymentmodule::components.thanks');
+    }
 }
