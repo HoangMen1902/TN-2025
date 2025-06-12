@@ -17,11 +17,11 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
-        <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs"></script>
     <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
-
+    @livewireStyles
 </head>
 {{ $styles ?? '' }}
 
@@ -53,21 +53,10 @@
                     </button>
                 </div>
 
+                <div class="hidden md:block w-full md:flex-1 md:max-w-xl md:min-w-[250px]">
+                    <livewire:search-box />
+                </div>
 
-                <form action="{{ route('store') }}" method="GET"
-                    class="hidden md:relative md:flex-1 md:flex md:mx-5 md:max-w-xl md:min-w-[250px]">
-                    <input type="text" name="search" placeholder="Sách giải hỗ trợ học tập"
-                        value="{{ request('search') }}"
-                        class="w-full py-2 px-3 border border-gray-300 rounded-lg pr-14">
-                    <button type="submit"
-                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-6 py-1 rounded hover:bg-blue-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </button>
-                </form>
 
 
 
@@ -103,9 +92,9 @@
                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                             @auth
-                                <span>{{ auth()->user()->name }}</span>
+                            <span>{{ auth()->user()->name }}</span>
                             @else
-                                <span>Tài khoản</span>
+                            <span>Tài khoản</span>
                             @endauth
                         </div>
 
@@ -114,23 +103,23 @@
                             class="absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow-md rounded-md w-40 text-sm z-50">
                             <ul class="text-gray-700 py-2">
                                 @auth
-                                    <li>
-                                        <a href="{{ route('infomation') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
-                                    </li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
-                                                xuất</button>
-                                        </form>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('infomation') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
+                                            xuất</button>
+                                    </form>
+                                </li>
                                 @else
-                                    <li>
-                                        <a href="{{ route('show.login') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('show.login') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
+                                </li>
                                 @endauth
                             </ul>
                         </div>
@@ -174,20 +163,9 @@
                             </div>
                         </div>
 
-
-                        <div class="relative flex-1 mx-2 max-w-full">
-                            <input type="text" placeholder="Sách giải hỗ trợ học tập"
-                                class="w-full py-1 px-2 border border-gray-300 rounded-lg pr-10">
-                            <button
-                                class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="size-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                </svg>
-                            </button>
+                        <div class="md:hidden">
+                            <livewire:search-box />
                         </div>
-
 
                         <div class="flex items-center gap-3">
 
@@ -218,7 +196,7 @@
         </div>
     </header>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const categoryDrawer = document.getElementById('drawer-top-example');
             const categoryToggleButton = document.getElementById('category-trigger-desktop');
             const btn = document.getElementById('category-trigger-desktop');
@@ -376,7 +354,6 @@
             }
 
         });
-
     </script>
     <div id="drawer-top-example" class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
             w-full max-w-[1200px] sm:w-[90%] md:w-[1000px] lg:w-[1200px]
@@ -391,41 +368,41 @@
             <div class="w-1/4 bg-gray-50 border-r border-gray-200 overflow-hidden">
                 <ul class="category-sidebar">
                     @foreach ($categories as $parent)
-                        <li class="category-item border-b border-gray-100 last:border-b-0">
-                            <a href="#"
-                                class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
-                                <span class="truncate">{{ $parent->name }}</span>
-                                @if ($parent->children->count())
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                @endif
-                            </a>
+                    <li class="category-item border-b border-gray-100 last:border-b-0">
+                        <a href="#"
+                            class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
+                            <span class="truncate">{{ $parent->name }}</span>
                             @if ($parent->children->count())
-                                <div
-                                    class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                            @endif
+                        </a>
+                        @if ($parent->children->count())
+                        <div
+                            class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
                                                                                                           opacity-0 invisible 
                                                                                                           transition-opacity duration-200 ease-in-out">
-                                    <div class="h-full overflow-hidden">
-                                        <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
-                                        </div>
-                                        <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
-                                            <div class="grid grid-cols-3 gap-y-4">
-                                                @foreach ($parent->children as $child)
-                                                    <a href="#"
-                                                        class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
-                                                        {{ $child->name }}
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        </div>
+                            <div class="h-full overflow-hidden">
+                                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                                    <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
+                                </div>
+                                <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
+                                    <div class="grid grid-cols-3 gap-y-4">
+                                        @foreach ($parent->children as $child)
+                                        <a href="#"
+                                            class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
+                                            {{ $child->name }}
+                                        </a>
+                                        @endforeach
                                     </div>
                                 </div>
-                            @endif
-                        </li>
+                            </div>
+                        </div>
+                        @endif
+                    </li>
                     @endforeach
                 </ul>
             </div>
@@ -585,44 +562,49 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if (session('success'))
-        <script>
-            $(() => {
-                if (typeof success === 'function') {
-                    success('Thành công', '{{ session('success') }}');
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof success === 'function') {
+                success('Thành công', '{{ session('
+                    success ') }}');
+            }
+        });
+    </script>
     @elseif (session('error'))
-        <script>
-            $(() => {
-                if (typeof danger === 'function') {
-                    danger('Thất bại', '{{ session('error') }}');
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof danger === 'function') {
+                danger('Thất bại', '{{ session('
+                    error ') }}');
+            }
+        });
+    </script>
     @endif
     <script>
-               Livewire.on('toast', ({ type, message }) => {
-                    console.log('Toast received:', type, message);
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-end',
-                        icon: type, // success, error, warning
-                        title: message,
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        background: '#333333',  // màu nền bạn muốn (ví dụ nền tối)
-                        color: '#fff',          // màu chữ trắng để nổi bật trên nền tối
-                    });
+        Livewire.on('toast', ({
+            type,
+            message
+        }) => {
+            console.log('Toast received:', type, message);
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: type, // success, error, warning
+                title: message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#333333', // màu nền bạn muốn (ví dụ nền tối)
+                color: '#fff', // màu chữ trắng để nổi bật trên nền tối
+            });
 
-                });
+        });
     </script>
-<div 
-    x-data="{ show: false, message: '', type: 'success' }"
-    x-show="show"
-    x-transition
-    x-init="
+    <div
+        x-data="{ show: false, message: '', type: 'success' }"
+        x-show="show"
+        x-transition
+        x-init="
         Livewire.on('toast', ({ type: t, message: m }) => {
             type = t;
             message = m;
@@ -630,16 +612,16 @@
             setTimeout(() => show = false, 3000);
         });
     "
-    class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded text-white text-sm shadow-lg"
-    :class="{
+        class="fixed bottom-4 right-4 z-50 px-4 py-2 rounded text-white text-sm shadow-lg"
+        :class="{
         'bg-green-500': type === 'success',
         'bg-red-500': type === 'danger',
         'bg-yellow-500': type === 'warning',
     }"
-    style="display: none;"
->
-    <span x-text="message"></span>
-</div>
+        style="display: none;">
+        <span x-text="message"></span>
+    </div>
+    @livewireScripts
 </body>
 
 </html>
