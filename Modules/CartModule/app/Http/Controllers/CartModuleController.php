@@ -5,7 +5,10 @@ namespace Modules\CartModule\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\ComboSku;
+use App\Models\ProductSku;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CartModuleController extends Controller
 {
@@ -30,6 +33,7 @@ class CartModuleController extends Controller
             return redirect()->back()->withErrors(['error' => 'Phải chọn SKU hoặc combo!']);
         }
 
+
         $sessionId = session()->getId();
         $userId = Auth::id();
 
@@ -41,12 +45,36 @@ class CartModuleController extends Controller
             ->where('item_type', $itemType)
             ->where($itemIdField, $itemId)
             ->first();
+        if ($request->sku_id) {
+            $sku = ProductSku::find($request->sku_id);
+        } elseif ($request->combo_id) {
+            $combo = ComboSku::find($request->combo_id);
+        }
+
 
         if ($cartItem) {
+            if ($sku) {
+                if ($sku->quantity < $request->quantity) {
+                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+                }
+            } elseif ($combo) {
+                if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
+                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
+                }
+            }
             $cartItem->quantity += $request->quantity;
             $cartItem->user_id = $userId;
             $cartItem->save();
         } else {
+            if ($sku) {
+                if ($sku->quantity < $request->quantity) {
+                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+                }
+            } elseif ($combo) {
+                if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
+                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
+                }
+            }
             Cart::create([
                 'session_id' => $sessionId,
                 'user_id' => $userId,
