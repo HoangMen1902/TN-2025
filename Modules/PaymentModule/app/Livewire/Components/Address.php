@@ -68,8 +68,9 @@ class Address extends Component
             $this->phone = $address->phone;
             $this->contact_email = $address->contact_email;
             $this->address = $address->address;
-            $this->dispatch('updated_selected_address');
         }
+            $this->dispatch('updated_selected_address');
+
         
     }
 

@@ -80,9 +80,9 @@ class Delivery extends Component
             }
         }
 
-        $this->packageLength = !empty($length) ? max($length) : 0;
-        $this->packageWidth = !empty($width) ? max($width) : 0;
-        $this->packageHeight = $packageHeight;
+        $this->packageLength = !empty($length) ? round(max($length)) : 0;
+        $this->packageWidth = !empty($width) ? round(max($width)) : 0;
+        $this->packageHeight = round($packageHeight);
         $this->size = [
             'height' => $this->packageHeight,
             'width' => $this->packageWidth,
