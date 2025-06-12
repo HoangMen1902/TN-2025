@@ -99,7 +99,7 @@
                                 <div class="p-3 md:p-4 border-b border-gray-200">
                                     <div class="flex items-start">
                                         <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                            <img src="{{ $detail->sku->images[0] ?? '/default.jpg' }}" alt="Sản phẩm"
+                                            <img src="{{ asset('storage/' . $detail->sku->images[0]) ?? '/default.jpg' }}" alt="Sản phẩm"
                                                 class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex-1 min-w-0">
