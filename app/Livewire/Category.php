@@ -18,12 +18,13 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 
 class Category extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
-
     protected int $maxDepth = 100;
 
     public function table(Table $table): Table
@@ -60,6 +61,27 @@ class Category extends Component implements HasForms, HasTable
                         return $this->createCategoryWithChildren($data);
                     }),
             ])
+            ->filters([
+                Filter::make('name')
+                    ->form([
+                        TextInput::make('name')->label('Tên danh mục'),
+                    ])
+                    ->query(function ($query, $data) {
+                        return $query->when(
+                            $data['name'],
+                            fn($q) => $q->where('name', 'like', '%' . $data['name'] . '%')
+                        );
+                    }),
+
+                SelectFilter::make('category_status')
+                    ->label('Trạng thái')
+                    ->options([
+                        'active' => 'Kích hoạt',
+                        'inactive' => 'Không kích hoạt',
+                    ])
+            ])
+
+
             ->actions([
                 EditAction::make()
                     ->label('Sửa')
@@ -79,8 +101,10 @@ class Category extends Component implements HasForms, HasTable
                     ->using(function ($record, array $data) {
                         $record->update([
                             'name' => $data['name'],
+                            'parent_id' => $data['parent_id'] ?? null,
                         ]);
                     }),
+
 
                 DeleteAction::make()
                     ->label('Xóa')
