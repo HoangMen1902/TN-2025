@@ -99,8 +99,8 @@
                                 <div class="p-3 md:p-4 border-b border-gray-200">
                                     <div class="flex items-start">
                                         <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                            <img src="{{ asset('storage/' . $detail->sku->images[0]) ?? '/default.jpg' }}" alt="Sản phẩm"
-                                                class="w-full h-full object-cover">
+                                            <img src="{{ asset('storage/' . $detail->sku->images[0]) ?? '/default.jpg' }}"
+                                                alt="Sản phẩm" class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
@@ -131,10 +131,10 @@
                                         'label' => 'Đang xử lý',
                                         'color' => 'text-yellow-500',
                                         'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <circle cx="12" cy="12" r="10" stroke-width="2" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </svg>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    '
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <circle cx="12" cy="12" r="10" stroke-width="2" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </svg>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '
                                     ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
@@ -266,7 +266,7 @@
                                         class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Mua lại
                                     </a>
-
+                                    @livewire('pdf-order', ['orderId' => $order->id])
                                 @elseif ($order->orders_status === 'Đã hủy' && $product)
                                     <a href="{{ url('/chi-tiet/' . $product->slug) }}"
                                         class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">

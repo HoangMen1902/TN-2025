@@ -27,4 +27,13 @@ class OrderDetail extends Model
     {
         return $this->belongsTo(ProductSku::class, 'sku_id');
     }
+
+    public function combo()
+    {
+        return $this->belongsTo(ProductCombo::class, 'product_combo_id'); 
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }
