@@ -18,6 +18,10 @@ class PaymentMethodSeeder extends Seeder
                 'method_name' => 'VietQR',
                 'method_status' => True
             ],
+             [
+                'method_name' => 'payos',
+                'method_status' => True
+            ],
             [
                 'method_name' => 'International',
                 'method_status' => True

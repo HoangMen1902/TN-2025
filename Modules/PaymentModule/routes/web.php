@@ -20,3 +20,4 @@ Route::post('/checkout', [PaymentModuleController::class, 'store'])->name('check
 
 Route::get('/vnpay/return', [PaymentModuleController::class, 'vnpayCallback'])->name('vnpay.callback');
 Route::get('/international-return/{checkout_id}/{payment_id}', [PaymentModuleController::class, 'internationalCallback'])->name('international');
+Route::post('/payment/webhook/payos', [PaymentModuleController::class, 'payosWebhook'])->name('payment.payosWebhook');

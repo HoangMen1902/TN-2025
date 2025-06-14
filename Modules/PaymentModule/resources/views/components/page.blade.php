@@ -51,6 +51,14 @@
                                 <div class="font-semibold text-sm">Thanh toán quốc tế - Visa/Mastercard</div>
                             </div>
                         </label>
+                             <label
+                            class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
+                            <input type="radio" name="payment_method" value="payos"
+                                class="form-radio text-black">
+                            <div class="ml-4">
+                                <div class="font-semibold text-sm">VietQR</div>
+                            </div>
+                        </label>
                         <label
                             class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
                             <input type="radio" name="payment_method" value="cod" class="form-radio text-black" checked>

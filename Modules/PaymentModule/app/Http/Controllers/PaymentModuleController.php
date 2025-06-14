@@ -17,6 +17,7 @@ use App\Models\CheckoutAddress;
 use App\Services\Stripe;
 use App\Services\StripeService;
 use Illuminate\Support\Facades\Crypt;
+use App\Services\PayOsService;
 
 class PaymentModuleController extends Controller
 {
@@ -133,7 +134,17 @@ class PaymentModuleController extends Controller
                 $order_id = $payment->order_id;
                 $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $order_id, isset($voucher) && !empty($voucher) ? $voucher : null);
                 return redirect($session->url);
+            } elseif ($paymentMethod === 'payos') {
+                $payosService = new PayOsService();
+                $payosResponse = $payosService->createPaymentLink(
+                    $order,
+                    route('thanks', ['payment_id' => $payment->id]), 
+                    route('payment.payosWebhook')
+                );
+                return redirect($payosResponse['checkoutUrl']);
             }
+
+
 
             return redirect()->route('thanks', ['payment_id' => $payment->id])->with('success', 'Đặt hàng thành công.');
         } catch (\Exception $e) {
@@ -247,20 +258,21 @@ class PaymentModuleController extends Controller
         return $messages[$responseCode] ?? 'Lỗi không xác định';
     }
 
-    public function internationalCallback($checkout_id, $payment_id) {
+    public function internationalCallback($checkout_id, $payment_id)
+    {
         $stripeService = new StripeService();
         $payment = PaymentDetail::find($payment_id);
-        
-        if(!$stripeService->checkCheckoutId($checkout_id)|| !$payment || $payment->order->user_id !== Auth::id()) {
-            return redirect()->route(route('home'))->with('error','Đường dẫn không hợp lệ');
+
+        if (!$stripeService->checkCheckoutId($checkout_id) || !$payment || $payment->order->user_id !== Auth::id()) {
+            return redirect()->route(route('home'))->with('error', 'Đường dẫn không hợp lệ');
         }
         $stripe_payment_id = $stripeService->getChargeId($checkout_id);
-        if(!$payment_id) {
+        if (!$payment_id) {
             return redirect(route('home'))->with('error', 'Có lỗi khi truy cập trang');
         }
         $payment->payment_id = $stripe_payment_id;
         $payment->save();
-        return redirect(route('thanks', ['payment_id' => $payment_id,]))->with('success','Đã đặt hàng thành công');
+        return redirect(route('thanks', ['payment_id' => $payment_id,]))->with('success', 'Đã đặt hàng thành công');
     }
     public function show($id)
     {
@@ -279,13 +291,48 @@ class PaymentModuleController extends Controller
     public function thanks($payment_id)
     {
         $payment = PaymentDetail::find($payment_id);
-        if(!$payment) {
+        if (!$payment) {
             return redirect(route('home'))->with('error', 'Không hợp lệ');
         }
-        if($payment->order->user_id !== Auth::id()) {
+        if ($payment->order->user_id !== Auth::id()) {
             return redirect(route('home'))->with('error', 'Không hợp lệ');
         }
 
         return view('paymentmodule::components.thanks', ['payment' => $payment]);
+    }
+    public function payosWebhook(Request $request)
+    {
+        $payload = $request->all();
+
+        $payosService = new PayOsService();
+
+        if (!$payosService->verifyWebhook($payload)) {
+            return response()->json(['message' => 'unauthorized'], 401);
+        }
+
+
+        $orderId = $payload['orderCode'];
+        $status = $payload['status']; // 1 = Thành công
+
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            Log::error("Không tìm thấy đơn hàng PayOS: $orderId");
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        if ($status == 1) {
+            $order->orders_status = 'Đã thanh toán';
+            $order->save();
+
+            PaymentDetail::where('order_id', $orderId)->update([
+                'payment_id' => $payload['transactionId'] ?? null,
+            ]);
+        } else {
+            $order->orders_status = 'Thanh toán thất bại';
+            $order->save();
+        }
+
+        return response()->json(['message' => 'OK']);
     }
 }
