@@ -8,7 +8,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->enum('orders_status', ['Đang xử lý', 'Chờ thanh toán', 'Đã thanh toán', 'Vận chuyển', 'Chờ hoàn tiền' , 'Đã hoàn tiền' , 'Đã giao', 'Đã hủy'])->default('Đang xử lý');
+            $table->enum('orders_status', ['Đang xử lý', 'Chờ thanh toán', 'Đã thanh toán','Chờ duyệt', 'Vận chuyển', 'Chờ hoàn tiền' , 'Đã hoàn tiền' , 'Đã giao', 'Đã hủy'])->default('Đang xử lý');
             $table->unsignedBigInteger('user_id');
             $table->text('address');
             $table->string('phone');
