@@ -44,4 +44,8 @@ class Order extends Model
             return $item->price * $item->quantity;
         });
     }
+    public function paymentDetail()
+    {
+        return $this->hasOne(\App\Models\PaymentDetail::class, 'order_id');
+    }
 }
