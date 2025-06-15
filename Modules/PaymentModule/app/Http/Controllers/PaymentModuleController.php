@@ -85,7 +85,7 @@ class PaymentModuleController extends Controller
             }
 
             $order = Order::create([
-                'orders_status' => $request->payment_method === "cod" ? 'Đang xử lý' : 'Chờ thanh toán',
+                'orders_status' => $request->payment_method === "cod" ? 'Chờ duyệt' : 'Chờ thanh toán',
                 'user_id' => $user->id,
                 'address' => $fullAddress ?? $request->full_address,
                 'phone' => $addressModel?->phone ?? $request->phone,
@@ -206,7 +206,7 @@ class PaymentModuleController extends Controller
                         ]);
                     }
 
-                    $order->orders_status = 'Đã thanh toán';
+                    $order->orders_status = 'Chờ duyệt';
                     $order->save();
 
                     // Log::info('Thanh toán VNPAY thành công cho đơn hàng:', ['order_id' => $orderId]);
@@ -322,7 +322,7 @@ class PaymentModuleController extends Controller
         }
 
         if ($status == 1) {
-            $order->orders_status = 'Đã thanh toán';
+            $order->orders_status = 'Chờ duyệt';
             $order->save();
 
             PaymentDetail::where('order_id', $orderId)->update([
