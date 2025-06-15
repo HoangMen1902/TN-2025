@@ -93,6 +93,7 @@
                                     <span class="font-medium">
                                         {{ $order->orderDetails->first()?->sku?->product?->categories?->first()?->name ?? 'Đơn hàng' }}</span>
                                 </div>
+
                             </div>
 
                             @foreach ($order->orderDetails as $detail)
@@ -113,7 +114,14 @@
                                             @endif
 
                                             <p class="text-gray-500 text-xs md:text-sm">x{{ $detail->quantity }}</p>
+                                            @if($order->paymentDetail && $order->paymentDetail->tracking_id)
+                                                <div class="text-sm text-gray-600">
+                                                    Mã đơn: <span
+                                                        class="font-medium">{{ $order->paymentDetail->tracking_id }}</span>
+                                                </div>
+                                            @endif
                                         </div>
+
                                         <div class="text-right ml-2 flex-shrink-0">
                                             <div class="flex flex-col justify-end items-end gap-1">
                                                 <span class="text-gray-500 text-xs">Combo Khuyến Mãi</span>
@@ -131,10 +139,10 @@
                                         'label' => 'Đang xử lý',
                                         'color' => 'text-yellow-500',
                                         'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <circle cx="12" cy="12" r="10" stroke-width="2" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </svg>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <circle cx="12" cy="12" r="10" stroke-width="2" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </svg>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '
                                     ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
@@ -187,6 +195,21 @@
                                             ₫{{ number_format($total_price, 0, ',', '.') }}
                                         </span>
                                     </div>
+                                    <!-- Thêm tracking_id, shipment_price, total_price ở đây -->
+
+                                    @if($order->shipment_price)
+                                        <div class="text-sm text-gray-600">
+                                            Phí vận chuyển: <span
+                                                class="font-medium text-blue-600">₫{{ number_format($order->shipment_price, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
+                                    @if($order->total_price)
+                                        <div class="text-sm text-gray-600">
+                                            Tổng tiền: <span
+                                                class="font-medium text-green-600">₫{{ number_format($order->total_price, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endif
+
                                 </div>
                             </div>
 
