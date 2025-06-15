@@ -27,9 +27,15 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('Mã đơn'),
+                TextColumn::make('id')
+                    ->label('Mã đơn')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('customer_name')->label('Khách hàng'),
-                TextColumn::make('phone')->label('Số điện thoại'),
+                TextColumn::make('phone')
+                    ->label('Số điện thoại')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('calculated_total_price')
                     ->label('Tổng tiền')
                     ->money('VND', locale: 'vi_VN')
@@ -87,43 +93,58 @@ class OrderResource extends Resource
 
                     Action::make('approve')
                         ->label('Duyệt đơn')
-                        ->icon('heroicon-o-check-circle')
-                        ->requiresConfirmation()
-                        ->visible(
-                            fn(Order $record) =>
-                            !$record->is_approved
-                        )
+                        ->icon('heroicon-o-check')
+                        ->visible(fn(Order $record) => !$record->is_approved) // Ẩn nếu đã duyệt
                         ->action(function (Order $record) {
-                            $record->update([
-                                'is_approved' => true,
-                                'orders_status' => 'Vận chuyển',
-                            ]);
-                            activity()
-                                ->causedBy(Auth::user())
-                                ->performedOn($record)
-                                ->log('Duyệt đơn hàng: ' . $record->id);
+                            $paymentMethod = $record->paymentDetail->payment_method ?? null;
+
+                            $record->is_approved = true;
+
+                            if ($paymentMethod === 'cod') {
+                                $record->orders_status = 'đang xử lý';
+                            } else {
+                                $record->orders_status = 'đã thanh toán';
+                            }
+
+                            $record->save();
                         })
                         ->color('success'),
-
                     Action::make('cancelOrder')
                         ->label('Hủy đơn')
-                        ->icon('heroicon-o-x-circle')
-                        ->requiresConfirmation()
-                        ->visible(
-                            fn(Order $record) =>
-                            $record->is_approved && in_array($record->orders_status, ['Vận chuyển', 'Đã thanh toán'])
-                        )
+                        ->icon('heroicon-o-x-mark')
+                        ->visible(function (Order $record) {
+                            $allowStatuses = [
+                                'Đang xử lý',
+                                'Chờ thanh toán',
+                                'Đã thanh toán',
+                                'Chờ duyệt',
+                                'Vận chuyển',
+                            ];
+                            return in_array(strtolower($record->orders_status), $allowStatuses);
+                        })
                         ->action(function (Order $record) {
-                            $record->update([
-                                'orders_status' => 'Đã hủy',
-                                'reason' => 'Lỗi hệ thống',
-                            ]);
+                            $record->orders_status = 'đã hủy';
+                            $record->save();
                             activity()
                                 ->causedBy(Auth::user())
                                 ->performedOn($record)
                                 ->log('Hủy đơn hàng: ' . $record->id);
                         })
                         ->color('danger'),
+                    Action::make('shipOrder')
+                        ->label('Đăng đơn')
+                        ->icon('heroicon-o-truck')
+                        ->visible(fn(Order $record) => strtolower($record->orders_status) !== 'vận chuyển')
+                        ->action(function (Order $record) {
+                            $record->orders_status = 'vận chuyển';
+                            $record->save();
+
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Đăng đơn hàng: ' . $record->id);
+                        })
+                        ->color('primary'),
                 ])
             ])
 
