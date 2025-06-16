@@ -15,11 +15,6 @@ class PayOsService
             apiKey: env('PAYOS_API_KEY'),
             checksumKey: env('PAYOS_CHECKSUM_KEY')
         );
-        logger('PAYOS ENV VALUES', [
-            'clientId' => env('PAYOS_CLIENT_ID'),
-            'apiKey' => env('PAYOS_API_KEY'),
-            'checksumKey' => env('PAYOS_CHECKSUM_KEY'),
-        ]);
     }
 
     public function createPaymentLink($order, $returnUrl, $webhookUrl)

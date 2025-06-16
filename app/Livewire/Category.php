@@ -20,6 +20,9 @@ use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Filters\TrashedFilter;
 
 class Category extends Component implements HasForms, HasTable
 {
@@ -30,7 +33,8 @@ class Category extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(CategoryModel::with('parent'))
+            ->query(CategoryModel::with('parent')->withTrashed())
+
             ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('parent.name')
@@ -70,37 +74,71 @@ class Category extends Component implements HasForms, HasTable
                         );
                     }),
 
+
                 SelectFilter::make('category_status')
                     ->label('Trạng thái')
                     ->options([
                         'active' => 'Kích hoạt',
                         'inactive' => 'Không kích hoạt',
+                    ]),
+                SelectFilter::make('trashed')
+                    ->label('Trạng thái xóa')
+                    ->options([
+                        'all' => 'Tất cả',
+                        'only' => 'Chỉ mục đã xóa',
+                        'without' => 'Chỉ mục chưa xóa',
                     ])
+                    ->default('without')
+                    ->query(function ($query, array $data) {
+                        return match ($data['value']) {
+                            'only' => $query->onlyTrashed(),
+                            'without' => $query->withoutTrashed(),
+                            'all' => $query->withTrashed(),
+                            default => $query,
+                        };
+                    }),
+
             ])
 
 
             ->actions([
                 EditAction::make()
                     ->label('Sửa')
-                    ->form([
-                        TextInput::make('name')->label('Tên danh mục')->required(),
-                        Select::make('parent_id')
-                            ->label('Danh mục cha')
-                            ->options(CategoryModel::pluck('name', 'id'))
-                            ->searchable()
-                            ->preload()
-                            ->nullable()
-                            ->default(null),
-                    ])->modalHeading('Chỉnh sửa danh mục')
+                    ->form(function ($record) {
+                        return [
+                            TextInput::make('name')
+                                ->label('Tên danh mục')
+                                ->required()
+                                ->rules([
+                                    'required',
+                                    'max:255',
+                                    'unique:categories,name,' . $record->id,
+                                ])
+                                ->validationMessages([
+                                    'required' => 'Vui lòng nhập tên danh mục.',
+                                    'unique' => 'Tên danh mục đã tồn tại.',
+                                    'max' => 'Tên danh mục không được vượt quá :max ký tự.',
+                                ]),
+
+                            Select::make('parent_id')
+                                ->label('Danh mục cha')
+                                ->options(CategoryModel::pluck('name', 'id'))
+                                ->searchable()
+                                ->preload()
+                                ->nullable()
+                                ->default(null),
+                        ];
+                    })
+                    ->modalHeading('Chỉnh sửa danh mục')
                     ->modalSubmitActionLabel('Xác nhận')
                     ->modalCancelActionLabel('Hủy')
-
                     ->using(function ($record, array $data) {
                         $record->update([
                             'name' => $data['name'],
                             'parent_id' => $data['parent_id'] ?? null,
                         ]);
                     }),
+
 
 
                 DeleteAction::make()
@@ -110,6 +148,36 @@ class Category extends Component implements HasForms, HasTable
                     ->modalSubheading('Bạn có chắc chắn muốn xóa danh mục này?')
                     ->modalSubmitActionLabel('Xác nhận')
                     ->modalCancelActionLabel('Hủy'),
+
+
+                Action::make('addChild')
+                    ->label('Thêm mục con')
+                    ->icon('heroicon-o-plus')
+                    ->form([
+                        TextInput::make('name')
+                            ->label('Tên danh mục')
+                            ->placeholder('Nhập tên danh mục con')
+                            ->rules(['required', 'unique:categories,name'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng điền tên danh mục.',
+                                'unique' => 'Tên danh mục đã tồn tại.',
+                            ]),
+
+                        Toggle::make('status')
+                            ->label('Kích hoạt')
+                            ->default(true),
+                    ])
+                    ->action(function (CategoryModel $record, array $data) {
+                        $record->children()->create([
+                            'name' => $data['name'],
+                            'category_status' => $data['status'] ? 'active' : 'inactive',
+                        ]);
+                    })
+                    ->modalHeading('Thêm danh mục con')
+                    ->modalSubmitActionLabel('Thêm')
+                    ->modalCancelActionLabel('Hủy')
+
+
             ]);
     }
 
@@ -119,7 +187,11 @@ class Category extends Component implements HasForms, HasTable
         $schema = [
             TextInput::make('name')
                 ->label(str_repeat('—', $level) . ' Tên danh mục')
-                ->required(),
+                ->rules(['required', 'unique:categories,name'])
+                ->validationMessages([
+                    'required' => 'Vui lòng điền tên danh mục.',
+                    'unique' => 'Tên danh mục đã tồn tại.',
+                ]),
         ];
 
         if ($level < $this->maxDepth) {
