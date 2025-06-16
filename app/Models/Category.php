@@ -19,6 +19,17 @@ class Category extends Model
         'parent_id',
     ];
 
+        protected $appends = ['category_status_bool'];
+
+    public function getCategoryStatusBoolAttribute(): bool
+    {
+        return $this->category_status === 'active';
+    }
+
+    public function setCategoryStatusBoolAttribute($value): void
+    {
+        $this->category_status = $value ? 'active' : 'inactive';
+    }
  
     public function parent()
     {

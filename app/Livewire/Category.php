@@ -38,14 +38,11 @@ class Category extends Component implements HasForms, HasTable
                     ->sortable()
                     ->formatStateUsing(fn($state, $record) => $record->parent?->name ?? '—'),
                 TextColumn::make('name')->label('Tên danh mục'),
-                ToggleColumn::make('category_status')
+                ToggleColumn::make('category_status_bool')
                     ->label('Trạng thái')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->onIcon('heroicon-s-check-circle')
-                    ->offIcon('heroicon-s-x-circle')
-                    ->updateStateUsing(function ($record, $state) {
-                        $record->update(['category_status' => $state ? 'active' : 'inactive']);
+                    ->afterStateUpdated(function ($record, $state) {
+                        $record->category_status_bool = $state;
+                        $record->save();
                     })
                     ->tooltip(fn($record) => $record->category_status === 'active' ? 'Nhấn để hủy kích hoạt' : 'Nhấn để kích hoạt') // Optional: tooltip
                     ->sortable(),

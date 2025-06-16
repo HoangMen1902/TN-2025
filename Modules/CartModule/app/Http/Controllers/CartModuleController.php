@@ -62,11 +62,11 @@ class CartModuleController extends Controller
 
 
         if ($cartItem) {
-            if ($sku) {
+            if (isset($sku)) {
                 if ($sku->quantity < $request->quantity) {
                     return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
                 }
-            } elseif ($combo) {
+            } elseif (isset($combo)) {
                 if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
                     return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
                 }
@@ -75,11 +75,11 @@ class CartModuleController extends Controller
             $cartItem->user_id = $userId;
             $cartItem->save();
         } else {
-            if ($sku) {
+            if (isset($sku)) {
                 if ($sku->quantity < $request->quantity) {
                     return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
                 }
-            } elseif ($combo) {
+            } elseif (isset($combo)) {
                 if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
                     return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
                 }

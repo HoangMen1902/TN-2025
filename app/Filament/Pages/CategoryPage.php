@@ -7,6 +7,7 @@ use Filament\Pages\Page;
 
 class CategoryPage extends Page
 {
+    protected static ?string $title = "Danh mục";
     protected static ?string $model = Category::class;
 
     protected static ?string $modelLabel = 'Danh mục';
