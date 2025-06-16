@@ -46,7 +46,7 @@
                                                         {{ number_format($product->productSkus->first()->sale_price, 0, '', '.') }} đ
                                                     </span>
         
-                                                    <div class="bg-red-500 text-white text-xs font-semibold  px-1 py-0.5 rounded ml-2 mt-3">{{ '-' . round($percent, 2) . '%' }}</div>
+                                                    <div class="bg-red-500 text-white text-xs font-semibold  px-1 py-0.5 rounded ml-2 mt-3 {{ $percent <= 0 ? 'hidden' : '' }}">{{ '-' . round($percent, 2) . '%' }}</div>
                                                 </div>
                                                 <span class="text-gray-400 line-through">
                                                     {{ number_format($product->productSkus->first()->price, 0, '', '.') }} đ
