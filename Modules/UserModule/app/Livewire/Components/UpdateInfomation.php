@@ -14,7 +14,7 @@ class UpdateInfomation extends Component
 {
     use WithFileUploads;
 
-    public $name, $email, $phone, $birthday, $avatar, $gender, $username;
+    public $name, $email, $phone, $birthday, $avatar, $gender;
     public $newAvatar;
     public $newEmail, $otp;
     public $otpSent = false;
@@ -24,7 +24,6 @@ class UpdateInfomation extends Component
     public function mount()
     {
         $user = Auth::user();
-        $this->username = $user->username;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->newEmail = $user->email;
@@ -41,7 +40,6 @@ class UpdateInfomation extends Component
     {
         $rules = [
             'name' => 'required|string|min:2|max:100',
-            'username' => 'required|string|min:2|max:100',
             'newEmail' => 'required|email',
             'phone' => 'required|regex:/^[0-9]{10,11}$/',
             'birthday' => 'nullable|date',
@@ -54,10 +52,6 @@ class UpdateInfomation extends Component
             'name.min' => 'Tên phải có ít nhất 2 ký tự.',
             'name.max' => 'Tên không được vượt quá 100 ký tự.',
 
-            'username.required' => 'Tên đăng nhập không được để trống.',
-            'username.string' => 'Tên đăng nhập phải là chuỗi ký tự.',
-            'username.min' => 'Tên đăng nhập phải có ít nhất 2 ký tự.',
-            'username.max' => 'Tên đăng nhập không được vượt quá 100 ký tự.',
 
             'newEmail.required' => 'Email mới không được để trống.',
             'newEmail.email' => 'Email mới phải đúng định dạng email.',
@@ -179,7 +173,6 @@ class UpdateInfomation extends Component
         }
 
         $user->name = $this->name;
-        $user->username = $this->username;
         $user->phone = $this->phone;
         $user->birthday = $this->birthday;
         $user->gender = $this->gender;

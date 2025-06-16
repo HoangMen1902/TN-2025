@@ -27,14 +27,6 @@
             <!-- Form chỉnh sửa thông tin -->
             <div class="w-full md:w-2/3">
                 <form wire:submit.prevent="save">
-                    <!-- Username -->
-                    <div class="mb-3 md:mb-4 flex flex-col md:flex md:flex-row md:items-center">
-                        <label class="w-full md:w-1/3 text-gray-600 text-sm md:text-right pr-0 md:pr-4 mb-1 md:mb-0">Tên đăng nhập</label>
-                        <div class="w-full md:w-2/3">
-                            <input type="text" wire:model.defer="username" class="w-full border border-gray-300 rounded px-3 py-1.5 md:py-2 text-sm md:text-base">
-                            @error('username') <p class="text-red-500 text-xs md:ml-1 mt-1">{{ $message }}</p> @enderror
-                        </div>
-                    </div>
 
                     <!-- Tên -->
                     <div class="mb-3 md:mb-4 flex flex-col md:flex md:flex-row md:items-center">
