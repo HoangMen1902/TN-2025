@@ -14,8 +14,20 @@ class Publisher extends Model
 
     protected $fillable = [
         'publisher_name',
-        'publishers_status',
+        'publisher_status',
     ];
+
+    protected $appends = ['publisher_status_bool'];
+
+    public function getPublisherStatusBoolAttribute(): bool
+    {
+        return $this->publisher_status === 'active';
+    }
+
+    public function setPublisherStatusBoolAttribute($value): void
+    {
+        $this->publisher_status = $value ? 'active' : 'inactive';
+    }
 
 
     public function products()

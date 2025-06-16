@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\ToggleColumn;
 
 class PublisherResource extends Resource
 {
@@ -63,20 +64,11 @@ class PublisherResource extends Resource
                 TextColumn::make('publisher_name')
                     ->label('Tên nhà xuất bản')
                     ->searchable(),
-                TextColumn::make('publisher_status')
+                ToggleColumn::make('publisher_status_bool')
                     ->label('Trạng thái')
-                    ->badge()
-                    ->formatStateUsing(function ($state, $record) {
-                        if ($record->deleted_at) {
-                            return 'Khóa';
-                        }
-                        return $state ? 'Hoạt động' : 'Khóa';
-                    })
-                    ->color(function ($state, $record) {
-                        if ($record->deleted_at) {
-                            return 'danger';
-                        }
-                        return $state ? 'success' : 'danger';
+                    ->afterStateUpdated(function ($record, $state) {
+                        $record->publisher_status_bool = $state;
+                        $record->save();
                     }),
                 TextColumn::make('products_count')
                     ->label('Số sản phẩm')
