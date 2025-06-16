@@ -17,7 +17,17 @@ class RelatedTag extends Model
         'related_tag_status',
     ];
 
-  
+    protected $appends = ['related_tag_status_bool'];
+
+    public function getRelatedTagStatusBoolAttribute(): bool
+    {
+        return $this->related_tag_status === 'active';
+    }
+
+    public function setRelatedTagStatusBoolAttribute($value): void
+    {
+        $this->related_tag_status = $value ? 'active' : 'inactive';
+    }
     public function productTags()
     {
         return $this->hasMany(ProductTag::class, 'tag_id');

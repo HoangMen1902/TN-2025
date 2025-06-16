@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
-            $table->enum('method_name', ['VietQR', 'International', 'COD']);
+            $table->enum('method_name', ['VietQR','payos', 'International', 'COD']);
             $table->enum('method_status', ['active', 'inactive']);
             $table->timestamps();
         });

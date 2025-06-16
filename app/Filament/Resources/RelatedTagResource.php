@@ -8,6 +8,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -63,20 +64,11 @@ class RelatedTagResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('related_tag_status')
+                ToggleColumn::make('related_tag_status_bool')
                     ->label('Trạng thái')
-                    ->badge()
-                    ->formatStateUsing(function ($state, $record) {
-                        if ($record->deleted_at) {
-                            return 'Khóa';
-                        }
-                        return $state ? 'Hoạt động' : 'Khóa';
-                    })
-                    ->color(function ($state, $record) {
-                        if ($record->deleted_at) {
-                            return 'danger';
-                        }
-                        return $state ? 'success' : 'danger';
+                    ->afterStateUpdated(function ($record, $state) {
+                        $record->related_tag_status_bool = $state;
+                        $record->save();
                     }),
                 TextColumn::make('created_at')
                     ->label('Ngày tạo')
