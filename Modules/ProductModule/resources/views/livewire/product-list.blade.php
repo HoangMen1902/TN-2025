@@ -160,7 +160,7 @@
                                     wire:model.lazy="maxPrice">
                             </div>
 
-                           
+
                             <div class="flex flex-col gap-2">
                                 <input type="range" min="0" max="10000000" step="10000" wire:model.lazy="minPrice"
                                     class="w-full accent-blue-600">
@@ -305,62 +305,51 @@
 
                     @foreach ($products as $product)
                         <div
-                            class="w-full overflow-hidden relative flex items-center justify-center h-[390px] rounded-[10px] aspect-[16/9] mt-4 border border-gray-300 group transition-all duration-500 ease-in-out transform hover:scale-[1.02] hover:shadow-lg">
-
-
-                            <div
-                                class="absolute bottom-12 right-4 z-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-in-out">
-                                <form action="/add-to-cart" method="post">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $product->id }}">
-                                    <button
-                                        class="bb-primary text-white px-4 py-2 rounded-3xl shadow-md border border-transparent transition duration-300 ease-in-out hover:bg-transparent hover:text-blue-600 hover:border-blue-600 hover:shadow-lg hover:scale-105 hover:bg-white">
-                                        Mua ngay
-                                    </button>
-                                </form>
-                            </div>
- 
-                            <div style="cursor:pointer" onclick="window.location.href='/chi-tiet/{{ $product->id }}';"
-                                class="product__slide__image border-b border-gray-300 overflow-hidden">
+                            class="product-card w-70 bg-white rounded-[10px] shadow-md overflow-hidden m-2 flex flex-col hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
+                            <div class="w-full h-[220px] bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
+                                onclick="window.location.href='/chi-tiet/{{ $product->id }}';">
                                 <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
-                                    class="embla__slide__background block w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105">
+                                    class="object-contain max-h-full max-w-full transition-transform duration-500 ease-in-out hover:scale-105">
                             </div>
-
-
-                            <div class="product__slide__number flex flex-wrap content-around p-2">
-                                <div>
-                                    <p class="text-base line-clamp-2">{{ $product->name }}</p>
+                            <div class="p-3 flex-1 flex flex-col justify-between">
+                                <div class="font-medium text-[15px] min-h-[40px] mb-2 leading-tight line-clamp-2">
+                                    {{ $product->name }}
                                 </div>
+                                <div class="flex items-center mb-2">
+                                    <span class="text-red-600 font-semibold text-[18px]">
+                                        {{ number_format($product->productSkus->first()->sale_price ?? $product->productSkus->first()->price ?? 0) }}
+                                        đ
+                                    </span>
+                                    @php
+                                        $price = $product->productSkus->first()->price ?? 0;
+                                        $sale = $product->productSkus->first()->sale_price ?? $price;
+                                        $discount = $price > $sale && $price > 0 ? round((($price - $sale) / $price) * 100) : 0;
+                                    @endphp
+                                    @if ($discount > 0)
+                                        <span class="bg-red-600 text-white text-[13px] font-medium rounded px-2 py-0.5 ml-2">
+                                            -{{ $discount }}%
+                                        </span>
+                                    @endif
 
-                                <div class="flex items-center space-x-1 w-[100%]">
+                                    @if (!is_null($product->productSkus->first()->sale_price))
+
+                                        <span class="text-gray-400 text-[14px] line-through ml-2">
+                                            {{ number_format($product->productSkus->first()->price) }} đ
+                                        </span>
+
+                                    @endif
+                                </div>
+                               
+                                <div class="flex items-center gap-1 mb-2">
                                     @for ($j = 1; $j <= 5; $j++)
-                                        <svg class="w-4 h-4 {{ $j <= ($product->rating ?? 4) ? 'text-yellow-300' : 'text-gray-200' }}"
+                                        <svg class="w-4 h-4 {{ $j <= ($product->rating ?? 4) ? 'text-yellow-400' : 'text-gray-200' }}"
                                             xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
                                             <path
                                                 d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
                                         </svg>
                                     @endfor
-                                    <span class="text-xs">{{ $product->reviews_count ?? 20 }}</span>
+                                    <span class="text-xs text-gray-500 ml-1">({{ $product->reviews_count ?? 20 }})</span>
                                 </div>
-                                <div>
-
-                                </div>
-                                @foreach ($product->categories as  $category)
-                                {{ $category->name ?? 'Không xác định' }}
-                                @endforeach
-
-
-                                <div class="product__slide__number__imgs">
-                                    <p class="product__slide__number__imgs__price">
-                                        {{ number_format($product->productSkus->first()->sale_price ?? $product->productSkus->first()->price ?? 0) }}đ
-                                    </p>
-                                    @if (!is_null($product->productSkus->first()->sale_price))
-                                        <span class="product__slide__number__imgs__price-sale ml-1 opacity-50 line-through">
-                                            {{ number_format($product->productSkus->first()->price) }}đ
-                                        </span>
-                                    @endif
-                                </div>
-
                             </div>
                         </div>
                     @endforeach
@@ -385,7 +374,7 @@
 
                         <li>
                             <a wire:click.prevent="previousPage" href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700
-                           {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
+                                       {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
                                 Trở về
                             </a>
                         </li>
@@ -394,7 +383,7 @@
                                     <li>
                                         <a wire:click.prevent="gotoPage({{ $page }})" href="#"
                                             class="flex items-center justify-center px-4 h-10 leading-tight
-                                           {{ $products->currentPage() === $page
+                                                                                           {{ $products->currentPage() === $page
                             ? 'text-white border border-gray-300 bg-blue-700 hover:bg-blue-100'
                             : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700' }}">
                                             {{ $page }}
@@ -404,7 +393,7 @@
 
                         <li>
                             <a wire:click.prevent="nextPage" href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700
-                           {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
+                                       {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
                                 Tiếp
                             </a>
                         </li>
