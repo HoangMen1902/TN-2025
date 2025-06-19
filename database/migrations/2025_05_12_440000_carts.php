@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('combo_id')->nullable();
             $table->unsignedBigInteger('quantity');
             $table->enum('item_type', ['combo', 'sku']);
-            $table->foreign('session_id')->references('id')->on('sessions')->onDelete('set null');
+            // $table->foreign('session_id')->references('id')->on('sessions')->onDelete('set null');
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('sku_id')->references('id')->on('product_skus')->onDelete('set null');
