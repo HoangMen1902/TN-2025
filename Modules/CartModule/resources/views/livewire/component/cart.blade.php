@@ -109,7 +109,7 @@
                                     {{ $item->combo->combo_name ?? 'Tên sản phẩm' }} - Combo
                                 </h2>
                                 <p class="text-red-600 font-bold">
-                                    {{ number_format($item->combo->price ?? 0, 0, ',', '.') }}đ
+                                    {{ number_format($item->combo->sale_price ?? 0, 0, ',', '.') }}đ
                                 </p>
                                 <div class="list-none p-0 text-sm ">
                                     <div class="my-1 line-clamp-2">

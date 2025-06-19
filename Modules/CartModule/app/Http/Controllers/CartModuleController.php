@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Cart;
 use App\Models\ComboSku;
+use App\Models\ProductCombo;
 use App\Models\ProductSku;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +34,6 @@ class CartModuleController extends Controller
             return redirect()->back()->withErrors(['error' => 'Phải chọn SKU hoặc combo!']);
         }
 
-
         $sessionId = session()->getId();
         $userId = Auth::id();
 
@@ -54,36 +54,33 @@ class CartModuleController extends Controller
                 ->first();
         }
 
+        $query = [];
+
         if ($request->sku_id) {
             $sku = ProductSku::find($request->sku_id);
+            $query = ['type' => 'sku', 'data' => $sku];
         } elseif ($request->combo_id) {
-            $combo = ComboSku::find($request->combo_id);
+            $combo = ProductCombo::find($request->combo_id);
+            $query = ['type' => 'combo', 'data' => $combo];
+        }
+
+        if ($query['data']->quantity < $request->quantity) {
+            dd($query['data']);
+            return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+        }
+
+        if ($query['type'] === 'combo') {
+            if ($query['data']->expired_at < now()) {
+                return back()->with('error', 'Combo đã hết hạn');
+            }
         }
 
 
         if ($cartItem) {
-            if (isset($sku)) {
-                if ($sku->quantity < $request->quantity) {
-                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
-                }
-            } elseif (isset($combo)) {
-                if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
-                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
-                }
-            }
             $cartItem->quantity += $request->quantity;
             $cartItem->user_id = $userId;
             $cartItem->save();
         } else {
-            if (isset($sku)) {
-                if ($sku->quantity < $request->quantity) {
-                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
-                }
-            } elseif (isset($combo)) {
-                if ($combo->quantity < $request->quantity || $cartItem->combo->expiredAt < now()) {
-                    return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ hoặc combo đã hết hạn');
-                }
-            }
             Cart::create([
                 'session_id' => $sessionId,
                 'user_id' => $userId,

@@ -386,8 +386,8 @@
                             @if ($parent->children->count())
                                 <div
                                     class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                                                                                                          opacity-0 invisible 
-                                                                                                                                          transition-opacity duration-200 ease-in-out">
+                                                                                                                  opacity-0 invisible 
+                                                                                                                  transition-opacity duration-200 ease-in-out">
                                     <div class="h-full overflow-hidden">
                                         <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
@@ -568,8 +568,7 @@
         <script>
             $(() => {
                 if (typeof success === 'function') {
-                    success('Thành công', '{{ session('
-                                    success ') }}');
+                    success('Thành công', @json(session('error')));
                 }
             });
         </script>
@@ -577,8 +576,7 @@
         <script>
             $(() => {
                 if (typeof danger === 'function') {
-                    danger('Thất bại', '{{ session('
-                                    error ') }}');
+                    danger('Thất bại', @json(session('error')));
                 }
             });
         </script>
