@@ -96,11 +96,21 @@ class PaymentModuleController extends Controller
             ]);
 
             foreach ($cartItems as $item) {
+                $price = 0;
+                $comboId = null;
+                if($item->item_type === "sku") {
+                    $price = $item->sku->sale_price ?? $item->sku->price;
+                } elseif($item->item_type === 'combo') {
+                    $price = $item->combo->sale_price;
+                    $comboId = $item->combo_id;
+                }
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'sku_id' => $item->sku_id,
-                    'price' => $item->sku->sale_price ?? $item->sku->price,
+                    'price' => $price,
                     'quantity' => $item->quantity,
+                    'item_type' => $item->item_type,
+                    'combo_id' => $comboId
                 ]);
             }
 
