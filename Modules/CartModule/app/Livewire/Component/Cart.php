@@ -23,17 +23,12 @@ class Cart extends Component
             return;
         }
         foreach ($this->selected_cart as $cart) {
-            $check = $this->checkUserCart($cart);
-            if (!$check) {
-                return false;
-            } else {
-                $cartData = CartModel::find($cart);
-                $itemType = $cartData->item_type;
-                if ($itemType === "sku") {
-                    $this->total_price += $cartData->sku->sale_price * $cartData->quantity;
-                } elseif ($itemType === "combo") {
-                    $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
-                }
+            $cartData = CartModel::find($cart);
+            $itemType = $cartData->item_type;
+            if ($itemType === "sku") {
+                $this->total_price += $cartData->sku->sale_price ?? $cartData->sku->price * $cartData->quantity;
+            } elseif ($itemType === "combo") {
+                $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
             }
         }
     }

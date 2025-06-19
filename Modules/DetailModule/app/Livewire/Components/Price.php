@@ -2,6 +2,7 @@
 
 namespace Modules\DetailModule\Livewire\Components;
 
+use App\Models\ProductCombo;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -12,11 +13,29 @@ class Price extends Component
     public $sale_price;
     public $sale_percent;
     public $hasFlashSale = false;
+    public $type;
 
     public function mount()
     {
-        $this->loadPriceFromSku($this->data->productSkus->first()->id);
+        if ($this->type === "product") {
+            $this->loadPriceFromSku($this->data->productSkus->first()->id);
+        } elseif ($this->type === "combo") {
+            $this->loadPriceFromCombo($this->data->id);
+        }
     }
+
+    public function loadPriceFromCombo($comboId)
+    {
+        $combo = ProductCombo::find($comboId);
+
+        if ($combo) {
+            $this->sale_price = $combo->sale_price;
+            $this->price = $combo->original_price;
+        } else {
+            return;
+        }
+    }
+
 
     #[On('updatedSku')]
     public function updateSku($skuId)

@@ -1,7 +1,7 @@
 <div class="general-information-wrapper p-4 lg:block hidden lg:block sm:w-full">
     <div class="flex items-center gap-2">
         <h2 class="text-2xl font-semibold product-name">{{ $type === 'product' ? $data->name : $data->combo_name }}</h2>
-        <livewire:detailmodule::components.wish-list :data="$data" />
+        <livewire:detailmodule::components.wish-list :data="$data"/>
     </div>
 
     <div class="public-information grid grid-cols-2 gap-y-2 gap-x-4">
@@ -75,7 +75,7 @@
 
     </div>
 <livewire:detailmodule::components.flashsale :sku-id="$data->productSkus->first()->id" />
-<livewire:detailmodule::components.price :data="$data" />
+<livewire:detailmodule::components.price :data="$data" :type="$type"/>
 
 
 
