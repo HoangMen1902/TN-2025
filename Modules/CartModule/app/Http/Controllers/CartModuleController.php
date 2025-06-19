@@ -18,6 +18,8 @@ class CartModuleController extends Controller
         return view('cartmodule::index');
     }
 
+
+
     public function addToCart(Request $request)
     {
         $request->validate([
@@ -27,11 +29,11 @@ class CartModuleController extends Controller
         ]);
 
         if ($request->sku_id && $request->combo_id) {
-            return redirect()->back()->withErrors(['error' => 'Chỉ được chọn SKU hoặc combo, không cả hai!']);
+            return redirect()->back()->with(['error' => 'Chỉ được chọn SKU hoặc combo, không cả hai!']);
         }
 
         if (!$request->sku_id && !$request->combo_id) {
-            return redirect()->back()->withErrors(['error' => 'Phải chọn SKU hoặc combo!']);
+            return redirect()->back()->with(['error' => 'Phải chọn SKU hoặc combo!']);
         }
 
         $sessionId = session()->getId();
@@ -75,13 +77,15 @@ class CartModuleController extends Controller
             }
         }
 
+        $result = null;
 
         if ($cartItem) {
             $cartItem->quantity += $request->quantity;
             $cartItem->user_id = $userId;
             $cartItem->save();
+            $result = $cartItem;
         } else {
-            Cart::create([
+            $result = Cart::create([
                 'session_id' => $sessionId,
                 'user_id' => $userId,
                 'sku_id' => $request->sku_id,
@@ -89,6 +93,10 @@ class CartModuleController extends Controller
                 'quantity' => $request->quantity,
                 'item_type' => $itemType,
             ]);
+        }
+
+        if($request->checkout) {
+            return redirect()->route('cart.index');
         }
 
         if ($request->wantsJson()) {

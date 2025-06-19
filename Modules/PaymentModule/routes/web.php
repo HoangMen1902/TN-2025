@@ -12,7 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::get('/thanh-toan', [PaymentModuleController::class, 'index']);
 Route::middleware(['web', CartCheckoutMiddleware::class])->group(function () {
-    Route::post('/thanh-toan', [PaymentModuleController::class, 'paymentPage']);
+    Route::post('/thanh-toan', [PaymentModuleController::class, 'paymentPage'])->name('payment');
 });
 Route::get('/cam-on-quy-khach/{payment_id}', [PaymentModuleController::class, 'thanks'])->name('thanks');
  

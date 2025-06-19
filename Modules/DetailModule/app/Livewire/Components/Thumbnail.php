@@ -15,6 +15,7 @@ class Thumbnail extends Component
     public $data;
 
     public $type;
+
     public function mount() {
         if($this->type === "product") {
             $this->currentSku = $this->data->productSkus->first();
@@ -24,6 +25,7 @@ class Thumbnail extends Component
         }
 
     }
+
 
     #[On('updatedSku')]
     public function updateSku($skuId) {

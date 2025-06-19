@@ -138,7 +138,7 @@ class PaymentModuleController extends Controller
                 $payosService = new PayOsService();
                 $payosResponse = $payosService->createPaymentLink(
                     $order,
-                    route('thanks', ['payment_id' => $payment->id]), 
+                    route('thanks', ['payment_id' => $payment->id]),
                     route('payment.payosWebhook')
                 );
                 return redirect($payosResponse['checkoutUrl']);
