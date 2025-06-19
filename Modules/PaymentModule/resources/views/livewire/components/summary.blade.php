@@ -9,7 +9,13 @@
 
         @foreach ($carts as $cart)
             @php
-                $price = $cart->sku->sale_price ?? $cart->combo->sale_price ?? 0;
+                $type = $cart->item_type;
+                $price = 0;
+                if($type === 'combo') {
+                    $price =$cart->combo->sale_price;
+                } elseif($type === 'sku') {
+                    $price = $cart->sku->sale_price ?? $cart->sku->price;
+                }
                 $totalPrice += $cart->quantity * $price;
                 $image = $cart->sku->images[0] ?? $cart->combo->images[0];
             @endphp

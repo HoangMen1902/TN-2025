@@ -99,7 +99,7 @@ class PaymentModuleController extends Controller
                 OrderDetail::create([
                     'order_id' => $order->id,
                     'sku_id' => $item->sku_id,
-                    'price' => $item->sku->sale_price,
+                    'price' => $item->sku->sale_price ?? $item->sku->price,
                     'quantity' => $item->quantity,
                 ]);
             }

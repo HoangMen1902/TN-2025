@@ -40,7 +40,7 @@ class Summary extends Component
             if ($cart->item_type === 'combo') {
                 $this->originalPrice += $cart->combo->sale_price * $cart->quantity;
             } elseif ($cart->item_type === 'sku') {
-                $this->originalPrice += $cart->quantity * $cart->sku->sale_price;
+                $this->originalPrice += $cart->quantity * ($cart->sku->sale_price ?? $cart->sku->price);
             }
         }
         $this->finalPrice = $this->originalPrice;
