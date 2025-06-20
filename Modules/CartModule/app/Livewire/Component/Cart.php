@@ -19,7 +19,7 @@ class Cart extends Component
     public function updatePrice()
     {
         $this->total_price = 0;
-        if(empty($this->selected_cart)) {
+        if (empty($this->selected_cart)) {
             return;
         }
         foreach ($this->selected_cart as $cart) {
@@ -38,12 +38,23 @@ class Cart extends Component
         }
     }
 
+    public function getCartCount()
+    {
+        $sessionId = session()->getId();
+        $userId = Auth::id();
 
+        return CartModel::where(function ($query) use ($sessionId, $userId) {
+            $query->where('session_id', $sessionId);
+            if ($userId) {
+                $query->orWhere('user_id', $userId);
+            }
+        })->count();
+    }
 
     private function checkUserCart($cartId): bool
     {
         $cart = CartModel::find($cartId)->first();
-        if(!$cart) {
+        if (!$cart) {
             return false;
         }
         if (Auth::check() && $cart->user_id == Auth::user()->id) {
@@ -82,6 +93,13 @@ class Cart extends Component
         }
         CartModel::where('id', $key)->update(['quantity' => $value]);
         $this->dispatch('selected_cart');
+
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn(CartModel::find($key))
+            ->withProperties(['quantity' => $value])
+            ->log('Cập nhật số lượng sản phẩm trong giỏ hàng');
     }
 
     public function removeItem($itemId)
@@ -89,7 +107,14 @@ class Cart extends Component
         CartModel::where('id', $itemId)->delete();
         unset($this->quantities[$itemId]);
         $this->dispatch('selected_cart');
+
+
+        activity()
+            ->causedBy(Auth::user())
+            ->withProperties(['cart_item_id' => $itemId])
+            ->log('Xóa sản phẩm khỏi giỏ hàng');
     }
+
     public function deleteAll()
     {
         $sessionId = session()->getId();
@@ -104,6 +129,10 @@ class Cart extends Component
 
         $this->quantities = [];
         $this->total_price = 0;
+
+        activity()
+            ->causedBy(Auth::user())
+            ->log('Xóa toàn bộ giỏ hàng');
     }
     public function increaseQuantity($itemId)
     {

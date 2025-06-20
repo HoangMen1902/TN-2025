@@ -52,7 +52,7 @@
     </div>
     <div class="bg-white rounded-b-[20px] pb-6 px-4">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            @foreach ($displayedProducts as $product)
+           @foreach ($displayedProducts->skip(5) as $product)
                 <a href="/chi-tiet/{{ $product->slug }}" class="block">
                     <div
                         class="bg-white p-4 rounded-[10px] shadow-sm hover:shadow-lg transition duration-300 flex flex-col h-[400px]">

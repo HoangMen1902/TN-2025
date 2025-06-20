@@ -76,6 +76,11 @@ class Order extends Component
             'orders_status' => 'Đã hủy',
             'reason' => $reason,
         ]);
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn(OrderModel::find($this->orderId))
+            ->withProperties(['role' => Auth::user()?->role ?? 'client'])
+            ->log('Người dùng hủy đơn hàng: ' . $this->orderId);
 
         $this->reset(['showCancelModal', 'selectedReason', 'customReason', 'orderId']);
         $this->dispatch('toast', type: 'success', message: 'Đã hủy đơn thành công');

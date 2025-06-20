@@ -20,7 +20,7 @@ class User extends Authenticatable implements FilamentUser
      *
      * @var array<int, string>
      */
-    
+
     function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['Super_Admin', "Super Admin", 'product staff', 'sales staff', 'marketing staff']);
@@ -79,5 +79,10 @@ class User extends Authenticatable implements FilamentUser
     public function emailChangeOtps()
     {
         return $this->hasMany(EmailChangeOtp::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(\Spatie\Activitylog\Models\Activity::class, 'causer_id');
     }
 }

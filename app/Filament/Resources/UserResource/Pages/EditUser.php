@@ -6,6 +6,8 @@ use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\UserResource\Widgets\UserInterestStats;
+use App\Filament\Resources\UserResource\Widgets\UserChart;
 
 class EditUser extends EditRecord
 {
@@ -23,5 +25,12 @@ class EditUser extends EditRecord
             ->causedBy(Auth::user())
             ->performedOn($this->record)
             ->log('Cập nhật thông tin người dùng: ' . $this->record->name);
+    }
+    public static function getWidgets(): array
+    {
+        return [
+            UserChart::class,
+            UserInterestStats::class,
+        ];
     }
 }

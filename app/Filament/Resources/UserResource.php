@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Log;
+use App\Filament\Resources\UserResource\Widgets\UserInterestStats;
+use App\Filament\Resources\UserResource\Widgets\UserChart;
 
 class UserResource extends Resource
 {
@@ -144,12 +146,14 @@ class UserResource extends Resource
                     ->default(null),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()->action(function ($record) {
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Cập nhật thông tin người dùng: ' . $record->name);
-                }),
+                Tables\Actions\EditAction::make()
+                    ->label('Chỉnh sửa và hoạt động')
+                    ->action(function ($record) {
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Cập nhật thông tin người dùng: ' . $record->name);
+                    }),
                 Tables\Actions\DeleteAction::make()->action(function ($record) {
                     if ($record->id === Auth::id()) {
                         Notification::make()
@@ -193,9 +197,11 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            \App\Filament\Resources\UserResource\RelationManagers\ActivitiesRelationManager::class,
+        ];
     }
-
+   
     public static function getPages(): array
     {
         return [

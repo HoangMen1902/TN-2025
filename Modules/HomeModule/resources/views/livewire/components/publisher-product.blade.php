@@ -22,9 +22,12 @@
                     role="tabpanel" aria-labelledby="tab-{{ $publisher->id }}">
                     <div class="product-holder grid grid-cols-5 gap-4">
                         @foreach ($publisher->products as $product)
-                        @php
-                        $percent = (($product->productSkus->first()->price - $product->productSkus->first()->sale_price)/$product->productSkus->first()->price) * 100
-                        @endphp
+                            @php
+                                $firstSku = $product->productSkus->first();
+                                $price = $firstSku?->price ?? 0;
+                                $sale_price = $firstSku?->sale_price ?? $price;
+                                $percent = $price > 0 ? (($price - $sale_price) / $price) * 100 : 0;
+                            @endphp
                             <a href="/chi-tiet/{{$product->slug}}">
                                 <div
                                     class="product-card w-full h-[360px] flex flex-col justify-between cursor-pointer p-2 bg-white hover:shadow rounded">
@@ -43,14 +46,26 @@
                                             <div class="product-price flex flex-col text-sm">
                                                 <div class="flex items-center ">
                                                     <span class="text-red-600 text-lg font-bold">
-                                                        {{ number_format($product->productSkus->first()->sale_price ?? $product->productSkus->first()->price, 0, '', '.') }} đ
+                                                        {{ number_format($sale_price, 0, '', '.') }} đ
+
                                                     </span>
-        
-                                                    <div class="bg-red-500 text-white text-xs font-semibold  px-1 py-0.5 rounded ml-2 mt-3 {{ $percent <= 0 || !$product->productSkus->first()->sale_price ? 'hidden' : ''  }}">{{ '-' . round($percent, 2) . '%' }}</div>
+                                                    @if($price > 0)
+
+                                                        <div
+                                                            class="bg-red-500 text-white text-xs font-semibold px-1 py-0.5 rounded ml-2 mt-3">
+                                                            {{ '-' . round($percent, 2) . '%' }}
+                                                        </div>
+                                                    @endif
+
+                                                    <div
+                                                        class="bg-red-500 text-white text-xs font-semibold  px-1 py-0.5 rounded ml-2 mt-3">
+                                                        {{ '-' . round($percent, 2) . '%' }}
+                                                    </div>
                                                 </div>
-                                                <span class="text-gray-400 line-through {{$product->productSkus->first()->sale_price ?? 'hidden'}}">
-                                                    {{ number_format($product->productSkus->first()->price, 0, '', '.') }} đ
+                                                <span class="text-gray-400 line-through">
+                                                    {{ number_format($price, 0, '', '.') }} đ
                                                 </span>
+
                                             </div>
                                         </div>
                                     </div>
@@ -71,7 +86,7 @@
     </div>
 
 @else
-<div>
-    
-</div>
+    <div>
+
+    </div>
 @endif

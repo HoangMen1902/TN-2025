@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\SearchHistory;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-
+use Spatie\Activitylog\Models\Activity;
 class SearchBox extends Component
 {
     public $query = '';
@@ -49,6 +49,10 @@ public function search($term = null)
             ['user_id' => Auth::id(), 'keyword' => $searchTerm],
             ['updated_at' => now()]
         );
+         activity()
+            ->causedBy(Auth::user())
+            ->withProperties(['keyword' => $searchTerm])
+            ->log('Tìm kiếm sản phẩm');
     }
 
     $this->dispatch('searchUpdated', $searchTerm);
