@@ -3,22 +3,16 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Product;
+use App\Models\RelatedTag;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProductTag>
- */
 class ProductTagFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'product_id' => \App\Models\Product::factory(),
-            'tag_id' => \App\Models\RelatedTag::factory(),
+            'product_id' => Product::factory(),
+            'tag_id' => RelatedTag::factory(),
         ];
     }
 }
