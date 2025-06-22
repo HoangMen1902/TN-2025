@@ -1,26 +1,27 @@
-<div class="w-full max-w-full md:max-w-l mx-2 relative">
+<div class="w-full px-2 md:px-4 relative max-w-[700px] mx-auto">
     <form wire:submit.prevent="search" class="relative w-full">
         <input
             id="searchInput"
             type="text"
             wire:model="query"
             placeholder="Sách giải hỗ trợ học tập"
-            class="w-full py-1 px-3 pr-20 border border-gray-300 rounded-lg text-xs md:text-base md:py-2 md:px-4 md:pr-24">
+            class="w-full py-2 pl-3 pr-24 md:pr-28 text-sm md:text-base border border-gray-300 rounded-lg">
 
-        <button type="button" id="voiceSearch"
-            class="absolute right-16 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 text-lg md:text-xl">
-            🎤
-        </button>
+        <div class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center space-x-2 md:space-x-3">
+            <button type="button" id="voiceSearch"
+                class="text-gray-500 hover:text-blue-600 text-lg md:text-xl">
+                🎤
+            </button>
 
-        <button type="submit"
-            class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-2 py-1 text-xs md:text-sm md:px-4 md:py-1 rounded hover:bg-blue-700 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4 md:w-6 md:h-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
-            </svg>
-        </button>
+            <button type="submit"
+                class="bg-blue-600 text-white px-3 py-1 md:px-4 md:py-1.5 rounded hover:bg-blue-700 transition-all text-sm md:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+                </svg>
+            </button>
+        </div>
     </form>
 
     <div id="suggestionBox"
