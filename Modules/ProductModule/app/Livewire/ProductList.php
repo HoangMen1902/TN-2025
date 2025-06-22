@@ -11,20 +11,25 @@ use App\Models\ProductSku;
 use App\Models\Publisher;
 use App\Models\RelatedTag;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductList extends Component
 {
     use WithPagination;
+    public $openCategories = []; // Lưu trạng thái mở/tắt từng danh mục cha
+    public $showMoreCategories = false;
+    public $showMorePublishers = false;
+    public $showMoreTags = false;
 
+    // Nếu muốn lưu trạng thái "xem thêm" riêng cho từng danh mục cha, dùng mảng:
+    public $showMoreChildren = [];
     public $selectedCategoryIds = [];
-    public $selectedParentCategoryIds = [];
     public $selectedPublisherIds = [];
     public $selectedTagIds = [];
     public $sortOrder = 'desc';
     public $perPage = 9;
     public $minPrice = 0;
     public $maxPrice = 100000000;
-
     public $search = '';
 
     protected $queryString = [
@@ -35,7 +40,23 @@ class ProductList extends Component
         'minPrice',
         'maxPrice',
     ];
+    public function toggleCategory($categoryId)
+    {
+        $this->openCategories[$categoryId] = !($this->openCategories[$categoryId] ?? false);
+    }
 
+    public function toggleShowMore($type, $id = null)
+    {
+        if ($type === 'category') {
+            $this->showMoreCategories = !$this->showMoreCategories;
+        } elseif ($type === 'publisher') {
+            $this->showMorePublishers = !$this->showMorePublishers;
+        } elseif ($type === 'tag') {
+            $this->showMoreTags = !$this->showMoreTags;
+        } elseif ($type === 'children' && $id) {
+            $this->showMoreChildren[$id] = !($this->showMoreChildren[$id] ?? false);
+        }
+    }
     public function mount(Request $request)
     {
         $this->search = $request->query('search', '');
@@ -54,31 +75,19 @@ class ProductList extends Component
 
     public function render()
     {
+
         $query = Product::with(['productSkus', 'categories', 'publisher', 'tags'])
             ->where('product_status', 'active');
 
-        $allCategoryIds = [];
-
-        if (!empty($this->selectedParentCategoryIds)) {
-            $childCategoryIds = Category::whereIn('parent_id', $this->selectedParentCategoryIds)->pluck('id')->toArray();
-            $allCategoryIds = array_merge($allCategoryIds, $this->selectedParentCategoryIds, $childCategoryIds);
-        }
-
         if (!empty($this->selectedCategoryIds)) {
-            $allCategoryIds = array_merge($allCategoryIds, $this->selectedCategoryIds);
-        }
-
-        if (!empty($allCategoryIds)) {
-            $allCategoryIds = array_unique($allCategoryIds);
-            $query->whereHas('categories', function ($q) use ($allCategoryIds) {
-                $q->whereIn('categories.id', $allCategoryIds);
+            $query->whereHas('categories', function ($q) {
+                $q->whereIn('categories.id', $this->selectedCategoryIds);
             });
         }
 
         if (!empty($this->selectedPublisherIds)) {
             $query->whereIn('publisher_id', $this->selectedPublisherIds);
         }
-
         if (!empty($this->selectedTagIds)) {
             $query->whereHas('tags', function ($q) {
                 $q->whereIn('related_tags.id', $this->selectedTagIds);

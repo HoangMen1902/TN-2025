@@ -10,104 +10,46 @@
 
                         @foreach ($categories as $category)
                             @if ($category->children->isNotEmpty())
-                                <div x-data="{ open: false, openMore: false }" class="category-block">
-                                    <button @click="open = !open" type="button"
+                                <div class="category-block">
+                                    <button type="button" wire:click="toggleCategory({{ $category->id }})"
                                         class="flex items-center justify-between w-full text-gray-500 hover:text-black cursor-pointer">
                                         <span>
                                             {{ $category->name }}
-                                            <span class="ml-1 text-gray-400">({{ $category->products->count() }})</span>
+                                            <span
+                                                class="ml-1 text-gray-400">({{ $category->products->where('product_status', 'active')->count() ?? 0 }})</span>
                                         </span>
-
-                                        <svg x-show="!open" class="w-4 h-4 transform transition-transform" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                        <svg x-show="open" x-cloak class="w-4 h-4 transform transition-transform rotate-180"
+                                        <svg class="w-4 h-4 transform transition-transform {{ $openCategories[$category->id] ?? false ? 'rotate-180' : '' }}"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </button>
-
-                                    {{-- Danh mục con có checkbox --}}
-                                    <div x-show="open" x-transition x-cloak class="pl-6 mt-2 space-y-2 text-sm text-gray-700">
-                                        @php
-                                            $children = $category->children;
-                                            $limit = 7;
-                                        @endphp
-
-                                        @foreach ($children->take($limit) as $child)
-                                            <label
-                                                class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                                <input type="checkbox" wire:model.live="selectedCategoryIds"
-                                                    value="{{ $child->id }}"
-                                                    class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
-                                                <span class="text-gray-500">{{ $child->name }}</span>
-                                                <span class="ml-1 text-gray-400">({{ $child->products->count() ?? 0 }})</span>
-                                            </label>
-                                        @endforeach
-
-                                        {{-- Ẩn các mục vượt quá limit, chỉ hiện khi openMore = true --}}
-                                        <template x-if="openMore">
-                                            <div>
-                                                @foreach ($children->slice($limit) as $child)
-                                                    <label
-                                                        class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                                        <input type="checkbox" wire:model.live="selectedCategoryIds"
-                                                            value="{{ $child->id }}"
-                                                            class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
-                                                        <span class="text-gray-500">{{ $child->name }}</span>
-                                                        <span
-                                                            class="ml-1 text-gray-400">({{ $child->products->count() ?? 0 }})</span>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                        </template>
-
-                                        {{-- Nút xem thêm / thu gọn --}}
-                                        @if ($children->count() > $limit)
-                                            <button type="button" @click="openMore = !openMore"
-                                                class="text-blue-600 text-sm mt-1 hover:underline">
-                                                <span x-text="openMore ? 'Thu gọn' : 'Xem thêm'"></span>
-                                            </button>
-                                        @endif
-                                    </div>
+                                    @if ($openCategories[$category->id] ?? false)
+                                        <div class="pl-6 mt-2 space-y-2 text-sm text-gray-700">
+                                            @foreach ($category->children as $child)
+                                                <label
+                                                    class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
+                                                        <input type="checkbox" wire:model.live="selectedCategoryIds" value="{{ $child->id }}"
+                                                        wire:key="category-child-{{ $child->id }}"
+                                                        class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
+                                                    <span class="text-gray-500">{{ $child->name }}</span>
+                                                    <span
+                                                        class="ml-1 text-gray-400">({{ $child->products->where('product_status', 'active')->count() ?? 0 }})</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             @else
-                                {{-- Danh mục không có con vẫn giữ checkbox bình thường --}}
-
-                                @php
-                                    $limit = 7;
-                                @endphp
-
-                                @if ($loop->index < $limit)
-                                    <label class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                        <input type="checkbox" wire:model.live="selectedCategoryIds" value="{{ $category->id }}"
-                                            class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
-                                        <span class="text-gray-500">{{ $category->name }}</span>
-                                        <span class="ml-1 text-gray-400">({{ $category->products->count() ?? 0 }})</span>
-                                    </label>
-                                @elseif ($loop->index == $limit)
-                                    {{-- Ở đây cần hiện nút xem thêm cho danh mục chính --}}
-                                    <div x-data="{ openMore: false }">
-                                        <template x-if="openMore">
-                                            <label
-                                                class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                                <input type="checkbox" wire:model.live="selectedCategoryIds"
-                                                    value="{{ $category->id }}"
-                                                    class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
-                                                <span class="text-gray-500">{{ $category->name }}</span>
-                                                <span class="ml-1 text-gray-400">({{ $category->products->count() ?? 0 }})</span>
-                                            </label>
-                                        </template>
-
-                                        <button type="button" @click="openMore = !openMore"
-                                            class="text-blue-600 text-sm mt-1 hover:underline">
-                                            <span x-text="openMore ? 'Thu gọn' : 'Xem thêm'"></span>
-                                        </button>
-                                    </div>
-                                @endif
+                                <!-- Checkbox danh mục không có con -->
+                                <label class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
+                                    <input type="checkbox" wire:model="selectedCategoryIds" value="{{ $category->id }}"
+                                        wire:key="category-{{ $category->id }}"
+                                        class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
+                                    <span class="text-gray-500">{{ $category->name }}</span>
+                                    <span
+                                        class="ml-1 text-gray-400">({{ $category->products->where('product_status', 'active')->count() ?? 0 }})</span>
+                                </label>
                             @endif
                         @endforeach
                     </div>
@@ -178,86 +120,49 @@
                     </div>
 
                     <!-- THƯƠNG HIỆU -->
-                    <div class="space-y-3 border-b pb-4" x-data="{ openMorePublisher: false }">
+                    <div class="space-y-3 border-b pb-4">
                         <h3 class="font-semibold text-gray-800 uppercase text-sm">Nhà xuất bản</h3>
 
                         <div class="space-y-2 text-sm text-gray-700">
-                            @php
-                                $limit = 7;
-                            @endphp
-
-                            @foreach ($publishers->take($limit) as $data)
+                            @php $limit = 7; @endphp
+                            @foreach ($publishers->take($showMorePublishers ? $publishers->count() : $limit) as $data)
                                 <label class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                    <input type="checkbox"
-                                        class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400"
-                                        value="{{$data->id}}" wire:model.live="selectedPublisherIds">
-                                    <span class="text-gray-500">{{ $data->publisher_name }}</span><span
+                                    <input type="checkbox" wire:model.live="selectedPublisherIds" value="{{ $data->id }}"
+                                        wire:key="publisher-{{ $data->id }}"
+                                        class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
+                                    <span class="text-gray-500">{{ $data->publisher_name }}</span>
+                                    <span
                                         class="ml-1 text-gray-400">({{ $data->products->where('product_status', 'active')->count() ?? 0 }})</span>
                                 </label>
                             @endforeach
-
-                            <template x-if="openMorePublisher">
-                                <div>
-                                    @foreach ($publishers->slice($limit) as $data)
-                                        <label
-                                            class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                            <input type="checkbox"
-                                                class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400"
-                                                value="{{$data->id}}" wire:model.live="selectedPublisherIds">
-                                            <span class="text-gray-500">{{ $data->publisher_name }}</span><span
-                                                class="ml-1 text-gray-400">({{ $data->products->where('product_status', 'active')->count() ?? 0 }})</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </template>
-
                             @if ($publishers->count() > $limit)
-                                <button type="button" @click="openMorePublisher = !openMorePublisher"
+                                <button type="button" wire:click="toggleShowMore('publisher')"
                                     class="text-blue-600 text-sm mt-1 hover:underline">
-                                    <span x-text="openMorePublisher ? 'Thu gọn' : 'Xem thêm'"></span>
+                                    {{ $showMorePublishers ? 'Thu gọn' : 'Xem thêm' }}
                                 </button>
                             @endif
                         </div>
                     </div>
 
-                    <div class="space-y-3 mt-4" x-data="{ openMoreTag: false }">
+                    <div class="space-y-3 mt-4">
                         <h3 class="font-semibold text-gray-800 uppercase text-sm">Thẻ sản phẩm</h3>
 
                         <div class="space-y-2 text-sm text-gray-700">
 
-                            @php
-                                $limit = 7;
-                            @endphp
-
-                            @foreach ($tags->take($limit) as $data)
+                            @foreach ($tags->take($showMoreTags ? $tags->count() : $limit) as $data)
                                 <label class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                    <input type="checkbox"
-                                        class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400"
-                                        value="{{$data->id}}" wire:model.live="selectedTagIds">
-                                    <span class="text-gray-500">{{ $data->tag_name }}</span><span
+                                    <input type="checkbox" wire:model.live="selectedTagIds" value="{{ $data->id }}"
+                                        wire:key="tag-{{ $data->id }}"
+                                        class="accent-blue-500 w-4 h-4 border border-blue-500 text-gray-400">
+                                    <span class="text-gray-500">{{ $data->tag_name }}</span>
+                                    <span
                                         class="ml-1 text-gray-400">({{ $data->products->where('product_status', 'active')->count() }})</span>
                                 </label>
                             @endforeach
-
-                            <template x-if="openMoreTag">
-                                <div>
-                                    @foreach ($tags->slice($limit) as $data)
-                                        <label
-                                            class="flex items-center gap-2 hover:text-black transition-colors cursor-pointer">
-                                            <input type="checkbox"
-                                                class="accent-blue-500 w-4 h-4 border border-blue-500 border-[0.5px] text-gray-400"
-                                                value="{{$data->id}}" wire:model.live="selectedTagIds">
-                                            <span class="text-gray-500">{{ $data->tag_name }}</span><span
-                                                class="ml-1 text-gray-400">({{ $data->products->where('product_status', 'active')->count() }})</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </template>
-
                             @if ($tags->count() > $limit)
-                                <button type="button" @click="openMoreTag = !openMoreTag"
+                                <button type="button" wire:click="toggleShowMore('tag')"
                                     class="text-blue-600 text-sm mt-1 hover:underline">
-                                    <span x-text="openMoreTag ? 'Thu gọn' : 'Xem thêm'"></span>
+                                    {{ $showMoreTags ? 'Thu gọn' : 'Xem thêm' }}
                                 </button>
                             @endif
                         </div>
@@ -283,8 +188,8 @@
                     <option value="asc">Cũ nhất</option>
                     <option value="ban-chay-thang">Bán Chạy Tháng</option>
                     <option value="chiet-khau">Giảm giá</option>
-                    <option value="gia-giam-desc">Giá Bán thấp đến cao</option>
-                    <option value="gia-giam-asc">Giá Bán cao đến thấp</option>
+                    <option value="gia-giam-asc">Giá Bán thấp đến cao</option>
+                    <option value="gia-giam-desc">Giá Bán cao đến thấp</option>
                 </select>
             </div>
             <div class="sort-header2">
@@ -339,7 +244,7 @@
 
                                     @endif
                                 </div>
-                               
+
                                 <div class="flex items-center gap-1 mb-2">
                                     @for ($j = 1; $j <= 5; $j++)
                                         <svg class="w-4 h-4 {{ $j <= ($product->rating ?? 4) ? 'text-yellow-400' : 'text-gray-200' }}"
@@ -373,8 +278,9 @@
                     <ul class="inline-flex -space-x-px text-base h-10">
 
                         <li>
-                            <a wire:click.prevent="previousPage" href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700
-                                       {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
+                            <a wire:click.prevent="previousPage" href="#"
+                                class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700
+                                                           {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
                                 Trở về
                             </a>
                         </li>
@@ -383,7 +289,7 @@
                                     <li>
                                         <a wire:click.prevent="gotoPage({{ $page }})" href="#"
                                             class="flex items-center justify-center px-4 h-10 leading-tight
-                                                                                           {{ $products->currentPage() === $page
+                                                                                                                                                                           {{ $products->currentPage() === $page
                             ? 'text-white border border-gray-300 bg-blue-700 hover:bg-blue-100'
                             : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700' }}">
                                             {{ $page }}
@@ -392,8 +298,9 @@
                         @endforeach
 
                         <li>
-                            <a wire:click.prevent="nextPage" href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700
-                                       {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
+                            <a wire:click.prevent="nextPage" href="#"
+                                class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700
+                                                           {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
                                 Tiếp
                             </a>
                         </li>
@@ -411,46 +318,7 @@
 <script>
 
 
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.toggle-sub').forEach((checkbox) => {
-            checkbox.addEventListener('change', function () {
-                const subcategories = this.closest('div').querySelector('.subcategories');
-                if (subcategories) {
-                    subcategories.classList.toggle('hidden', !this.checked);
-                }
-            });
 
-
-            if (checkbox.checked) {
-                const subcategories = checkbox.closest('div').querySelector('.subcategories');
-                if (subcategories) {
-                    subcategories.classList.remove('hidden');
-                }
-            }
-        });
-    });
-
-
-    const selected = new Set();
-    const buttons = document.querySelectorAll('.category-btn');
-    const hiddenInput = document.getElementById('selected-categories');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const value = button.dataset.value;
-            if (selected.has(value)) {
-                selected.delete(value);
-                button.classList.remove('bg-blue-600');
-                button.classList.add('bg-gray-700');
-            } else {
-                selected.add(value);
-                button.classList.remove('bg-gray-700');
-                button.classList.add('bg-blue-600');
-            }
-
-            hiddenInput.value = Array.from(selected).join(',');
-        });
-    });
 
 
 
