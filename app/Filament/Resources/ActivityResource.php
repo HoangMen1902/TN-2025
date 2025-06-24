@@ -16,9 +16,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class ActivityResource extends Resource
 {
     protected static ?string $model = Activity::class;
+    protected static ?string $navigationGroup = 'Quản lý Chung';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    protected static ?string $modelLabel = 'Hoạt động';
+    protected static ?string $navigationLabel = 'Hoạt Động';
+    protected static ?string $pluralModelLabel = 'Các Hoạt Động';
     public static function form(Form $form): Form
     {
         return $form

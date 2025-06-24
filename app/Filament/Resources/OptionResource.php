@@ -27,6 +27,7 @@ class OptionResource extends Resource
     use SoftDeletes;
     protected static ?string $model = Option::class;
 
+    protected static ?string $navigationGroup = 'Quản lý Sản phẩm';
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     protected static ?string $label = 'Thuộc tính';

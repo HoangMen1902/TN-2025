@@ -32,6 +32,7 @@ class NotificationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
     protected static ?string $label = 'Thông báo';
+    protected static ?string $navigationGroup = 'Quản lý Chung';
 
     protected static ?string $navigationLabel = 'Thông báo';
     protected static ?string $modelLabel = 'Thông báo';

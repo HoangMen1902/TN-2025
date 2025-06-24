@@ -19,11 +19,13 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Facades\Auth;
+
 class RoleResource extends Resource implements HasShieldPermissions
 {
     use HasShieldFormComponents;
 
     protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationGroup = 'Quản lý Vai trò';
 
     public static function getPermissionPrefixes(): array
     {
@@ -178,9 +180,7 @@ class RoleResource extends Resource implements HasShieldPermissions
 
     public static function getNavigationGroup(): ?string
     {
-        return Utils::isResourceNavigationGroupEnabled()
-            ? __('filament-shield::filament-shield.nav.group')
-            : '';
+        return 'Quản lý phân quyền';  
     }
 
     public static function getNavigationLabel(): string
