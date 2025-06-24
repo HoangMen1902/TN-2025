@@ -25,6 +25,7 @@
                             @php
                                 $firstSku = $product->productSkus->first();
                                 $price = $firstSku?->price ?? 0;
+                                $is_sale = $firstSku->sale_price ? true : false;
                                 $sale_price = $firstSku?->sale_price ?? $price;
                                 $percent = $price > 0 ? (($price - $sale_price) / $price) * 100 : 0;
                             @endphp
@@ -52,17 +53,14 @@
                                                     @if($price > 0)
 
                                                         <div
-                                                            class="bg-red-500 text-white text-xs font-semibold px-1 py-0.5 rounded ml-2 mt-3">
+                                                            class="bg-red-500 text-white text-xs font-semibold px-1 py-0.5 rounded ml-2 mt-3 {{$is_sale ? '' : 'hidden'}}">
                                                             {{ '-' . round($percent, 2) . '%' }}
                                                         </div>
                                                     @endif
 
-                                                    <div
-                                                        class="bg-red-500 text-white text-xs font-semibold  px-1 py-0.5 rounded ml-2 mt-3">
-                                                        {{ '-' . round($percent, 2) . '%' }}
-                                                    </div>
+
                                                 </div>
-                                                <span class="text-gray-400 line-through">
+                                                <span class="text-gray-400 line-through {{$is_sale ? '' : 'hidden'}}">
                                                     {{ number_format($price, 0, '', '.') }} đ
                                                 </span>
 

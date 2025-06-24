@@ -212,7 +212,7 @@
                         <div
                             class="product-card w-70 bg-white rounded-[10px] shadow-md overflow-hidden m-2 flex flex-col hover:scale-[1.02] hover:shadow-lg transition-all duration-300">
                             <div class="w-full h-[220px] bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer"
-                                onclick="window.location.href='/chi-tiet/{{ $product->id }}';">
+                                onclick="window.location.href='/chi-tiet/{{ $product->slug }}';">
                                 <img src="{{ asset('storage/' . $product->thumbnail) }}" alt="{{ $product->name }}"
                                     class="object-contain max-h-full max-w-full transition-transform duration-500 ease-in-out hover:scale-105">
                             </div>
