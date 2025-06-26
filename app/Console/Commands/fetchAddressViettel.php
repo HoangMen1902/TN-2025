@@ -92,10 +92,15 @@ class fetchAddressViettel extends Command
                 $this->warn('Failed: ' . $ward['WARDS_NAME']);
             }
         }
-        $pythonCmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'py' : 'python3';
-        $scriptPath = 'app/Tools/AddressConstraint/database.py';
+        $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-        $output = shell_exec("$pythonCmd $scriptPath");
+        $pythonPath = $isWin
+            ? base_path('.venv_clip/Scripts/python.exe')
+            : base_path('.venv_clip/bin/python3');
+
+        $scriptPath = base_path('app/Tools/AddressConstraint/database.py');
+        $output = shell_exec("\"$pythonPath\" \"$scriptPath\"");
+
         echo $output;
     }
 }
