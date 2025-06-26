@@ -146,42 +146,46 @@ class UserResource extends Resource
                     ->default(null),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('Chỉnh sửa và hoạt động')
-                    ->action(function ($record) {
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->label('Chỉnh sửa ')
+                        ->color('warning')
+                        ->action(function ($record) {
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Cập nhật thông tin người dùng: ' . $record->name);
+                        }),
+                    Tables\Actions\DeleteAction::make()->action(function ($record) {
+                        if ($record->id === Auth::id()) {
+                            Notification::make()
+                                ->title('Không thể xóa tài khoản đang sử dụng.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                        $record->user_status = 'inactive';
+                        $record->save();
+                        $record->delete();
+
                         activity()
                             ->causedBy(Auth::user())
                             ->performedOn($record)
-                            ->log('Cập nhật thông tin người dùng: ' . $record->name);
+                            ->log('Xóa người dùng: ' . $record->name);
                     }),
-                Tables\Actions\DeleteAction::make()->action(function ($record) {
-                    if ($record->id === Auth::id()) {
-                        Notification::make()
-                            ->title('Không thể xóa tài khoản đang sử dụng.')
-                            ->danger()
-                            ->send();
-                        return;
-                    }
-                    $record->user_status = 'inactive';
-                    $record->save();
-                    $record->delete();
+                    Tables\Actions\RestoreAction::make()->action(function ($record) {
+                        $record->user_status = 'active';
+                        $record->save();
+                        $record->restore();
 
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Xóa người dùng: ' . $record->name);
-                }),
-                Tables\Actions\RestoreAction::make()->action(function ($record) {
-                    $record->user_status = 'active';
-                    $record->save();
-                    $record->restore();
-
-                    activity()
-                        ->causedBy(Auth::user())
-                        ->performedOn($record)
-                        ->log('Khôi phục người dùng: ' . $record->name);
-                }),
-                Tables\Actions\ViewAction::make(),
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($record)
+                            ->log('Khôi phục người dùng: ' . $record->name);
+                    }),
+                    Tables\Actions\ViewAction::make()
+                        ->label('xem chi tiết'),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -201,10 +205,11 @@ class UserResource extends Resource
             \App\Filament\Resources\UserResource\RelationManagers\ActivitiesRelationManager::class,
         ];
     }
-   
+
     public static function getPages(): array
     {
         return [
+            'view' => Pages\ViewUser::route('/{record}'),
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
