@@ -3,7 +3,10 @@
 namespace Modules\ImageSearch\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\ProductSku;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ImageSearchController extends Controller
 {
@@ -21,6 +24,60 @@ class ImageSearchController extends Controller
     public function create()
     {
         return view('imagesearch::create');
+    }
+
+
+    public function handle(Request $request)
+    {
+        $data = $request->input('imageSearch');
+
+        if (!$data) {
+            return back()->with('error', 'Vui lòng chọn ảnh hợp lệ và đảm bảo ảnh đã được tải lên hoàn toàn');
+        }
+
+        $data_json_decoded = json_decode($data, true);
+
+        if (!isset($data_json_decoded['data']) || !isset($data_json_decoded['name'])) {
+            return back()->with('error', 'Dữ liệu ảnh không hợp lệ');
+        }
+
+        $base64 = $data_json_decoded['data'];
+        $extension = pathinfo($data_json_decoded['name'], PATHINFO_EXTENSION);
+        $filename = uniqid() . '.' . $extension;
+
+        Storage::disk('public')->put("temp/$filename", base64_decode($base64));
+        $inputImage = storage_path("app/public/temp/$filename");
+
+        $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+        $pythonPath = $isWin
+            ? base_path('.venv_clip/Scripts/python.exe')
+            : base_path('.venv_clip/bin/python3');
+
+        $scriptPath = base_path('app/Tools/ImgFinder/find.py');
+        $cachePath = base_path('app/Tools/ImgFinder/features_cache.pt');
+
+        $cmd = escapeshellcmd("$pythonPath \"$scriptPath\" match \"$inputImage\" \"$cachePath\"");
+        $output = trim(shell_exec($cmd . ' 2>&1'));
+
+        if ($output === false || $output === null) {
+            return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :(');
+        }
+
+        $product = Product::where('thumbnail', 'LIKE', "%$output%")
+            ->where('product_status', 'active')
+            ->first();
+
+        if ($product) {
+            return redirect('/chi-tiet/' . $product->slug);
+        }
+
+        $sku = ProductSku::where('images', 'LIKE', "%$output%")->first();
+
+        if ($sku && $sku->product && $sku->product->product_status === 'active') {
+            return redirect('/chi-tiet/' . $sku->product->slug);
+        }
+        return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :((');
     }
 
     /**
