@@ -9,12 +9,12 @@
 
         <div class="absolute top-1/2 -translate-y-1/2 right-2 flex items-center space-x-2 md:space-x-3">
             <button type="button" id="voiceSearch"
-                class="text-gray-500 hover:text-blue-600 text-lg md:text-xl">
-                🎤
+                class="text-gray-500 hover:text-blue-600 text-lg cursor-pointer md:text-xl">
+                🎙️
             </button>
 
             <button type="submit"
-                class="bg-blue-600 text-white px-3 py-1 md:px-4 md:py-1.5 rounded hover:bg-blue-700 transition-all text-sm md:text-base">
+                class="bg-blue-600 text-white px-3 py-1 cursor-pointer md:px-4 md:py-1.5 rounded hover:bg-blue-700 transition-all text-sm md:text-base">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -79,18 +79,18 @@
                     const transcript = event.results[0][0].transcript;
                     input.value = transcript;
                     input.dispatchEvent(new Event('input'));
-                    voiceBtn.innerText = '🎤';
+                    voiceBtn.innerText = '🎙️';
                     setTimeout(() => {
                         document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true }));
                     }, 300);
                 };
 
                 recognition.onerror = function () {
-                    voiceBtn.innerText = '🎤';
+                    voiceBtn.innerText = '🎙️';
                 };
 
                 recognition.onend = function () {
-                    voiceBtn.innerText = '🎤';
+                    voiceBtn.innerText = '🎙️';
                 };
             }
         });

@@ -84,11 +84,12 @@
                 </div>
             </div>
 
-            <div class="hidden lg:flex lg:w-1/2 bg-indigo-100 items-stretch">
-                <div class="w-full h-full bg-center bg-no-repeat"
+            <div class="hidden lg:flex lg:w-1/2 bg-white items-center justify-center">
+                <div class="w-[500px] h-[500px] bg-center bg-no-repeat"
                     style="background-size: 100% 100%; background-image: url('{{ asset('assets/images/login.jpg') }}');">
                 </div>
             </div>
+
         </div>
     </div>
 </x-layouts.layout>
