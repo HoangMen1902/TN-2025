@@ -1,100 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const elements = {
-    wheel: document.getElementById("wheel"),
-    spinBtn: document.getElementById("spin"),
-    prizeModal: document.getElementById("prizeModal"),
-    prizeText: document.getElementById("prizeText"),
-    closeBtn: document.querySelector(".close"),
-  };
 
-  if (Object.values(elements).some((el) => !el)) {
-    console.error("Không tìm thấy phần tử DOM.");
-    return;
-  }
+    let wheel = document.querySelector(".wheel");
+    let btn = document.getElementById("spin");
+    let isSpinning = false;
 
-  const { wheel, spinBtn, prizeModal, prizeText, closeBtn } = elements;
-  // const prizes = [
-  // "Giảm 10%",
-  // "-20K đơn ≥150K",
-  // "Free Ship",
-  // "-50K đơn ≥300K",
-  // "Mua 2 tặng bookmark",
-  // "Giảm 15% sách mới",
-  // "-100K khách mới",
-  // "+1 lượt quay",
-  // ];
+    btn.onclick = function () {
+        if (isSpinning) return;
 
-  const prizeCount = prizes.length;
-  const prizeAngle = 360 / prizeCount;
-  const spinDuration = 5000;
-  let currentAngle = 0;
-  const audio = new Audio("147239759.mp3");
+        isSpinning = true;
+        btn.disabled = true;
 
-  // HIển thị tên phần thưởng
- prizes.forEach((prize, index) => {
-    const label = document.createElement("div");
-    const prizeLabels = document.getElementById("prizeLabels");
-    label.className = "prize-label";
-    label.textContent = prize;
-    const angle = index * prizeAngle + prizeAngle / 2;
-    label.style.transform = `rotate(${angle}deg) translateY(-195px) rotate(1deg)`;
+        let spins = Math.floor(Math.random() * 5) + 5; // từ 5 đến 9 vòng
+        let extraDegree = Math.floor(Math.random() * 360);
+        let totalDegree = spins * 360 + extraDegree;
 
-    prizeLabels.appendChild(label);
-  });
+        // Quay vòng
+        wheel.style.transition = "transform 4s ease-out";
+        wheel.style.transform = `rotate(${totalDegree}deg)`;
 
-  // Hiển thị phần thưởng
-  function showPrize(prize) {
-    prizeText.textContent = `🎉 Bạn đã trúng: ${prize}`;
-    prizeModal.classList.remove("hidden");
-    prizeModal.classList.add("flex", "animate-fade-in");
-  }
+        setTimeout(() => {
+            // Dừng quay và tính toán kết quả
+            wheel.style.transition = "none";
+            let normalizedDegree = totalDegree % 360;
+            wheel.style.transform = `rotate(${normalizedDegree}deg)`;
 
-  
-  closeBtn.addEventListener("click", () => {
-    prizeModal.classList.add("hidden");
-    prizeModal.classList.remove("flex", "animate-fade-in");
-  });
+            let segmentDegree = 360 / segments.length;
+            let selectedIndex = Math.floor(
+                (360 - normalizedDegree + segmentDegree / 2) % 360 / segmentDegree
+            );
 
-  window.addEventListener("click", (e) => {
-    if (e.target === prizeModal) {
-      prizeModal.classList.add("hidden");
-      prizeModal.classList.remove("flex", "animate-fade-in");
-    }
-  });
+            let prize = segments[selectedIndex] ?? "Không xác định";
 
-  // Logic quay
-  spinBtn.addEventListener("click", () => {
-    if (spinBtn.disabled) return;
+            // Hiển thị kết quả
+            document.getElementById("modalResult").textContent = prize;
+            document.getElementById("resultModal").classList.remove("hidden");
 
-    
-    if (audio) {
-      audio.play().catch((e) => console.warn("Không phát được âm thanh:", e));
-    }
+            // Reset
+            isSpinning = false;
+            btn.disabled = false;
+        }, 4000);
+    };
 
-    spinBtn.disabled = true;
-    spinBtn.classList.add("grayscale");
+    // Đóng modal 
+    document.getElementById("closeModal").onclick = function () {
+        document.getElementById("resultModal").classList.add("hidden");
+    };
 
-    // Random các phần thưởng
-    const selectedIndex = Math.floor(Math.random() * prizeCount);
-    const selectedPrize = prizes[selectedIndex];
-
-    // Tính góc dừng lại cho phần thưởng
-    const stopAngle = selectedIndex * prizeAngle + prizeAngle / 2;
-
-    // Tính góc quay: 6 vòng + góc dừng + góc ngẫu nhiên nhỏ
-    const extraSpin = 360 * 6 + Math.random() * prizeAngle * 0.5;
-    currentAngle +=
-      extraSpin - (currentAngle % 360) + (360 - (stopAngle % 360));
-
-    // sử dụng animation
-    wheel.style.transition = `transform ${spinDuration}ms ease-out`;
-    wheel.style.transform = `rotate(${currentAngle}deg)`;
-
-    // Hiển thị phần thưởng cuối cùng sau khi quay xong
-    setTimeout(() => {
-      showPrize(selectedPrize);
-      spinBtn.disabled = false;
-      spinBtn.classList.remove("grayscale");
-    }, spinDuration + 200);
-  });
-});

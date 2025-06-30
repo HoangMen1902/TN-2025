@@ -1,0 +1,102 @@
+.lucky-spin * {
+  box-sizing: border-box;
+}
+
+.lucky-spin {
+  padding: 50px 0;
+  background-color: #e3f8ff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+}
+
+.wheel {
+  width: 500px;
+  height: 500px;
+  background-color: #ccc;
+  border-radius: 50%;
+  border: 15px solid #dde;
+  overflow: hidden;
+  transition: 5s;
+  position: relative; 
+}
+
+.wheel .segment {
+  height: 50%;
+  width: 200px;
+  position: absolute;
+  clip-path: polygon(100% 0, 50% 100%, 0 0);
+  transform: translateX(-50%);
+  transform-origin: bottom;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  left: 135px;
+}
+
+.wheel .segment span {
+  display: inline-block;
+  transform: rotate(90deg);
+  transform-origin: center;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  line-height: 1.2;
+  width: 80%;
+}
+
+.wheel .segment-1  { background-color: #FF3B30; transform: rotate(0deg);   font-size: 12px; }  
+.wheel .segment-2  { background-color: #FF9500; transform: rotate(36deg); }                    
+.wheel .segment-3  { background-color: #FFCC00; transform: rotate(72deg);  font-size: 12px; }  
+.wheel .segment-4  { background-color: #34C759; transform: rotate(108deg); }                  
+.wheel .segment-5  { background-color: #007AFF; transform: rotate(144deg); }                   /* Xanh dương */
+.wheel .segment-6  { background-color: #5856D6; transform: rotate(180deg); }                   /* Tím */
+.wheel .segment-7  { background-color: #AF52DE; transform: rotate(216deg); }                   /* Tím hồng */
+.wheel .segment-8  { background-color: #FF2D55; transform: rotate(252deg); }                   /* Hồng đậm */
+.wheel .segment-9  { background-color: #5AC8FA; transform: rotate(288deg); }                   /* Xanh cyan */
+.wheel .segment-10 { background-color: #FFD3E0; transform: rotate(324deg); }                   /* Hồng pastel */
+
+
+.arrow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #e60e0e;
+}
+
+.arrow::before {
+  content: "\1F817";
+  font-size: 50px;
+}
+
+.spin-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #e2e2e2;
+  text-transform: uppercase;
+  border: 8px solid #fff;
+  font-weight: bold;
+  font-size: 20px;
+  color: #a2a2a2;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  letter-spacing: 1px;
+}
+
+

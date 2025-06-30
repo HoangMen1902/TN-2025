@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\ProductTag::factory(20)->create();
         \App\Models\ProductCategory::factory(30)->create();
         Notification::factory(40)->create();
-                $this->call([
+        $this->call([
             SeedersCategorySeeder::class,
         ]);
 
@@ -41,5 +41,8 @@ class DatabaseSeeder extends Seeder
             PaymentMethodSeeder::class,
         ]);
         $this->call(FlashSaleSeeder::class);
+        $this->call([
+            PrizeSeeder::class,
+        ]);
     }
 }
