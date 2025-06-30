@@ -95,14 +95,18 @@ class PaymentModuleController extends Controller
                 'shipment_price' => $shipment_fee
             ]);
 
+            $total_price = 0;
+
             foreach ($cartItems as $item) {
                 $price = 0;
                 $comboId = null;
                 if($item->item_type === "sku") {
                     $price = $item->sku->sale_price ?? $item->sku->price;
+                    $total_price += $price * $item->quantity;
                 } elseif($item->item_type === 'combo') {
                     $price = $item->combo->sale_price;
                     $comboId = $item->combo_id;
+                    $total_price += $price * $item->quantity;
                 }
                 OrderDetail::create([
                     'order_id' => $order->id,
@@ -110,7 +114,8 @@ class PaymentModuleController extends Controller
                     'price' => $price,
                     'quantity' => $item->quantity,
                     'item_type' => $item->item_type,
-                    'combo_id' => $comboId
+                    'combo_id' => $comboId,
+                    'total_price' => $total_price
                 ]);
             }
 

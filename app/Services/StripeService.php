@@ -70,14 +70,14 @@ class StripeService
                 });
                 if ($flashsale) {
                     if ($flashsale->discount->discount_type === "percent") {
-                        $price = $item->sku->sale_price - ($item->sku->sale_price * $flashsale->discount->discount_amount / 100);
+                        $price = ($item->sku->sale_price ?? $item->sku->price) - (($item->sku->sale_price ?? $item->sku->price) * $flashsale->discount->discount_amount / 100);
                     } elseif ($flashsale->discount->discount_type === "specific") {
-                        $price = $item->sku->sale_price - $flashsale->discount->discount_amount;
+                        $price = ($item->sku->sale_price ?? $item->sku->price) - $flashsale->discount->discount_amount;
                     } else {
-                        $price = $item->sku->sale_price;
+                        $price = ($item->sku->sale_price ?? $item->sku->price);
                     }
                 } else {
-                    $price = $item->sku->sale_price;
+                    $price = ($item->sku->sale_price ?? $item->sku->price);
                 }
             }
 

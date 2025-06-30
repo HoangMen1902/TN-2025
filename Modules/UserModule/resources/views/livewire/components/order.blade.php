@@ -135,14 +135,16 @@
                             @endforeach
                             @php
                                 $statusMessages = [
+                                    
                                     'Đang xử lý' => [
                                         'label' => 'Đang xử lý',
                                         'color' => 'text-yellow-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <circle cx="12" cy="12" r="10" stroke-width="2" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </svg>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            '
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
+                                    ],
+                                    'Chờ duyệt' => [
+                                        'label' => 'Đang chờ duyệt',
+                                        'color' => 'text-yellow-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
                                     ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
@@ -220,7 +222,11 @@
                             @endphp
 
                             <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                @if($status === 'Đang xử lý')
+                                @if($status === 'Chờ duyệt')
+                                    <div class="text-sm text-gray-700">
+                                        Đang gửi yêu cầu duyệt đơn.
+                                    </div>
+                                @elseif($status === 'Đang xử lý')
                                     <div class="text-sm text-gray-700">
                                         Hiện tại chúng tôi đang kiểm tra và sẽ xử lý đơn hàng sớm nhất.
                                     </div>
