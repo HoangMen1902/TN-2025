@@ -229,11 +229,10 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->label('ID'),
                 TextColumn::make('name')->label('Tên')->limit(20),
                 TextColumn::make('publisher.publisher_name')->label('Nhà xuất bản'),
                 TextColumn::make('categories.name')->label('Phân loại')->limitList(1),
-                TextColumn::make('variant')->label('Biến thể')->getStateUsing(fn($record) => ProductSku::where('product_id', $record->id)->count('sku')),
+                ImageColumn::make('thumbnail')->label('Ảnh sản phẩm')->square()->size(60),
                 TextColumn::make('product_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
                     return match ($state) {
                         'active' => 'Hoạt động',
@@ -241,6 +240,10 @@ class ProductResource extends Resource
                         default => 'Không xác định'
                     };
                 })->color(fn($state) => $state === 'active' ? 'success' : 'danger')->searchable(),
+
+                TextColumn::make('created_at')
+                    ->label('Ngày tạo')
+                    ->dateTime('d/m/Y H:i')
             ])->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make(),
