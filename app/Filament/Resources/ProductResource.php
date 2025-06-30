@@ -147,7 +147,7 @@ class ProductResource extends Resource
                         ->validationMessages([
                             'required' => 'Vui lòng tải lên ít nhất 1 ảnh sản phẩm',
                         ]),
-                ])->defaultItems(1)->addable(true)->deletable(true)->label('Biến thể')->rules(['min:1'])->validationMessages(['min' => 'Sản phẩm phải có ít nhất một thuộc tính.'])->columns(2)->columnSpanFull(),
+                ])->defaultItems(1)->addable(true)->deletable(true)->label('')->rules(['min:1'])->validationMessages(['min' => 'Sản phẩm phải có ít nhất một thuộc tính.'])->columns(2)->columnSpanFull(),
                 select::make('tags')->relationship('tags', 'tag_name')->preload()->searchable()->label('Thẻ (Tùy chọn)')->multiple()->placeholder('Chọn các thẻ liên quan')->createOptionForm([
                     TextInput::make('tag_name')->label('Tên thẻ')->rules(['required', 'unique:related_tags'])->validationMessages(['required' => 'Vui lòng nhập thông tin này', 'unique' => 'Thẻ này đã tồn tại'])
                 ]),

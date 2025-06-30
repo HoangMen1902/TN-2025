@@ -1,4 +1,4 @@
-<div class="thumbnail-holder flex flex-col justify-items-center items-center">
+<div class="thumbnail-holder flex flex-col justify-items-center items-center h-[max-content]">
     <div class="thumbnail hidden lg:block">
         <img src="{{ asset('storage/' . $thumbnail) }}" alt="" class="thumbnail-img">
     </div>
