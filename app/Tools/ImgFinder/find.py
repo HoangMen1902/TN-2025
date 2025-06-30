@@ -50,12 +50,11 @@ def cache_folder_features(folder_path, cache_path):
     torch.save(cache, cache_path)
     print(f"Đã lưu cache vào: {cache_path}")
 
-    # Dọn dẹp RAM
     del images, features, image_batch
     gc.collect()
 
 def find_best_match_with_cache(input_img, cache_path):
-    input_feat = image_to_feature(input_img).cpu().squeeze(0)  # (512,)
+    input_feat = image_to_feature(input_img).cpu().squeeze(0)  
     cache = torch.load(cache_path)
     best_score = -1
     best_fname = None

@@ -63,12 +63,10 @@ class ProductResource extends Resource
                     ->label('Đường dẫn sản phẩm')
                     ->rules([
                         'required',
-                        'unique:products,slug',
                         'regex:/^[a-z0-9\-]+$/'
                     ])
                     ->validationMessages([
                         'required' => 'Vui lòng điền thông tin *',
-                        'unique' => 'Slug đã tồn tại',
                         'regex' => 'Slug chỉ được chứa chữ thường không dấu, số và dấu gạch ngang (không dấu cách, không dấu tiếng Việt)',
                     ])
                     ->placeholder('VD: san-pham-vi-du')
@@ -93,10 +91,47 @@ class ProductResource extends Resource
                     TextInput::make('price')->numeric()->label('Giá gốc')->rules(['required', 'min:0'])->validationMessages(['required' => 'Vui lòng nhập thông tin *', 'min' => 'Giá trị không hợp lệ'])->columnSpan(1),
                     TextInput::make('sale_price')->numeric()->label('Giá bán hiện tại')->rules(['min:0'])->validationMessages(['min' => 'Giá trị không hợp lệ'])->columnSpan(1),
                     TextInput::make('quantity')->numeric()->label('Số lượng')->rules(['required'])->validationMessages(['required' => 'Vui lòng nhập thông tin *']),
-                    Repeater::make('skuValues')->relationship('skuValues')->label('Thuộc tính')->validationMessages(['required' => 'Vui lòng chọn thông tin này'])->schema([
-                        Select::make('option_id')->label('Thuộc tính')->options(Option::pluck('name', 'id'))->reactive()->afterStateUpdated(function (callable $set) {
-                            $set('value_id', null);
-                        })->searchable()->rule(['required'])->validationMessages(['Vui lòng chọn thuộc tính']),
+                    Repeater::make('skuValues')->relationship('skuValues')->label('Thuộc tính')->validationMessages(['required' => 'Vui lòng chọn thông tin'])->schema([
+                        Select::make('option_id')
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label('Tên thuộc tính')
+                                    ->rules(['required', 'unique:options,name'])
+                                    ->validationMessages([
+                                        'required' => 'Vui lòng nhập thông tin của trường này',
+                                        'unique' => 'Thuộc tính này đã tồn tại'
+                                    ]),
+                                Repeater::make('optionValues')
+                                    ->label('Giá trị thuộc tính')
+                                    ->schema([
+                                        TextInput::make('value_name')
+                                            ->label('Tên giá trị')
+                                            ->rules(['required'])
+                                            ->validationMessages(['required' => 'Vui lòng nhập giá trị *']),
+                                    ])
+                                    ->columnSpanFull()
+                                    ->deletable()
+                                    ->addable()
+                                    ->minItems(1)
+                                    ->rules(['min:1'])
+                                    ->validationMessages(['min' => 'Phải có ít nhất 1 giá trị'])
+
+                            ])->createOptionUsing(function (array $data) {
+                                $option = \App\Models\Option::create([
+                                    'name' => $data['name'],
+                                ]);
+
+                                foreach ($data['optionValues'] as $value) {
+                                    $option->optionValues()->create([
+                                        'value_name' => $value['value_name'],
+                                    ]);
+                                }
+
+                                return $option->id;
+                            })
+                            ->label('Thuộc tính')->options(Option::pluck('name', 'id'))->reactive()->afterStateUpdated(function (callable $set) {
+                                $set('value_id', null);
+                            })->searchable()->rules(['required'])->validationMessages(['Vui lòng chọn thuộc tính'])->rules('required')->validationMessages(['required' => 'Vui lòng chọn thuộc tính']),
                         Select::make('value_id')->label('Giá trị')->options(function (callable $get) {
                             $optionId = $get('option_id');
                             return $optionId ? OptionValue::where('option_id', $optionId)->pluck('value_name', 'id') : [];
@@ -113,15 +148,35 @@ class ProductResource extends Resource
                             'required' => 'Vui lòng tải lên ít nhất 1 ảnh sản phẩm',
                         ]),
                 ])->defaultItems(1)->addable(true)->deletable(true)->label('Biến thể')->rules(['min:1'])->validationMessages(['min' => 'Sản phẩm phải có ít nhất một thuộc tính.'])->columns(2)->columnSpanFull(),
-                select::make('tags')->relationship('tags', 'tag_name')->preload()->searchable()->label('Thẻ (Tùy chọn)')->multiple()->placeholder('Chọn các thẻ liên quan'),
+                select::make('tags')->relationship('tags', 'tag_name')->preload()->searchable()->label('Thẻ (Tùy chọn)')->multiple()->placeholder('Chọn các thẻ liên quan')->createOptionForm([
+                    TextInput::make('tag_name')->label('Tên thẻ')->rules(['required', 'unique:related_tags'])->validationMessages(['required' => 'Vui lòng nhập thông tin này', 'unique' => 'Thẻ này đã tồn tại'])
+                ]),
                 SelectTree::make('categories')
                     ->label('Phân loại sản phẩm')
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Tên phân loại')
+                            ->rules(['required', 'unique:categories,name'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng nhập tên phân loại',
+                                'unique' => 'Phân loại này đã tồn tại'
+                            ])
+                    ])
                     ->relationship('categories', 'name', 'parent_id')
                     ->placeholder('Vui lòng chọn phân loại sản phẩm')
                     ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn ít nhất 1 phân loại sản phẩm'])
                     ->searchable(),
                 Select::make('publisher_id')->label('Nhà xuất bản')
                     ->preload()
+                    ->createOptionForm([
+                        TextInput::make('publisher_name')
+                            ->label('Tên nhà xuất bản')
+                            ->rules(['required', 'unique:publishers,publisher_name'])
+                            ->validationMessages([
+                                'required' => 'Vui lòng nhập thông tin này',
+                                'unique' => 'Nhà xuất bản này đã tồn tại'
+                            ])
+                    ])
                     ->relationship('publisher', 'publisher_name')
                     ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản'])->searchable(),
                 Select::make('product_status')
@@ -141,6 +196,7 @@ class ProductResource extends Resource
                     ->relationship('productPreview')
                     ->schema([
                         FileUpload::make('file_path')
+                            ->required()
                             ->rules(['required'])->validationMessages(['required' => 'Vui lòng tải l file đọc thử (pdf hoặc pub)'])
                             ->maxSize(100480)
                             ->acceptedFileTypes(['application/pdf', 'application/x-mspublisher'])
@@ -187,7 +243,6 @@ class ProductResource extends Resource
                 })->color(fn($state) => $state === 'active' ? 'success' : 'danger')->searchable(),
             ])->defaultSort('created_at', 'desc')
             ->filters([
-                //
                 TrashedFilter::make(),
                 SelectFilter::make('role')
                     ->label('Lọc theo vai trò')
