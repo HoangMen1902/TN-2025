@@ -97,10 +97,16 @@
                             </div>
 
                             @foreach ($order->orderDetails as $detail)
+                                @php
+                                    $item_type = $detail->combo_id ? 'combo' : 'sku';
+                                    $imagePath = $item_type === 'sku'
+                                        ? ($detail->sku->images[0] ?? 'default.jpg')
+                                        : ($detail->combo->images[0] ?? 'default.jpg');
+                                @endphp
                                 <div class="p-3 md:p-4 border-b border-gray-200">
                                     <div class="flex items-start">
                                         <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                            <img src="{{ asset('storage/' . $detail->sku->images[0]) ?? '/default.jpg' }}"
+                                            <img src="{{ asset('storage/' . $imagePath) ?? '/default.jpg' }}"
                                                 alt="Sản phẩm" class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -116,8 +122,7 @@
                                             <p class="text-gray-500 text-xs md:text-sm">x{{ $detail->quantity }}</p>
                                             @if($order->paymentDetail && $order->paymentDetail->tracking_id)
                                                 <div class="text-sm text-gray-600">
-                                                    Mã đơn: <span
-                                                        class="font-medium">{{ $order->paymentDetail->tracking_id }}</span>
+                                                    Mã đơn: <span class="font-medium">{{ $order->paymentDetail->tracking_id }}</span>
                                                 </div>
                                             @endif
                                         </div>
@@ -135,7 +140,7 @@
                             @endforeach
                             @php
                                 $statusMessages = [
-                                    
+
                                     'Đang xử lý' => [
                                         'label' => 'Đang xử lý',
                                         'color' => 'text-yellow-500',

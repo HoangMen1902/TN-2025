@@ -16,7 +16,10 @@ class OrderDetail extends Model
         'sku_id',
         'price',
         'quantity',
+        'combo_id'
     ];
+
+
 
     public function order()
     {
@@ -30,7 +33,7 @@ class OrderDetail extends Model
 
     public function combo()
     {
-        return $this->belongsTo(ProductCombo::class, 'product_combo_id'); 
+        return $this->belongsTo(ProductCombo::class, 'combo_id'); 
     }
     public function product()
     {
