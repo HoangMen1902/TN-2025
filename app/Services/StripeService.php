@@ -79,6 +79,8 @@ class StripeService
                 } else {
                     $price = ($item->sku->sale_price ?? $item->sku->price);
                 }
+            } elseif($item_type === 'combo') {
+                $price = $item->combo->sale_price;
             }
 
             $price = (int) $price;
