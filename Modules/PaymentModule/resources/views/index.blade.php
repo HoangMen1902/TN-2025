@@ -5,11 +5,10 @@
 
         <script>
 
-            $(document).ready(function () {
-                $('input[name="selected_address"]').on('change', function () {
-                    let id = $(this).val();
-                    Livewire.dispatch('user_selected_address', {id: id});
-                });
+            $(document).on('change', 'input[name="selected_address"]', function () {
+                let id = $(this).val();
+                Livewire.dispatch('user_selected_address', { id: id });
+                console.log(id);
             });
 
 
