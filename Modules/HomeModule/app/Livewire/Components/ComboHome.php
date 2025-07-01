@@ -11,7 +11,7 @@ class ComboHome extends Component
     public function render()
     {
          $combos = ProductCombo::with(['productSkus.product'])
-            ->whereNull('deleted_at')
+            ->where('expired_at', '>', now())
             ->paginate(12);
         return view('homemodule::livewire.components.combo-home', [
             'combos' => $combos]);

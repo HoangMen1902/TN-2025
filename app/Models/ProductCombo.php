@@ -40,5 +40,7 @@ class ProductCombo extends Model
     public function productSkus() {
         return $this->belongsToMany(ProductSku::class, 'combo_skus', 'combo_id', 'sku_id');
     }
+
+    
     
 }

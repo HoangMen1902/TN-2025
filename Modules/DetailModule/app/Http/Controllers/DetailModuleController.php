@@ -33,7 +33,7 @@ class DetailModuleController extends Controller
 
     public function combo($slug)
     {
-        $data = ProductCombo::where('slug', $slug)->first();
+        $data = ProductCombo::where('slug', $slug)->where('expired_at', '>', now())->first();
         if ($data != null) {
 
             $id = $data->id;

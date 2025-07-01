@@ -1,6 +1,6 @@
 <x-layouts.layout>
     <x-slot name="styles">
-        @vite('Modules/DetailModule/Resources/assets/js/app.js')
+        @vite('Modules/DetailModule/resources/assets/js/app.js')
     </x-slot>
     <div class="m-auto lg:py-lg-2">
         <div class="flex justify-center">
