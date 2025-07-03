@@ -33,7 +33,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?string $navigationGroup = 'Quản lý Người Dùng';
-
+    protected static ?int $navigationSort = 1;
     protected static ?string $navigationIcon = 'heroicon-o-user';
 
     protected static ?string $navigationLabel = 'Người Dùng';
@@ -156,23 +156,26 @@ class UserResource extends Resource
                                 ->performedOn($record)
                                 ->log('Cập nhật thông tin người dùng: ' . $record->name);
                         }),
-                    Tables\Actions\DeleteAction::make()->action(function ($record) {
-                        if ($record->id === Auth::id()) {
-                            Notification::make()
-                                ->title('Không thể xóa tài khoản đang sử dụng.')
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-                        $record->user_status = 'inactive';
-                        $record->save();
-                        $record->delete();
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Vô hiệu hóa')
+                        ->color('danger')
+                        ->action(function ($record) {
+                            if ($record->id === Auth::id()) {
+                                Notification::make()
+                                    ->title('Không thể xóa tài khoản đang sử dụng.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            $record->user_status = 'inactive';
+                            $record->save();
+                            $record->delete();
 
-                        activity()
-                            ->causedBy(Auth::user())
-                            ->performedOn($record)
-                            ->log('Xóa người dùng: ' . $record->name);
-                    }),
+                            activity()
+                                ->causedBy(Auth::user())
+                                ->performedOn($record)
+                                ->log('Xóa người dùng: ' . $record->name);
+                        }),
                     Tables\Actions\RestoreAction::make()->action(function ($record) {
                         $record->user_status = 'active';
                         $record->save();
@@ -189,7 +192,20 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function ($records, $action) {
+                            foreach ($records as $record) {
+                                if ($record->orders()->exists()) {
+                                    Notification::make()
+                                        ->title("Không thể xóa vĩnh viễn tài khoản ID {$record->id} đã từng mua hàng.")
+                                        ->danger()
+                                        ->send();
+                                  
+                                    $action->cancel();
+                                    return;
+                                }
+                            }
+                        }),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
