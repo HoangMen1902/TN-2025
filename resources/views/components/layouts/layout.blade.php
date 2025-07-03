@@ -595,8 +595,6 @@
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
-                background: '#333333', // màu nền bạn muốn (ví dụ nền tối)
-                color: '#fff', // màu chữ trắng để nổi bật trên nền tối
             });
 
         });

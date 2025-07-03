@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Cart as CartModel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class CartCount extends Component
 {
@@ -13,13 +15,18 @@ class CartCount extends Component
     {
         $sessionId = session()->getId();
         $userId = Auth::id();
-
-        return CartModel::where(function ($query) use ($sessionId, $userId) {
-            $query->where('session_id', $sessionId);
-            if ($userId) {
-                $query->orWhere('user_id', $userId);
+        if ($userId) {
+            return CartModel::where('user_id', '=', 'user_id')->count();
+        } else {
+            $totalItems = 0;
+            $carts = Session::get('carts', []);
+            if (isset($carts) && !empty($carts)) {
+                $totalItems += count($carts['sku']);
+                $totalItems += count($carts['combo']);
+                return $totalItems;
             }
-        })->count();
+            return 0;
+        }
     }
 
     public function render()

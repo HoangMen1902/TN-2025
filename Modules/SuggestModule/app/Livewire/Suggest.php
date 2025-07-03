@@ -42,13 +42,14 @@ class Suggest extends Component
                 ->pluck('sku_id')
                 ->unique()
                 ->toArray();
-        } else {
-            $sessionId = session()->getId();
-            $cartSkuIds = \App\Models\Cart::where('session_id', $sessionId)
-                ->pluck('sku_id')
-                ->unique()
-                ->toArray();
-        }
+        } 
+        // else {
+        //     $sessionId = session()->getId();
+        //     $cartSkuIds = \App\Models\Cart::where('session_id', $sessionId)
+        //         ->pluck('sku_id')
+        //         ->unique()
+        //         ->toArray();
+        // }
 
         if (!empty($cartSkuIds)) {
             $cartProductIds = \App\Models\ProductSku::whereIn('id', $cartSkuIds)

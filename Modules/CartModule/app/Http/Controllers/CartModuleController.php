@@ -10,6 +10,7 @@ use App\Models\ProductCombo;
 use App\Models\ProductSku;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class CartModuleController extends Controller
 {
@@ -43,6 +44,9 @@ class CartModuleController extends Controller
         $itemIdField = $itemType === 'sku' ? 'sku_id' : 'combo_id';
         $itemId = $request->$itemIdField;
 
+        $cartItem = null;
+        $existed_cart = false;
+
         if (Auth::check()) {
 
             $cartItem = Cart::where('user_id', $userId)
@@ -50,10 +54,10 @@ class CartModuleController extends Controller
                 ->where($itemIdField, $itemId)
                 ->first();
         } else {
-            $cartItem = Cart::where('session_id', $sessionId)
-                ->where('item_type', $itemType)
-                ->where($itemIdField, $itemId)
-                ->first();
+            $carts = Session::get('carts', []);
+                if (isset($carts[$itemType][$itemId])) {
+                $existed_cart = true;
+            }
         }
 
         $query = [];
@@ -67,7 +71,6 @@ class CartModuleController extends Controller
         }
 
         if ($query['data']->quantity < $request->quantity) {
-            dd($query['data']);
             return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
         }
 
@@ -77,25 +80,22 @@ class CartModuleController extends Controller
             }
         }
 
-        $result = null;
+
 
         if ($cartItem) {
             $cartItem->quantity += $request->quantity;
             $cartItem->user_id = $userId;
             $cartItem->save();
-            $result = $cartItem;
+        } elseif ($existed_cart) {
+           $carts[$itemType][$itemId]['quantity'] += $request->quantity;
         } else {
-            $result = Cart::create([
-                'session_id' => $sessionId,
-                'user_id' => $userId,
-                'sku_id' => $request->sku_id,
-                'combo_id' => $request->combo_id,
+            $carts[$itemType][$itemId] = [
                 'quantity' => $request->quantity,
-                'item_type' => $itemType,
-            ]);
+            ];
         }
+        Session::put('carts', $carts);
 
-        if($request->checkout) {
+        if ($request->checkout) {
             return redirect()->route('cart.index');
         }
 

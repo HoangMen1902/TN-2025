@@ -4,7 +4,12 @@ namespace Modules\CartModule\Livewire\Component;
 
 use Livewire\Component;
 use App\Models\Cart as CartModel;
+use App\Models\Product;
+use App\Models\ProductCombo;
+use App\Models\ProductSku;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
 
 class Cart extends Component
@@ -14,21 +19,26 @@ class Cart extends Component
     public $total_price = 0;
     public $selected_cart = [];
 
+    public $cartItems;
+
+    public $logged_in;
 
     #[On('selected_cart')]
     public function updatePrice()
     {
-        $this->total_price = 0;
-        if (empty($this->selected_cart)) {
-            return;
-        }
-        foreach ($this->selected_cart as $cart) {
-            $cartData = CartModel::find($cart);
-            $itemType = $cartData->item_type;
-            if ($itemType === "sku") {
-                $this->total_price += ($cartData->sku->sale_price ?? $cartData->sku->price) * $cartData->quantity;
-            } elseif ($itemType === "combo") {
-                $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
+        if ($this->logged_in) {
+            $this->total_price = 0;
+            if (empty($this->selected_cart)) {
+                return;
+            }
+            foreach ($this->selected_cart as $cart) {
+                $cartData = CartModel::find($cart);
+                $itemType = $cartData->item_type;
+                if ($itemType === "sku") {
+                    $this->total_price += ($cartData->sku->sale_price ?? $cartData->sku->price) * $cartData->quantity;
+                } elseif ($itemType === "combo") {
+                    $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
+                }
             }
         }
     }
@@ -37,6 +47,7 @@ class Cart extends Component
     {
         $sessionId = session()->getId();
         $userId = Auth::id();
+        $this->logged_in = $userId ? true : false;
 
         return CartModel::where(function ($query) use ($sessionId, $userId) {
             $query->where('session_id', $sessionId);
@@ -46,155 +57,243 @@ class Cart extends Component
         })->count();
     }
 
-    private function checkUserCart($cartId): bool
-    {
-        $cart = CartModel::find($cartId)->first();
-        if (!$cart) {
-            return false;
-        }
-        if (Auth::check() && $cart->user_id == Auth::user()->id) {
-            return true;
-        } elseif (!Auth::check() && $cart->session_id === session()->getId()) {
-            return true;
-        }
-        return false;
-    }
-
-
-
     public function mount()
     {
-        $sessionId = session()->getId();
         $userId = Auth::id();
+        $this->cartItems = collect();
 
-        $cartItems = CartModel::with(['sku.product', 'combo'])
-            ->where(function ($query) use ($sessionId, $userId) {
-                $query->where('session_id', $sessionId);
-                if ($userId) {
-                    $query->orWhere('user_id', $userId);
-                }
-            })->get();
+        if ($userId) {
+            $this->cartItems = CartModel::with(['sku.product', 'combo'])
+                ->where('user_id', '=', $userId)->get();
+            foreach ($this->cartItems as $item) {
+                $this->quantities[$item->id] = $item->quantity;
+            }
+        } else {
+            $cart = Session::get('carts', []);
+            $skuIds = array_keys($cart['sku'] ?? []);
+            $comboIds = array_keys($cart['combo'] ?? []);
+            $skus = ProductSku::with('product')->whereIn('id', $skuIds)->get()->keyBy('id');
+            $combos = ProductCombo::whereIn('id', $comboIds)->get()->keyBy('id');
+            $this->cartItems['sku'] = $skus;
+            $this->cartItems['combo'] = $combos;
 
-        foreach ($cartItems as $item) {
-            $this->quantities[$item->id] = $item->quantity;
+            foreach ($cart['sku'] as $index => $item) {
+                $this->quantities['sku'][$index] = $item['quantity'];
+            }
+
+
+            foreach ($cart['combo'] as $index => $item) {
+                $this->quantities['combo'][$index] = $item['quantity'];
+            }
         }
     }
 
     public function updatedQuantities($value, $key)
     {
-        if ($value < 1) {
-            $this->quantities[$key] = 1;
-            $value = 1;
+        if ($this->logged_in) {
+            if ($value < 1) {
+                $this->quantities[$key] = 1;
+                $value = 1;
+            }
+            CartModel::where('id', $key)->update(['quantity' => $value]);
+            $this->dispatch('selected_cart');
+
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn(CartModel::find($key))
+                ->withProperties(['quantity' => $value])
+                ->log('Cập nhật số lượng sản phẩm trong giỏ hàng');
         }
-        CartModel::where('id', $key)->update(['quantity' => $value]);
-        $this->dispatch('selected_cart');
-
-
-        activity()
-            ->causedBy(Auth::user())
-            ->performedOn(CartModel::find($key))
-            ->withProperties(['quantity' => $value])
-            ->log('Cập nhật số lượng sản phẩm trong giỏ hàng');
     }
 
-    public function removeItem($itemId)
+    public function removeItem($itemId, $type = null)
     {
-        CartModel::where('id', $itemId)->delete();
-        unset($this->quantities[$itemId]);
-        $this->dispatch('selected_cart');
+        if ($this->logged_in) {
+            CartModel::where('id', $itemId)->delete();
+            unset($this->quantities[$itemId]);
+            $this->dispatch('selected_cart');
 
 
-        activity()
-            ->causedBy(Auth::user())
-            ->withProperties(['cart_item_id' => $itemId])
-            ->log('Xóa sản phẩm khỏi giỏ hàng');
+            activity()
+                ->causedBy(Auth::user())
+                ->withProperties(['cart_item_id' => $itemId])
+                ->log('Xóa sản phẩm khỏi giỏ hàng');
+        } else {
+            if (!$type) {
+                return;
+            }
+            $carts = Session::get('carts', []);
+            if ($type === 'sku') {
+                Arr::forget($carts, 'sku.' . $itemId);
+            } elseif ($type === 'combo') {
+                Arr::forget($carts, 'combo.' . $itemId);
+            }
+                Session::put('carts', $carts);
+                $this->cartItems = Session::get('carts');
+        }
     }
 
     public function deleteAll()
     {
-        $sessionId = session()->getId();
-        $userId = Auth::id();
+        if ($this->logged_in) {
+            $userId = Auth::id();
 
-        CartModel::where(function ($query) use ($sessionId, $userId) {
-            $query->where('session_id', $sessionId);
-            if ($userId) {
-                $query->orWhere('user_id', $userId);
-            }
-        })->delete();
+            CartModel::where('user_id', '=', $userId)->delete();
 
-        $this->quantities = [];
-        $this->total_price = 0;
+            $this->quantities = [];
+            $this->total_price = 0;
 
-        activity()
-            ->causedBy(Auth::user())
-            ->log('Xóa toàn bộ giỏ hàng');
-    }
-    public function increaseQuantity($itemId)
-    {
-        $cart = CartModel::where('id', $itemId)->first();
-        $itemType = $cart->item_type;
-        $quantity = 0;
-        if ($itemType === 'sku') {
-            $quantity = $cart->sku->quantity;
-        } elseif ($itemType === 'combo') {
-            $quantity = $cart->combo->quantity;
+            activity()
+                ->causedBy(Auth::user())
+                ->log('Xóa toàn bộ giỏ hàng');
+        } else {
+            Session::forget('carts');
         }
-
-        if ($this->quantities[$itemId] + 1 > $quantity) {
-            return;
-        }
-        $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) + 1;
-        $cart->quantity = $this->quantities[$itemId];
-        $cart->save();
-        $this->dispatch('selected_cart');
     }
-
-    public function decreaseQuantity($itemId)
+    public function increaseQuantity($itemId, $type = null)
     {
-        $current = $this->quantities[$itemId] ?? 1;
-        if ($current > 1) {
+        if ($this->logged_in) {
             $cart = CartModel::where('id', $itemId)->first();
-            $itemType = $cart->item_type;
+            $itemType = $cart ? $cart->item_type : false;
             $quantity = 0;
             if ($itemType === 'sku') {
                 $quantity = $cart->sku->quantity;
             } elseif ($itemType === 'combo') {
                 $quantity = $cart->combo->quantity;
+            } else {
+                return;
             }
 
-            if ($this->quantities[$itemId] - 1 > $quantity) {
-                return; //bat loi sau
+            if ($this->quantities[$itemId] + 1 > $quantity) {
+                return;
             }
-            $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) - 1;
+            $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) + 1;
             $cart->quantity = $this->quantities[$itemId];
             $cart->save();
             $this->dispatch('selected_cart');
+        } else {
+            if ($type === null) {
+                return;
+            }
+            $carts = Session::get('carts', []);
+            if ($type === 'sku') {
+                $sku = ProductSku::with(['product' => function ($query) {
+                    $query->where('product_status', '!=', 'inactive');
+                }])->where('id', $itemId)->first();
+
+                if (!$sku) return;
+
+                $newQuantity = $carts['sku'][$itemId]['quantity'] + 1;
+
+                if ($sku->quantity < $newQuantity) {
+                    $this->dispatch('toast', type: 'error', message: 'Không đủ số lượng sản phẩm.');
+                    return;
+                }
+
+                $carts['sku'][$itemId]['quantity'] = $newQuantity;
+                $this->quantities['sku'][$itemId] = $newQuantity;
+            } elseif ($type === 'combo') {
+                $combo = ProductCombo::where('id', $itemId)
+                    ->where('expired_at', '>', now())
+                    ->first();
+
+                if (!$combo) return;
+
+                $newQuantity = $carts['combo'][$itemId]['quantity'] + 1;
+
+                if ($combo->quantity < $newQuantity) {
+                    $this->dispatch('toast', 'Không đủ số lượng sản phẩm');
+                    return;
+                }
+
+                $carts['combo'][$itemId]['quantity'] = $newQuantity;
+                $this->quantities['combo'][$itemId] = $newQuantity;
+            } else {
+                return;
+            }
+
+            Session::put('carts', $carts);
+        }
+    }
+
+    public function decreaseQuantity($itemId, $type = null)
+    {
+        if ($this->logged_in) {
+            $current = $this->quantities[$itemId] ?? 1;
+            if ($current > 1) {
+                $cart = CartModel::where('id', $itemId)->first();
+                $itemType = $cart->item_type;
+                $quantity = 0;
+                if ($itemType === 'sku') {
+                    $quantity = $cart->sku->quantity;
+                } elseif ($itemType === 'combo') {
+                    $quantity = $cart->combo->quantity;
+                }
+
+                if ($this->quantities[$itemId] - 1 > $quantity) {
+                    $this->dispatch('toast', 'Sản phẩm này đã hết');
+                    return;
+                }
+                $this->quantities[$itemId] = ($this->quantities[$itemId] ?? 1) - 1;
+                $cart->quantity = $this->quantities[$itemId];
+                $cart->save();
+                $this->dispatch('selected_cart');
+            }
+        } else {
+            if ($type === null) {
+                return;
+            }
+            $carts = Session::get('carts', []);
+            if ($type === 'sku') {
+                $sku = ProductSku::with(['product' => function ($query) {
+                    $query->where('product_status', '!=', 'inactive');
+                }])->where('id', $itemId)->first();
+
+                if (!$sku) return;
+
+                $newQuantity = $carts['sku'][$itemId]['quantity'] - 1;
+                if ($newQuantity < 1) {
+                    $this->dispatch('toast', type: 'error', message: 'Đã đạt mức sản phẩm tối thiểu');
+                    return;
+                }
+                if ($sku->quantity < $newQuantity) {
+                    $this->dispatch('toast', type: 'error', message: 'Không đủ số lượng sản phẩm.');
+                    return;
+                }
+
+                $carts['sku'][$itemId]['quantity'] = $newQuantity;
+                $this->quantities['sku'][$itemId] = $newQuantity;
+            } elseif ($type === 'combo') {
+                $combo = ProductCombo::where('id', $itemId)
+                    ->where('expired_at', '>', now())
+                    ->first();
+
+                if (!$combo) return;
+
+                $newQuantity = $carts['combo'][$itemId]['quantity'] - 1;
+                if ($newQuantity < 1) {
+                    $this->dispatch('toast', type: 'error', message: 'Đã đạt mức sản phẩm tối thiểu');
+                    return;
+                }
+                if ($combo->quantity < $newQuantity) {
+                    $this->dispatch('toast', 'Không đủ số lượng sản phẩm');
+                    return;
+                }
+
+                $carts['combo'][$itemId]['quantity'] = $newQuantity;
+                $this->quantities['combo'][$itemId] = $newQuantity;
+            } else {
+                return;
+            }
+
+            Session::put('carts', $carts);
         }
     }
 
 
     public function render()
     {
-        $sessionId = session()->getId();
-        $userId = Auth::id();
-
-        $cartItems = CartModel::with(['sku.product', 'combo'])
-            ->where(function ($query) use ($sessionId, $userId) {
-                $query->where('session_id', $sessionId);
-                if ($userId) {
-                    $query->orWhere('user_id', $userId);
-                }
-            })->get();
-
-        foreach ($cartItems as $item) {
-            if (!isset($this->quantities[$item->id])) {
-                $this->quantities[$item->id] = $item->quantity;
-            }
-        }
-
-
-        return view('cartmodule::livewire.component.cart', [
-            'cartItems' => $cartItems,
-        ]);
+        return view('cartmodule::livewire.component.cart');
     }
 }
