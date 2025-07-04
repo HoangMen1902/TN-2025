@@ -93,4 +93,20 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(\App\Models\Cart::class, 'user_id');
     }
+    public function getUserStatusBoolAttribute(): bool
+    {
+        return $this->user_status === 'active';
+    }
+
+    public function setUserStatusBoolAttribute($value): void
+    {
+        $this->user_status = $value ? 'active' : 'inactive';
+    }
+
+      public function setPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['password'] = bcrypt($value);
+        }
+    }
 }
