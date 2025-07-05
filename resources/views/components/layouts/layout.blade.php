@@ -395,7 +395,7 @@
                                         <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
                                             <div class="grid grid-cols-3 gap-y-4">
                                                 @foreach ($parent->children as $child)
-                                                    <a href="#"
+                                                    <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
                                                         class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
                                                         {{ $child->name }}
                                                     </a>
