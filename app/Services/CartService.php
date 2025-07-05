@@ -3,43 +3,56 @@
 namespace App\Services;
 
 use App\Models\Cart;
+use Exception;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session as FacadesSession;
 
 class CartService
 {
-    public static function syncCartAfterLogin($currCart, $userId)
+    public static function syncCartAfterLogin($userId)
     {
 
 
         try {
-            foreach ($currCart as $cart) {
+            $carts = FacadesSession::get('carts', []);
 
-                $existingCart = Cart::where('user_id', $userId)
-                    ->where('item_type', $cart->item_type)
-                    ->where($cart->item_type === 'sku' ? 'sku_id' : 'combo_id', $cart->sku_id ?? $cart->combo_id)
-                    ->first();
+            if (empty($carts) || (empty($carts['sku']) && empty($carts['combo']))) {
+                return;
+            }
 
-                if ($existingCart) {
-                    $existingCart->quantity += $cart->quantity;
-                    $existingCart->save();
 
-                    $cart->delete();
-                } else {
-                    $cart->user_id = $userId;
-                    $saved = $cart->save();
+            if (!empty($carts['sku'])) {
+                foreach ($carts['sku'] as $skuId => $cartSku) {
+                    Cart::updateOrInsert(
+                        [
+                            'user_id' => $userId,
+                            'sku_id' => $skuId,
+                            'combo_id' => null,
+                        ],
+                        [
+                            'item_type' => 'sku',
+                            'quantity' => DB::raw("quantity + {$cartSku['quantity']}")
+                        ]
+                    );
+                }
+            }
 
-                    if ($saved) {
-                        \Log::info('Cart updated with user_id', [
-                            'cart_id' => $cart->id,
-                            'user_id' => $userId
-                        ]);
-                    } else {
-                        \Log::warning('Cart save returned false', [
-                            'cart_id' => $cart->id,
-                            'user_id' => $userId
-                        ]);
-                    }
+            if (!empty($carts['combo'])) {
+                foreach ($carts['combo'] as $comboId => $cartCombo) {
+                    Cart::updateOrInsert(
+                        [
+                            'user_id' => $userId,
+                            'sku_id' => null,
+                            'combo_id' => $comboId,
+                        ],
+                        [
+                            'item_type' => 'combo',
+                            'quantity' => DB::raw("quantity + {$cartCombo['quantity']}")
+                        ]
+                    );
                 }
             }
         } catch (\Exception $e) {

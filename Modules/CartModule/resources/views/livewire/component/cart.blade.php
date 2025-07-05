@@ -68,7 +68,7 @@
                                             class="w-6 h-6 rounded-full border border-gray-500 text-base md:text-xl leading-none flex items-center justify-center hover:bg-gray-200"
                                             wire:click="increaseQuantity({{ $item->id }})">+</button>
                                     </div>
-                                    <button wire:click="removeItem({{ $item->id }})"
+                                    <button wire:key="cart-item-{{ $item->id }}" wire:click="removeItem({{ $item->id }})"
                                         class="mt-1 md:mt-2 text-gray-600 hover:text-red-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                             stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">

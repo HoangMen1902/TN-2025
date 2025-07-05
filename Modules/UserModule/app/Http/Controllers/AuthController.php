@@ -39,14 +39,12 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        // $oldSessionId = session()->getId();
 
         $credentials = $request->only('email', 'password');
 
-        // $currCart = Cart::where('session_id', '=',    $oldSessionId)->get();
 
         if (Auth::attempt($credentials)) {
-            // CartService::syncCartAfterLogin($currCart, Auth::id());
+            CartService::syncCartAfterLogin( Auth::id());
             return redirect()->intended('/')->with('success', 'Đăng nhập thành công!');
         }
 
