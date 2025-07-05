@@ -21,8 +21,14 @@ class CartCount extends Component
             $totalItems = 0;
             $carts = Session::get('carts', []);
             if (isset($carts) && !empty($carts)) {
+                if(isset($carts['sku']) && !empty($carts['sku'])) {
                 $totalItems += count($carts['sku']);
+                }
+
+                if(isset($carts['combo']) && !empty($carts['combo'])) {
                 $totalItems += count($carts['combo']);
+
+                }
                 return $totalItems;
             }
             return 0;

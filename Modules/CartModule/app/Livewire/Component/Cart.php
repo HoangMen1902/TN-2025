@@ -77,13 +77,21 @@ class Cart extends Component
             $this->cartItems['sku'] = $skus;
             $this->cartItems['combo'] = $combos;
 
-            foreach ($cart['sku'] as $index => $item) {
-                $this->quantities['sku'][$index] = $item['quantity'];
+            if (!$cart || empty($cart)) {
+                return;
+            }
+
+            if (isset($cart['sku']) && !empty($cart['sku'])) {
+                foreach ($cart['sku'] as $index => $item) {
+                    $this->quantities['sku'][$index] = $item['quantity'];
+                }
             }
 
 
-            foreach ($cart['combo'] as $index => $item) {
-                $this->quantities['combo'][$index] = $item['quantity'];
+            if (isset($cart['combo']) && !empty($cart['combo'])) {
+                foreach ($cart['combo'] as $index => $item) {
+                    $this->quantities['combo'][$index] = $item['quantity'];
+                }
             }
         }
     }
@@ -129,8 +137,8 @@ class Cart extends Component
             } elseif ($type === 'combo') {
                 Arr::forget($carts, 'combo.' . $itemId);
             }
-                Session::put('carts', $carts);
-                $this->cartItems = Session::get('carts');
+            Session::put('carts', $carts);
+            $this->cartItems = Session::get('carts');
         }
     }
 
