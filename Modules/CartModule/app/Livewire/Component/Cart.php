@@ -23,6 +23,9 @@ class Cart extends Component
 
     public $logged_in;
 
+    public array $selected_cart_combos = [];
+    public array $selected_cart_skus = [];
+
     #[On('selected_cart')]
     public function updatePrice()
     {
@@ -40,14 +43,41 @@ class Cart extends Component
                     $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
                 }
             }
+        } else {
+            $skuQuantities = collect($this->quantities['sku'] ?? [])
+                ->only($this->selected_cart_skus)
+                ->toArray();
+
+            $comboQuantities = collect($this->quantities['combo'] ?? [])
+                ->only($this->selected_cart_combos)
+                ->toArray();
+
+
+            $skus = ProductSku::whereIn('id', array_keys($skuQuantities))->get();
+            $combos = ProductCombo::whereIn('id', array_keys($comboQuantities))->get();
+
+            $totalSku = $skus->sum(function ($sku) use ($skuQuantities) {
+                $price = $sku->sale_price ?? $sku->price;
+                $quantity = $skuQuantities[$sku->id] ?? 0;
+                return $price * $quantity;
+            });
+
+            $totalCombo = $combos->sum(function ($combo) use ($comboQuantities) {
+                $price = $combo->sale_price ?? $combo->price;
+                $quantity = $comboQuantities[$combo->id] ?? 0;
+                return $price * $quantity;
+            });
+
+            $this->total_price = $totalCombo + $totalSku;
         }
     }
+
+
 
     public function getCartCount()
     {
         $sessionId = session()->getId();
         $userId = Auth::id();
-        $this->logged_in = $userId ? true : false;
 
         return CartModel::where(function ($query) use ($sessionId, $userId) {
             $query->where('session_id', $sessionId);
@@ -60,6 +90,7 @@ class Cart extends Component
     public function mount()
     {
         $userId = Auth::id();
+        $this->logged_in = $userId ? true : false;
         $this->cartItems = collect();
 
         if ($userId) {
@@ -138,8 +169,22 @@ class Cart extends Component
                 Arr::forget($carts, 'combo.' . $itemId);
             }
             Session::put('carts', $carts);
-            $this->cartItems = Session::get('carts');
+            $this->takeSessionCart();
+            $this->dispatch('selected_cart');
         }
+    }
+
+    public function takeSessionCart()
+    {
+        $carts = Session::get('carts', []);
+        $skuIds = array_keys($carts['sku'] ?? []);
+        $comboIds = array_keys($carts['combo'] ?? []);
+
+        $skus = ProductSku::with('product')->whereIn('id', $skuIds)->get()->keyBy('id');
+        $combos = ProductCombo::whereIn('id', $comboIds)->get()->keyBy('id');
+
+        $this->cartItems['sku'] = $skus;
+        $this->cartItems['combo'] = $combos;
     }
 
     public function deleteAll()
@@ -201,6 +246,7 @@ class Cart extends Component
 
                 $carts['sku'][$itemId]['quantity'] = $newQuantity;
                 $this->quantities['sku'][$itemId] = $newQuantity;
+                $this->dispatch('selected_cart');
             } elseif ($type === 'combo') {
                 $combo = ProductCombo::where('id', $itemId)
                     ->where('expired_at', '>', now())
@@ -217,6 +263,7 @@ class Cart extends Component
 
                 $carts['combo'][$itemId]['quantity'] = $newQuantity;
                 $this->quantities['combo'][$itemId] = $newQuantity;
+                $this->dispatch('selected_cart');
             } else {
                 return;
             }
@@ -272,6 +319,7 @@ class Cart extends Component
 
                 $carts['sku'][$itemId]['quantity'] = $newQuantity;
                 $this->quantities['sku'][$itemId] = $newQuantity;
+                $this->dispatch('selected_cart');
             } elseif ($type === 'combo') {
                 $combo = ProductCombo::where('id', $itemId)
                     ->where('expired_at', '>', now())
@@ -291,6 +339,7 @@ class Cart extends Component
 
                 $carts['combo'][$itemId]['quantity'] = $newQuantity;
                 $this->quantities['combo'][$itemId] = $newQuantity;
+                $this->dispatch('selected_cart');
             } else {
                 return;
             }

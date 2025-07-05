@@ -55,7 +55,7 @@ class CartModuleController extends Controller
                 ->first();
         } else {
             $carts = Session::get('carts', []);
-                if (isset($carts[$itemType][$itemId])) {
+            if (isset($carts[$itemType][$itemId])) {
                 $existed_cart = true;
             }
         }
@@ -87,13 +87,22 @@ class CartModuleController extends Controller
             $cartItem->user_id = $userId;
             $cartItem->save();
         } elseif ($existed_cart) {
-           $carts[$itemType][$itemId]['quantity'] += $request->quantity;
+            $carts[$itemType][$itemId]['quantity'] += $request->quantity;
+            Session::put('carts', $carts);
+        } elseif (Auth::check() && !$cartItem) {
+            $result = Cart::create([
+                'user_id' => $userId,
+                'sku_id' => $request->sku_id,
+                'combo_id' => $request->combo_id,
+                'quantity' => $request->quantity,
+                'item_type' => $itemType,
+            ]);
         } else {
             $carts[$itemType][$itemId] = [
                 'quantity' => $request->quantity,
             ];
+            Session::put('carts', $carts);
         }
-        Session::put('carts', $carts);
 
         if ($request->checkout) {
             return redirect()->route('cart.index');

@@ -16,7 +16,7 @@ class CartCount extends Component
         $sessionId = session()->getId();
         $userId = Auth::id();
         if ($userId) {
-            return CartModel::where('user_id', '=', 'user_id')->count();
+            return CartModel::where('user_id', '=', $userId)->count();
         } else {
             $totalItems = 0;
             $carts = Session::get('carts', []);
