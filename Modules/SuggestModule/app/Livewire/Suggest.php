@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\SearchHistory;
 use Illuminate\Support\Facades\Auth;
 use App\Models\OrderDetail;
+use Illuminate\Database\Eloquent\Builder;
 
 class Suggest extends Component
 {
@@ -77,6 +78,7 @@ class Suggest extends Component
 
         $products = collect();
 
+        // Lấy sản phẩm đã mua
         if (!empty($purchasedProductIds)) {
             $products = Product::with(['productSkus', 'categories'])
                 ->whereHas('productSkus')
@@ -86,6 +88,13 @@ class Suggest extends Component
                 ->get();
         }
 
+        // Lấy category từ sản phẩm đã mua hoặc theo từ khóa
+        $priorityCategoryIds = [];
+        if ($products->count() > 0) {
+            $priorityCategoryIds = $products->pluck('categories')->flatten()->pluck('id')->unique()->toArray();
+        }
+
+        // Ưu tiên sản phẩm theo từ khóa, cùng danh mục
         if (!empty($keywords) && $products->count() < $this->maxLimit) {
             $keywordProducts = Product::with(['productSkus', 'categories'])
                 ->whereHas('productSkus')
@@ -94,6 +103,11 @@ class Suggest extends Component
                         $q->orWhere('name', 'like', '%' . $kw . '%');
                     }
                 })
+                ->when(!empty($priorityCategoryIds), function ($q) use ($priorityCategoryIds) {
+                    $q->whereHas('categories', function ($q2) use ($priorityCategoryIds) {
+                        $q2->whereIn('categories.id', $priorityCategoryIds);
+                    });
+                })
                 ->whereNotIn('id', array_merge($products->pluck('id')->toArray(), $cartProductIds))
                 ->limit($this->maxLimit - $products->count())
                 ->get();
@@ -101,17 +115,41 @@ class Suggest extends Component
             $products = $products->concat($keywordProducts);
         }
 
-
+        // Ưu tiên random sản phẩm cùng danh mục, bán chạy
         if ($products->count() < $this->maxLimit) {
             $excludeIds = array_merge($products->pluck('id')->toArray(), $cartProductIds);
             $randomProducts = Product::with(['productSkus', 'categories'])
                 ->whereHas('productSkus')
                 ->whereNotIn('id', $excludeIds)
+                ->when(!empty($priorityCategoryIds), function ($q) use ($priorityCategoryIds) {
+                    $q->whereHas('categories', function ($q2) use ($priorityCategoryIds) {
+                        $q2->whereIn('categories.id', $priorityCategoryIds);
+                    });
+                })
+                ->withCount(['productSkus as sold_count' => function (Builder $query) {
+                    $query->join('order_details', 'product_skus.id', '=', 'order_details.sku_id');
+                }])
+                ->orderByDesc('sold_count')
                 ->inRandomOrder()
                 ->limit($this->maxLimit - $products->count())
                 ->get();
 
             $products = $products->concat($randomProducts);
+        }
+
+        // Nếu vẫn thiếu, lấy sản phẩm bán chạy nhất toàn shop
+        if ($products->count() < $this->maxLimit) {
+            $moreProducts = Product::with(['productSkus', 'categories'])
+                ->whereHas('productSkus')
+                ->whereNotIn('id', $products->pluck('id')->toArray())
+                ->withCount(['productSkus as sold_count' => function (Builder $query) {
+                    $query->join('order_details', 'product_skus.id', '=', 'order_details.sku_id');
+                }])
+                ->orderByDesc('sold_count')
+                ->limit($this->maxLimit - $products->count())
+                ->get();
+
+            $products = $products->concat($moreProducts);
         }
 
         $this->products = $products->map(function ($product) {

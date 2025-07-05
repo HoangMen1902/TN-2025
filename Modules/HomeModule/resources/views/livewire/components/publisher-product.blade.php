@@ -22,12 +22,12 @@
                     role="tabpanel" aria-labelledby="tab-{{ $publisher->id }}">
                     <div class="product-holder grid grid-cols-5 gap-4">
                         @foreach ($publisher->products as $product)
-                            @php
+                            @php   
                                 $firstSku = $product->productSkus->first();
                                 $price = $firstSku?->price ?? 0;
-                                $is_sale = $firstSku->sale_price ? true : false;
+                                $is_sale = $firstSku && $firstSku->sale_price ? true : false;
                                 $sale_price = $firstSku?->sale_price ?? $price;
-                                $percent = $price > 0 ? (($price - $sale_price) / $price) * 100 : 0;
+                                $percent = ($firstSku && $price > 0) ? (($price - $sale_price) / $price) * 100 : 0;
                             @endphp
                             <a href="/chi-tiet/{{$product->slug}}">
                                 <div
