@@ -37,4 +37,8 @@ class RelatedTag extends Model
     {
         return $this->hasManyThrough(Product::class, ProductTag::class, 'tag_id', 'id', 'id', 'product_id');
     }
+    public function ebooks()
+    {
+        return $this->belongsToMany(ProductEbook::class, 'ebook_tag', 'tag_id', 'ebook_id');
+    }
 }
