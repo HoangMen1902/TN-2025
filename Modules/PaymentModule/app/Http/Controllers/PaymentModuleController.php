@@ -279,7 +279,7 @@ class PaymentModuleController extends Controller
         $payment = PaymentDetail::find($payment_id);
 
         if (!$stripeService->checkCheckoutId($checkout_id) || !$payment || $payment->order->user_id !== Auth::id()) {
-            return redirect()->route(route('home'))->with('error', 'Đường dẫn không hợp lệ');
+            return redirect('/')->with('error', 'Đường dẫn không hợp lệ');
         }
         $stripe_payment_id = $stripeService->getChargeId($checkout_id);
         if (!$payment_id) {
