@@ -13,10 +13,17 @@ class Membership extends Model
         'name',
         'required_points',
         'benefits',
+        'status',
     ];
 
     public function users()
     {
         return $this->hasMany(User::class);
     }
+
+    public function voucher()
+{
+    return $this->belongsTo(Voucher::class);
+}
+
 }

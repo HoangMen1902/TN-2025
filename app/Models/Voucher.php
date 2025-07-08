@@ -27,6 +27,7 @@ class Voucher extends Model
         'start_at',
         'is_redeemable',
         'required_points',
+        'issued_by',
     ];
 
 

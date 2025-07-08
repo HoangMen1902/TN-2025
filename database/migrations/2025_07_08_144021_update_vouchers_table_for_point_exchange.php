@@ -13,15 +13,16 @@ return new class extends Migration {
 
             // Số điểm cần để đổi voucher
             $table->integer('required_points')->nullable()->after('is_redeemable');
-
+            // Thêm cột issued_by để xác định cách phát hành voucher
+            // Các giá trị có thể là: 'manual' (thủ công), 'membership' (thành viên), 'point' (đổi điểm
+            $table->enum('issued_by', ['manual', 'membership', 'point'])->after('voucher_scope');
         });
     }
 
     public function down(): void
     {
         Schema::table('vouchers', function (Blueprint $table) {
-            $table->dropColumn(['is_redeemable', 'required_points']);
+            $table->dropColumn(['is_redeemable', 'required_points', 'issued_by']);
         });
     }
 };
-

@@ -151,6 +151,23 @@ class VoucherResource extends Resource
                     ->validationMessages([
                         'required' => 'Vui lòng chọn trạng thái voucher',
                     ]),
+                Select::make('issued_by')
+                    ->label('Nguồn phát hành')
+                    ->options([
+                        'manual' => 'Tạo thủ công',
+                        'membership' => 'Thăng hạng thành viên',
+                        'point' => 'Đổi điểm',
+                    ])
+                    ->default('manual')
+                    ->rules([
+                        'required',
+                        'in:manual,membership,point',
+                    ])
+                    ->validationMessages([
+                        'required' => 'Vui lòng chọn nguồn phát hành.',
+                        'in' => 'Giá trị không hợp lệ. Chỉ chấp nhận: Tạo thủ công, Thăng hạng, hoặc Đổi điểm.',
+                    ]),
+
                 Toggle::make('is_redeemable')
                     ->label('Cho phép đổi bằng điểm')
                     ->default(false)
@@ -162,12 +179,18 @@ class VoucherResource extends Resource
                     ->numeric()
                     ->minValue(1)
                     ->visible(fn($get) => $get('is_redeemable'))
-                    ->requiredIf('is_redeemable', true)
+                    ->rules(function (callable $get) {
+                        return $get('is_redeemable')
+                            ? ['required', 'numeric', 'min:1']
+                            : ['nullable'];
+                    })
                     ->validationMessages([
                         'required' => 'Vui lòng nhập số điểm để đổi voucher',
                         'numeric' => 'Phải là số',
                         'min' => 'Tối thiểu là 1 điểm',
                     ]),
+
+
             ])
         ]);
     }
@@ -219,6 +242,23 @@ class VoucherResource extends Resource
                         ? number_format($state) . ' điểm'
                         : '—'
                 ),
+            TextColumn::make('issued_by')
+                ->label('Nguồn phát hành')
+                ->sortable()
+                ->badge()
+                ->formatStateUsing(fn($state) => match ($state) {
+                    'manual' => 'Tạo thủ công',
+                    'membership' => 'Thăng hạng',
+                    'point' => 'Đổi điểm',
+                    default => '—',
+                })
+                ->color(fn($state) => match ($state) {
+                    'manual' => 'gray',
+                    'membership' => 'info',
+                    'point' => 'success',
+                    default => 'secondary',
+                }),
+
 
             TextColumn::make('expired_at')
                 ->label('Hết hạn')
