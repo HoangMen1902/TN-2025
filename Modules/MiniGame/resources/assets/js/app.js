@@ -1,13 +1,13 @@
 console.log('Minigame initialized');
 
+// DOM caching
 const segments = window.segments || [];
 const wheel = document.querySelector(".wheel");
 const spinBtn = document.getElementById("spin");
 const modal = document.getElementById("resultModal");
+const modalTitle = document.getElementById("modalTitle");
 const modalResult = document.getElementById("modalResult");
 const closeModalBtn = document.getElementById("closeModal");
-
-// Lịch sử phần thưởng
 const historyBtn = document.getElementById("historyBtn");
 const historyModal = document.getElementById("historyModal");
 const closeHistoryModalBtn = document.getElementById("closeHistoryModal");
@@ -16,81 +16,18 @@ let isSpinning = false;
 let spinTimeout = null;
 
 if (!wheel || !spinBtn || segments.length === 0) {
-    console.error("Không tìm thấy wheel hoặc nút spin, hoặc danh sách phần thưởng trống.");
+    console.error("Không tìm thấy wheel, nút spin hoặc danh sách phần thưởng rỗng.");
     if (spinBtn) spinBtn.disabled = true;
 }
 
-spinBtn.onclick = () => {
-    if (isSpinning || segments.length === 0) return;
+function showModal(title, message, isSuccess = false) {
+    modalTitle.textContent = title;
+    modalTitle.classList.toggle("text-green-600", isSuccess);
+    modalTitle.classList.toggle("text-yellow-600", !isSuccess);
+    modalResult.textContent = message;
 
-    isSpinning = true;
-    spinBtn.disabled = true;
-
-    if (spinTimeout) clearTimeout(spinTimeout);
-
-    // Reset wheel
-    wheel.style.transition = "none";
-    wheel.style.transform = "rotate(0deg)";
-    wheel.offsetHeight;
-
-    const spins = Math.floor(Math.random() * 5) + 5; // 5–9 vòng
-    const extraDegree = Math.floor(Math.random() * 360);
-    const totalDegree = spins * 360 + extraDegree;
-
-    wheel.style.transition = "transform 4s ease-out";
-    wheel.style.transform = `rotate(${totalDegree}deg)`;
-
-    spinTimeout = setTimeout(() => {
-        const segmentDegree = 360 / segments.length;
-        const normalizedDegree = totalDegree % 360;
-        const selectedIndex = Math.floor(
-            (360 - normalizedDegree + segmentDegree / 2) % 360 / segmentDegree
-        );
-
-        const prize = segments[selectedIndex] ?? "Không xác định";
-
-        if (prize === "Không xác định" || !segments.includes(prize)) {
-            modalResult.textContent = "Lỗi: Phần thưởng không hợp lệ!";
-            modal.classList.remove("hidden");
-            modal.dataset.visible = "true";
-            resetSpinState();
-            return;
-        }
-
-        // Gửi sự kiện claim về Livewire
-        window.Livewire.dispatch('claimPrize', { prizeName: prize });
-
-        modalResult.textContent = `Bạn nhận được: ${prize}`;
-        modal.classList.remove("hidden");
-        modal.dataset.visible = "true";
-
-        resetSpinState();
-    }, 4200);
-};
-
-closeModalBtn.onclick = () => {
-    modal.classList.add("hidden");
-    modal.dataset.visible = "false";
-};
-
-// Lắng nghe thông báo từ Livewire
-window.addEventListener('notify', (event) => {
-    console.log("Thông báo từ Livewire:", event.detail.message);
-    if (modal.dataset.visible === "true") {
-        modalResult.textContent = event.detail.message;
-        modal.classList.remove("hidden");
-    }
-});
-
-// Lịch sử phần thưởng - mở modal
-if (historyBtn && historyModal && closeHistoryModalBtn) {
-    historyBtn.addEventListener("click", () => {
-        historyModal.classList.remove("hidden");
-    });
-
-    closeHistoryModalBtn.addEventListener("click", () => {
-        historyModal.classList.add("hidden");
-    });
+    modal.classList.remove("hidden");
+    modal.dataset.visible = "true";
 }
 
 function resetSpinState() {
@@ -98,3 +35,99 @@ function resetSpinState() {
     spinBtn.disabled = false;
     spinTimeout = null;
 }
+
+spinBtn.onclick = () => {
+    if (isSpinning || segments.length === 0) return;
+
+    if (spinBtn.dataset.requiresLogin === "true") {
+        window.location.href = "/dang-nhap";
+        return;
+    }
+
+    if (window.nextSpinTime) {
+        const now = Date.now();
+        const nextTime = new Date(window.nextSpinTime).getTime();
+
+        if (now < nextTime) {
+            const timeStr = new Date(nextTime).toLocaleTimeString('vi-VN', {
+                hour: '2-digit', minute: '2-digit'
+            });
+            showModal("⚠️ Thông báo", `⏳ Bạn cần chờ đến ${timeStr} để quay tiếp!`);
+            return;
+        }
+    }
+
+    // Bắt đầu quay
+    isSpinning = true;
+    spinBtn.disabled = true;
+
+    if (spinTimeout) clearTimeout(spinTimeout);
+    wheel.style.transition = "none";
+    wheel.style.transform = "rotate(0deg)";
+    wheel.offsetHeight;
+
+    // Gửi yêu cầu quay – không truyền prizeName
+    window.Livewire.dispatch('claimPrize');
+};
+
+// Đóng modal
+closeModalBtn.onclick = () => {
+    modal.classList.add("hidden");
+    modal.dataset.visible = "false";
+};
+
+// Lịch sử phần thưởng
+if (historyBtn && historyModal && closeHistoryModalBtn) {
+    historyBtn.onclick = () => historyModal.classList.remove("hidden");
+    closeHistoryModalBtn.onclick = () => historyModal.classList.add("hidden");
+}
+
+// Nhận lỗi từ backend
+window.addEventListener('notify', (event) => {
+    const message = event.detail.message;
+    const isError = [
+        "Bạn đã hết lượt",
+        "Phần thưởng không hợp lệ",
+        "Bạn cần đăng nhập",
+        "Phần thưởng đã hết",
+        "Không có phần thưởng khả dụng"
+    ].some(msg => message.includes(msg));
+
+    if (isError) {
+        showModal("⚠️ Thông báo", message);
+        resetSpinState();
+    }
+});
+
+// ✅ Nhận kết quả trúng từ backend và xoay chính xác đến phần thưởng
+window.addEventListener('spinResult', (event) => {
+    const prizeName = event.detail.prize;
+    const index = segments.findIndex(name => name === prizeName);
+
+    if (index === -1) {
+        showModal("⚠️ Thông báo", "Không tìm thấy phần thưởng trên vòng quay!");
+        resetSpinState();
+        return;
+    }
+
+    const segmentCount = segments.length;
+    const segmentDegree = 360 / segmentCount;
+    const spins = Math.floor(Math.random() * 3) + 5;
+
+    // ✅ Tính chính giữa phần thưởng được chọn
+    const offset = index * segmentDegree; // Không cần cộng segmentDegree / 2 nếu ảnh vẽ chính giữa
+
+    const totalDegree = spins * 360 + (360 - offset);
+
+    wheel.style.transition = "transform 4s ease-out";
+    wheel.style.transform = `rotate(${totalDegree}deg)`;
+
+    setTimeout(() => {
+        showModal("🎉 Chúc mừng!", `🎁 Bạn nhận được: ${prizeName}`, true);
+        resetSpinState();
+    }, 4200);
+
+    console.log("Segments:", segments);
+    console.log("Prize:", prizeName, "Index:", index);
+});
+

@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Prize extends Model
 {
-   protected $fillable = ['name', 'quantity', 'probability'];
-
+   protected $fillable = ['name', 'quantity', 'probability','voucher_id',];
+   public function voucher()
+   {
+      return $this->belongsTo(Voucher::class);
+   }
 }
