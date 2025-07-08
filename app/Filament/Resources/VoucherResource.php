@@ -19,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Card;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Filament\Forms\Components\Toggle;
 
 class VoucherResource extends Resource
 {
@@ -150,6 +151,23 @@ class VoucherResource extends Resource
                     ->validationMessages([
                         'required' => 'Vui lòng chọn trạng thái voucher',
                     ]),
+                Toggle::make('is_redeemable')
+                    ->label('Cho phép đổi bằng điểm')
+                    ->default(false)
+                    ->inline(false)
+                    ->reactive(),
+
+                TextInput::make('required_points')
+                    ->label('Số điểm cần để đổi')
+                    ->numeric()
+                    ->minValue(1)
+                    ->visible(fn($get) => $get('is_redeemable'))
+                    ->requiredIf('is_redeemable', true)
+                    ->validationMessages([
+                        'required' => 'Vui lòng nhập số điểm để đổi voucher',
+                        'numeric' => 'Phải là số',
+                        'min' => 'Tối thiểu là 1 điểm',
+                    ]),
             ])
         ]);
     }
@@ -185,6 +203,22 @@ class VoucherResource extends Resource
                         ? $state . ' %'
                         : number_format($state, 0, ',', '.') . ' VNĐ';
                 }),
+            TextColumn::make('is_redeemable')
+                ->label('Có thể đổi điểm')
+                ->badge()
+                ->formatStateUsing(fn($state) => $state ? 'Có' : 'Không')
+                ->color(fn($state) => $state ? 'success' : 'gray')
+                ->sortable(),
+
+            TextColumn::make('required_points')
+                ->label('Điểm cần để đổi')
+                ->sortable()
+                ->formatStateUsing(
+                    fn($state, $record) =>
+                    $record->is_redeemable && $state
+                        ? number_format($state) . ' điểm'
+                        : '—'
+                ),
 
             TextColumn::make('expired_at')
                 ->label('Hết hạn')

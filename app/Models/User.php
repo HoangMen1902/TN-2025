@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser
         'score',
         'role',
         'user_status',
+        'membership_id'
     ];
 
     /**
@@ -103,10 +104,25 @@ class User extends Authenticatable implements FilamentUser
         $this->user_status = $value ? 'active' : 'inactive';
     }
 
-      public function setPasswordAttribute($value)
+    public function setPasswordAttribute($value)
     {
         if (!empty($value)) {
             $this->attributes['password'] = bcrypt($value);
         }
+    }
+
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class);
+    }
+
+    public function point()
+    {
+        return $this->hasOne(UserPoint::class);
+    }
+
+    public function pointTransactions()
+    {
+        return $this->hasMany(PointTransaction::class);
     }
 }
