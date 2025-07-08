@@ -102,10 +102,10 @@
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
                                 <div class="inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
                                     <label class="relative flex items-center cursor-pointer"
-                                        for="blue-600-{{$item['id']}}">
+                                        for="blue-600-sku-{{$item->id}}">
                                         <input type="checkbox"
                                             class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all"
-                                            id="bluei-600-{{$item}}" name="cart_sku[]"
+                                            id="blue-600-sku-{{$item->id}}" name="cart_sku[]"
                                             value="{{$item->id}}" wire:model="selected_cart_skus" form="addItemCheckout" />
                                         <span
                                             class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
@@ -173,10 +173,10 @@
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
                                 <div class="inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
                                     <label class="relative flex items-center cursor-pointer"
-                                        for="blue-600-{{$combo->id}}">
+                                        for="blue-600-combo-{{$combo->id}}">
                                         <input type="checkbox"
                                             class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-blue-400 transition-all"
-                                            id="blue-600-{{$combo->id }}" name="cart_combo[]"
+                                            id="blue-600-combo-{{$combo->id }}" name="cart_combo[]"
                                             value="{{$combo->id}}" wire:model="selected_cart_combos" form="addItemCheckout" />
                                         <span
                                             class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
