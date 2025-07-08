@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Livewire;
 
 use Livewire\Component;
@@ -23,6 +24,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Support\Str;
 
 class Category extends Component implements HasForms, HasTable
 {
@@ -34,7 +36,6 @@ class Category extends Component implements HasForms, HasTable
     {
         return $table
             ->query(CategoryModel::with('parent')->withTrashed())
-
             ->defaultPaginationPageOption(50)
             ->columns([
                 TextColumn::make('parent.name')
@@ -42,13 +43,14 @@ class Category extends Component implements HasForms, HasTable
                     ->sortable()
                     ->formatStateUsing(fn($state, $record) => $record->parent?->name ?? '—'),
                 TextColumn::make('name')->label('Tên danh mục'),
+                TextColumn::make('slug')->label('Slug')->sortable(),
                 ToggleColumn::make('category_status_bool')
                     ->label('Trạng thái')
                     ->afterStateUpdated(function ($record, $state) {
                         $record->category_status_bool = $state;
                         $record->save();
                     })
-                    ->tooltip(fn($record) => $record->category_status === 'active' ? 'Nhấn để hủy kích hoạt' : 'Nhấn để kích hoạt') // Optional: tooltip
+                    ->tooltip(fn($record) => $record->category_status === 'active' ? 'Nhấn để hủy kích hoạt' : 'Nhấn để kích hoạt')
                     ->sortable(),
             ])
             ->headerActions([
@@ -74,7 +76,6 @@ class Category extends Component implements HasForms, HasTable
                         );
                     }),
 
-
                 SelectFilter::make('category_status')
                     ->label('Trạng thái')
                     ->options([
@@ -97,15 +98,12 @@ class Category extends Component implements HasForms, HasTable
                             default => $query,
                         };
                     }),
-
             ])
-
-
             ->actions([
                 EditAction::make()
                     ->label('Sửa')
                     ->form(function ($record) {
-                        return [
+                        $fields = [
                             TextInput::make('name')
                                 ->label('Tên danh mục')
                                 ->required()
@@ -128,18 +126,51 @@ class Category extends Component implements HasForms, HasTable
                                 ->nullable()
                                 ->default(null),
                         ];
+
+                        // Chỉ thêm slug nếu là danh mục con (có parent_id)
+                        if ($record->parent_id) {
+                            $fields[] = TextInput::make('slug')
+                                ->label('Slug')
+                                ->rules([
+                                    'required',
+                                    'max:255',
+                                    'unique:categories,slug,' . $record->id,
+                                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                                ])
+                                ->validationMessages([
+                                    'required' => 'Vui lòng nhập slug.',
+                                    'unique' => 'Slug đã tồn tại.',
+                                    'max' => 'Slug không được vượt quá :max ký tự.',
+                                    'regex' => 'Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.',
+                                ])
+                                ->helperText('Để trống để tự động tạo từ tên danh mục');
+                        }
+
+                        return $fields;
                     })
                     ->modalHeading('Chỉnh sửa danh mục')
                     ->modalSubmitActionLabel('Xác nhận')
                     ->modalCancelActionLabel('Hủy')
                     ->using(function ($record, array $data) {
-                        $record->update([
+                        $updateData = [
                             'name' => $data['name'],
                             'parent_id' => $data['parent_id'] ?? null,
-                        ]);
+                        ];
+
+                        // Chỉ cập nhật slug nếu là danh mục con
+                        if ($record->parent_id || $data['parent_id']) {
+                            if (empty($data['slug'])) {
+                                $updateData['slug'] = $record->generateUniqueSlug($data['name']);
+                            } else {
+                                $updateData['slug'] = $data['slug'];
+                            }
+                        } else {
+                            // Nếu chuyển từ con thành cha, xóa slug
+                            $updateData['slug'] = null;
+                        }
+
+                        $record->update($updateData);
                     }),
-
-
 
                 DeleteAction::make()
                     ->label('Xóa')
@@ -148,7 +179,6 @@ class Category extends Component implements HasForms, HasTable
                     ->modalSubheading('Bạn có chắc chắn muốn xóa danh mục này?')
                     ->modalSubmitActionLabel('Xác nhận')
                     ->modalCancelActionLabel('Hủy'),
-
 
                 Action::make('addChild')
                     ->label('Thêm mục con')
@@ -163,24 +193,36 @@ class Category extends Component implements HasForms, HasTable
                                 'unique' => 'Tên danh mục đã tồn tại.',
                             ]),
 
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->rules([
+                                'unique:categories,slug',
+                                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                            ])
+                            ->validationMessages([
+                                'unique' => 'Slug đã tồn tại.',
+                                'regex' => 'Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.',
+                            ])
+                            ->helperText('Để trống để tự động tạo từ tên danh mục'),
+
                         Toggle::make('status')
                             ->label('Kích hoạt')
                             ->default(true),
                     ])
                     ->action(function (CategoryModel $record, array $data) {
+                        $slug = $data['slug'] ?: Str::slug($data['name']);
                         $record->children()->create([
                             'name' => $data['name'],
+                            'slug' => $slug,
                             'category_status' => $data['status'] ? 'active' : 'inactive',
                         ]);
                     })
                     ->modalHeading('Thêm danh mục con')
                     ->modalSubmitActionLabel('Thêm')
                     ->modalCancelActionLabel('Hủy')
-
-
+                    ->visible(fn($record) => !$record->parent_id) // Chỉ hiển thị cho danh mục cha
             ]);
     }
-
 
     public function recursiveCategoryRepeater(int $level = 0): Group
     {
@@ -193,6 +235,21 @@ class Category extends Component implements HasForms, HasTable
                     'unique' => 'Tên danh mục đã tồn tại.',
                 ]),
         ];
+
+        // Chỉ thêm slug cho danh mục con (level > 0)
+        if ($level > 0) {
+            $schema[] = TextInput::make('slug')
+                ->label(str_repeat('—', $level) . ' Slug')
+                ->rules([
+                    'unique:categories,slug',
+                    'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                ])
+                ->validationMessages([
+                    'unique' => 'Slug đã tồn tại.',
+                    'regex' => 'Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.',
+                ])
+                ->helperText('Để trống để tự động tạo từ tên danh mục');
+        }
 
         if ($level < $this->maxDepth) {
             $schema[] = Repeater::make('children')
@@ -214,10 +271,17 @@ class Category extends Component implements HasForms, HasTable
             return null;
         }
 
-        $category = CategoryModel::create([
+        $categoryData = [
             'name' => $data['name'],
             'parent_id' => $parentId,
-        ]);
+        ];
+
+        // Chỉ thêm slug nếu là danh mục con (có parentId)
+        if ($parentId) {
+            $categoryData['slug'] = $data['slug'] ?? Str::slug($data['name']);
+        }
+
+        $category = CategoryModel::create($categoryData);
 
         if (!empty($data['children']) && is_array($data['children'])) {
             foreach ($data['children'] as $child) {
