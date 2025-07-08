@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEbooksTable extends Migration
+return new class extends Migration
 {
     public function up()
     {
@@ -16,7 +16,7 @@ class CreateEbooksTable extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('ebook_id')->references('id')->on('ebooks')->onDelete('cascade');
+            $table->foreign('ebook_id')->references('id')->on('product_ebooks')->onDelete('cascade');
         });
     }
 
@@ -24,4 +24,4 @@ class CreateEbooksTable extends Migration
     {
         Schema::dropIfExists('ebook_read_progress');
     }
-}
+};
