@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Models\ProductSku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Image\Enums\Fit;
+use Spatie\Image\Image;
+
 
 class ImageSearchController extends Controller
 {
@@ -48,6 +51,8 @@ class ImageSearchController extends Controller
         Storage::disk('public')->put("temp/$filename", base64_decode($base64));
         $inputImage = storage_path("app/public/temp/$filename");
 
+        Image::load($inputImage)->fit(Fit::Crop, 224, 224)->save($inputImage);
+
         $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
         $pythonPath = $isWin
@@ -59,7 +64,6 @@ class ImageSearchController extends Controller
 
         $cmd = escapeshellcmd("$pythonPath \"$scriptPath\" match \"$inputImage\" \"$cachePath\"");
         $output = trim(shell_exec($cmd . ' 2>&1'));
-
         if ($output === false || $output === null) {
             return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :(');
         }
