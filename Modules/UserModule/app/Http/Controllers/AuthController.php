@@ -177,6 +177,10 @@ class AuthController extends Controller
     {
         return view('usermodule::profile.notification');
     }
+        public function showMembership()
+    {
+        return view('usermodule::profile.membership');
+    }
     //          public function showWishList(): Renderable
     // {
     //     $wishLists = Wishlist::where('user_id', Auth::id())

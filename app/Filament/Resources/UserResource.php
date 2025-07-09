@@ -28,6 +28,11 @@ use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Log;
 use App\Filament\Resources\UserResource\Widgets\UserInterestStats;
 use App\Filament\Resources\UserResource\Widgets\UserChart;
+use App\Models\UserPoint;
+use App\Models\PointTransaction;
+use App\Models\Membership;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Placeholder;
 
 class UserResource extends Resource
 {
@@ -80,10 +85,7 @@ class UserResource extends Resource
                 ->label('Ảnh đại diện (URL)')
                 ->nullable(),
 
-            TextInput::make('score')
-                ->label('Điểm')
-                ->numeric()
-                ->nullable(),
+
 
             Forms\Components\Select::make('roles')
                 ->relationship('roles', 'name')
@@ -116,7 +118,6 @@ class UserResource extends Resource
                 TextColumn::make('phone')->label('SĐT'),
                 ImageColumn::make('avatar')->label('Avatar')->circular(),
                 TextColumn::make('birthday')->label('Ngày sinh')->date('d/m/Y')->sortable(),
-                TextColumn::make('score')->label('Điểm')->sortable(),
                 TextColumn::make('user_status')
                     ->label('Trạng thái')
                     ->badge()
@@ -127,6 +128,8 @@ class UserResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn($state) => is_array($state) ? implode(', ', $state) : $state)
                     ->color('primary'),
+
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()->default('with'),
@@ -146,6 +149,37 @@ class UserResource extends Resource
                     ->default(null),
             ])
             ->actions([
+                Action::make('viewMembershipRank')
+                    ->label('Hội viên')
+                    ->icon('heroicon-o-identification')
+                    ->modalHeading('Thông tin hội viên')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Đóng')
+                    ->form(fn(Model $record) => [
+                        Placeholder::make('membership')
+                            ->label('Hạng hiện tại')
+                            ->content($record->membership->name ?? 'Chưa có'),
+
+                        Placeholder::make('total_points')
+                            ->label('Tổng điểm')
+                            ->content($record->Point->total_points ?? 0),
+
+                        Placeholder::make('next_rank')
+                            ->label('Hạng tiếp theo')
+                            ->content(function () use ($record) {
+                                $currentPoints = $record->Point->total_points ?? 0;
+                                $nextMembership = Membership::where('required_points', '>', $currentPoints)
+                                    ->orderBy('required_points')
+                                    ->first();
+
+                                if (!$nextMembership) return 'Đã đạt hạng cao nhất';
+
+                                $pointsLeft = $nextMembership->required_points - $currentPoints;
+
+                                return $nextMembership->name . ' (Cần thêm ' . $pointsLeft . ' điểm)';
+                            }),
+                    ])
+                    ->color('info'),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
                         ->label('Chỉnh sửa ')
@@ -188,7 +222,9 @@ class UserResource extends Resource
                     }),
                     Tables\Actions\ViewAction::make()
                         ->label('xem chi tiết'),
+
                 ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

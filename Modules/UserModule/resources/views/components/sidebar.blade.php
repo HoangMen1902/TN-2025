@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
-                    Cài Đặt Thông Báo
+                    <a href="/hoi-vien">Hội viên</a>
                 </div>
 
                 <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">

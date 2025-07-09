@@ -36,6 +36,8 @@ Route::post('/cap-nhat-mat-khau', [AuthController::class, 'changePassword'])->na
 Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('infomation');
 Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
 Route::get('/don-hang', [AuthController::class, 'showOrderInfomation'])->name('order');
+Route::get('/hoi-vien', [AuthController::class, 'showMembership'])->name('membership');
+
 // Route::get('/wishlist', [AuthController::class, 'showWishList'])->name('wishlist');
 
 Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notification.index');
