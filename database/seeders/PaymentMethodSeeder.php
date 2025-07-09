@@ -27,6 +27,10 @@ class PaymentMethodSeeder extends Seeder
                 'method_name' => 'COD',
                 'method_status' => 'active'
             ],
+            [
+                'method_name' => 'VNPay',
+                'method_status' => 'active'
+            ]
         ]);
     }
 }

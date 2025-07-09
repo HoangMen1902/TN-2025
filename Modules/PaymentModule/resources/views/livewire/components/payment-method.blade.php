@@ -11,25 +11,25 @@
         </div>
     </div>
     <div class="space-y-4">
-        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
+        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300 {{in_array('VNPay', $active_method) ? '' : 'hidden'}}">
             <input type="radio" name="payment_method" value="vnpay" class="form-radio text-black">
             <div class="ml-4">
                 <div class="font-semibold text-sm">Chuyển khoản - VNPay</div>
             </div>
         </label>
-        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
+        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300 {{in_array('International', $active_method) ? '' : 'hidden'}}">
             <input type="radio" name="payment_method" value="international" class="form-radio text-black">
             <div class="ml-4">
                 <div class="font-semibold text-sm">Thanh toán quốc tế - Visa/Mastercard</div>
             </div>
         </label>
-        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
+        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300 {{in_array('payos', $active_method) ? '' : 'hidden'}}">
             <input type="radio" name="payment_method" value="payos" class="form-radio text-black">
             <div class="ml-4">
                 <div class="font-semibold text-sm">VietQR</div>
             </div>
         </label>
-        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300">
+        <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:border-black border-neutral-300 {{in_array('COD', $active_method) ? '' : 'hidden'}}">
             <input type="radio" name="payment_method" value="cod" class="form-radio text-black" checked>
             <div class="ml-4">
                 <div class="font-semibold text-sm">Tiền mặt khi nhận hàng</div>

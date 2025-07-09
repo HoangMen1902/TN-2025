@@ -16,8 +16,4 @@ class PaymentMethod extends Model
         'method_status',
     ];
 
-    protected $casts = [
-        'method_name' => 'string',
-        'method_status' => 'string',
-    ];
 }
