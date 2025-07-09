@@ -27,6 +27,9 @@ class DetailModuleServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->commands([
+    \Modules\DetailModule\Console\SendPreorderNotifications::class,
+]);
     }
 
     /**

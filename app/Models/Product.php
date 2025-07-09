@@ -66,4 +66,8 @@ class Product extends Model
     {
         return $this->hasOne(ProductSku::class);
     }
+    public function preorders()
+{
+    return $this->hasMany(\App\Models\Preorder::class);
+}
 }

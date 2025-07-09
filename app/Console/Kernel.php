@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Modules\UserModule\Console\SendBirthdayVouchers;
 use App\Console\Commands\CreateSuperAdmin;
+
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('user:send-birthday-vouchers')->dailyAt('06:00');
+        $schedule->command('preorder:notify')->everyMinute();
     }
 
     protected function commands()
