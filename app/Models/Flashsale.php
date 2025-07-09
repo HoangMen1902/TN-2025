@@ -35,10 +35,6 @@ class Flashsale extends Model
             ->withTimestamps();
     }
 
-    public function discount()
-    {
-        return $this->hasOne(FlashsaleDiscount::class);
-    }
 
     public function scopeActive($query)
     {

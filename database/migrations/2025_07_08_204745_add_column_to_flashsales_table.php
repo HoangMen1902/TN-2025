@@ -11,22 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('flashsale_discounts', function(Blueprint $table) {
-            $table->id();
+        Schema::table('flashsales', function (Blueprint $table) {
             $table->enum('discount_type', ['percent', 'specific']);
             $table->double('discount_amount');
-            $table->unsignedBigInteger('flashsale_id');
-            $table->foreign('flashsale_id')->references('id')->on('flashsales')->onDelete('cascade');
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 
     /**
      * Reverse the migrations.
      */
-public function down(): void
-{
-    Schema::dropIfExists('flashsale_discounts');
-}
+    public function down(): void
+    {
+        Schema::table('flashsales', function (Blueprint $table) {
+            //
+        });
+    }
 };
