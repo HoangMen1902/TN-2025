@@ -14,6 +14,8 @@ class Flashsale extends Model
 
     protected $fillable = [
         'name',
+        'discount_type',
+        'discount_amount',
         'started_at',
         'expired_at',
     ];

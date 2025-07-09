@@ -31,6 +31,8 @@ use Filament\Tables\Actions\ForceDeleteBulkAction;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Get;
+use Filament\Forms\Components\Actions\Action;
+
 
 
 
@@ -48,9 +50,12 @@ use Illuminate\Support\HtmlString;
 use App\Models\Category;
 use App\Models\Flashsale;
 use Closure;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Hidden;
+use Filament\Support\Components\ViewComponent;
 use Illuminate\Database\Eloquent\Model;
 
+use function Livewire\Volt\placeholder;
 
 class FlashSaleResource extends Resource
 {
@@ -63,6 +68,7 @@ class FlashSaleResource extends Resource
 
     protected static ?string $modelLabel = 'Flash Sale';
     protected static ?string $pluralModelLabel = 'Flash Sale';
+
 
     public static function getNavigationBadge(): ?string
     {
@@ -84,15 +90,7 @@ class FlashSaleResource extends Resource
                                 'max'      => 'Tên Flash Sale không được vượt quá 255 ký tự.',
                             ]),
 
-                        // DateTimePicker::make('started_at')
-                        //     ->label('Thời gian bắt đầu')
-                        //     ->required()
-                        //     ->native(false),
 
-                        // DateTimePicker::make('expired_at')
-                        //     ->label('Thời gian kết thúc')
-                        //     ->required()
-                        //     ->native(false),
                         DateTimePicker::make('started_at')
                             ->label('Thời gian bắt đầu')
                             ->required()
@@ -128,7 +126,6 @@ class FlashSaleResource extends Resource
                     ])->columns(2),
 
                 Section::make('Giảm giá áp dụng')
-                    ->relationship('discount')
                     ->schema([
                         Select::make('discount_type')
                             ->label('Loại giảm')
@@ -165,6 +162,7 @@ class FlashSaleResource extends Resource
                     ]),
 
                 Section::make('Sản phẩm áp dụng')
+                    ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['category', 'sku', 'both']))
                     ->schema([
                         CheckboxList::make('categories')
                             ->label('Chọn loại sản phẩm cụ thể')
@@ -216,6 +214,7 @@ class FlashSaleResource extends Resource
                             ->required(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both'])),
 
                         Select::make('product_id')
+                            ->preload()
                             ->label('Tìm kiếm sản phẩm')
                             ->relationship('skus.product', 'name')
                             ->searchable()
@@ -225,55 +224,95 @@ class FlashSaleResource extends Resource
                                 $set('skus', static::getFilteredSkus($state))
                             )
                             ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both'])),
-
-                        Repeater::make('skus')
+                        Hidden::make('selected_skus')
+                            ->dehydrated(true)
+                            ->default([]),
+                        Section::make('Sản phẩm áp dụng Flashsale')
+                            ->visible()
+                            ->collapsible()
                             ->schema([
-                                Checkbox::make('selected')->label('Chọn'),
-                                Hidden::make('sku_id'),
-                                Hidden::make('productName'),
-                                Hidden::make('image_url'),
+                                Repeater::make('skus')
+                                    ->schema([
 
-                                Placeholder::make('Tên sản phẩm')
-                                    ->content(fn($get) => $get('productName')),
 
-                                Placeholder::make('Số lượng còn')
-                                    ->content(fn($get) => $get('quantity')),
-                                Placeholder::make('Giá sản phẩm')
-                                    ->content(fn($get) => $get('price')),
-                                Placeholder::make('Ảnh')
-                                    ->content(function ($get) {
-                                        $images = $get('image_url');
-                                        if (is_array($images) && count($images) > 0) {
-                                            $url = asset('storage/' . ltrim($images[0], '/'));
-                                            return new HtmlString("<img src='{$url}' width='80' />");
-                                        }
-                                        return 'Không có ảnh';
-                                    }),
-                            ])
-                            ->columns(5)
-                            ->default(fn(Get $get) => static::getFilteredSkus($get('product_id')))
-                            ->label('Danh sách SKU')
-                            ->columnSpanFull()
-                            ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
-                            ->required(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
+                                        Checkbox::make('selected')
+                                            ->label('Chọn')
+                                            ->afterStateUpdated(function (bool $state, callable $get, callable $set) {
+                                                $skuId = $get('sku_id');
+                                                $selected = $get('../../selected_skus') ?? [];
 
+                                                if ($state && !in_array($skuId, $selected)) {
+                                                    $selected[] = $skuId;
+                                                } elseif (!$state && in_array($skuId, $selected)) {
+                                                    $selected = array_values(array_diff($selected, [$skuId]));
+                                                }
+
+                                                $set('../../selected_skus', $selected);
+                                            }),
+                                        Hidden::make('sku_id'),
+                                        Hidden::make('productName'),
+                                        Hidden::make('image_url'),
+
+                                        Placeholder::make('Tên sản phẩm')
+                                            ->content(fn($get) => $get('productName')),
+
+                                        Placeholder::make('Số lượng còn')
+                                            ->content(fn($get) => $get('quantity')),
+                                        Placeholder::make('Giá sản phẩm')
+                                            ->content(fn($get) => $get('price')),
+                                        Placeholder::make('Ảnh')
+                                            ->content(function ($get) {
+                                                $images = $get('image_url');
+                                                if (is_array($images) && count($images) > 0) {
+                                                    $url = asset('storage/' . ltrim($images[0], '/'));
+                                                    return new HtmlString("<img src='{$url}' width='80' />");
+                                                }
+                                                return 'Không có ảnh';
+                                            }),
+                                    ])
+                                    ->columns(5)
+                                    ->default(function (Get $get) {
+                                        $productId = $get('product_id');
+
+                                        return static::getFilteredSkus(categoryId: $productId);
+                                    })
+                                    ->label('')
+                                    ->deletable(false)
+                                    ->columnSpanFull()
+                                    ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
+                                    ->required(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
+                                    ->addable(false),
+
+                                Actions::make([
+                                    Action::make('Tải thêm')
+                                        ->action(function (Forms\Get $get, Forms\Set $set) {
+                                            $product_id = $get('product_id');
+                                            $currentSkus = $get('skus') ?? [];
+                                            $newSkus = static::getFilteredSkus(
+                                                categoryId: $product_id,
+                                                offset: count($currentSkus),
+                                                load_amount: 5
+                                            );
+
+                                            $set('skus', array_merge($currentSkus, $newSkus));
+                                        })
+                                ])->alignCenter()->columnSpanFull(),
+                            ])->columns(3)->visible(fn(Get $get): bool => in_array($get('apply_type'), ['category', 'sku', 'both'])),
 
                     ])
-                    ->columns(3)
-                    ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['category', 'sku', 'both'])),
-
-
             ]);
     }
+
+    public function loadMore() {}
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('name')->label('Tên chương trình')->searchable()->sortable(),
-                TextColumn::make('started_at')->label('Bắt đầu')->dateTime()->sortable(),
-                TextColumn::make('expired_at')->label('Kết thúc')->dateTime()->sortable(),
-                TextColumn::make('discount.discount_type')
+                TextColumn::make('started_at')->label('Bắt đầu')->sortable(),
+                TextColumn::make('expired_at')->label('Kết thúc')->sortable(),
+                TextColumn::make('discount_type')
                     ->label('Loại giảm')->sortable()
                     ->formatStateUsing(function ($state) {
                         return match ($state) {
@@ -282,9 +321,9 @@ class FlashSaleResource extends Resource
                             default => 'Không xác định',
                         };
                     }),
-                TextColumn::make('discount.discount_amount')->label('Giá trị') ->sortable(),
+                TextColumn::make('discount_amount')->label('Giá trị')->sortable(),
                 TextColumn::make('skus_count')
-                    ->label('Số SKU')
+                    ->label('Số sản phẩm')
                     ->counts('skus')
                     ->sortable(),
             ])
@@ -320,44 +359,39 @@ class FlashSaleResource extends Resource
         ];
     }
 
-    public static function getFilteredSkus($categoryId = null, $sortBy = 'price', $direction = 'asc'): array
-    {
-        // Chỉ cho phép sắp xếp theo các cột hợp lệ
-        $allowedSortFields = ['price', 'quantity'];
-        $allowedDirections = ['asc', 'desc'];
-
-        if (!in_array($sortBy, $allowedSortFields)) {
-            $sortBy = 'price';
-        }
-
-        if (!in_array(strtolower($direction), $allowedDirections)) {
-            $direction = 'asc';
-        }
-
-        $query = ProductSku::query()
-            ->join('products', 'products.id', '=', 'product_skus.product_id')
-            ->leftJoin('product_categories', 'product_categories.product_id', '=', 'products.id')
-            ->leftJoin('categories', 'categories.id', '=', 'product_categories.category_id')
-            ->select('product_skus.*')
-            ->with('product');
+    public static function getFilteredSkus(
+        $categoryId = null,
+        $sortBy = 'price',
+        $direction = 'asc',
+        int $load_amount = 5,
+        int $offset = 0
+    ): array {
+        $query = ProductSku::with('product')
+            ->whereHas('product', fn($q) => $q->where('product_status', 'active'));
 
         if ($categoryId) {
-            $query->where('categories.id', $categoryId);
+            $query->whereHas('product.categories', fn($q) => $q->where('categories.id', $categoryId));
         }
 
-        $skus = $query->orderBy("product_skus.$sortBy", $direction)->get();
-
-        return $skus->map(function ($sku) {
-            return [
-                'selected' => false,
-                'sku_id' => $sku->id,
-                'productName' => ($sku->product->name ?? 'Không rõ') . ' - ' . ($sku->sku ?? 'Không tên'),
-                'quantity' => $sku->quantity,
-                'sku_quantity' => 1,
-                'image_url' => is_string($sku->images) ? json_decode($sku->images, true) : ($sku->images ?? []),
-                'price' => $sku->price,
-            ];
-        })->toArray();
+        return $query
+            ->orderBy("product_skus.$sortBy", $direction)
+            ->skip($offset)
+            ->take($load_amount)
+            ->get()
+            ->map(function ($sku) {
+                return [
+                    'selected' => false,
+                    'sku_id' => $sku->id,
+                    'productName' => ($sku->product->name ?? 'Không rõ') . ' - ' . ($sku->sku ?? ''),
+                    'quantity' => $sku->quantity,
+                    'sku_quantity' => 1,
+                    'image_url' => is_string($sku->images)
+                        ? json_decode($sku->images, true)
+                        : ($sku->images ?? []),
+                    'price' => $sku->price,
+                ];
+            })
+            ->toArray();
     }
 
 
