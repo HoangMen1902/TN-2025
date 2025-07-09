@@ -5,8 +5,11 @@
             <div class="pt-2">
                 <span class="text-sm">Giao hàng đến</span>
 
-                <span class="font-bold text-sm">{{$ward_default['WardName']}}, {{$district_default['DistrictName']}},
-                    {{$province_default['ProvinceName']}}</span>
+                <span class="font-bold text-sm">
+                    {{ $ward_default['WardName'] ?? 'Chưa chọn' }},
+                    {{ $district_default['DistrictName'] ?? 'Chưa chọn' }},
+                    {{ $province_default['ProvinceName'] ?? 'Chưa chọn' }}
+                </span>
                 <a class="text-sm text-blue-500 change-address" href="javascript:void(0)">Thay đổi</a>
             </div>
 
@@ -82,38 +85,42 @@
             </div>
             <div class="flex items-center gap-12 mt-4">
                 <div class="flex flex-col gap-4 justify-between">
-                    @if ($type==="product")
-                    <h1>Phân loại</h1>
-                    
+                    @if ($type === "product")
+                        <h1>Phân loại</h1>
+
                     @endif
                     <h1 class="font-bold text-base">Số lượng:</h1>
                 </div>
 
-              
+
                 <div class="flex flex-col gap-4 justify-between">
-                    @if ($type==="product")
-                    <div class="flex space-x-2">
-                        @foreach ($data->productSkus as $sku)
-    
-                            <a href="javascript:void(0)" wire:click="selectSku({{$sku->id}})"
-                                class="{{ $currentSku->id === $sku->id ? "select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm"  : "select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100"}}">
-                                @foreach ($sku->skuValues as $value)
-                                    {{$value->option->name}} {{$value->value->value_name}}
-                                @endforeach
-                                @if ($currentSku->id === $sku->id)
-                                <svg class="ml-2 w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 111.414-1.414L8.414 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                @endif
-                            </a>
-                        @endforeach
-                    </div>
+                    @if ($type === "product" && isset($data) && $data && $data->productSkus)
+                        <div class="flex space-x-2">
+                            @foreach ($data->productSkus as $sku)
+                                <a href="javascript:void(0)" wire:click="selectSku({{ $sku->id }})"
+                                    class="{{ isset($currentSku) && $currentSku && $currentSku->id === $sku->id ? 'select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm' : 'select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100' }}">
+                                    @if($sku->skuValues)
+                                        @foreach ($sku->skuValues as $value)
+                                            {{ $value->option->name ?? '' }} {{ $value->value->value_name ?? '' }}
+                                        @endforeach
+                                    @endif
+                                    @if (isset($currentSku) && $currentSku && $currentSku->id === $sku->id)
+                                        <svg class="ml-2 w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 111.414-1.414L8.414 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                </a>
+                            @endforeach
+                        </div>
+                    @elseif ($type === "product")
+                        <div class="text-gray-500 text-sm">Không có phân loại sản phẩm</div>
                     @endif
                     <div class="quantity-container w-min">
                         <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
-                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold" form="addToCart" />
+                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold"
+                            form="addToCart" />
                         <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
                     </div>
 

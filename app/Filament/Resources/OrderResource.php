@@ -14,6 +14,7 @@ use Filament\Forms\Components\DatePicker;
 use Illuminate\Support\Facades\Auth;
 use App\Services\GhnService;
 use Illuminate\Support\Facades\Log;
+use App\Services\OrderShipmentService;
 
 class OrderResource extends Resource
 {
@@ -45,7 +46,7 @@ class OrderResource extends Resource
 
                 TextColumn::make('orders_status')->label('Trạng thái'),
 
-                // Thêm cột shipping status
+             
                 TextColumn::make('shipping_status')
                     ->label('TT Vận chuyển')
                     ->badge()
@@ -61,7 +62,7 @@ class OrderResource extends Resource
                         default => 'gray',
                     }),
 
-                // Thêm cột mã vận đơn
+      
                 TextColumn::make('shipping_order_code')
                     ->label('Mã vận đơn')
                     ->searchable()
@@ -117,13 +118,14 @@ class OrderResource extends Resource
                         ->modalCancelActionLabel('Đóng'),
 
                     Action::make('approve')
-                        ->label('Duyệt đơn & Đăng GHN')
+                        ->label('Duyệt đơn & Đăng vận chuyển')
                         ->icon('heroicon-o-check')
                         ->visible(fn(Order $record) => !$record->is_approved)
                         ->action(function (Order $record) {
                             $paymentMethod = $record->paymentDetail->payment_method ?? 'cod';
+                            $shipmentUnit = $record->paymentDetail->shipment_unit ?? null;
 
-                            // Duyệt đơn hàng
+                      
                             $record->is_approved = true;
 
                             if ($paymentMethod === 'cod') {
@@ -134,86 +136,107 @@ class OrderResource extends Resource
 
                             $record->save();
 
-                            // Debug: Log thông tin đơn hàng
-                            Log::info('Bắt đầu đăng đơn GHN', [
+                      
+                            Log::info('Bắt đầu đăng đơn vận chuyển', [
                                 'order_id' => $record->id,
                                 'customer_name' => $record->customer_name,
                                 'phone' => $record->phone,
                                 'address' => $record->address,
                                 'payment_method' => $paymentMethod,
+                                'shipment_unit' => $shipmentUnit,
                                 'total_price' => $record->total_price
                             ]);
 
-                            // Tự động đăng đơn lên GHN
-                            try {
-                                $ghnService = new GhnService();
-
-                                // Debug: Test connection trước
-                                $testResult = $ghnService->testConnection();
-                                Log::info('GHN Test Connection', $testResult);
-
-                                $result = $ghnService->createOrderFromOrder($record->fresh());
-
-                                Log::info('GHN Create Order Result', [
-                                    'result' => $result,
-                                    'order_id' => $record->id
-                                ]);
-
-                                if ($result && isset($result['data'])) {
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Thành công!')
-                                        ->body("Đã duyệt đơn và đăng lên GHN thành công!\nMã vận đơn: {$record->fresh()->shipping_order_code}")
-                                        ->success()
-                                        ->send();
-
-                                    activity()
-                                        ->causedBy(Auth::user())
-                                        ->performedOn($record)
-                                        ->log("Duyệt đơn và đăng GHN: {$record->fresh()->shipping_order_code}");
-                                } else {
-                                    // Hiển thị lỗi chi tiết hơn
-                                    $errorMsg = 'Không thể đăng lên GHN.';
-                                    if (is_array($result) && isset($result['message'])) {
-                                        $errorMsg .= ' Lỗi: ' . $result['message'];
-                                    }
-
-                                    \Filament\Notifications\Notification::make()
-                                        ->title('Cảnh báo!')
-                                        ->body($errorMsg)
-                                        ->warning()
-                                        ->send();
-                                }
-                            } catch (\Exception $e) {
-                                Log::error('Lỗi đăng GHN: ' . $e->getMessage(), [
-                                    'trace' => $e->getTraceAsString(),
-                                    'order_id' => $record->id
-                                ]);
-
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Lỗi!')
-                                    ->body('Lỗi khi đăng GHN: ' . $e->getMessage())
-                                    ->danger()
-                                    ->send();
-                            }
+               
+                            OrderShipmentService::processShipment($record, $shipmentUnit);
                         })
                         ->color('success')
                         ->requiresConfirmation()
                         ->modalHeading('Xác nhận duyệt đơn')
-                        ->modalSubheading('Sau khi duyệt, đơn hàng sẽ tự động được đăng lên GHN để vận chuyển.'),
+                        ->modalSubheading('Sau khi duyệt, đơn hàng sẽ tự động được đăng lên đơn vị vận chuyển tương ứng.'),
+
                     Action::make('trackOrder')
                         ->label('Tracking')
                         ->icon('heroicon-o-magnifying-glass')
                         ->visible(fn(Order $record) => !empty($record->shipping_order_code))
                         ->action(function (Order $record) {
-                            $ghnService = new GhnService();
-                            $result = $ghnService->trackOrder($record->shipping_order_code);
+                            try {
+                                $orderCode = $record->shipping_order_code;
+                                $result = null;
+                                $serviceName = '';
 
-                            if ($result && isset($result['data'])) {
-                                $status = $result['data']['status'] ?? 'Không xác định';
+          
+                                if (str_starts_with($orderCode, 'VTP_') || str_starts_with($orderCode, 'VTP_MOCK_')) {
+ 
+                                    $serviceName = 'Viettel Post';
+
+                                    if (str_starts_with($orderCode, 'VTP_MOCK_')) {
+                                     
+                                        $statuses = [
+                                            'Đã tiếp nhận',
+                                            'Đang lấy hàng',
+                                            'Đang vận chuyển',
+                                            'Đang giao hàng',
+                                            'Đã giao thành công'
+                                        ];
+
+                                        $randomStatus = $statuses[array_rand($statuses)];
+
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Trạng thái đơn hàng (Mock)')
+                                            ->body("Mã vận đơn: {$orderCode}\nDịch vụ: {$serviceName}\nTrạng thái: {$randomStatus}\n\n⚠️ Đây là mock data cho demo")
+                                            ->info()
+                                            ->send();
+                                        return;
+                                    } else {
+                                      
+                                        \Filament\Notifications\Notification::make()
+                                            ->title('Thông báo')
+                                            ->body("Tracking Viettel Post đang được phát triển.\nMã vận đơn: {$orderCode}")
+                                            ->warning()
+                                            ->send();
+                                        return;
+                                    }
+                                } else {
+                            
+                                    $serviceName = 'Giao Hàng Nhanh';
+                                    $ghnService = new GhnService();
+                                    $result = $ghnService->trackOrder($orderCode);
+                                }
+
+                        
+                                if ($result && isset($result['data'])) {
+                                    $status = $result['data']['status'] ?? 'Không xác định';
+                                    $statusText = $ghnService->getStatusText($status) ?? $status;
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Trạng thái đơn hàng')
+                                        ->body("Mã vận đơn: {$orderCode}\nDịch vụ: {$serviceName}\nTrạng thái: {$statusText}")
+                                        ->info()
+                                        ->send();
+                                } else {
+                             
+                                    $errorMsg = 'Không thể lấy thông tin tracking';
+                                    if (isset($result['message'])) {
+                                        $errorMsg .= ': ' . $result['message'];
+                                    }
+
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Lỗi tracking')
+                                        ->body("Mã vận đơn: {$orderCode}\nDịch vụ: {$serviceName}\nLỗi: {$errorMsg}")
+                                        ->danger()
+                                        ->send();
+                                }
+                            } catch (\Exception $e) {
+                                Log::error('Lỗi tracking đơn hàng', [
+                                    'order_code' => $record->shipping_order_code,
+                                    'error' => $e->getMessage()
+                                ]);
+
                                 \Filament\Notifications\Notification::make()
-                                    ->title('Trạng thái đơn hàng')
-                                    ->body("Mã vận đơn: {$record->shipping_order_code}\nTrạng thái: {$status}")
-                                    ->info()
+                                    ->title('Lỗi hệ thống')
+                                    ->body("Không thể tracking đơn hàng: " . $e->getMessage())
+                                    ->danger()
                                     ->send();
                             }
                         })

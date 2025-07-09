@@ -281,7 +281,7 @@ class GhnService
                     $items[] = [
                         'name' => $product->name,
                         'quantity' => (int)$detail->quantity,
-                        'price' => (int)$detail->price,  
+                        'price' => (int)$detail->price,
                         'weight' => (int)$weight
                     ];
 
@@ -293,7 +293,7 @@ class GhnService
                     $items[] = [
                         'name' => $detail->combo->name,
                         'quantity' => (int)$detail->quantity,
-                        'price' => (int)$detail->price,  
+                        'price' => (int)$detail->price,
                         'weight' => (int)$weight
                     ];
 
@@ -306,7 +306,7 @@ class GhnService
 
             if ($paymentMethod === 'cod') {
                 $maxCodLimit = 300000;
-                $codAmount = min($productTotal, $maxCodLimit); 
+                $codAmount = min($productTotal, $maxCodLimit);
 
                 Log::info('COD Payment - Thu tiền sản phẩm', [
                     'product_total' => $productTotal,
@@ -368,7 +368,7 @@ class GhnService
                 'to_address' => $addressInfo['to_address'],
                 'to_ward_code' => $addressInfo['to_ward_code'],
                 'to_district_id' => (int)$addressInfo['to_district_id'],
-                'cod_amount' => (int)$codAmount, 
+                'cod_amount' => (int)$codAmount,
                 'content' => implode(', ', $content),
                 'weight' => (int)max($totalWeight, 500),
                 'length' => 30,
@@ -468,8 +468,8 @@ class GhnService
                 'to_name' => $order->customer_name,
                 'to_phone' => $order->phone,
                 'to_address' => $order->address,
-                'to_ward_code' => '20308',  
-                'to_district_id' => 1444,  
+                'to_ward_code' => '20308',
+                'to_district_id' => 1444,
             ];
         } catch (\Exception $e) {
             Log::error('Lỗi lấy thông tin địa chỉ: ' . $e->getMessage());
@@ -547,10 +547,21 @@ class GhnService
     public function trackOrder($orderCode)
     {
         try {
+            // SỬA: Dùng orderToken giống như createOrder
             $response = Http::withHeaders([
-                'Token' => $this->orderToken,
+                'Token' => $this->orderToken, // Dùng lại orderToken
+                'ShopId' => (int)env('GHN_SHOPID'), // Thêm ShopId như createOrder
+                'Content-Type' => 'application/json'
             ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail', [
                 'order_code' => $orderCode
+            ]);
+
+            Log::info('GHN Tracking API Call (Using orderToken like createOrder)', [
+                'order_code' => $orderCode,
+                'token_used' => substr($this->orderToken, 0, 10) . '...',
+                'shop_id' => env('GHN_SHOPID'),
+                'status' => $response->status(),
+                'response' => $response->body()
             ]);
 
             if ($response->successful()) {
@@ -558,6 +569,7 @@ class GhnService
             } else {
                 Log::error('Lỗi tracking đơn hàng GHN', [
                     'order_code' => $orderCode,
+                    'status' => $response->status(),
                     'response' => $response->body()
                 ]);
                 return false;
@@ -566,6 +578,28 @@ class GhnService
             Log::error('Lỗi tracking đơn hàng GHN: ' . $e->getMessage());
             return false;
         }
+    }
+    public function getStatusText($status)
+    {
+        $statusMap = [
+            'ready_to_pick' => 'Chờ lấy hàng',
+            'picking' => 'Đang lấy hàng',
+            'picked' => 'Đã lấy hàng',
+            'storing' => 'Đang lưu kho',
+            'transporting' => 'Đang vận chuyển',
+            'sorting' => 'Đang phân loại',
+            'delivering' => 'Đang giao hàng',
+            'delivered' => 'Đã giao thành công',
+            'delivery_fail' => 'Giao hàng thất bại',
+            'waiting_to_return' => 'Chờ trả hàng',
+            'return' => 'Đang trả hàng',
+            'returned' => 'Đã trả hàng',
+            'exception' => 'Có sự cố',
+            'damage' => 'Hàng bị hỏng',
+            'lost' => 'Thất lạc'
+        ];
+
+        return $statusMap[$status] ?? $status;
     }
     public function testConnection()
     {

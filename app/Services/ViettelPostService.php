@@ -200,4 +200,294 @@ class   ViettelPostService
             return [];
         }
     }
+
+    /**
+     * Test kết nối API
+     */
+    public function testConnection()
+    {
+        try {
+            if (!$this->token) {
+                return [
+                    'status' => 'error',
+                    'message' => 'Không có token Viettel Post'
+                ];
+            }
+
+            // Test bằng cách lấy danh sách tỉnh
+            $provinces = $this->fetchProvince();
+
+            if (!empty($provinces)) {
+                return [
+                    'status' => 'success',
+                    'message' => 'Kết nối Viettel Post API thành công!',
+                    'token' => substr($this->token, 0, 10) . '...',
+                    'provinces_count' => count($provinces)
+                ];
+            } else {
+                return [
+                    'status' => 'error',
+                    'message' => 'Không thể lấy dữ liệu từ Viettel Post API'
+                ];
+            }
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Lỗi kết nối: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Tạo đơn hàng Viettel Post
+     */
+    /**
+     * Tạo đơn hàng Viettel Post
+     */
+    public function createOrder(\App\Models\Order $order)
+    {
+        try {
+            Log::info('Bắt đầu tạo đơn Viettel Post', ['order_id' => $order->id]);
+
+            if (!$this->token) {
+                Log::error('Không có token Viettel Post');
+                return [
+                    'status' => 'error',
+                    'message' => 'Không có token Viettel Post'
+                ];
+            }
+
+            // Chuẩn bị dữ liệu đơn hàng
+            $orderData = $this->prepareOrderData($order);
+
+            // Log dữ liệu gửi đi
+            Log::info('Dữ liệu đơn hàng Viettel Post', [
+                'order_data' => $orderData,
+                'data_json' => json_encode($orderData),
+                'data_size' => strlen(json_encode($orderData)) . ' bytes'
+            ]);
+
+            // Gọi API tạo đơn
+            $response = Http::withHeaders([
+                'token' => $this->token,
+                'Content-Type' => 'application/json'
+            ])->timeout(30)->post('https://partner.viettelpost.vn/v2/order/createOrder', $orderData);
+
+            // Log response chi tiết
+            Log::info('Viettel Post API Response Details', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body(),
+                'body_length' => strlen($response->body()),
+                'successful' => $response->successful(),
+                'failed' => $response->failed()
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                Log::info('Viettel Post Response JSON', $data);
+
+                if (isset($data['status']) && $data['status'] == 200 && isset($data['data']['ORDER_NUMBER'])) {
+                    // Cập nhật order với thông tin vận đơn
+                    $order->update([
+                        'shipping_order_code' => $data['data']['ORDER_NUMBER'],
+                        'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
+                        'shipping_info' => $data['data'],
+                        'orders_status' => 'Vận chuyển'
+                    ]);
+
+                    Log::info('Tạo đơn Viettel Post thành công', [
+                        'order_id' => $order->id,
+                        'shipping_code' => $data['data']['ORDER_NUMBER']
+                    ]);
+
+                    return $data;
+                } else {
+                    Log::error('Tạo đơn Viettel Post thất bại - Response không hợp lệ: ', $data);
+                    return [
+                        'status' => 'error',
+                        'message' => $data['message'] ?? 'Phản hồi API không hợp lệ',
+                        'api_response' => $data
+                    ];
+                }
+            } else {
+                Log::error('Tạo đơn Viettel Post thất bại: ' . $response->body());
+                return [
+                    'status' => 'error',
+                    'message' => 'HTTP Error: ' . $response->status(),
+                    'response_body' => $response->body()
+                ];
+            }
+        } catch (Exception $e) {
+            Log::error('Lỗi tạo đơn Viettel Post: ' . $e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => 'Exception: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Tạo đơn mock cho test
+     */
+    private function createMockOrder(\App\Models\Order $order)
+    {
+        try {
+            // Tạo mã vận đơn giả
+            $mockOrderNumber = 'VTP_MOCK_' . $order->id . '_' . time();
+
+            // Cập nhật order
+            $order->update([
+                'shipping_order_code' => $mockOrderNumber,
+                'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
+                'shipping_info' => [
+                    'ORDER_NUMBER' => $mockOrderNumber,
+                    'service' => 'ViettelPost Mock',
+                    'note' => 'Đây là mock data cho test',
+                    'created_time' => now()->toISOString()
+                ],
+                'orders_status' => 'Vận chuyển'
+            ]);
+
+            Log::info('Tạo đơn Viettel Post Mock thành công', [
+                'order_id' => $order->id,
+                'shipping_code' => $mockOrderNumber
+            ]);
+
+            return [
+                'status' => 200,
+                'message' => 'Tạo đơn thành công (Mock)',
+                'data' => [
+                    'ORDER_NUMBER' => $mockOrderNumber,
+                    'service' => 'ViettelPost Mock',
+                    'mock' => true
+                ]
+            ];
+        } catch (Exception $e) {
+            Log::error('Lỗi tạo đơn Viettel Post Mock: ' . $e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => 'Mock Error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Chuẩn bị dữ liệu đơn hàng
+     */
+    private function prepareOrderData(\App\Models\Order $order)
+    {
+        // Tính tổng trọng lượng và giá trị
+        $totalWeight = 0;
+        $productTotal = 0;
+        $products = [];
+
+        foreach ($order->orderDetails as $detail) {
+            if ($detail->item_type === 'sku' && $detail->sku) {
+                $weight = $detail->sku->product->weight ?? 500;
+                $totalWeight += $weight * $detail->quantity;
+                $productTotal += $detail->price * $detail->quantity;
+
+                $products[] = [
+                    'PRODUCT_NAME' => $detail->sku->product->name ?? 'Sản phẩm',
+                    'PRODUCT_QUANTITY' => $detail->quantity,
+                    'PRODUCT_PRICE' => $detail->price,
+                    'PRODUCT_WEIGHT' => $weight
+                ];
+            } elseif ($detail->item_type === 'combo' && $detail->combo) {
+                $weight = 500; // Default weight cho combo
+                $totalWeight += $weight * $detail->quantity;
+                $productTotal += $detail->price * $detail->quantity;
+
+                $products[] = [
+                    'PRODUCT_NAME' => $detail->combo->name ?? 'Combo',
+                    'PRODUCT_QUANTITY' => $detail->quantity,
+                    'PRODUCT_PRICE' => $detail->price,
+                    'PRODUCT_WEIGHT' => $weight
+                ];
+            }
+        }
+
+        // Xác định COD amount
+        $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
+        $codAmount = ($paymentMethod === 'cod') ? $productTotal : 0;
+
+        return [
+            'ORDER_NUMBER' => 'VTP_' . $order->id . '_' . time(),
+            'GROUPADDRESS_ID' => 123456, // TODO: Lấy từ config shop
+            'CUS_ID' => 0,
+            'DELIVERY_DATE' => now()->addDay()->format('d/m/Y H:i:s'),
+            'SENDER_FULLNAME' => config('shopConfig.shop_name', 'Shop ABC'),
+            'SENDER_ADDRESS' => config('shopConfig.shop_address', '123 Main St'),
+            'SENDER_PHONE' => config('shopConfig.shop_phone', '0901234567'),
+            'SENDER_EMAIL' => '',
+            'SENDER_WARD' => $this->shop_ward ?? 123456,
+            'SENDER_DISTRICT' => $this->shop_district ?? 123456,
+            'SENDER_PROVINCE' => $this->shop_province ?? 202,
+            'RECEIVER_FULLNAME' => $order->customer_name,
+            'RECEIVER_ADDRESS' => $order->address,
+            'RECEIVER_PHONE' => $order->phone,
+            'RECEIVER_EMAIL' => '',
+            'RECEIVER_WARD' => 123456, // TODO: Map từ địa chỉ
+            'RECEIVER_DISTRICT' => 123456, // TODO: Map từ địa chỉ
+            'RECEIVER_PROVINCE' => 202, // TODO: Map từ địa chỉ
+            'PRODUCT_NAME' => implode(', ', array_column($products, 'PRODUCT_NAME')),
+            'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
+            'PRODUCT_QUANTITY' => array_sum(array_column($products, 'PRODUCT_QUANTITY')),
+            'PRODUCT_PRICE' => $productTotal,
+            'PRODUCT_WEIGHT' => max($totalWeight, 500),
+            'PRODUCT_LENGTH' => 30,
+            'PRODUCT_WIDTH' => 20,
+            'PRODUCT_HEIGHT' => 10,
+            'PRODUCT_TYPE' => 'HH',
+            'ORDER_PAYMENT' => $paymentMethod === 'cod' ? 1 : 3,
+            'ORDER_SERVICE' => 'VCN',
+            'ORDER_SERVICE_ADD' => '',
+            'ORDER_VOUCHER' => '',
+            'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
+            'MONEY_COLLECTION' => $codAmount,
+            'MONEY_TOTALFEE' => 0,
+            'MONEY_FEECOD' => 0,
+            'MONEY_FEEVAS' => 0,
+            'MONEY_FEEINSUR' => 0,
+            'MONEY_FEE' => 0,
+            'MONEY_FEEOTHER' => 0,
+            'MONEY_TOTALVAT' => 0,
+            'MONEY_TOTAL' => 0,
+            'NATIONAL_TYPE' => 1,
+            'ORDER_SPECIAL' => '',
+            'LIST_ITEM' => $products
+        ];
+    }
+
+    /**
+     * Tạo ghi chú đơn hàng
+     */
+    private function generateOrderNote(\App\Models\Order $order, $paymentMethod, $productTotal)
+    {
+        $note = 'Đơn hàng #' . $order->id;
+
+        switch ($paymentMethod) {
+            case 'cod':
+                $note .= ' - Thu COD ' . number_format($productTotal) . 'đ';
+                break;
+            case 'vnpay':
+                $note .= ' - Đã thanh toán VNPay';
+                break;
+            case 'momo':
+                $note .= ' - Đã thanh toán MoMo';
+                break;
+            case 'bank_transfer':
+                $note .= ' - Đã chuyển khoản';
+                break;
+            case 'international':
+                $note .= ' - Đã thanh toán quốc tế';
+                break;
+            default:
+                $note .= ' - Đã thanh toán online';
+        }
+
+        return $note;
+    }
 }
