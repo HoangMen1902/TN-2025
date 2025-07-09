@@ -14,21 +14,18 @@ class PaymentMethodSeeder extends Seeder
     public function run(): void
     {
         DB::table('payment_methods')->insert([
-            [
-                'method_name' => 'VietQR',
-                'method_status' => True
-            ],
+
              [
                 'method_name' => 'payos',
-                'method_status' => True
+                'method_status' => 'active'
             ],
             [
                 'method_name' => 'International',
-                'method_status' => True
+                'method_status' => 'active'
             ],
             [
                 'method_name' => 'COD',
-                'method_status' => True
+                'method_status' => 'active'
             ],
         ]);
     }

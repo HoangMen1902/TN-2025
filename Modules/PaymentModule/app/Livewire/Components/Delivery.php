@@ -3,6 +3,7 @@
 namespace Modules\PaymentModule\Livewire\Components;
 
 use App\Models\CheckoutAddress;
+use App\Models\Provider;
 use App\Services\GhnService;
 use App\Services\ViettelPostService;
 use Carbon\Carbon;
@@ -30,6 +31,8 @@ class Delivery extends Component
 
     public $selected_unit;
 
+    public $active_unit = [];
+
     #[On("updated_selected_address")]
     public function updatedSelectedUnit()
     {
@@ -55,7 +58,14 @@ class Delivery extends Component
     }
     public function mount()
     {
-        $this->selected_unit = "Giao Hàng Nhanh";
+        $active_unit = Provider::where('provider_status', '=', 'active')->get();
+        foreach ($active_unit as $unit) {
+            $this->active_unit[] = $unit->provider_name;
+        }
+
+        if (!empty($this->active_unit)) {
+            $this->selected_unit = $this->active_unit[0];
+        }
         $length = [];
         $width = [];
         $packageHeight = 0;
