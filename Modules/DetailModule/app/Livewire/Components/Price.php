@@ -3,6 +3,7 @@
 namespace Modules\DetailModule\Livewire\Components;
 
 use App\Models\ProductCombo;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -52,7 +53,7 @@ class Price extends Component
 
         $this->price = $sku->price;
 
-        $flashSale = \App\Models\FlashsaleProduct::with('flashsale.discount')
+        $flashSale = \App\Models\FlashsaleProduct::with('flashsale')
             ->where('sku_id', $skuId)
             ->whereHas('flashsale', function ($q) {
                 $q->where('started_at', '<=', now())
@@ -60,8 +61,8 @@ class Price extends Component
             })
             ->first();
 
-        if ($flashSale && $flashSale->flashsale && $flashSale->flashsale->discount) {
-            $discount = $flashSale->flashsale->discount;
+        if ($flashSale && $flashSale->flashsale && $flashSale->flashsale->discount_amount) {
+            $discount = $flashSale->flashsale;
             $base = $sku->sale_price ?? $sku->price;
 
             if ($discount->discount_type === 'percent') {
@@ -69,26 +70,27 @@ class Price extends Component
             } elseif ($discount->discount_type === 'specific') {
                 $this->sale_price = $base - $discount->discount_amount;
             } else {
+
                 $this->sale_price = $base;
             }
-
             $this->hasFlashSale = true;
         } else {
             $this->sale_price = $sku->sale_price ?? $sku->price;
             $this->hasFlashSale = false;
         }
-
         $this->sale_percent = $this->price > 0
             ? (1 - $this->sale_price / $this->price) * 100
             : 0;
     }
+
+
     private function loadPriceFromSku($skuId)
     {
         $sku = $this->data->productSkus->firstWhere('id', $skuId);
 
         $this->price = $sku->price;
 
-        $flashSale = \App\Models\FlashsaleProduct::with('flashsale.discount')
+        $flashSale = \App\Models\FlashsaleProduct::with('flashsale')
             ->where('sku_id', $skuId)
             ->whereHas('flashsale', function ($q) {
                 $q->where('started_at', '<=', now())

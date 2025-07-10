@@ -16,22 +16,27 @@
         </div>
     </div>
 
-    <div class="flex-1 ml-6">
+    {{-- <div class="flex-1 ml-6">
         <div class="w-full bg-white/30 rounded-full h-2 relative overflow-hidden">
             <div id="progress-bar"
                  class="bg-yellow-400 h-2 rounded-full transition-all duration-300 ease-in-out"
                  style="width: 0%"></div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+            
+        }, 200);
         const endTime = new Date(@json($data['endTime']));
         const sold = {{ $data['sold'] }};
         const total = {{ $data['quantity'] }};
-        const progressBar = document.getElementById('progress-bar');
+        // const progressBar = document.getElementById('progress-bar');
 
+        console.log(endTime, sold, total);
+        
         function updateCountdown() {
             const now = new Date();
             let diff = Math.floor((endTime - now) / 1000);
@@ -52,8 +57,8 @@
             }
         }
 
-        const percent = total > 0 ? Math.min(100, Math.round((sold / total) * 100)) : 0;
-        progressBar.style.width = percent + '%';
+        // const percent = total > 0 ? Math.min(100, Math.round((sold / total) * 100)) : 0;
+        // progressBar.style.width = percent + '%';
 
         updateCountdown();
         const timer = setInterval(updateCountdown, 1000);

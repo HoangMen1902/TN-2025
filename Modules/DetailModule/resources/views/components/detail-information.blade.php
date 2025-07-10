@@ -4,7 +4,7 @@
         <tbody>
             <tr>
                 <th class="text-sm font-light">Mã hàng</th>
-                <td class="text-sm">8935088555321</td>
+                <td class="text-sm">{{$data->sku->sku}}</td>
             </tr>
             <tr>
                 <th class="text-sm font-light">Tên Nhà Cung Cấp</th>
