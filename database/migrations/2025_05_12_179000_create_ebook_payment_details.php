@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('tracking_id', 36)->unique()->nullable(false);
             $table->timestamps();
 
-            $table->index('order_id', 'idx_ebook_payment_details_order_id');
+            $table->index('ebook_order_id', 'idx_ebook_payment_details_order_id');
             $table->index('tracking_id', 'idx_ebook_payment_details_tracking_id');
         });
     }
