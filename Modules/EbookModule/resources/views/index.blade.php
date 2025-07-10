@@ -92,6 +92,7 @@
                         class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">
                         {{-- Đăng nhập --}}
                         Mua trọn bộ sách ({{ number_format($ebook->price) }})
+                        <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="btn btn-primary">Thanh toán ngay</a>
                     </button>
                     {{-- <button
                         class="ebook-buy-btn w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors">

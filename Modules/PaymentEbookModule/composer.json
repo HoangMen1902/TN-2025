@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/paymentebookmodule",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\PaymentEbookModule\\": "app/",
+            "Modules\\PaymentEbookModule\\Database\\Factories\\": "database/factories/",
+            "Modules\\PaymentEbookModule\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\PaymentEbookModule\\Tests\\": "tests/"
+        }
+    }
+}
