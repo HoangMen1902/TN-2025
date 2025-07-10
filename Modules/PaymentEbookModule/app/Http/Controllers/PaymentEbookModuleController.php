@@ -77,8 +77,8 @@ class PaymentEbookModuleController extends Controller
                 return redirect($vnPay);
             } elseif ($request->payment_method === 'international') {
                 $stripeService = new StripeService();
-                // Chuyển đối tượng ebook thành Collection để khớp với StripeService
                 $items = collect([$ebook]);
+                dd($items);
                 $session = $stripeService->createCheckoutSession($items, 0, $order->id);
                 if (!$session) {
                     throw new \Exception('Không thể tạo session thanh toán với Stripe.');

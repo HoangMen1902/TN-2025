@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\EbookModule\App\Http\Controllers;
+namespace Modules\EbookModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductEbook;

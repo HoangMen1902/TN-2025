@@ -38,9 +38,14 @@ class StripeService
         }
     }
 
-    public function createCheckoutSession($carts, $shipping_fee, $payment_id, $voucher = null)
+    public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = null, bool $is_ebook = false)
     {
-        $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
+        if(!$is_ebook) {
+            $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
+        } else {
+            $lineItems = $this->formatEbook($carts);
+                // Viết tiếp hàm formatEbook
+        }
         $session = $this->stripe->checkout->sessions->create([
             'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
             'line_items' => $lineItems,
@@ -48,6 +53,24 @@ class StripeService
             'cancel_url' => route('cart.index'),
         ]);
         return $session;
+    }
+    
+    private function formatEbook($ebookItem) {
+        $line_items = $ebookItem->map(function($i) {
+            return [
+                'price_data' => [
+                    'currency' => 'VND',
+                    'product_data' => [
+                        'name' => //Tên,
+                        'description' => //Mô tả,
+                    ],
+                    'unit_amount' => //Giá sản phẩm,
+                ],
+                'quantity' => //Số lượng,
+            ];
+        });
+        
+        //Lấy thông tin theo mẫu ở trên là đc
     }
 
 

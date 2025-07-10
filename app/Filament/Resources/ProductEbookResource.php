@@ -26,8 +26,8 @@ use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Filament\Forms\Form;
-use Modules\EbookModule\App\Http\Controllers\EpubSplitController;
-use Modules\EbookModule\App\Http\Controllers\PdfSplitController;
+use Modules\EbookModule\Http\Controllers\EpubSplitController;
+use Modules\EbookModule\Http\Controllers\PdfSplitController;
 
 class ProductEbookResource extends Resource
 {
