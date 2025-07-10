@@ -31,7 +31,7 @@ class generatePy extends Command
             if ($this->confirm('Setup môi trường ảo Python? (Không cần chạy nếu đã chạy rồi)', true)) {
 
                 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-                $pythonCmd = $isWin ? 'py -3.13' : 'python3.13';
+                $pythonCmd = $isWin ? 'python' : 'python3';
 
                 $this->info("Đang tạo môi trường ảo: $pythonCmd -m venv .venv_clip");
 
