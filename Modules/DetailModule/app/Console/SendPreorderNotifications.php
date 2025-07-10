@@ -1,4 +1,5 @@
 <?php
+
 namespace Modules\DetailModule\Console;
 
 use Illuminate\Console\Command;
@@ -7,6 +8,9 @@ use App\Models\Preorder;
 use App\Models\Notification;
 use App\Models\UserNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ProductBackInStockMail;
+use Illuminate\Support\Facades\Log;
 
 class SendPreorderNotifications extends Command
 {
@@ -32,11 +36,16 @@ class SendPreorderNotifications extends Command
 
     protected function notifyPreorderUsers(Product $product)
     {
+        Log::info('🔔 Đang xử lý sản phẩm: ' . $product->name);
+
         $preorders = Preorder::where('product_id', $product->id)
             ->where('status', 'pending')
             ->get();
 
-        if ($preorders->isEmpty()) return;
+        if ($preorders->isEmpty()) {
+            Log::info('❌ Không có preorder nào cho sản phẩm: ' . $product->name);
+            return;
+        }
 
         DB::transaction(function () use ($product, $preorders) {
             $notification = Notification::create([
@@ -47,6 +56,9 @@ class SendPreorderNotifications extends Command
             ]);
 
             foreach ($preorders as $preorder) {
+                Log::info('✅ Đã gửi mail: ' . $preorder->user->email);
+                Mail::to($preorder->user->email)->send(new ProductBackInStockMail($product));
+                Log::info('✅ Đã gửi mail cho sản phẩm: ' . $product->name);
                 UserNotification::create([
                     'user_id' => $preorder->user_id,
                     'notification_id' => $notification->id,
