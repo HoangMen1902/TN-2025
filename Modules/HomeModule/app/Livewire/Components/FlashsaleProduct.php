@@ -15,7 +15,7 @@ class FlashsaleProduct extends Component
         $flashSales = Flashsale::active()
             ->where('expired_at', '<=', now()->addHours(24))
             ->where('expired_at', '>', now())
-            ->with(['skus.product', 'discount'])
+            ->with(['skus.product'])
             ->get();
 
         if ($flashSales->isEmpty()) {
@@ -62,6 +62,7 @@ class FlashsaleProduct extends Component
                     'sold' => $sku->sold ?? 10,
                     'total' => $sku->quantity ?? 0,
                     'percent_sold' => $percentSold,
+                    'slug' => $sku->product->slug
                 ];
             }
         }
