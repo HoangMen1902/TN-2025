@@ -18,6 +18,7 @@ class Flashsale extends Component
     public function mount($skuId)
     {
         $this->skuId = $skuId;
+
         if ($this->checkFlashSale()) {
             $sku = $this->flashSaleProduct->sku;
             $flashsale = $this->flashSaleProduct->flashsale;
@@ -28,11 +29,10 @@ class Flashsale extends Component
                 'sold' => $sku->sold ?? 0,
                 'quantity' => $sku->quantity ?? 0,
             ];
-            $this->dispatch('flashsaleExist');
+            $this->dispatch('flashsaleExisted');
         }
     }
-
-    #[On('flashsaleExist')]
+    #[On('flashsaleExisted')]
     public function dispatchFlashsale() {
         $this->dispatch('flashsaleUpdated');
     }

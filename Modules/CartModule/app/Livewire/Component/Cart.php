@@ -4,9 +4,12 @@ namespace Modules\CartModule\Livewire\Component;
 
 use Livewire\Component;
 use App\Models\Cart as CartModel;
+use App\Models\Flashsale;
+use App\Models\FlashsaleProduct;
 use App\Models\Product;
 use App\Models\ProductCombo;
 use App\Models\ProductSku;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -25,6 +28,117 @@ class Cart extends Component
 
     public array $selected_cart_combos = [];
     public array $selected_cart_skus = [];
+    public $productInFlashsale;
+
+    public $flashsaleProduct;
+
+
+
+    public function mount()
+    {
+        $this->productInFlashsale = collect([]);
+        $userId = Auth::id();
+        $this->logged_in = $userId ? true : false;
+        $this->cartItems = collect();
+        $now = Carbon::now();
+        if ($userId) {
+            $skuIds = [];
+            $this->cartItems = CartModel::with(['sku.product', 'combo'])
+                ->where('user_id', '=', $userId)->get();
+            foreach ($this->cartItems as $item) {
+                $this->quantities[$item->id] = $item->quantity;
+                if($item->item_type === 'sku') {
+                    $skuIds[] = $item->sku_id;
+                };
+            }
+
+
+            $flashsales = FlashsaleProduct::whereIn('sku_id', $skuIds)->with('flashsale', function ($q) use ($now) {
+                $q->where('started_at', '<=', $now)
+                    ->where('expired_at', '>=', $now);
+            })->get();
+
+            if ($flashsales) {
+                $flashsale_map = $flashsales->mapWithKeys(function ($item, $index) {
+                    return [
+                        $index => [
+                            'sku_id' => $item->sku_id,
+                            'flashsale_id' => $item->flashsale_id,
+                            'flashsale_started_at' => $item->flashsale->started_at,
+                            'flashsale_expired_at' => $item->flashsale->expired_at,
+                            'discount_type' => $item->flashsale->discount_type,
+                            'discount_amount' => $item->flashsale->discount_amount
+                        ]
+                    ];
+                });
+                $this->productInFlashsale = $flashsale_map;
+            }
+        } else {
+            $cart = Session::get('carts', []);
+            $skuIds = array_keys($cart['sku'] ?? []);
+            $comboIds = array_keys($cart['combo'] ?? []);
+            $skus = ProductSku::with('product')->whereIn('id', $skuIds)->get()->keyBy('id');
+            $combos = ProductCombo::whereIn('id', $comboIds)->get()->keyBy('id');
+            $this->cartItems['sku'] = $skus;
+            $this->cartItems['combo'] = $combos;
+
+            $flashsales = FlashsaleProduct::whereIn('sku_id', $skuIds)->with('flashsale', function ($q) use ($now) {
+                $q->where('started_at', '<=', $now)
+                    ->where('expired_at', '>=', $now);
+            })->get();
+
+            if ($flashsales) {
+                $flashsale_map = $flashsales->mapWithKeys(function ($item, $index) {
+                    return [
+                        $index => [
+                            'sku_id' => $item->sku_id,
+                            'flashsale_id' => $item->flashsale_id,
+                            'flashsale_started_at' => $item->flashsale->started_at,
+                            'flashsale_expired_at' => $item->flashsale->expired_at,
+                            'discount_type' => $item->flashsale->discount_type,
+                            'discount_amount' => $item->flashsale->discount_amount
+                        ]
+                    ];
+                });
+                $this->productInFlashsale = $flashsale_map;
+            }
+
+
+            if (!$cart || empty($cart)) {
+                return;
+            }
+
+            if (isset($cart['sku']) && !empty($cart['sku'])) {
+                foreach ($cart['sku'] as $index => $item) {
+                    $this->quantities['sku'][$index] = $item['quantity'];
+                }
+            }
+
+
+            if (isset($cart['combo']) && !empty($cart['combo'])) {
+                foreach ($cart['combo'] as $index => $item) {
+                    $this->quantities['combo'][$index] = $item['quantity'];
+                }
+            }
+        }
+    }
+
+    public function checkFlashsale($sku_id)
+    {
+        $now = Carbon::now();
+        $flashSaleProduct = FlashsaleProduct::with(['sku', 'flashsale'])
+            ->where('sku_id', $sku_id)
+            ->whereHas('flashsale', function ($q) use ($now) {
+                $q->where('started_at', '<=', $now)
+                    ->where('expired_at', '>=', $now);
+            })->first();
+
+        if ($flashSaleProduct) {
+            $this->flashsaleProduct = $flashSaleProduct;
+            return true;
+        }
+        return false;
+    }
 
     #[On('selected_cart')]
     public function updatePrice()
@@ -34,11 +148,29 @@ class Cart extends Component
             if (empty($this->selected_cart)) {
                 return;
             }
+
             foreach ($this->selected_cart as $cart) {
                 $cartData = CartModel::find($cart);
                 $itemType = $cartData->item_type;
                 if ($itemType === "sku") {
-                    $this->total_price += ($cartData->sku->sale_price ?? $cartData->sku->price) * $cartData->quantity;
+                    if ($this->checkFlashsale($cartData->sku_id)) {
+                        $flashsale = $this->flashsaleProduct->flashsale;
+                        $flashsaleType = $flashsale->discount_type;
+                        $flashsaleAmount = $flashsale->discount_amount;
+                        $minusPice = 0;
+                        $originalPrice = ($cartData->sku->sale_price ?? $cartData->sku->price);
+                        if ($flashsaleType === 'percent') {
+                            $minusPice = $originalPrice * ($flashsaleAmount / 100);
+                            if ($minusPice < 0) {
+                                $minusPice = 0;
+                            }
+                        } elseif ($flashsaleType === 'specific') {
+                            $minusPice = $flashsaleAmount;
+                        }
+                        $this->total_price += (($cartData->sku->sale_price ?? $cartData->sku->price) * $cartData->quantity) - $minusPice;
+                    } else {
+                        $this->total_price += ($cartData->sku->sale_price ?? $cartData->sku->price) * $cartData->quantity;
+                    }
                 } elseif ($itemType === "combo") {
                     $this->total_price += $cartData->combo->sale_price * $cartData->quantity;
                 }
@@ -56,9 +188,26 @@ class Cart extends Component
             $skus = ProductSku::whereIn('id', array_keys($skuQuantities))->get();
             $combos = ProductCombo::whereIn('id', array_keys($comboQuantities))->get();
 
+
             $totalSku = $skus->sum(function ($sku) use ($skuQuantities) {
                 $price = $sku->sale_price ?? $sku->price;
                 $quantity = $skuQuantities[$sku->id] ?? 0;
+                if ($this->checkFlashsale($sku->id)) {
+                    $flashsale = $this->flashsaleProduct->flashsale;
+                    $flashsaleType = $flashsale->discount_type;
+                    $flashsaleAmount = $flashsale->discount_amount;
+                    $minusPice = 0;
+                    if ($flashsaleType === 'percent') {
+                        $minusPice = $price * ($flashsaleAmount / 100);
+                        if ($minusPice < 0) {
+                            $minusPice = 0;
+                        }
+                        $price = $price - $minusPice;
+                    } elseif ($flashsaleType === 'specific') {
+                        $minusPice = $flashsaleAmount;
+                        $price = $price - $minusPice;
+                    }
+                }
                 return $price * $quantity;
             });
 
@@ -87,45 +236,7 @@ class Cart extends Component
         })->count();
     }
 
-    public function mount()
-    {
-        $userId = Auth::id();
-        $this->logged_in = $userId ? true : false;
-        $this->cartItems = collect();
 
-        if ($userId) {
-            $this->cartItems = CartModel::with(['sku.product', 'combo'])
-                ->where('user_id', '=', $userId)->get();
-            foreach ($this->cartItems as $item) {
-                $this->quantities[$item->id] = $item->quantity;
-            }
-        } else {
-            $cart = Session::get('carts', []);
-            $skuIds = array_keys($cart['sku'] ?? []);
-            $comboIds = array_keys($cart['combo'] ?? []);
-            $skus = ProductSku::with('product')->whereIn('id', $skuIds)->get()->keyBy('id');
-            $combos = ProductCombo::whereIn('id', $comboIds)->get()->keyBy('id');
-            $this->cartItems['sku'] = $skus;
-            $this->cartItems['combo'] = $combos;
-
-            if (!$cart || empty($cart)) {
-                return;
-            }
-
-            if (isset($cart['sku']) && !empty($cart['sku'])) {
-                foreach ($cart['sku'] as $index => $item) {
-                    $this->quantities['sku'][$index] = $item['quantity'];
-                }
-            }
-
-
-            if (isset($cart['combo']) && !empty($cart['combo'])) {
-                foreach ($cart['combo'] as $index => $item) {
-                    $this->quantities['combo'][$index] = $item['quantity'];
-                }
-            }
-        }
-    }
 
     public function updatedQuantities($value, $key)
     {

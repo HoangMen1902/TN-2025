@@ -25,7 +25,7 @@
                         <div class="w-full mb-3 md:mb-5">
                             <div
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
-                                <div class="inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
+                                <div class="max-w-[30px] inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
                                     <label class="relative flex items-center cursor-pointer"
                                         for="blue-600-{{$type === 'sku' ? $item->sku->id : $item->combo->id}}">
                                         <input type="checkbox"
@@ -36,11 +36,11 @@
                                             class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
                                     </label>
                                 </div>
-                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center">
+                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center  lg:w-[100px] bg-gradient-to-r from-amber-500 to-blue-500 lg:min-w-[95px] ">
                                     @php
                                         $image = $type === 'sku' ? $item->sku->images[0] : $item->combo->images[0];
                                     @endphp
-                                    <img class="w-16 h-auto md:w-24" src="{{ asset('storage/' . $image) }}"
+                                    <img class="w-16 h-auto md:w-24 lg:w-full" src="{{ asset('storage/' . $image) }}"
                                         alt="{{ $type === 'sku' ? ($item->sku->sku ?? 'SKU Image') : 'Combo Image' }}"
                                         style="object-cover; width:100%; height:100%;">
                                 </div>
@@ -48,9 +48,42 @@
                                     <h2 class="text-sm md:text-base font-bold truncate max-w-100 mt-1">
                                         {{ $type === 'sku' ? ($item->sku->product->name ?? 'Tên sản phẩm') . ' - ' . ($item->sku->sku ?? '') : ($item->combo->combo_name ?? 'Tên sản phẩm') . ' - Combo' }}
                                     </h2>
+                                    @if($type === 'sku')
+                                    @php
+                                        $flashsaleSku = $productInFlashsale->firstWhere('sku_id', $item->sku_id);
+                                    @endphp
+
+                                        @if($flashsaleSku)
+                                            @php
+                                                $flashsaleType = $flashsaleSku['discount_type'];
+                                                $original_price = $item->sku->sale_price ?? $item->sku->price ?? 0;
+                                                $discount_amount = $flashsaleSku['discount_amount'];
+                                                $discounted_price = 0;
+
+                                                if($flashsaleType === 'percent') {
+                                                    $discounted_price = $original_price * (1 - $discount_amount / 100);
+                                                } elseif($flashsaleType === 'specific') {
+                                                    $discounted_price = $original_price * $discount_amount;
+                                                } else {
+                                                    $discounted_price = $original_price;
+                                                }
+                                            @endphp
+
+                                            <p class="text-red-600 font-bold text-sm md:text-base">
+                                                {{ number_format($discounted_price, 0, ',', '.') }}đ - Chương trình Flashsale
+                                            </p>
+                                        @else
+                                            <p class="text-red-600 font-bold text-sm md:text-base">
+                                                {{ number_format($item->sku->sale_price ?? $item->sku->price ?? 0, 0, ',', '.') }}đ
+                                            </p>
+                                        @endif
+
+                                    @else
                                     <p class="text-red-600 font-bold text-sm md:text-base">
-                                        {{ number_format($type === 'sku' ? ($item->sku->sale_price ?? $item->sku->price ?? 0) : ($item->combo->sale_price ?? 0), 0, ',', '.') }}đ
+                                        {{ number_format(($item->combo->sale_price ?? 0), 0, ',', '.') }}đ
                                     </p>
+                                    @endif
+                                    
                                     <div class="list-none p-0 text-xs md:text-sm ">
                                         <div class="my-1 line-clamp-2">
                                             {!! $type === 'sku' ? ($item->sku->product->short_description ?? 'Không có mô tả') : ($item->combo->description ?? 'Không có mô tả') !!}
@@ -79,15 +112,18 @@
                                 </div>
                                 <div
                                     class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base">
-                                    {{ number_format(
-                            ($type === 'sku'
-                                ? ($item->sku->sale_price ?? $item->sku->price ?? 0)
-                                : ($item->combo->sale_price ?? 0))
-                            * ($quantities[$item->id] ?? $item->quantity ?? 1),
-                            0,
-                            ',',
-                            '.'
-                        ) }}
+              {{ isset($discounted_price) 
+    ? number_format($discounted_price, 0, ',', '.') 
+    : number_format(
+        ($type === 'sku'
+            ? ($item->sku->sale_price ?? $item->sku->price ?? 0)
+            : ($item->combo->sale_price ?? 0)
+        ) * ($quantities[$item->id] ?? $item->quantity ?? 1),
+        0,
+        ',',
+        '.'
+    ) 
+}}
                                     VNĐ
                                 </div>
                             </div>
@@ -100,7 +136,7 @@
             <div class="w-full mb-3 md:mb-5">
                             <div
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
-                                <div class="inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
+                                <div class="max-w-[30px] inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
                                     <label class="relative flex items-center cursor-pointer"
                                         for="blue-600-sku-{{$item->id}}">
                                         <input type="checkbox"
@@ -111,11 +147,11 @@
                                             class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
                                     </label>
                                 </div>
-                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center">
+                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center  lg:w-[100px] bg-gradient-to-r from-amber-500 to-blue-500 lg:min-w-[95px] ">
                                     @php
                                         $image = $item->images[0];
                                     @endphp
-                                    <img class="w-16 h-auto md:w-24" src="{{ asset('storage/' . $image) }}"
+                                    <img class="w-16 h-auto md:w-24 lg:w-full" src="{{ asset('storage/' . $image) }}"
                                         alt=""
                                         style="object-cover; width:100%; height:100%;">
                                 </div>
@@ -123,9 +159,35 @@
                                     <h2 class="text-sm md:text-base font-bold truncate max-w-100 mt-1">
                                         {{($item->product->name ?? 'Tên sản phẩm') . ' - ' . ($item->sku ?? '')}}
                                     </h2>
-                                    <p class="text-red-600 font-bold text-sm md:text-base">
-                                        {{ number_format( ($item->sale_price ?? $item->price ?? 0), 0, ',', '.') }}đ
-                                    </p>
+                                    @php
+                                        $flashsaleSku = $productInFlashsale->firstWhere('sku_id', $item->id);
+                                    @endphp
+
+.
+                                    @if($flashsaleSku)
+                                        @php
+                                            $flashsaleType = $flashsaleSku['discount_type'];
+                                            $original_price = $item->sale_price ?? $item->price ?? 0;
+                                            $discount_amount = $flashsaleSku['discount_amount'];
+                                            $discounted_price = 0;
+
+                                            if($flashsaleType === 'percent') {
+                                                $discounted_price = $original_price * (1 - $discount_amount / 100);
+                                            } elseif($flashsaleType === 'specific') {
+                                                $discounted_price = $original_price * $discount_amount;
+                                            } else {
+                                                $discounted_price = $original_price;
+                                            }
+                                        @endphp
+
+                                        <p class="text-red-600 font-bold text-sm md:text-base">
+                                            {{ number_format($discounted_price, 0, ',', '.') }}đ - Chương trình Flashsale
+                                        </p>
+                                    @else
+                                        <p class="text-red-600 font-bold text-sm md:text-base">
+                                            {{ number_format($item->sale_price ?? $item->price ?? 0, 0, ',', '.') }}đ
+                                        </p>
+                                    @endif
                                     <div class="list-none p-0 text-xs md:text-sm ">
                                         <div class="my-1 line-clamp-2">
                                             {!!  ($item->product->short_description ?? 'Không có mô tả') !!}
@@ -154,7 +216,7 @@
                                 </div>
                                 <div
                                     class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base">
-                                    {{ number_format($item->sale_price ??  $item->price ?? 0,
+                                    {{isset($discounted_price) ? number_format($discounted_price, 0, ',', '.') : number_format($item->sale_price ??  $item->price ?? 0,
                             0,
                             ',',
                             '.'
@@ -171,7 +233,7 @@
                 <div class="w-full mb-3 md:mb-5">
                             <div
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
-                                <div class="inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
+                                <div class="max-w-[30px] inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
                                     <label class="relative flex items-center cursor-pointer"
                                         for="blue-600-combo-{{$combo->id}}">
                                         <input type="checkbox"
@@ -182,11 +244,11 @@
                                             class="absolute bg-blue-600 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
                                     </label>
                                 </div>
-                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center">
+                                <div class="w-full md:w-1/7 p-1 md:p-2 flex justify-center  lg:w-[100px] bg-gradient-to-r from-amber-500 to-blue-500 lg:min-w-[95px] ">
                                     @php
                                         $image = $combo->images[0];
                                     @endphp
-                                    <img class="w-16 h-auto md:w-24" src="{{ asset('storage/' . $image) }}"
+                                    <img class="w-16 h-auto md:w-24 lg:w-full" src="{{ asset('storage/' . $image) }}"
                                         alt=""
                                         style="object-cover; width:100%; height:100%;">
                                 </div>
