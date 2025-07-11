@@ -32,6 +32,13 @@ cur.execute('SELECT id, provider_province_name FROM provider_provinces WHERE pro
 provider_provinces = cur.fetchall();
 
 
+def clean_prefix(name):
+    for prefix in ['TT ', 'KCN ', 'KCN -', 'KHU CÔNG NGHIỆP ',
+                   'KHU CN ', 'ẤP ', 'CHỢ ', 'THỊ TRẤN ']:
+        if name.upper().startswith(prefix): 
+            return name[len(prefix):].strip()
+    return name.strip()
+
 internal_names = [p['name'] for p in province_data];
 
 for row in provider_provinces:
@@ -78,24 +85,14 @@ ward_data = cur.fetchall();
 cur.execute('SELECT id, provider_ward_name FROM provider_wards WHERE ward_id IS NULL');
 provider_ward = cur.fetchall();
 
-def clean_prefix(name):
-    for prefix in ['TT ', 'TX ', 'KCN ', 'KCN -', 'KHU CÔNG NGHIỆP ',
-                   'KHU CN ', 'ẤP ', 'CHỢ ', 'PHƯỜNG ', 'XÃ ', 'THỊ TRẤN ']:
-        if name.upper().startswith(prefix):
-            return name[len(prefix):].strip()
-    return name.strip()
+
 
 internal_ward = [
     clean_prefix(d['name']).upper()
     for d in ward_data
 ]
         
-def clean_prefix(name):
-    for prefix in ['TT ', 'TX ', 'KCN ', 'KCN -', 'KHU CÔNG NGHIỆP ',
-                   'KHU CN ', 'ẤP ', 'CHỢ ', 'PHƯỜNG ', 'XÃ ', 'THỊ TRẤN ']:
-        if name.upper().startswith(prefix): 
-            return name[len(prefix):].strip()
-    return name.strip()
+
 
 with open("output.txt", "w", encoding="utf-8") as f:
     for row in provider_ward:
