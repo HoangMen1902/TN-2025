@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/vouchermodule",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\VoucherModule\\": "app/",
+            "Modules\\VoucherModule\\Database\\Factories\\": "database/factories/",
+            "Modules\\VoucherModule\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\VoucherModule\\Tests\\": "tests/"
+        }
+    }
+}

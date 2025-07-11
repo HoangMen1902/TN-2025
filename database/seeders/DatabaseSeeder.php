@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             ProviderSeeder::class,
             RoleSeeder::class,
             PaymentMethodSeeder::class,
+            VoucherSeeder::class,
+            MembershipSeeder::class,
         ]);
         $this->call(FlashSaleSeeder::class);
         $this->call([

@@ -1,0 +1,11 @@
+{
+    "name": "VoucherModule",
+    "alias": "vouchermodule",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\VoucherModule\\Providers\\VoucherModuleServiceProvider"
+    ],
+    "files": []
+}
