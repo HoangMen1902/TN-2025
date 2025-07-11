@@ -12,28 +12,26 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PHPUnit\Event\Code\Throwable;
 
-class   ViettelPostService
+
+class ViettelPostService
 {
-
     private $shopData;
-
     private $token;
     private $userData;
     private $shop_province;
     private $shop_district;
     private $shop_ward;
+    private $addressToken;
 
     public function __construct()
     {
         $provider = Provider::where('provider_name', 'Viettel Post')->first();
-
         if (!$provider) {
             $provider = Provider::updateOrCreate(
                 ['provider_name' => 'Viettel Post'],
                 ['provider_status' => 'active']
             );
         }
-
         $now = new DateTime();
         $token_expired_time = new Datetime($provider->token_expired_time);
         if ($provider->provider_token &&  $now < $token_expired_time) {
@@ -50,7 +48,6 @@ class   ViettelPostService
             ->first(function ($item) use ($provinceNameFromConfig) {
                 return Str::contains(Str::lower($item['PROVINCE_NAME']), Str::lower($provinceNameFromConfig));
             });
-
         if (empty($shop_province)) {
             return;
         }
@@ -60,18 +57,19 @@ class   ViettelPostService
             ->first(function ($item) use ($districtNameFromConfig) {
                 return Str::contains(Str::lower($item['DISTRICT_NAME']), Str::lower($districtNameFromConfig));
             });
-
         if (empty($shop_district)) {
             return;
         }
         $this->shop_district = $shop_district['DISTRICT_ID'];
-
 
         $shop_ward_id = collect($this->fetchWard() ?? [])
             ->first(function ($item) use ($wardNameFromConfig) {
                 return Str::contains(Str::lower($item['WARDS_NAME']), Str::lower($wardNameFromConfig));
             });
         $this->shop_ward = $shop_ward_id['WARDS_ID'];
+
+        $this->addressToken = env('VIETTELPOST_GROUP_ADDRESS_ID');
+        Log::info('ViettelPostService addressToken debug', ['addressToken' => $this->addressToken]);
     }
 
 
@@ -214,7 +212,7 @@ class   ViettelPostService
                 ];
             }
 
-            // Test bằng cách lấy danh sách tỉnh
+
             $provinces = $this->fetchProvince();
 
             if (!empty($provinces)) {
@@ -257,23 +255,23 @@ class   ViettelPostService
                 ];
             }
 
-            // Chuẩn bị dữ liệu đơn hàng
-            $orderData = $this->prepareOrderData($order);
 
-            // Log dữ liệu gửi đi
-            Log::info('Dữ liệu đơn hàng Viettel Post', [
+
+            $orderData = $this->prepareOrderData($order);
+            $orderDataJson = json_encode($orderData, JSON_UNESCAPED_UNICODE);
+
+            Log::info('Dữ liệu đơn hàng Viettel Post (JSON encode)', [
                 'order_data' => $orderData,
-                'data_json' => json_encode($orderData),
-                'data_size' => strlen(json_encode($orderData)) . ' bytes'
+                'data_json' => $orderDataJson,
+                'data_size' => strlen($orderDataJson) . ' bytes'
             ]);
 
-            // Gọi API tạo đơn
-            $response = Http::withHeaders([
-                'token' => $this->token,
-                'Content-Type' => 'application/json'
-            ])->timeout(30)->post('https://partner.viettelpost.vn/v2/order/createOrder', $orderData);
 
-            // Log response chi tiết
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Token' => $this->token,  
+            ])->timeout(30)
+                ->post('https://partner.viettelpost.vn/v2/order/createOrder', $orderData);
             Log::info('Viettel Post API Response Details', [
                 'status' => $response->status(),
                 'headers' => $response->headers(),
@@ -289,7 +287,7 @@ class   ViettelPostService
                 Log::info('Viettel Post Response JSON', $data);
 
                 if (isset($data['status']) && $data['status'] == 200 && isset($data['data']['ORDER_NUMBER'])) {
-                    // Cập nhật order với thông tin vận đơn
+
                     $order->update([
                         'shipping_order_code' => $data['data']['ORDER_NUMBER'],
                         'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
@@ -319,6 +317,23 @@ class   ViettelPostService
                     'response_body' => $response->body()
                 ];
             }
+            if ($response->failed()) {
+                Log::error('Tạo đơn Viettel Post thất bại', [
+                    'status' => $response->status(),
+                    'headers' => $response->headers(),
+                    'body' => $response->body(),
+                    'json' => $response->json(),
+                    'order_data' => $orderData,
+                ]);
+                return [
+                    'status' => 'error',
+                    'message' => 'HTTP Error: ' . $response->status(),
+                    'response_body' => $response->body(),
+                    'response_json' => $response->json(),
+                    'response_headers' => $response->headers(),
+                    'order_data' => $orderData,
+                ];
+            }
         } catch (Exception $e) {
             Log::error('Lỗi tạo đơn Viettel Post: ' . $e->getMessage());
             return [
@@ -334,10 +349,10 @@ class   ViettelPostService
     private function createMockOrder(\App\Models\Order $order)
     {
         try {
-            // Tạo mã vận đơn giả
+
             $mockOrderNumber = 'VTP_MOCK_' . $order->id . '_' . time();
 
-            // Cập nhật order
+
             $order->update([
                 'shipping_order_code' => $mockOrderNumber,
                 'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
@@ -374,11 +389,21 @@ class   ViettelPostService
     }
 
     /**
-     * Chuẩn bị dữ liệu đơn hàng
+     * Chuẩn bị dữ liệu đơn hàng - CẬP NHẬT
      */
     private function prepareOrderData(\App\Models\Order $order)
     {
-        // Tính tổng trọng lượng và giá trị
+
+        $receiverAddress = $this->mapAddressToViettelPost($order);
+
+
+        $senderAddress = $this->getShopViettelAddress();
+
+        Log::info('Địa chỉ đã map cho Viettel Post', [
+            'sender' => $senderAddress,
+            'receiver' => $receiverAddress
+        ]);
+
         $totalWeight = 0;
         $productTotal = 0;
         $products = [];
@@ -390,63 +415,73 @@ class   ViettelPostService
                 $productTotal += $detail->price * $detail->quantity;
 
                 $products[] = [
-                    'PRODUCT_NAME' => $detail->sku->product->name ?? 'Sản phẩm',
-                    'PRODUCT_QUANTITY' => $detail->quantity,
-                    'PRODUCT_PRICE' => $detail->price,
-                    'PRODUCT_WEIGHT' => $weight
+                    'PRODUCT_NAME' => $this->cleanProductName($detail->sku->product->name ?? 'Sản phẩm'),
+                    'PRODUCT_QUANTITY' => (int)$detail->quantity,
+                    'PRODUCT_PRICE' => number_format($detail->price, 2, '.', ''),
+                    'PRODUCT_WEIGHT' => (int)$weight
                 ];
             } elseif ($detail->item_type === 'combo' && $detail->combo) {
-                $weight = 500; // Default weight cho combo
+                $weight = 500;
                 $totalWeight += $weight * $detail->quantity;
                 $productTotal += $detail->price * $detail->quantity;
 
                 $products[] = [
-                    'PRODUCT_NAME' => $detail->combo->name ?? 'Combo',
-                    'PRODUCT_QUANTITY' => $detail->quantity,
-                    'PRODUCT_PRICE' => $detail->price,
-                    'PRODUCT_WEIGHT' => $weight
+                    'PRODUCT_NAME' => $this->cleanProductName($detail->combo->name ?? 'Combo'),
+                    'PRODUCT_QUANTITY' => (int)$detail->quantity,
+                    'PRODUCT_PRICE' => number_format($detail->price, 2, '.', ''),
+                    'PRODUCT_WEIGHT' => (int)$weight
                 ];
             }
         }
 
-        // Xác định COD amount
+
         $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
         $codAmount = ($paymentMethod === 'cod') ? $productTotal : 0;
 
+        $senderWard = isset($senderAddress['ward_id']) ? (int)$senderAddress['ward_id'] : 0;
+        $senderDistrict = isset($senderAddress['district_id']) ? (int)$senderAddress['district_id'] : 0;
+        $senderProvince = isset($senderAddress['province_id']) ? (int)$senderAddress['province_id'] : 0;
+        $receiverWard = isset($receiverAddress['ward_id']) ? (int)$receiverAddress['ward_id'] : 0;
+        $receiverDistrict = isset($receiverAddress['district_id']) ? (int)$receiverAddress['district_id'] : 0;
+        $receiverProvince = isset($receiverAddress['province_id']) ? (int)$receiverAddress['province_id'] : 0;
+
         return [
             'ORDER_NUMBER' => 'VTP_' . $order->id . '_' . time(),
-            'GROUPADDRESS_ID' => 123456, // TODO: Lấy từ config shop
+            'GROUPADDRESS_ID' => $this->addressToken,
             'CUS_ID' => 0,
             'DELIVERY_DATE' => now()->addDay()->format('d/m/Y H:i:s'),
-            'SENDER_FULLNAME' => config('shopConfig.shop_name', 'Shop ABC'),
-            'SENDER_ADDRESS' => config('shopConfig.shop_address', '123 Main St'),
-            'SENDER_PHONE' => config('shopConfig.shop_phone', '0901234567'),
+
+            'SENDER_FULLNAME' => config('shopConfig.shop_name'),
+            'SENDER_ADDRESS' => config('shopConfig.shop_address'),
+            'SENDER_PHONE' => config('shopConfig.shop_phone'),
             'SENDER_EMAIL' => '',
-            'SENDER_WARD' => $this->shop_ward ?? 123456,
-            'SENDER_DISTRICT' => $this->shop_district ?? 123456,
-            'SENDER_PROVINCE' => $this->shop_province ?? 202,
+            'SENDER_WARD' => (int)$senderWard,
+            'SENDER_DISTRICT' => (int)$senderDistrict,
+            'SENDER_PROVINCE' => (int)$senderProvince,
+
             'RECEIVER_FULLNAME' => $order->customer_name,
             'RECEIVER_ADDRESS' => $order->address,
             'RECEIVER_PHONE' => $order->phone,
             'RECEIVER_EMAIL' => '',
-            'RECEIVER_WARD' => 123456, // TODO: Map từ địa chỉ
-            'RECEIVER_DISTRICT' => 123456, // TODO: Map từ địa chỉ
-            'RECEIVER_PROVINCE' => 202, // TODO: Map từ địa chỉ
-            'PRODUCT_NAME' => implode(', ', array_column($products, 'PRODUCT_NAME')),
+            'RECEIVER_WARD' => (int)$receiverWard,
+            'RECEIVER_DISTRICT' => (int)$receiverDistrict,
+            'RECEIVER_PROVINCE' => (int)$receiverProvince,
+
+            'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
             'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
-            'PRODUCT_QUANTITY' => array_sum(array_column($products, 'PRODUCT_QUANTITY')),
-            'PRODUCT_PRICE' => $productTotal,
-            'PRODUCT_WEIGHT' => max($totalWeight, 500),
+            'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
+            'PRODUCT_PRICE' => (float)$productTotal,
+            'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
             'PRODUCT_LENGTH' => 30,
             'PRODUCT_WIDTH' => 20,
             'PRODUCT_HEIGHT' => 10,
             'PRODUCT_TYPE' => 'HH',
             'ORDER_PAYMENT' => $paymentMethod === 'cod' ? 1 : 3,
-            'ORDER_SERVICE' => 'VCN',
+            'ORDER_SERVICE' => 'VNC',
             'ORDER_SERVICE_ADD' => '',
             'ORDER_VOUCHER' => '',
             'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
-            'MONEY_COLLECTION' => $codAmount,
+            'MONEY_COLLECTION' => (float)$codAmount,
             'MONEY_TOTALFEE' => 0,
             'MONEY_FEECOD' => 0,
             'MONEY_FEEVAS' => 0,
@@ -460,7 +495,6 @@ class   ViettelPostService
             'LIST_ITEM' => $products
         ];
     }
-
     /**
      * Tạo ghi chú đơn hàng
      */
@@ -489,5 +523,187 @@ class   ViettelPostService
         }
 
         return $note;
+    }
+
+    /**
+     * Map địa chỉ từ order sang Viettel Post ID thông qua mapping table
+     */
+    private function mapAddressToViettelPost(\App\Models\Order $order)
+    {
+        try {
+            Log::info('Bắt đầu map địa chỉ Viettel Post', [
+                'order_id' => $order->id,
+                'address' => $order->address
+            ]);
+
+
+            $checkoutAddress = \App\Models\CheckoutAddress::where('user_id', $order->user_id)
+                ->where('customer_name', $order->customer_name)
+                ->where('phone', $order->phone)
+                ->first();
+
+            if ($checkoutAddress) {
+
+                $viettelProvider = \App\Models\Provider::where('provider_name', 'Viettel Post')->first();
+
+                if (!$viettelProvider) {
+                    Log::warning('Không tìm thấy provider Viettel Post');
+                    return $this->getDefaultViettelAddress();
+                }
+
+
+                $viettelProvince = \App\Models\providerProvinces::where('provider_id', $viettelProvider->id)
+                    ->where('province_id', $checkoutAddress->province_id)
+                    ->first();
+
+
+                $viettelDistrict = \App\Models\providerDistrict::where('provider_id', $viettelProvider->id)
+                    ->where('district_id', $checkoutAddress->district_id)
+                    ->first();
+
+
+                $viettelWard = \App\Models\providerWard::where('provider_id', $viettelProvider->id)
+                    ->where('ward_id', $checkoutAddress->ward_id)
+                    ->first();
+
+                if ($viettelProvince && $viettelDistrict && $viettelWard) {
+                    Log::info('Map địa chỉ Viettel Post thành công', [
+                        'province_code' => $viettelProvince->provider_province_code,
+                        'district_code' => $viettelDistrict->provider_district_code,
+                        'ward_code' => $viettelWard->provider_ward_code
+                    ]);
+
+                    return [
+                        'province_id' => $viettelProvince->provider_province_code,
+                        'district_id' => $viettelDistrict->provider_district_code,
+                        'ward_id' => $viettelWard->provider_ward_code
+                    ];
+                } else {
+                    Log::warning('Không tìm thấy mapping đầy đủ cho Viettel Post', [
+                        'province_mapped' => $viettelProvince ? true : false,
+                        'district_mapped' => $viettelDistrict ? true : false,
+                        'ward_mapped' => $viettelWard ? true : false
+                    ]);
+                }
+            }
+
+
+            return $this->parseAddressText($order->address);
+        } catch (\Exception $e) {
+            Log::error('Lỗi map địa chỉ Viettel Post: ' . $e->getMessage());
+            return $this->getDefaultViettelAddress();
+        }
+    }
+
+    /**
+     * Parse địa chỉ từ text và map với database
+     */
+    private function parseAddressText($address)
+    {
+        try {
+
+            $parts = array_map('trim', explode(',', $address));
+
+            if (count($parts) < 3) {
+                Log::warning('Địa chỉ không đủ thông tin', ['address' => $address]);
+                return $this->getDefaultViettelAddress();
+            }
+
+            $wardName = str_replace(['Phường ', 'Xã ', 'Thị trấn '], '', $parts[1] ?? '');
+            $districtName = str_replace(['Quận ', 'Huyện ', 'Thành phố ', 'Thị xã '], '', $parts[2] ?? '');
+            $provinceName = str_replace(['Tỉnh ', 'Thành phố '], '', $parts[3] ?? $parts[2] ?? '');
+
+            Log::info('Parse address text', [
+                'ward' => $wardName,
+                'district' => $districtName,
+                'province' => $provinceName
+            ]);
+
+
+            $viettelProvider = \App\Models\Provider::where('provider_name', 'Viettel Post')->first();
+
+            if (!$viettelProvider) {
+                return $this->getDefaultViettelAddress();
+            }
+
+
+            $province = \App\Models\Province::where('name', 'like', "%{$provinceName}%")->first();
+            $district = null;
+            $ward = null;
+
+            if ($province) {
+
+                $district = \App\Models\District::where('province_id', $province->id)
+                    ->where('name', 'like', "%{$districtName}%")
+                    ->first();
+
+                if ($district) {
+
+                    $ward = \App\Models\Ward::where('district_id', $district->id)
+                        ->where('name', 'like', "%{$wardName}%")
+                        ->first();
+                }
+            }
+
+            if ($province && $district && $ward) {
+                $viettelProvince = \App\Models\providerProvinces::where('provider_id', $viettelProvider->id)
+                    ->where('province_id', $province->id)->first();
+                $viettelDistrict = \App\Models\providerDistrict::where('provider_id', $viettelProvider->id)
+                    ->where('district_id', $district->id)->first();
+                $viettelWard = \App\Models\providerWard::where('provider_id', $viettelProvider->id)
+                    ->where('ward_id', $ward->id)->first();
+
+                if ($viettelProvince && $viettelDistrict && $viettelWard) {
+                    return [
+                        'province_id' => $viettelProvince->provider_province_code,
+                        'district_id' => $viettelDistrict->provider_district_code,
+                        'ward_id' => $viettelWard->provider_ward_code
+                    ];
+                }
+            }
+
+            return $this->getDefaultViettelAddress();
+        } catch (\Exception $e) {
+            Log::error('Lỗi parse address text: ' . $e->getMessage());
+            return $this->getDefaultViettelAddress();
+        }
+    }
+
+    /**
+     * Địa chỉ mặc định Viettel Post
+     */
+    private function getDefaultViettelAddress()
+    {
+        return [
+            'province_id' => 202,
+            'district_id' => 1570,
+            'ward_id' => 21211
+        ];
+    }
+
+
+
+    /**
+     * Lấy địa chỉ shop cho Viettel Post
+     */
+    private function getShopViettelAddress()
+    {
+        // Sử dụng địa chỉ đã setup trong constructor
+        return [
+            'province_id' => $this->shop_province ?? 202,
+            'district_id' => $this->shop_district ?? 1570,
+            'ward_id' => $this->shop_ward ?? 21211
+        ];
+    }
+
+    /**
+     * Clean product name (loại bỏ ký tự đặc biệt)
+     */
+    private function cleanProductName($productName)
+    {
+        // Loại bỏ ký tự có thể gây lỗi API
+        $productName = preg_replace('/[\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FAF}]/u', '', $productName);
+        $productName = preg_replace('/[^\p{L}\p{N}\s\-\.,]/u', '', $productName);
+        return trim($productName) ?: 'Sản phẩm';
     }
 }

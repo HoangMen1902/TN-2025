@@ -26,7 +26,6 @@ class OrderShipmentService
             $result = false;
             $shipmentName = '';
 
-            // Debug switch case
             $switchValue = strtolower($shipmentUnit ?? '');
             Log::info('Switch case debug', [
                 'switch_value' => $switchValue,
@@ -34,7 +33,6 @@ class OrderShipmentService
                 'is_viettel' => in_array($switchValue, ['viettel post', 'viettel_post', 'viettelpost'])
             ]);
 
-            // Xác định đơn vị vận chuyển
             switch ($switchValue) {
                 case 'giao hàng nhanh':
                 case 'giao_hang_nhanh':
@@ -49,8 +47,7 @@ class OrderShipmentService
                 case 'viettelpost':
                     Log::info('Chọn Viettel Post');
                     $shipmentName = 'Viettel Post';
-
-                    // Debug token Viettel Post
+ 
                     $tokenStatus = self::debugViettelPostToken();
                     Log::info('Viettel Post Token Debug', $tokenStatus);
 
@@ -76,7 +73,6 @@ class OrderShipmentService
                         'switch_value' => $switchValue
                     ]);
 
-                    // Mặc định dùng GHN
                     if (empty($shipmentUnit)) {
                         Log::warning('Không có thông tin đơn vị vận chuyển, sử dụng GHN mặc định', [
                             'order_id' => $record->id
@@ -100,7 +96,7 @@ class OrderShipmentService
                     }
             }
 
-            // Xử lý kết quả
+         
             self::handleShipmentResult($record, $result, $shipmentName);
         } catch (\Exception $e) {
             Log::error("Lỗi đăng đơn vận chuyển: " . $e->getMessage(), [
@@ -119,11 +115,37 @@ class OrderShipmentService
 
     private static function debugViettelPostToken()
     {
-        return [
-            'has_token' => true,
-            'message' => 'Mock token - luôn khả dụng',
-            'mock_mode' => true
-        ];
+        try {
+            $provider = \App\Models\Provider::where('provider_name', 'Viettel Post')->first();
+
+            if (!$provider || !$provider->provider_token) {
+                return [
+                    'has_token' => false,
+                    'message' => 'Không có token Viettel Post trong database'
+                ];
+            }
+
+            $now = new \DateTime();
+            $tokenExpiredTime = new \DateTime($provider->token_expired_time);
+
+            if ($now >= $tokenExpiredTime) {
+                return [
+                    'has_token' => false,
+                    'message' => 'Token Viettel Post đã hết hạn: ' . $provider->token_expired_time
+                ];
+            }
+
+            return [
+                'has_token' => true,
+                'message' => 'Token Viettel Post hợp lệ',
+                'expired_time' => $provider->token_expired_time
+            ];
+        } catch (\Exception $e) {
+            return [
+                'has_token' => false,
+                'message' => 'Lỗi check token: ' . $e->getMessage()
+            ];
+        }
     }
 
     private static function processGHNShipment(Order $record)
@@ -133,7 +155,6 @@ class OrderShipmentService
         try {
             $ghnService = new \App\Services\GhnService();
 
-            // Test connection trước
             $testResult = $ghnService->testConnection();
             Log::info('GHN Test Connection', $testResult);
 
@@ -159,20 +180,28 @@ class OrderShipmentService
 
     private static function processViettelPostShipment(Order $record)
     {
-        Log::info('Bắt đầu xử lý Viettel Post shipment (Mock Mode)', ['order_id' => $record->id]);
+        Log::info('Bắt đầu xử lý Viettel Post shipment (REAL API)', ['order_id' => $record->id]);
 
         try {
-            // FORCE MOCK - không cần check token thật
-            $result = self::createMockViettelPostOrder($record);
+            $viettelService = new \App\Services\ViettelPostService();
 
-            Log::info('Viettel Post Mock Result', [
+            $testResult = $viettelService->testConnection();
+            Log::info('Viettel Post Test Connection', $testResult);
+
+            if ($testResult['status'] !== 'success') {
+                throw new \Exception('Không thể kết nối Viettel Post API: ' . ($testResult['message'] ?? 'Unknown error'));
+            }
+
+            $result = $viettelService->createOrder($record);
+
+            Log::info('Viettel Post Create Order Result', [
                 'result' => $result,
                 'order_id' => $record->id
             ]);
 
             return $result;
         } catch (\Exception $e) {
-            Log::error('Lỗi Viettel Post Mock: ' . $e->getMessage(), [
+            Log::error('Lỗi Viettel Post: ' . $e->getMessage(), [
                 'order_id' => $record->id,
                 'trace' => $e->getTraceAsString()
             ]);
@@ -186,16 +215,13 @@ class OrderShipmentService
     private static function createMockViettelPostOrder(Order $record)
     {
         try {
-            // Tạo mã vận đơn giả
             $mockOrderNumber = 'VTP_MOCK_' . $record->id . '_' . time();
 
-            // Tính total price
             $totalPrice = 0;
             foreach ($record->orderDetails as $detail) {
                 $totalPrice += $detail->price * $detail->quantity;
             }
 
-            // Cập nhật order
             $record->update([
                 'shipping_order_code' => $mockOrderNumber,
                 'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
@@ -246,16 +272,15 @@ class OrderShipmentService
         ]);
 
         if ($result && (
-            (isset($result['data']) && isset($result['data']['order_code'])) || // GHN
-            (isset($result['data']) && isset($result['data']['ORDER_NUMBER'])) || // Viettel Post
-            (isset($result['status']) && $result['status'] == 200) // Viettel Post format khác
+            (isset($result['data']) && isset($result['data']['order_code'])) ||  
+            (isset($result['data']) && isset($result['data']['ORDER_NUMBER'])) ||  
+            (isset($result['status']) && $result['status'] == 200)  
         )) {
-            // Lấy mã vận đơn
             $orderCode = '';
             if (isset($result['data']['order_code'])) {
-                $orderCode = $result['data']['order_code']; // GHN
+                $orderCode = $result['data']['order_code'];  
             } elseif (isset($result['data']['ORDER_NUMBER'])) {
-                $orderCode = $result['data']['ORDER_NUMBER']; // Viettel Post
+                $orderCode = $result['data']['ORDER_NUMBER'];  
             }
 
             \Filament\Notifications\Notification::make()
@@ -270,7 +295,6 @@ class OrderShipmentService
                 ->performedOn($record)
                 ->log("Duyệt đơn và đăng {$shipmentName}: " . ($orderCode ?: 'Thành công'));
         } else {
-            // Hiển thị lỗi chi tiết hơn
             $errorMsg = "Không thể đăng lên {$shipmentName}.";
             if (is_array($result) && isset($result['message'])) {
                 $errorMsg .= ' Lỗi: ' . $result['message'];
