@@ -24,15 +24,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Models\Activity;
-use Illuminate\Support\Facades\Log;
-use App\Filament\Resources\UserResource\Widgets\UserInterestStats;
-use App\Filament\Resources\UserResource\Widgets\UserChart;
-use App\Models\UserPoint;
-use App\Models\PointTransaction;
 use App\Models\Membership;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Section;
 
 class UserResource extends Resource
 {
@@ -155,31 +151,40 @@ class UserResource extends Resource
                     ->modalHeading('Thông tin hội viên')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Đóng')
-                    ->form(fn(Model $record) => [
-                        Placeholder::make('membership')
-                            ->label('Hạng hiện tại')
-                            ->content($record->membership->name ?? 'Chưa có'),
+                    ->form(function (Model $record) {
+                        $totalPoints = $record->point->total_points ?? 0;
+                        $membershipName = $record->membership->name ?? 'Chưa có';
 
-                        Placeholder::make('total_points')
-                            ->label('Tổng điểm')
-                            ->content($record->Point->total_points ?? 0),
+                        $nextMembership = Membership::where('required_points', '>', $totalPoints)
+                            ->orderBy('required_points')
+                            ->first();
 
-                        Placeholder::make('next_rank')
-                            ->label('Hạng tiếp theo')
-                            ->content(function () use ($record) {
-                                $currentPoints = $record->Point->total_points ?? 0;
-                                $nextMembership = Membership::where('required_points', '>', $currentPoints)
-                                    ->orderBy('required_points')
-                                    ->first();
+                        $nextMembershipContent = $nextMembership
+                            ? $nextMembership->name . ' (Cần thêm ' . ($nextMembership->required_points - $totalPoints) . ' điểm)'
+                            : 'Đã đạt hạng cao nhất';
 
-                                if (!$nextMembership) return 'Đã đạt hạng cao nhất';
+                        return [
+                            Section::make('Thông tin hội viên')
+                                ->schema([
+                                    Grid::make(2)
+                                        ->schema([
+                                            Placeholder::make('membership')
+                                                ->label('Hạng hiện tại')
+                                                ->content($membershipName),
 
-                                $pointsLeft = $nextMembership->required_points - $currentPoints;
+                                            Placeholder::make('total_points')
+                                                ->label('Tổng điểm')
+                                                ->content($totalPoints),
 
-                                return $nextMembership->name . ' (Cần thêm ' . $pointsLeft . ' điểm)';
-                            }),
-                    ])
-                    ->color('info'),
+                                            Placeholder::make('next_rank')
+                                                ->label('Hạng tiếp theo')
+                                                ->columnSpan(2)
+                                                ->content($nextMembershipContent),
+                                        ]),
+                                ])
+                                ->columns(1),
+                        ];
+                    }),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make()
                         ->label('Chỉnh sửa ')
