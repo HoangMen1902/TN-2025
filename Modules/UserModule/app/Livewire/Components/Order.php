@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Order as OrderModel;
 use App\Models\Rating;
 use Livewire\WithFileUploads;
+use App\Models\User;
 
 class Order extends Component
 {
@@ -168,7 +169,8 @@ class Order extends Component
         }
 
         $this->showRatingModal = false;
-        $this->dispatch('toast', type: 'success', message: 'Đã gửi đánh giá!');
+
+        $this->rewardPointsForRating($order);
     }
     public function removeImage($detailId, $index)
     {
@@ -228,6 +230,35 @@ class Order extends Component
     // =====================
     // RENDER
     // =====================
+
+    // Tính điểm thưởng cho người dùng khi đánh giá đơn hàng
+    protected function rewardPointsForRating($order)
+    {
+        $earnedPoints = floor($order->calculated_total_price / 1000);
+
+        if ($earnedPoints > 0) {
+            $user = User::find(Auth::id());
+
+            $userPoint = $user->point()->firstOrCreate(['user_id' => $user->id], [
+                'total_points' => 0,
+                'redeemable_points' => 0,
+            ]);
+
+            // Cộng điểm vào 2 cột
+            $userPoint->increment('total_points', $earnedPoints);
+            $userPoint->increment('redeemable_points', $earnedPoints);
+
+            // Ghi log giao dịch điểm
+            $user->pointTransactions()->create([
+                'points' => $earnedPoints,
+                'type' => 'earn',
+                'source' => 'Cộng điểm từ đánh giá đơn hàng #' . $order->id,
+            ]);
+            
+            $this->dispatch('toast', type: 'success', message: 'Đánh giá thành công! bạn đã nhận được ' . $earnedPoints . ' điểm hội viên!');
+        }
+    }
+
 
     public function render()
     {
