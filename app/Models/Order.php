@@ -26,7 +26,12 @@ class Order extends Model
         'shipment_price',
         'shipping_order_code',
         'shipping_status',
-        'shipping_info'
+        'shipping_info',
+        'province_id',
+        'district_id',
+        'ward_id',
+        'amount_decrease',
+        'is_paid'
     ];
 
     protected $casts = [

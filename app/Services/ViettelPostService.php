@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\District;
 use App\Models\Provider;
+use App\Models\Province;
+use App\Models\Ward;
 use DateTime;
 use Exception;
 use Illuminate\Console\View\Components\Info;
@@ -22,6 +25,7 @@ class ViettelPostService
     private $shop_district;
     private $shop_ward;
     private $addressToken;
+    private $cusId;
 
     public function __construct()
     {
@@ -69,6 +73,7 @@ class ViettelPostService
         $this->shop_ward = $shop_ward_id['WARDS_ID'];
 
         $this->addressToken = env('VIETTELPOST_GROUP_ADDRESS_ID');
+        $this->cusId = env('VIETTELPOST_CUS_ID');
         Log::info('ViettelPostService addressToken debug', ['addressToken' => $this->addressToken]);
     }
 
@@ -258,18 +263,18 @@ class ViettelPostService
 
 
             $orderData = $this->prepareOrderData($order);
-            $orderDataJson = json_encode($orderData, JSON_UNESCAPED_UNICODE);
 
-            Log::info('Dữ liệu đơn hàng Viettel Post (JSON encode)', [
-                'order_data' => $orderData,
-                'data_json' => $orderDataJson,
-                'data_size' => strlen($orderDataJson) . ' bytes'
-            ]);
+
+            // Log::info('Dữ liệu đơn hàng Viettel Post (JSON encode)', [
+            //     'order_data' => $orderData,
+            //     'data_json' => $orderDataJson,
+            //     'data_size' => strlen($orderDataJson) . ' bytes'
+            // ]);
 
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Token' => $this->token,  
+                'Token' => $this->token,
             ])->timeout(30)
                 ->post('https://partner.viettelpost.vn/v2/order/createOrder', $orderData);
             Log::info('Viettel Post API Response Details', [
@@ -394,14 +399,12 @@ class ViettelPostService
     private function prepareOrderData(\App\Models\Order $order)
     {
 
-        $receiverAddress = $this->mapAddressToViettelPost($order);
 
 
         $senderAddress = $this->getShopViettelAddress();
 
         Log::info('Địa chỉ đã map cho Viettel Post', [
             'sender' => $senderAddress,
-            'receiver' => $receiverAddress
         ]);
 
         $totalWeight = 0;
@@ -417,7 +420,7 @@ class ViettelPostService
                 $products[] = [
                     'PRODUCT_NAME' => $this->cleanProductName($detail->sku->product->name ?? 'Sản phẩm'),
                     'PRODUCT_QUANTITY' => (int)$detail->quantity,
-                    'PRODUCT_PRICE' => number_format($detail->price, 2, '.', ''),
+                    'PRODUCT_PRICE' => (int)$detail->price,
                     'PRODUCT_WEIGHT' => (int)$weight
                 ];
             } elseif ($detail->item_type === 'combo' && $detail->combo) {
@@ -438,62 +441,132 @@ class ViettelPostService
         $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
         $codAmount = ($paymentMethod === 'cod') ? $productTotal : 0;
 
+        $province = Province::find($order->province_id);
+        $district = District::find($order->district_id);
+        $ward = Ward::find($order->ward_id);
+
+
         $senderWard = isset($senderAddress['ward_id']) ? (int)$senderAddress['ward_id'] : 0;
         $senderDistrict = isset($senderAddress['district_id']) ? (int)$senderAddress['district_id'] : 0;
         $senderProvince = isset($senderAddress['province_id']) ? (int)$senderAddress['province_id'] : 0;
-        $receiverWard = isset($receiverAddress['ward_id']) ? (int)$receiverAddress['ward_id'] : 0;
-        $receiverDistrict = isset($receiverAddress['district_id']) ? (int)$receiverAddress['district_id'] : 0;
-        $receiverProvince = isset($receiverAddress['province_id']) ? (int)$receiverAddress['province_id'] : 0;
+        $receiverWard = $ward->providerWard->provider_ward_code ?? 0;
+        $receiverDistrict = $district->provider_district->provider_district_code ?? 0;
+        $receiverProvince = $province->provider_province->provider_province_code ?? 0;;
+        // return [
+        //     'ORDER_NUMBER' => 'VTP_' . $order->id . '_' . time(),
+        //     'GROUPADDRESS_ID' => $this->addressToken,
+        //     'CUS_ID' => 0,
+        //     'DELIVERY_DATE' => now()->addDay()->format('d/m/Y H:i:s'),
 
-        return [
-            'ORDER_NUMBER' => 'VTP_' . $order->id . '_' . time(),
-            'GROUPADDRESS_ID' => $this->addressToken,
-            'CUS_ID' => 0,
-            'DELIVERY_DATE' => now()->addDay()->format('d/m/Y H:i:s'),
+        // 'SENDER_FULLNAME' => config('shopConfig.shop_name'),
+        // 'SENDER_ADDRESS' => config('shopConfig.shop_address'),
+        // 'SENDER_PHONE' => config('shopConfig.shop_phone'),
+        // 'SENDER_EMAIL' => '',
+        // 'SENDER_WARD' => (int)$senderWard,
+        // 'SENDER_DISTRICT' => (int)$senderDistrict,
+        // 'SENDER_PROVINCE' => (int)$senderProvince,
 
+        // 'RECEIVER_FULLNAME' => $order->customer_name,
+        // 'RECEIVER_ADDRESS' => $order->address,
+        // 'RECEIVER_PHONE' => $order->phone,
+        // 'RECEIVER_EMAIL' => '',
+        // 'RECEIVER_WARD' => (int)$receiverWard,
+        // 'RECEIVER_DISTRICT' => (int)$receiverDistrict,
+        // 'RECEIVER_PROVINCE' => (int)$receiverProvince,
+
+        // 'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
+        // 'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
+        // 'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
+        // 'PRODUCT_PRICE' => (float)$productTotal,
+        // 'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
+        // 'PRODUCT_LENGTH' => 30,
+        // 'PRODUCT_WIDTH' => 20,
+        // 'PRODUCT_HEIGHT' => 10,
+        //     'PRODUCT_TYPE' => 'HH',
+        //     'ORDER_PAYMENT' => $paymentMethod === 'cod' ? 1 : 3,
+        //     'ORDER_SERVICE' => 'VNC',
+        //     'ORDER_SERVICE_ADD' => '',
+        //     'ORDER_VOUCHER' => '',
+        //     'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
+        //     'MONEY_COLLECTION' => (float)$codAmount,
+        //     'MONEY_TOTALFEE' => 0,
+        //     'MONEY_FEECOD' => 0,
+        //     'MONEY_FEEVAS' => 0,
+        //     'MONEY_FEEINSUR' => 0,
+        //     'MONEY_FEE' => 0,
+        //     'MONEY_FEEOTHER' => 0,
+        //     'MONEY_TOTALVAT' => 0,
+        //     'MONEY_TOTAL' => 0,
+        //     'NATIONAL_TYPE' => 1,
+        //     'ORDER_SPECIAL' => '',
+        //     'LIST_ITEM' => $products
+        // ];
+
+        
+
+        // $data = [
+        //     "ORDER_NUMBER" => 'VTP_' . $order->id . '_' . time(),
+        //     // 'GROUPADDRESS_ID' => $this->addressToken,
+        //     'SENDER_FULLNAME' => config('shopConfig.shop_name'),
+        //     'SENDER_ADDRESS' => config('shopConfig.shop_address'),
+        //     'SENDER_PHONE' => config('shopConfig.shop_phone'),
+        //     'SENDER_EMAIL' => '',
+        //     // 'CUS_ID' => $this->cusId,
+        //     // 'SENDER_WARD' => (int)$senderWard,
+        //     // 'SENDER_DISTRICT' => (int)$senderDistrict,
+        //     // 'SENDER_PROVINCE' => (int)$senderProvince,
+        //     'RECEIVER_FULLNAME' => $order->customer_name,
+        //     'RECEIVER_ADDRESS' => $order->address,
+        //     'RECEIVER_PHONE' => $order->phone,
+        //     'RECEIVER_EMAIL' => '',
+        //     // 'RECEIVER_WARD' => (int)$receiverWard,
+        //     // 'RECEIVER_DISTRICT' => (int)$receiverDistrict,
+        //     // 'RECEIVER_PROVINCE' => (int)$receiverProvince,
+        //     "ORDER_PAYMENT" => 1,
+        //     "PRODUCT_TYPE" => "HH",
+        //     "ORDER_SERVICE" => "VCN",
+            // 'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
+            // 'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
+            // 'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
+            // 'PRODUCT_PRICE' => (float)$productTotal,
+            // 'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
+            // 'PRODUCT_LENGTH' => 30,
+            // 'PRODUCT_WIDTH' => 20,
+            // 'PRODUCT_HEIGHT' => 10,
+        //     'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
+        //     'MONEY_COLLECTION' => (float)$codAmount,
+        //     'MONEY_TOTALFEE' => 0,
+        //     'MONEY_FEECOD' => 0,
+        //     'MONEY_FEEVAS' => 0,
+        //     'MONEY_FEEINSUR' => 0,
+        //     'MONEY_FEE' => 0,
+        //     'MONEY_FEEOTHER' => 0,
+        //     'MONEY_TOTALVAT' => 0,
+        //     'MONEY_TOTAL' => 0,
+        //     'NATIONAL_TYPE' => 1,
+        //     'ORDER_SPECIAL' => '',
+        //     'LIST_ITEM' => $products
+        // ];
+        // return $data;
+
+
+        $data = [
+            "ORDER_NUMBER" => 'VTP_' . $order->id . '_' . time(),
             'SENDER_FULLNAME' => config('shopConfig.shop_name'),
             'SENDER_ADDRESS' => config('shopConfig.shop_address'),
             'SENDER_PHONE' => config('shopConfig.shop_phone'),
-            'SENDER_EMAIL' => '',
-            'SENDER_WARD' => (int)$senderWard,
-            'SENDER_DISTRICT' => (int)$senderDistrict,
-            'SENDER_PROVINCE' => (int)$senderProvince,
-
-            'RECEIVER_FULLNAME' => $order->customer_name,
-            'RECEIVER_ADDRESS' => $order->address,
-            'RECEIVER_PHONE' => $order->phone,
-            'RECEIVER_EMAIL' => '',
-            'RECEIVER_WARD' => (int)$receiverWard,
-            'RECEIVER_DISTRICT' => (int)$receiverDistrict,
-            'RECEIVER_PROVINCE' => (int)$receiverProvince,
-
+            "RECEIVER_ADDRESS" => "Đường trần chiên, Phường Lê Bình, Quận Cái Răng, Cần Thơ",
+            "ORDER_PAYMENT" => 1,
+            "PRODUCT_TYPE" => "HH",
+            "ORDER_SERVICE" => "VCN",
             'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
             'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
             'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
             'PRODUCT_PRICE' => (float)$productTotal,
             'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
-            'PRODUCT_LENGTH' => 30,
-            'PRODUCT_WIDTH' => 20,
-            'PRODUCT_HEIGHT' => 10,
-            'PRODUCT_TYPE' => 'HH',
-            'ORDER_PAYMENT' => $paymentMethod === 'cod' ? 1 : 3,
-            'ORDER_SERVICE' => 'VNC',
-            'ORDER_SERVICE_ADD' => '',
-            'ORDER_VOUCHER' => '',
-            'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
-            'MONEY_COLLECTION' => (float)$codAmount,
-            'MONEY_TOTALFEE' => 0,
-            'MONEY_FEECOD' => 0,
-            'MONEY_FEEVAS' => 0,
-            'MONEY_FEEINSUR' => 0,
-            'MONEY_FEE' => 0,
-            'MONEY_FEEOTHER' => 0,
-            'MONEY_TOTALVAT' => 0,
-            'MONEY_TOTAL' => 0,
-            'NATIONAL_TYPE' => 1,
-            'ORDER_SPECIAL' => '',
             'LIST_ITEM' => $products
         ];
+        return $data;
     }
     /**
      * Tạo ghi chú đơn hàng
@@ -531,10 +604,10 @@ class ViettelPostService
     private function mapAddressToViettelPost(\App\Models\Order $order)
     {
         try {
-            Log::info('Bắt đầu map địa chỉ Viettel Post', [
-                'order_id' => $order->id,
-                'address' => $order->address
-            ]);
+            // Log::info('Bắt đầu map địa chỉ Viettel Post', [
+            //     'order_id' => $order->id,
+            //     'address' => $order->address
+            // ]);
 
 
             $checkoutAddress = \App\Models\CheckoutAddress::where('user_id', $order->user_id)

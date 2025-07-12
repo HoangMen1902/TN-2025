@@ -92,7 +92,12 @@ class PaymentModuleController extends Controller
                 'contact_email' => $addressModel?->user->email ?? $request->contact_email,
                 'customer_name' => $addressModel?->customer_name ?? $request->customer_name,
                 'total_price' => $totalPrice,
-                'shipment_price' => $shipment_fee
+                'shipment_price' => $shipment_fee,
+                'is_paid' => false,
+                'amount_decrease' => 0, //temporary
+               'province_id' => $addressModel->province_id, 
+               'district_id' => $addressModel->district_id,
+               'ward_id' => $addressModel->ward_id, 
             ]);
 
             $total_price = 0;
