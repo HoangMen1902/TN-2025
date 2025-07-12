@@ -74,8 +74,8 @@
                                 <div>
                                     <p class="text-sm font-bold text-gray-800 mb-1">{{ $notification->name }}</p>
                                     <p class="text-sm font-medium text-gray-800 mb-1">{{ $notification->content }}</p>
-                                    <p class="text-xs text-gray-500">
-                                        {{ \Carbon\Carbon::parse($notification->time)->format('d/m/Y - H:i') }}</p>
+<p class="text-xs text-gray-500">
+    {{ \Carbon\Carbon::parse($notification->created_at ?? $notification->time)->diffForHumans() }}</p>
                                 </div>
                             </div>
                         </div>

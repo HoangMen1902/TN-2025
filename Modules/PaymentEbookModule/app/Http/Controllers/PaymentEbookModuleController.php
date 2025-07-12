@@ -51,6 +51,15 @@ class PaymentEbookModuleController extends Controller
                 'total_price' => $totalPrice,
             ]);
 
+            // Gửi thông báo đặt hàng Ebook thành công cho user
+            \App\Services\NotificationService::send([
+                $user->id
+            ],
+                'Đặt hàng Ebook thành công',
+                'Bạn vừa đặt đơn hàng Ebook #' . $order->id . '. Trạng thái: ' . $order->orders_status,
+                'Đơn hàng Ebook'
+            );
+
             EbookOrderDetail::create([
                 'ebook_order_id' => $order->id,
                 'ebook_id' => $ebook->id,

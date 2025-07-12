@@ -100,6 +100,15 @@ class PaymentModuleController extends Controller
                'ward_id' => $addressModel->ward_id, 
             ]);
 
+            // Gửi thông báo đặt hàng thành công cho user
+            \App\Services\NotificationService::send([
+                $user->id
+            ],
+                'Đặt hàng thành công',
+                'Bạn vừa đặt đơn hàng #' . $order->id . '. Trạng thái: ' . $order->orders_status,
+                'Đơn hàng'
+            );
+
             $total_price = 0;
 
             foreach ($cartItems as $item) {

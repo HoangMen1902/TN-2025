@@ -5,11 +5,13 @@ namespace Modules\UserModule\Http\Controllers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     public function index(Request $request)
     {
+        $user = Auth::user();
         $types = Notification::select('notification_type')->distinct()->pluck('notification_type')->toArray();
         $tabs = ['all' => 'Tất cả'];
         foreach ($types as $type) {
@@ -18,7 +20,10 @@ class NotificationController extends Controller
 
         $selectedTab = $request->get('tab', 'all');
 
-        $query = Notification::query();
+        $query = Notification::query()
+            ->whereHas('userNotifications', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
         if ($selectedTab !== 'all') {
             $query->where('notification_type', $selectedTab);
         }

@@ -88,6 +88,15 @@ class OrderEbookResource extends Resource
                             $record->is_approved = true;
                             $record->orders_status = ($paymentMethod === 'cod') ? 'Đang xử lý' : 'Đã thanh toán';
                             $record->save();
+
+                            // Gửi thông báo trạng thái đơn hàng Ebook cho user
+                            \App\Services\NotificationService::send([
+                                $record->user_id
+                            ],
+                                'Trạng thái đơn hàng Ebook thay đổi',
+                                'Đơn hàng Ebook #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                                'Đơn hàng Ebook'
+                            );
                         })
                         ->color('success'),
 
@@ -101,6 +110,15 @@ class OrderEbookResource extends Resource
                         ->action(function (EbookOrder $record) {
                             $record->orders_status = 'Đã hủy';
                             $record->save();
+
+                            // Gửi thông báo trạng thái đơn hàng Ebook cho user
+                            \App\Services\NotificationService::send([
+                                $record->user_id
+                            ],
+                                'Trạng thái đơn hàng Ebook thay đổi',
+                                'Đơn hàng Ebook #' . $record->id . ' đã bị hủy.',
+                                'Đơn hàng Ebook'
+                            );
                             activity()
                                 ->causedBy(Auth::user())
                                 ->performedOn($record)
@@ -115,6 +133,15 @@ class OrderEbookResource extends Resource
                         ->action(function (EbookOrder $record) {
                             $record->orders_status = 'Vận chuyển';
                             $record->save();
+
+                            // Gửi thông báo trạng thái đơn hàng Ebook cho user
+                            \App\Services\NotificationService::send([
+                                $record->user_id
+                            ],
+                                'Trạng thái đơn hàng Ebook thay đổi',
+                                'Đơn hàng Ebook #' . $record->id . ' đã chuyển sang trạng thái Vận chuyển.',
+                                'Đơn hàng Ebook'
+                            );
                             activity()
                                 ->causedBy(Auth::user())
                                 ->performedOn($record)

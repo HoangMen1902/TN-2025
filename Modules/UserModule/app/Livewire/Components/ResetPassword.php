@@ -36,6 +36,18 @@ class ResetPassword extends Component
 
             Mail::to($this->email)->send(new ResetPasswordMail($token, $this->email));
 
+            // Gửi thông báo hệ thống cho user
+            $user = User::where('email', $this->email)->first();
+            if ($user) {
+                \App\Services\NotificationService::send([
+                    $user->id
+                ],
+                    'Yêu cầu đặt lại mật khẩu',
+                    'Bạn vừa yêu cầu đặt lại mật khẩu. Vui lòng kiểm tra email để lấy mã xác nhận.',
+                    'Tài khoản'
+                );
+            }
+
             // Thông báo thành công
             $this->dispatch('toast', type: 'success', message: 'Gửi mail khôi phục thành công');
         } catch (\Exception $e) {

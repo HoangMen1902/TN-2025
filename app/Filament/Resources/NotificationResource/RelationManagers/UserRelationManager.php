@@ -57,10 +57,22 @@ class UserRelationManager extends RelationManager
                     ->color(fn($state) => $state === 'admin' ? 'primary' : 'info'),
             ])
             ->headerActions([
-                AttachAction::make()
-                    ->preloadRecordSelect()
-                    ->recordSelectSearchColumns(['name', 'email'])
-                    ->label('Thêm người dùng'),
+                Action::make('attachMultiple')
+                    ->label('Thêm nhiều người dùng')
+                    ->form([
+                        Select::make('user_ids')
+                            ->label('Chọn người dùng')
+                            ->multiple()
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->searchable()
+                            ->maxItems(20)
+                            ->extraAttributes(['style' => 'min-height:100px;'])
+                    ])
+                    ->action(function (array $data) {
+                        $userIds = $data['user_ids'] ?? [];
+                        $this->getOwnerRecord()->users()->syncWithoutDetaching($userIds);
+                    })
+                    ->icon('heroicon-o-user-group'),
                 Action::make('attachAll')
                     ->label('Gửi cho tất cả người dùng')
                     ->action(function () {
@@ -73,7 +85,8 @@ class UserRelationManager extends RelationManager
             ]);
     }
 
-    public function getTableHeading(): string {
+    public function getTableHeading(): string
+    {
         return 'Người dùng';
     }
 }

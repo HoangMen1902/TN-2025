@@ -136,7 +136,15 @@ class OrderResource extends Resource
 
                             $record->save();
 
-                      
+                            // Gửi thông báo trạng thái đơn hàng cho user
+                            \App\Services\NotificationService::send([
+                                $record->user_id
+                            ],
+                                'Trạng thái đơn hàng thay đổi',
+                                'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                                'Đơn hàng'
+                            );
+
                             Log::info('Bắt đầu đăng đơn vận chuyển', [
                                 'order_id' => $record->id,
                                 'customer_name' => $record->customer_name,
@@ -254,6 +262,15 @@ class OrderResource extends Resource
                             $record->orders_status = 'đã hủy';
                             $record->shipping_status = \App\Models\Order::SHIPPING_STATUS_DA_HUY;
                             $record->save();
+
+                            // Gửi thông báo trạng thái đơn hàng cho user
+                            \App\Services\NotificationService::send([
+                                $record->user_id
+                            ],
+                                'Trạng thái đơn hàng thay đổi',
+                                'Đơn hàng #' . $record->id . ' đã bị hủy.',
+                                'Đơn hàng'
+                            );
 
                             activity()
                                 ->causedBy(Auth::user())
