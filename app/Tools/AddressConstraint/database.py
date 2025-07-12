@@ -31,6 +31,12 @@ province_data = cur.fetchall();
 cur.execute('SELECT id, provider_province_name FROM provider_provinces WHERE province_id IS NULL');
 provider_provinces = cur.fetchall();
 
+cur.execute('SELECT id FROM providers WHERE provider_name LIKE %s LIMIT 1', ('%Viettel Post%',))
+viettel_fetch = cur.fetchone()
+if(viettel_fetch):
+    viettel_post_id = viettel_fetch['id']
+else:
+    raise Exception("Không tìm thấy nhà cung cấp Viettel Post")
 
 def clean_prefix(name):
     for prefix in ['TT ', 'KCN ', 'KCN -', 'KHU CÔNG NGHIỆP ',
@@ -97,23 +103,44 @@ internal_ward = [
 with open("output.txt", "w", encoding="utf-8") as f:
     for row in provider_ward:
         cleaned_name = clean_prefix(row['provider_ward_name']).upper()
-        match, score, idx = process.extractOne(cleaned_name, internal_ward, scorer=fuzz.ratio)
 
-        if score > 83:
-            matched_ward_id = ward_data[idx]['id']
-            cur.execute("UPDATE provider_wards SET ward_id = %s WHERE id = %s", (matched_ward_id, row['id']))
-            print(f"[Phường/Xã][OK] Đã gắn '{row['provider_ward_name']}' cho '{ward_data[idx]['name']}', (score={score})", file=f)
-        else:
-            suggestions = process.extract(
-                cleaned_name,
-                internal_ward,
-                scorer=fuzz.ratio,
-                limit=10
+        suggestions = process.extract(
+            cleaned_name,
+            internal_ward,
+            scorer=fuzz.ratio,
+            limit=10
+        )
+
+        matched = False
+
+        for sug_name, sug_score, sug_idx in suggestions:
+            if sug_score < 83:
+                continue 
+
+            matched_ward_id = ward_data[sug_idx]['id']
+
+            cur.execute(
+                'SELECT id FROM provider_wards WHERE provider_id = %s AND ward_id = %s LIMIT 1',
+                (viettel_post_id, matched_ward_id)
             )
-            
-            print(f"[??] Không tìm được phường/xã phù hợp cho '{row['provider_ward_name']}' (score={score})", file=f)
+            result = cur.fetchone()
+
+            if result:
+                continue  
+
+            cur.execute(
+                "UPDATE provider_wards SET ward_id = %s WHERE id = %s",
+                (matched_ward_id, row['id'])
+            )
+            print(f"[Phường/Xã][OK] Đã gắn '{row['provider_ward_name']}' cho '{ward_data[sug_idx]['name']}', (score={sug_score})", file=f)
+            matched = True
+            break
+
+        if not matched:
+            print(f"[??] Không tìm được phường/xã phù hợp cho '{row['provider_ward_name']}'", file=f)
             print(" Gợi ý gần đúng:", file=f)
             for sug_name, sug_score, _ in suggestions:
                 print(f"    - {sug_name} (score={sug_score})", file=f)
+
 cnx.commit()
 cnx.close()
