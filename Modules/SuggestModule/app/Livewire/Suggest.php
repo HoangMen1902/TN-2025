@@ -3,15 +3,18 @@
 namespace Modules\SuggestModule\Livewire;
 
 use App\Models\Product;
+// use App\Models\ProductEbook;
 use Livewire\Component;
 use App\Models\SearchHistory;
 use Illuminate\Support\Facades\Auth;
 use App\Models\OrderDetail;
 use Illuminate\Database\Eloquent\Builder;
+// use Illuminate\Support\Str;
 
 class Suggest extends Component
 {
     public $products;
+    // public $displayedProducts;
     public $displayLimit = 10;
     public $maxLimit = 70;
     public $showAll = false;
@@ -19,6 +22,23 @@ class Suggest extends Component
     public function mount()
     {
         $this->loadProducts();
+        // // Lấy tất cả eBooks từ bảng ebooks
+        // $ebooks = ProductEbook::all(); // Điều chỉnh namespace model nếu cần
+
+        // // Biến đổi dữ liệu eBooks để khớp với cấu trúc template
+        // $this->displayedProducts = $ebooks->map(function ($ebook) {
+        //     return (object) [
+        //         'name' => $ebook->title, // Ánh xạ title thành name
+        //         'slug' => Str::slug($ebook->title), // Tạo slug từ title
+        //         'thumbnail' => $ebook->cover_image, // Ánh xạ cover_image thành thumbnail
+        //         'sale_price' => $ebook->price, // Giả định sale_price là price
+        //         'price' => $ebook->price, // Giả định price ban đầu bằng sale_price
+        //         'discount' => 0, // Giả định không có discount, có thể điều chỉnh
+        //         'percent_sold' => 0, // Giả định percent_sold ban đầu là 0, có thể điều chỉnh
+        //         'is_ebook' => true, // Đánh dấu là eBook
+        //         'file_format' => pathinfo($ebook->file_path, PATHINFO_EXTENSION) ?? 'PDF', // Lấy định dạng từ file_path
+        //     ];
+        // })->take($this->displayLimit); // Giới hạn số lượng dựa trên displayLimit
     }
 
 
