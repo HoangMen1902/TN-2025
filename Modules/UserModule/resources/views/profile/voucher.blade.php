@@ -179,4 +179,9 @@
             });
         }
     </script>
+    <script>
+    console.log("Dữ liệu vouchers truyền vào view:");
+    console.log(@json($vouchers));
+</script>
+
 </x-layouts.layout>

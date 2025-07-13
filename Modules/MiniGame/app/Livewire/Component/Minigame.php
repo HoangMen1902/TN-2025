@@ -4,6 +4,7 @@ namespace Modules\MiniGame\Livewire\Component;
 
 use App\Models\Prize;
 use App\Models\WonPrize;
+use App\Models\VoucherUsed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -126,48 +127,59 @@ class Minigame extends Component
     }
 
     #[On('claimPrize')]
-    public function claimPrize(): void
-    {
-        $user = Auth::user();
+public function claimPrize(): void
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            $this->dispatch('notify', message: 'Bạn cần đăng nhập để quay thưởng!');
-            return;
-        }
-
-        if (!$this->canSpin()) {
-            $this->dispatch('notify', message: 'Bạn đã hết lượt quay miễn phí trong ngày!');
-            return;
-        }
-
-        $prize = $this->getRandomPrize();
-
-        if (!$prize) {
-            $this->dispatch('notify', message: 'Không có phần thưởng khả dụng!');
-            return;
-        }
-
-        if ($prize->quantity !== null && $prize->quantity <= 0) {
-            $this->dispatch('notify', message: 'Phần thưởng đã hết!');
-            return;
-        }
-
-        $prize->decrement('quantity');
-
-        WonPrize::create([
-            'prize_id'   => $prize->id,
-            'user_id'    => $user->id,
-            'username'   => $user->name,
-            'won_at'     => now(),
-            'voucher_id' => $prize->voucher_id,
-        ]);
-
-        $this->updateSpinInfo();
-        $this->loadHistory();
-
-        $this->dispatch('notify', message: $prize->name);
-        $this->dispatch('spinResult', prize: $prize->name);
+    if (!$user) {
+        $this->dispatch('notify', message: 'Bạn cần đăng nhập để quay thưởng!');
+        return;
     }
+
+    if (!$this->canSpin()) {
+        $this->dispatch('notify', message: 'Bạn đã hết lượt quay miễn phí trong ngày!');
+        return;
+    }
+
+    $prize = $this->getRandomPrize();
+
+    if (!$prize) {
+        $this->dispatch('notify', message: 'Không có phần thưởng khả dụng!');
+        return;
+    }
+
+    if ($prize->quantity !== null && $prize->quantity <= 0) {
+        $this->dispatch('notify', message: 'Phần thưởng đã hết!');
+        return;
+    }
+
+    $prize->decrement('quantity');
+
+    $wonPrize = WonPrize::create([
+        'prize_id'   => $prize->id,
+        'user_id'    => $user->id,
+        'username'   => $user->name,
+        'won_at'     => now(),
+        'voucher_id' => $prize->voucher_id,
+    ]);
+
+    // 👇 Thêm bản ghi vào bảng voucher_used nếu có voucher
+    if ($prize->voucher_id) {
+        VoucherUsed::create([
+            'voucher_id' => $prize->voucher_id,
+            'user_id'    => $user->id,
+            'is_used'    => false,
+            'status'     => 'active',
+        ]);
+    }
+
+    $this->updateSpinInfo();
+    $this->loadHistory();
+
+    $this->dispatch('notify', message: $prize->name);
+    $this->dispatch('spinResult', prize: $prize->name);
+}
+
 
     public function render()
     {
