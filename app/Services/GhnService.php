@@ -23,7 +23,7 @@ class GhnService
 
         $this->apiToken = env('GHN_API');
 
-        $this->orderToken = env('GHN_TOKEN');
+        // $this->orderToken = env('GHN_TOKEN');
 
         $provinceNameFromConfig = config('shopConfig.shop_province');
         $districtNameFromConfig = config('shopConfig.shop_district');
@@ -495,7 +495,7 @@ class GhnService
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'ShopId' => (int)env('GHN_SHOPID'),
-                'Token' => $this->orderToken ?? $this->token
+                'Token' => $this->apiToken ?? $this->token
             ])->post($baseUrl . '/v2/shipping-order/create', array_merge($orderData, [
                 'from_ward_code' => $this->shop_ward_id,
                 'from_district_id' => $this->shop_district_id,
