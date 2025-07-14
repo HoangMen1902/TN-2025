@@ -4,8 +4,8 @@ use App\Http\Middleware\RedirectIfAuthenticatedCustom;
 use Livewire\Livewire;
 use Illuminate\Support\Facades\Route;
 
-use Modules\UserModule\App\Http\Controllers\VoucherController;
-use Modules\UserModule\App\Http\Controllers\WishlistController;
+use Modules\UserModule\Http\Controllers\VoucherController;
+use Modules\UserModule\Http\Controllers\WishlistController;
 use Modules\UserModule\Http\Controllers\UserModuleController;
 use Modules\UserModule\App\Http\Livewire\Login;
 use Modules\UserModule\App\Http\Livewire\Register;
