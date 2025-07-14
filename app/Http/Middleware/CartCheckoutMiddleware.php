@@ -19,33 +19,23 @@ class CartCheckoutMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $validated = $request->validate([
-            'cart_id' => 'required|array',
-        ]);
-
-
         $userId = Auth::id();
-        $sessionId = session()->getId();
 
         if (isset($userId)) {
+            $validated = $request->validate([
+                'cart_id' => 'required|array',
+            ]);
 
             foreach ($request->cart_id as $cartId) {
                 $cart = Cart::find($cartId);
-                
+
                 if (!$cart || $cart->user_id != $userId) {
                     return redirect('/gio-hang');
                 }
             }
-        } elseif (!isset($userId) && isset($sessionId)) {
-            Log::error('here 2');
-            foreach ($request->cart_id as $cartId) {
-                $cart = Cart::find($cartId);
-                if (!$cart || $cart->session_id != $sessionId) {
-                    return redirect('/gio-hang');
-                }
-            }
+        } elseif (!isset($userId)) {
+            return redirect('/dang-nhap')->with('error', 'Vui lòng đăng nhập để tiến hành đặt hàng');
         } else {
-            Log::error('here 3');
             return redirect('/gio-hang');
         }
 
