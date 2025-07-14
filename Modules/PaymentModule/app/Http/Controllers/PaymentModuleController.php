@@ -91,7 +91,8 @@ class PaymentModuleController extends Controller
             $voucher = Voucher::where('voucher_code', '=', $voucher_code)->where('start_at', '<', now())->where('expired_at', '>', now())->where('voucher_status', 'active')->first();
             $userVoucherCheck = null;
             if ($voucher) {
-                $userVoucherCheck = $voucher->voucherUsed->first()->user_id === Auth::id() && $voucher->voucherUsed->first()->is_used === false ? $voucher->id : null;
+                $user_voucher = $voucher->voucherUSed->first();
+                $userVoucherCheck = $user_voucher->user_id === Auth::id() && $voucher->voucherUsed->first()->is_used === false ? $voucher->id : null;
             }
 
             $decrease_amount = Session::get('decrease_amount', 0);
@@ -114,6 +115,11 @@ class PaymentModuleController extends Controller
                 'decrease_amount' => $decrease_amount,
                 'voucher_id' => $userVoucherCheck,
             ]);
+
+            if($voucher) {
+                $user_voucher->is_used = true;
+                $user_voucher->save();
+            }
 
             // Gửi thông báo đặt hàng thành công cho user
             \App\Services\NotificationService::send(

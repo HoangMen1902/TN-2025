@@ -113,7 +113,9 @@ class Summary extends Component
 
 
         $this->availableVouchers = Voucher::where('voucher_status', 'active')->where('start_at', '<', now())->where('expired_at', '>', now())
-            ->get();
+            ->whereHas('voucherUsed', function($q) {
+                $q->where('is_used', false);
+            })->get();
     }
 
     #[On('apply-voucher')]
