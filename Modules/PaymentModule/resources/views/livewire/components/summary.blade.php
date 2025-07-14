@@ -66,7 +66,7 @@
         <!-- Promo Code -->
         <div class="mb-4 pb-4 border-b border-b-neutral-300">
             <div class="flex space-x-2">
-                <input type="text" wire:model.defer="voucherCode"
+                <input type="text" wire:model.defer="voucherCode" name="voucher_code"
                     class="flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Nhập mã giảm giá">
                 <button type="button" wire:click="applyVoucher"
                     class="px-2 py-2 bg-blue-500 text-white rounded-lg transition hover:bg-blue-700">
@@ -102,7 +102,17 @@
                     @else
                         <ul class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
                             @foreach ($availableVouchers as $voucher)
-                                <li class="border border-gray-200 p-4 rounded-xl hover:bg-blue-50 cursor-pointer transition"
+                                @php
+                                    $voucher_scope = $voucher->voucher_scope;
+                                    $voucher_type = '';
+                                    $voucher_max = $voucher->max_discount_amount ?? 0;
+                                    if($voucher_scope === 'shipping') {
+                                        $voucher_type = 'Giảm phí vận chuyển';
+                                    } elseif($voucher_scope === 'global') {
+                                        $voucher_type = "Giảm phí đơn hàng";
+                                    }
+                                @endphp
+                                    <li class="border border-gray-200 p-4 rounded-xl hover:bg-blue-50 cursor-pointer transition"
                                     onclick="selectVoucher('{{ $voucher->voucher_code }}')">
                                     <div class="flex justify-between items-center">
                                         <p class="font-semibold text-blue-600 text-base">{{ $voucher->voucher_code }}</p>
@@ -114,8 +124,15 @@
                                             @endif
                                         </span>
                                     </div>
+                                    
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        Loại Voucher: {{ $voucher_type }}
+                                    </p>
                                     <p class="text-sm text-gray-600 mt-1">
                                         Áp dụng cho đơn từ {{ number_format($voucher->requirement_price) }}₫
+                                    </p>
+                                                                        <p class="text-sm text-gray-600 mt-1">
+                                        Giảm tối đa: {{ number_format($voucher_max) }}₫
                                     </p>
                                     <p class="text-xs text-gray-400 mt-1">Hạn: {{ $voucher->expired_at->format('d/m/Y') }}</p>
                                 </li>
@@ -162,7 +179,7 @@
             <i class="fas fa-lock ml-2"></i>
         </button>
 
-    
+
         <button wire:loading.remove type="{{$submitable ? 'submit' : 'button'}}"
             class="w-full {{$submitable ? 'bg-primary' : 'bg-blue-400'}} text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center transition duration-300">
             <span>Đặt hàng</span>

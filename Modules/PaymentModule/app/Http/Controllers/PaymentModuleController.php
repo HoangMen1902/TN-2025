@@ -14,10 +14,15 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\CheckoutAddress;
+use App\Models\FlashsaleProduct;
+use App\Models\Voucher;
+use App\Models\VoucherUsed;
 use App\Services\Stripe;
 use App\Services\StripeService;
 use Illuminate\Support\Facades\Crypt;
 use App\Services\PayOsService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Session;
 
 class PaymentModuleController extends Controller
 {
@@ -63,12 +68,10 @@ class PaymentModuleController extends Controller
             session()->forget('order_total');
             session()->forget('shipping_fee');
 
-
             $selectedAddressId = $request->selected_address;
             $addressModel = CheckoutAddress::with(['ward', 'district', 'province', 'user'])
                 ->where('user_id', $user->id)
                 ->find($selectedAddressId);
-
             $fullAddress = null;
             if ($addressModel) {
 
@@ -83,6 +86,16 @@ class PaymentModuleController extends Controller
                     $fullAddress .= ', ' . $addressModel->province->name;
                 }
             }
+            $voucher_code = $request->voucher_code;
+
+            $voucher = Voucher::where('voucher_code', '=', $voucher_code)->where('start_at', '<', now())->where('expired_at', '>', now())->where('voucher_status', 'active')->first();
+            $userVoucherCheck = null;
+            if ($voucher) {
+                $userVoucherCheck = $voucher->voucherUsed->first()->user_id === Auth::id() && $voucher->voucherUsed->first()->is_used === false ? $voucher->id : null;
+            }
+
+            $decrease_amount = Session::get('decrease_amount', 0);
+            Session::forget('decrease_amount');
 
             $order = Order::create([
                 'orders_status' => $request->payment_method === "cod" ? 'Chờ duyệt' : 'Chờ thanh toán',
@@ -94,16 +107,19 @@ class PaymentModuleController extends Controller
                 'total_price' => $totalPrice,
                 'shipment_price' => $shipment_fee,
                 'is_paid' => false,
-                'amount_decrease' => 0, //temporary
-               'province_id' => $addressModel->province_id, 
-               'district_id' => $addressModel->district_id,
-               'ward_id' => $addressModel->ward_id, 
+                'amount_decrease' => $decrease_amount,
+                'province_id' => $addressModel->province_id,
+                'district_id' => $addressModel->district_id,
+                'ward_id' => $addressModel->ward_id,
+                'decrease_amount' => $decrease_amount,
+                'voucher_id' => $userVoucherCheck,
             ]);
 
             // Gửi thông báo đặt hàng thành công cho user
-            \App\Services\NotificationService::send([
-                $user->id
-            ],
+            \App\Services\NotificationService::send(
+                [
+                    $user->id
+                ],
                 'Đặt hàng thành công',
                 'Bạn vừa đặt đơn hàng #' . $order->id . '. Trạng thái: ' . $order->orders_status,
                 'Đơn hàng'
@@ -114,10 +130,26 @@ class PaymentModuleController extends Controller
             foreach ($cartItems as $item) {
                 $price = 0;
                 $comboId = null;
-                if($item->item_type === "sku") {
+                if ($item->item_type === "sku") {
                     $price = $item->sku->sale_price ?? $item->sku->price;
+                    $flashsaleData = $this->checkFlashsale($item->sku_id);
+                    if ($flashsaleData && !empty($flashsaleData)) {
+
+                        $discount_type = $flashsaleData[$item->sku_id]['discount_type'];
+                        $discount_amount = $flashsaleData[$item->sku_id]['discount_amount'];
+
+                        if ($discount_type === 'percent') {
+                            $price -= ($price * $discount_amount / 100);
+                        } elseif ($discount_type === 'specific') {
+                            $price -= $discount_amount;
+                        }
+
+                        if ($price < 0) {
+                            $price = 0;
+                        }
+                    }
                     $total_price += $price * $item->quantity;
-                } elseif($item->item_type === 'combo') {
+                } elseif ($item->item_type === 'combo') {
                     $price = $item->combo->sale_price;
                     $comboId = $item->combo_id;
                     $total_price += $price * $item->quantity;
@@ -158,10 +190,12 @@ class PaymentModuleController extends Controller
                 $vnPay = $vnPayService->vnpayPayment($order, $totalPrice, $request->ip());
                 return redirect($vnPay);
             } elseif ($paymentMethod === "international") {
-                $voucher = session('voucher');
                 $stripeService = new StripeService;
                 $order_id = $payment->order_id;
-                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $order_id, isset($voucher) && !empty($voucher) ? $voucher : null);
+                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $payment->id);
+                $payment->payment_url = $session->url;
+                $payment->payment_expired_at = now()->addMinutes(10);
+                $payment->save();
                 return redirect($session->url);
             } elseif ($paymentMethod === 'payos') {
                 $payosService = new PayOsService();
@@ -179,10 +213,31 @@ class PaymentModuleController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Đã xảy ra lỗi: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            return back()->with('error', 'Đã xảy ra lỗi: ' . $e->getMessage());
+            return redirect('/gio-hang')->with('error', 'Đã xảy ra lỗi: ' . $e->getMessage());
         }
     }
 
+    private function checkFlashsale($skuId)
+    {
+
+
+        $now = Carbon::now();
+        $flashsales = FlashsaleProduct::where('sku_id', $skuId)->with('flashsale', function ($q) use ($now) {
+            $q->where('started_at', '<=', $now)
+                ->where('expired_at', '>=', $now);
+        })->get();
+
+        $flashsaleMap = $flashsales->mapWithKeys(function ($item) {
+            return [
+                "$item->sku_id" => [
+                    'discount_type' => $item->flashsale->discount_type,
+                    'discount_amount' => $item->flashsale->discount_amount
+                ]
+            ];
+        })->toArray();
+
+        return $flashsaleMap;
+    }
     public function vnpayCallback(Request $request)
     {
         $vnp_HashSecret = env('VNP_HASH_SECRET');
@@ -300,7 +355,10 @@ class PaymentModuleController extends Controller
             return redirect(route('home'))->with('error', 'Có lỗi khi truy cập trang');
         }
         $payment->payment_id = $stripe_payment_id;
+        $payment->order->is_paid = true;
+        $payment->order->orders_status = 'Chờ duyệt';
         $payment->save();
+        $payment->order->save();
         return redirect(route('thanks', ['payment_id' => $payment_id,]))->with('success', 'Đã đặt hàng thành công');
     }
     public function show($id)

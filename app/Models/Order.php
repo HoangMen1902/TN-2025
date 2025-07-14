@@ -31,7 +31,11 @@ class Order extends Model
         'district_id',
         'ward_id',
         'amount_decrease',
-        'is_paid'
+        'is_paid',
+        'reduced_amount',
+        'voucher_id',
+        'amount_decrease',
+
     ];
 
     protected $casts = [

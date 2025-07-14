@@ -1,5 +1,5 @@
 <main class="w-full max-w-[1200px] mx-auto px-4 py-8">
-    <form method="POST" action="{{ route('checkout.store') }}">
+    <form method="POST" action="{{ route('checkout.store') }}" id="paymentForm">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Checkout Form -->

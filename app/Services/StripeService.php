@@ -40,10 +40,11 @@ class StripeService
 
     public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = null, bool $is_ebook = false)
     {
+        
         if(!$is_ebook) {
             $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
         } else {
-            $lineItems = $this->formatEbook($carts);
+            // $lineItems = $this->formatEbook($carts);
                 // Viết tiếp hàm formatEbook
         }
         $session = $this->stripe->checkout->sessions->create([
@@ -55,23 +56,23 @@ class StripeService
         return $session;
     }
     
-    private function formatEbook($ebookItem) {
-        $line_items = $ebookItem->map(function($i) {
-            return [
-                'price_data' => [
-                    'currency' => 'VND',
-                    'product_data' => [
-                        'name' => //Tên,
-                        'description' => //Mô tả,
-                    ],
-                    'unit_amount' => //Giá sản phẩm,
-                ],
-                'quantity' => //Số lượng,
-            ];
-        });
+    // private function formatEbook($ebookItem) {
+    //     $line_items = $ebookItem->map(function($i) {
+    //         return [
+    //             'price_data' => [
+    //                 'currency' => 'VND',
+    //                 'product_data' => [
+    //                     'name' => //Tên,
+    //                     'description' => //Mô tả,
+    //                 ],
+    //                 'unit_amount' => //Giá sản phẩm,
+    //             ],
+    //             'quantity' => //Số lượng,
+    //         ];
+    //     });
         
-        //Lấy thông tin theo mẫu ở trên là đc
-    }
+    //     //Lấy thông tin theo mẫu ở trên là đc
+    // }
 
 
     public static function getChargeId(string $checkoutId): mixed
@@ -92,10 +93,10 @@ class StripeService
                     return !$fs->isExpired();
                 });
                 if ($flashsale) {
-                    if ($flashsale->discount->discount_type === "percent") {
-                        $price = ($item->sku->sale_price ?? $item->sku->price) - (($item->sku->sale_price ?? $item->sku->price) * $flashsale->discount->discount_amount / 100);
-                    } elseif ($flashsale->discount->discount_type === "specific") {
-                        $price = ($item->sku->sale_price ?? $item->sku->price) - $flashsale->discount->discount_amount;
+                    if ($flashsale->discount_type === "percent") {
+                        $price = ($item->sku->sale_price ?? $item->sku->price) - (($item->sku->sale_price ?? $item->sku->price) * $flashsale->discount_amount / 100);
+                    } elseif ($flashsale->discount_type === "specific") {
+                        $price = ($item->sku->sale_price ?? $item->sku->price) - $flashsale->discount_amount;
                     } else {
                         $price = ($item->sku->sale_price ?? $item->sku->price);
                     }

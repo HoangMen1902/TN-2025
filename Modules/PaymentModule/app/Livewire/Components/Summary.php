@@ -18,14 +18,20 @@ class Summary extends Component
     public $availableVouchers;
 
     public $shipping_fee = 0;
+    public $original_shipping_fee = 0;
     public $finalPrice;
     public $flashsale_products = [];
     public $originalPrice = 0;
+    public $voucher_applied_code = '';
+    public int $voucher_applied_id;
+    public bool $applied_voucher = false;
+
 
     public $submitable = false;
 
     #[On('update-submit')]
-    public function updateSubmit() {
+    public function updateSubmit()
+    {
         $this->submitable = true;
     }
 
@@ -38,9 +44,11 @@ class Summary extends Component
         }
         $this->finalPrice  -= $this->shipping_fee;
         $this->shipping_fee = $fee;
+        $this->original_shipping_fee = $this->shipping_fee;
         $this->finalPrice += $this->shipping_fee;
         session()->put('order_total', $this->finalPrice);
         $this->dispatch('update-submit');
+        $this->dispatch('apply-voucher');
     }
 
 
@@ -68,12 +76,13 @@ class Summary extends Component
             ];
         })->toArray();
         $this->flashsale_products = $flashsaleMap;
-        
+
         return $flashsaleMap;
     }
 
     public function mount()
     {
+        Session::forget('decrease_amount');
         $product_in_flashsale = $this->checkFlashsale();
 
         foreach ($this->carts as $index => $cart) {
@@ -102,18 +111,21 @@ class Summary extends Component
         }
         $this->finalPrice = $this->originalPrice;
 
-        $this->voucherCode = session('voucher_code', '');
-        $this->voucherDiscount = session('voucher_discount', 0);
-        $this->availableVouchers = Voucher::where('voucher_status', 'active')
+
+        $this->availableVouchers = Voucher::where('voucher_status', 'active')->where('start_at', '<', now())->where('expired_at', '>', now())
             ->get();
-        session([
-            'finalPrice' => $this->finalPrice
-        ]);
     }
 
+    #[On('apply-voucher')]
     public function applyVoucher()
     {
+        $this->finalPrice = $this->originalPrice;
+        $this->shipping_fee = $this->original_shipping_fee;
+
         $totalPrice = $this->originalPrice;
+        if (!$this->voucherCode) {
+            return;
+        }
 
         $voucher = Voucher::where('voucher_code', $this->voucherCode)
             ->where('voucher_status', 'active')
@@ -124,35 +136,66 @@ class Summary extends Component
             $this->voucherMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
             $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
-
-            Session::forget(['voucher_code', 'voucher_discount']);
+            $this->applied_voucher = false;
             session()->put('order_total', $this->finalPrice);
             return;
         }
 
         if ($totalPrice < $voucher->requirement_price) {
             $this->voucherMessage = 'Đơn hàng chưa đủ điều kiện áp dụng mã.';
+            $this->applied_voucher = false;
             $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
 
-            Session::forget(['voucher_code', 'voucher_discount']);
             session()->put('order_total', $this->finalPrice);
             return;
         }
+        $voucher_type = $voucher->voucher_scope;
+        $voucher_max_amount = $voucher->max_discount_amount;
 
-        $discount = $voucher->voucher_type === 'percent'
-            ? $totalPrice * $voucher->reduced_amount / 100
-            : $voucher->reduced_amount;
 
-        $this->voucherDiscount = $discount;
-        $this->voucherMessage = 'Áp dụng mã giảm giá thành công!';
-        $this->finalPrice = $this->originalPrice - $this->voucherDiscount + $this->shipping_fee;
-        session([
-            'voucher_code' => $this->voucherCode,
-            'voucher_discount' => $discount,
-            'finalPrice' => $this->finalPrice
-        ]);
+        if ($voucher_type === "shipping") {
+            if ($voucher->voucher_type === "percent") {
+
+                if ($this->shipping_fee <= 0 && !$this->applied_voucher) {
+                    $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
+                    return;
+                }
+
+                $discountAmount = $this->shipping_fee * ($voucher->reduced_amount / 100);
+                if ($discountAmount > $voucher_max_amount) {
+                    $discountAmount = $voucher_max_amount;
+                }
+                $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+            } elseif ($voucher->voucher_type === "amount") {
+
+                if ($this->shipping_fee <= 0 && !$this->applied_voucher) {
+                    $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
+                    return;
+                }
+                $discountAmount = ($voucher->reduced_amount);
+                $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+            }
+            Session::put('shipping_fee', $this->shipping_fee);
+            $this->voucherDiscount = $discountAmount;
+        }
+
+        if ($voucher_type === 'global') {
+            if ($voucher->voucher_type === "percent") {
+                $discountAmount = $this->finalPrice * ($voucher->reduced_amount / 100);
+                if ($discountAmount > $voucher_max_amount) {
+                    $discountAmount = $voucher_max_amount;
+                }
+                $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->finalPrice - $discountAmount);
+            } elseif ($voucher->voucher_type === 'amount') {
+                $discountAmount = ($voucher->reduced_amount);
+                $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+            }
+            $this->voucherDiscount = $discountAmount;
+        }
+        $this->voucherMessage = 'Đã áp dụng mã giảm giá thành công!';
         session()->put('order_total', $this->finalPrice);
+        session()->put('decrease_amount', $discountAmount);
     }
 
     public function render()

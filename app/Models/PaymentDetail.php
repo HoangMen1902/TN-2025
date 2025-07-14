@@ -17,6 +17,8 @@ class PaymentDetail extends Model
         'payment_id',
         'tracking_id',
         'shipment_unit',
+        'payment_url',
+        'payment_expired_at'
     ];
 
     public function order()
