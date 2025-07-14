@@ -48,9 +48,11 @@ class Address extends Component
     public $selectedAddressId = null;
 
     public $isConfirmed = false;
+   
 
     public function updatedSelectedAddressId($id)
     {
+        
         $address = CheckoutAddress::where('user_id', Auth::id())->find($id);
 
         if ($address) {
@@ -69,9 +71,7 @@ class Address extends Component
             $this->contact_email = $address->contact_email;
             $this->address = $address->address;
         }
-            $this->dispatch('updated_selected_address');
-
-        
+        $this->dispatch('updated_selected_address');
     }
 
     public function mount(GhnService $ghn)
@@ -190,8 +190,6 @@ class Address extends Component
 
         $this->closeModal();
         $this->dispatch('toast', type: 'success', message: 'Đã lưu địa chỉ thành công!');
-
-    
     }
     #[On('updateProvince')]
     public function getDistrict($mode = 'create', GhnService $ghn)

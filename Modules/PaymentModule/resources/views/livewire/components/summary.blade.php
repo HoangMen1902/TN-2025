@@ -162,8 +162,9 @@
             <i class="fas fa-lock ml-2"></i>
         </button>
 
-        <button wire:loading.remove
-            class="w-full bg-primary text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center transition duration-300">
+    
+        <button wire:loading.remove type="{{$submitable ? 'submit' : 'button'}}"
+            class="w-full {{$submitable ? 'bg-primary' : 'bg-blue-400'}} text-white py-4 rounded-full hover:bg-gray-800 flex items-center justify-center transition duration-300">
             <span>Đặt hàng</span>
             <i class="fas fa-lock ml-2"></i>
         </button>

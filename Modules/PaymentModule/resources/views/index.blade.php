@@ -8,7 +8,6 @@
             $(document).on('change', 'input[name="selected_address"]', function () {
                 let id = $(this).val();
                 Livewire.dispatch('user_selected_address', { id: id });
-                console.log(id);
             });
 
 

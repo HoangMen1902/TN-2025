@@ -36,6 +36,7 @@ class Delivery extends Component
     #[On("updated_selected_address")]
     public function updatedSelectedUnit()
     {
+    
         switch ($this->selected_unit) {
             case 'Giao Hàng Nhanh':
                 $this->dispatch('updated_selected_unit', fee: $this->ghnFee);
@@ -55,6 +56,7 @@ class Delivery extends Component
                 session()->flash('shipping_fee', $this->ghnFee);
                 break;
         }
+        $this->dispatch('update-submit');
     }
     public function mount()
     {
@@ -116,6 +118,7 @@ class Delivery extends Component
                 $this->dispatch('updated_fee');
             }
         }
+        $this->dispatch('stop-loading');
     }
 
     public function getGhnFee($data, GhnService $ghnService = new GhnService())

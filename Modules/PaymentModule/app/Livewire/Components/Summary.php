@@ -22,11 +22,15 @@ class Summary extends Component
     public $flashsale_products = [];
     public $originalPrice = 0;
 
+    public $submitable = false;
+
+    #[On('update-submit')]
+    public function updateSubmit() {
+        $this->submitable = true;
+    }
 
 
     #[On('updated_selected_unit')]
-
-
     public function updatePrice($fee)
     {
         if ($fee === null) {
@@ -36,6 +40,7 @@ class Summary extends Component
         $this->shipping_fee = $fee;
         $this->finalPrice += $this->shipping_fee;
         session()->put('order_total', $this->finalPrice);
+        $this->dispatch('update-submit');
     }
 
 
@@ -66,6 +71,7 @@ class Summary extends Component
         
         return $flashsaleMap;
     }
+
     public function mount()
     {
         $product_in_flashsale = $this->checkFlashsale();
