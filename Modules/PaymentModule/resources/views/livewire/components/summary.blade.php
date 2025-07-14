@@ -11,10 +11,27 @@
             @php
                 $type = $cart->item_type;
                 $price = 0;
-                if($type === 'combo') {
-                    $price =$cart->combo->sale_price;
-                } elseif($type === 'sku') {
-                    $price = $cart->sku->sale_price ?? $cart->sku->price;
+                if ($type === 'combo') {
+                    $price = $cart->combo->sale_price;
+                } elseif ($type === 'sku') {
+                    $unit_price = $cart->sku->sale_price ?? $cart->sku->price;
+
+                    if (isset($flashsale_products[$cart->sku_id])) {
+                        $discount_type = $flashsale_products[$cart->sku_id]['discount_type'];
+                        $discount_amount = $flashsale_products[$cart->sku_id]['discount_amount'];
+
+                        if ($discount_type === 'percent') {
+                            $unit_price -= ($unit_price * $discount_amount / 100);
+                        } elseif ($discount_type === 'specific') {
+                            $unit_price -= $discount_amount;
+                        }
+
+                        if ($unit_price < 0) {
+                            $unit_price = 0;
+                        }
+                    }
+
+                    $price += $cart->quantity * $unit_price;
                 }
                 $totalPrice += $cart->quantity * $price;
                 $image = $cart->sku->images[0] ?? $cart->combo->images[0];

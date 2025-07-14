@@ -48,6 +48,7 @@ class Price extends Component
     #[On('flashsaleUpdated')]
     public function handleFlashsaleUpdated()
     {
+
         $skuId = $this->data->productSkus->first()->id;
         $sku = $this->data->productSkus->firstWhere('id', $skuId);
 

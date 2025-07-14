@@ -3,6 +3,7 @@
 namespace Modules\DetailModule\Livewire\Components;
 
 use App\Models\FlashsaleProduct;
+use App\Models\ProductCombo;
 use Carbon\Carbon;
 use Illuminate\Container\Attributes\Log;
 use Illuminate\Support\Facades\Log as FacadesLog;
@@ -14,9 +15,13 @@ class Flashsale extends Component
     public $skuId;
     public $data;
     public $flashSaleProduct;
+    public $type;
 
     public function mount($skuId)
     {
+        if($this->type === 'combo') {
+            return;
+        }
         $this->skuId = $skuId;
 
         if ($this->checkFlashSale()) {
@@ -33,7 +38,8 @@ class Flashsale extends Component
         }
     }
     #[On('flashsaleExisted')]
-    public function dispatchFlashsale() {
+    public function dispatchFlashsale()
+    {
         $this->dispatch('flashsaleUpdated');
     }
 

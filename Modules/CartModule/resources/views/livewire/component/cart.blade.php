@@ -112,7 +112,7 @@
                                 </div>
                                 <div
                                     class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base">
-              {{ isset($discounted_price) 
+              {{ isset($discounted_price) && $type === 'sku' 
     ? number_format($discounted_price, 0, ',', '.') 
     : number_format(
         ($type === 'sku'
