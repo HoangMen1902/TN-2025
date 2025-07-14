@@ -15,6 +15,7 @@ class UserNotification extends Model
         'user_id',
         'notification_id',
         'notification_status',
+        'is_read',
     ];
 
     public function user()

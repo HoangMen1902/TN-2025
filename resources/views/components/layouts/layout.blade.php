@@ -61,19 +61,23 @@
 
 
                 <div class="hidden md:flex md:items-center md:gap-6">
-                     <div class="text-center">
+                    <div class="text-center">
                         <a href="/mini-game"
                             class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" />
-</svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" />
+                            </svg>
 
                             <span>Mini Game</span>
                         </a>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center relative">
                         <a href="/thong-bao"
                             class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                            <livewire:notification-count />
+
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="size-6 mb-1">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,7 +187,8 @@
                         <div class="flex items-center gap-3">
 
                             <div class="text-center">
-                                <a href="{{route('cart.index')}}" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                                <a href="{{route('cart.index')}}"
+                                    class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -194,7 +199,8 @@
 
 
                             <div class="text-center">
-                                <a href="{{route('infomation')}}" class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                                <a href="{{route('infomation')}}"
+                                    class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="size-5 mb-0">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -396,8 +402,8 @@
                             @if ($parent->children->count())
                                 <div
                                     class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                                                                                  opacity-0 invisible 
-                                                                                                                  transition-opacity duration-200 ease-in-out">
+                                                                                                                                  opacity-0 invisible 
+                                                                                                                                  transition-opacity duration-200 ease-in-out">
                                     <div class="h-full overflow-hidden">
                                         <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                                             <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
