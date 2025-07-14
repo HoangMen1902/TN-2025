@@ -6,10 +6,23 @@
 
                     <!-- DANH MỤC -->
                     <div class="space-y-3 border-b pb-4">
-                        <h3 class="font-semibold text-gray-800 uppercase text-sm">DANH MỤC</h3>
-                        <div class="text-blue-600 font-bold text-lg">
-                            {{ $category->name }}
-                        </div>
+                        <h3 class="font-semibold text-gray-800 uppercase text-sm">NHÓM SẢN PHẨM</h3>
+                        @if ($parentCategory)
+                            <div class="font-bold text-base text-gray-700 mb-1">{{ $parentCategory->name }}</div>
+                            <ul class="ml-2">
+                                @foreach ($siblingCategories as $cat)
+                                    <li>
+                                        <a href="{{ route('store-category', ['categorySlug' => $cat->slug]) }}" class="block py-1 px-2 rounded
+                                            {{ $cat->id == $category->id ? 'text-orange-600 font-semibold bg-orange-50' : 'text-gray-700 hover:bg-gray-100' }}
+                                            ml-4">
+                                            {{ $cat->name }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <div class="font-bold text-base text-gray-700 mb-1">{{ $category->name }}</div>
+                        @endif
                     </div>
 
 
@@ -161,7 +174,7 @@
 
         <div class="">
             <div class="product__viewport">
-               
+
                 <div class=" grid grid-cols-3 gap-3 gap-[10px]">
 
                     @foreach ($products as $product)
@@ -236,7 +249,7 @@
                         <li>
                             <a wire:click.prevent="previousPage" href="#"
                                 class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700
-                                                               {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
+                                                                       {{ $products->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">
                                 Trở về
                             </a>
                         </li>
@@ -245,7 +258,7 @@
                                     <li>
                                         <a wire:click.prevent="gotoPage({{ $page }})" href="#"
                                             class="flex items-center justify-center px-4 h-10 leading-tight
-                                                                                                                                                                                           {{ $products->currentPage() === $page
+                                                                                                                                                                                                                           {{ $products->currentPage() === $page
                             ? 'text-white border border-gray-300 bg-blue-700 hover:bg-blue-100'
                             : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700' }}">
                                             {{ $page }}
@@ -256,7 +269,7 @@
                         <li>
                             <a wire:click.prevent="nextPage" href="#"
                                 class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700
-                                                               {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
+                                                                       {{ !$products->hasMorePages() ? 'pointer-events-none opacity-50' : '' }}">
                                 Tiếp
                             </a>
                         </li>

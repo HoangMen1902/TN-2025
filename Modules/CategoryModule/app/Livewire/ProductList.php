@@ -81,7 +81,10 @@ class ProductList extends Component
     public function render()
     {
         $category = Category::find($this->categoryId);
-
+        $parentCategory = $category->parent_id ? Category::find($category->parent_id) : null;
+        $siblingCategories = $parentCategory
+            ? $parentCategory->children()->where('category_status', 'active')->get()
+            : collect();
         $query = Product::with(['productSkus', 'categories', 'publisher', 'tags'])
             ->where('product_status', 'active')
             ->whereHas('categories', function ($q) {
@@ -156,6 +159,8 @@ class ProductList extends Component
         return view('categorymodule::livewire.product-list', [
             'products' => $query->paginate($this->perPage),
             'category' => $category,
+            'parentCategory' => $parentCategory,
+            'siblingCategories' => $siblingCategories,
             'publishers' => Publisher::where('publisher_status', 'active')->get(),
             'tags' => RelatedTag::where('related_tag_status', 'active')->get(),
         ]);
