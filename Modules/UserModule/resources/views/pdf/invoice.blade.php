@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hóa đơn #{{ $order['id'] }}</title>
+    <title>Hóa đơn #BB{{ $order['id'] }}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,6 +21,11 @@
         table {
             width: 100%;
             border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.5rem;
+            vertical-align: top;
         }
 
         .text-right {
@@ -55,6 +60,10 @@
             border-bottom: 2px solid #5c6ac4;
         }
 
+        .table-bordered tbody tr td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
         .p-4 {
             padding: 1rem;
         }
@@ -79,6 +88,12 @@
             white-space: nowrap;
         }
 
+        .w-200 {
+            width: 200px;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
         footer {
             position: fixed;
             bottom: 0;
@@ -99,19 +114,16 @@
             <tr>
                 <td class="text-left">
                     <h2>BeeBook</h2>
+                    <p class="text-main font-bold">Mã đơn hàng: BB#{{ $order['id'] }}</p>
                 </td>
                 <td class="text-right">
                     <table>
                         <tr>
-                            <td class="text-right pr-2 whitespace-nowrap">
+                            <td class="text-right " style="padding-right: 20px;">
                                 <small class="text-main">Ngày lập:</small><br>
                                 <span class="font-bold">{{ $order['created_at']->format('d/m/Y') }}</span>
                             </td>
-                            <td class="text-right pr-2 whitespace-nowrap">
-                                <small class="text-main">Mã đơn:</small><br>
-                                <span class="font-bold">#{{ $order['id'] }}</span>
-                            </td>
-                            <td class="text-right whitespace-nowrap">
+                            <td class="text-right">
                                 <small class="text-main">Thanh toán:</small><br>
                                 <span class="font-bold">{{ $order['payment_method'] }}</span>
                             </td>
@@ -137,25 +149,23 @@
             </tr>
         </table>
 
-        <table class="mt-4">
+        <table class="mt-4 table-bordered">
             <thead>
                 <tr class="border-bottom-2 text-main font-bold">
                     <th class="text-left p-2">STT</th>
                     <th class="text-left p-2">Tên sản phẩm</th>
                     <th class="text-right p-2">Đơn giá</th>
                     <th class="text-center p-2">SL</th>
-                    <th class="text-right p-2">Giảm giá</th>
                     <th class="text-right p-2">Tổng tiền</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($order['items'] as $index => $item)
                     <tr>
-                        <td class="p-2">{{ $index + 1 }}</td>
-                        <td class="p-2">{{ $item['product_name'] }}</td>
+                        <td class="p-2 text-left">{{ $index + 1 }}</td>
+                        <td class="p-2 w-200">{{ $item['product_name'] }}</td>
                         <td class="p-2 text-right">{{ number_format($item['price'], 0, ',', '.') }} đ</td>
                         <td class="p-2 text-center">{{ $item['quantity'] }}</td>
-                        <td class="p-2 text-right">{{ number_format($item['discount'], 0, ',', '.') }} đ</td>
                         <td class="p-2 text-right">{{ number_format($item['total_price'], 0, ',', '.') }} đ</td>
                     </tr>
                 @endforeach
