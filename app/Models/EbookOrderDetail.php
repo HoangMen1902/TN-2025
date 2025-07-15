@@ -13,4 +13,8 @@ class EbookOrderDetail extends Model
     {
         return $this->belongsTo(EbookOrder::class, 'ebook_order_id'); 
     }
+    public function ebook()
+{
+    return $this->belongsTo(ProductEbook::class, 'ebook_id');
+}
 }

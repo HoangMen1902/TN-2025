@@ -17,7 +17,7 @@ class StripeService
     private $stripe;
     public function __construct()
     {
-        
+
         $this->private_token = env("STRIPE_API_SECRET");
         $this->public_token = env("STRIPE_API_PUBLIC");
         $this->stripe = new StripeClient($this->private_token);
@@ -39,13 +39,10 @@ class StripeService
     }
 
     public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = null, bool $is_ebook = false)
-    {
-        
-        if(!$is_ebook) {
+    {     if (!$is_ebook) {
             $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
         } else {
             // $lineItems = $this->formatEbook($carts);
-                // Viết tiếp hàm formatEbook
         }
         $session = $this->stripe->checkout->sessions->create([
             'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
@@ -55,25 +52,56 @@ class StripeService
         ]);
         return $session;
     }
-    
-    // private function formatEbook($ebookItem) {
-    //     $line_items = $ebookItem->map(function($i) {
-    //         return [
-    //             'price_data' => [
-    //                 'currency' => 'VND',
-    //                 'product_data' => [
-    //                     'name' => //Tên,
-    //                     'description' => //Mô tả,
-    //                 ],
-    //                 'unit_amount' => //Giá sản phẩm,
-    //             ],
-    //             'quantity' => //Số lượng,
-    //         ];
-    //     });
-        
-    //     //Lấy thông tin theo mẫu ở trên là đc
-    // }
+    public function createEbookCheckoutSession($ebooks, string $payment_id, string $voucher = null)
+    {
+        $lineItems = $this->formatEbook($ebooks, $voucher);
 
+        if (empty($lineItems)) {
+            throw new \Exception('Không có ebook nào để thanh toán');
+        }
+        $payload = [
+            'success_url' => env('APP_URL') . '/ebook-international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
+            'cancel_url'  => route('ebook.payment'),
+            'mode'        => 'payment',
+            'line_items'  => $lineItems,
+        ];
+        if ($voucher) {
+            $payload['discounts'] = [['coupon' => $voucher]];
+        }
+        return $this->stripe->checkout->sessions->create($payload);
+    }
+    private function formatEbook($items, $voucher = null): array
+    {
+        $line_items = $items->map(function ($item) {
+            if (($item->item_type ?? null) !== 'ebook' || empty($item->ebook)) {
+                return null;
+            }
+            $ebook      = $item->ebook;
+            $price      = (int) $ebook->price;
+            $quantity   = (int) ($item->quantity ?? 1);
+            $name       = $ebook->title ?? 'Ebook';
+            $description = strip_tags($ebook->description ?? '');
+
+            if ($price <= 0 || $quantity <= 0) {
+                return null;
+            }
+            return [
+                'price_data' => [
+                    'currency'     => 'VND',
+                    'product_data' => [
+                        'name'        => $name,
+                        'description' => $description,
+                    ],
+                    'unit_amount'  => $price,
+                ],
+                'quantity' => $quantity,
+            ];
+        })
+            ->filter()
+            ->values()
+            ->toArray();
+        return $line_items;
+    }
 
     public static function getChargeId(string $checkoutId): mixed
     {
@@ -103,7 +131,7 @@ class StripeService
                 } else {
                     $price = ($item->sku->sale_price ?? $item->sku->price);
                 }
-            } elseif($item_type === 'combo') {
+            } elseif ($item_type === 'combo') {
                 $price = $item->combo->sale_price;
             }
 

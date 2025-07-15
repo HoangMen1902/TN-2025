@@ -43,8 +43,7 @@ class PaymentEbookModuleController extends Controller
                 return back()->with('error', 'Ebook không hợp lệ.');
             }
 
-            $totalPrice = $ebook->price; // Giá của 1 ebook
-
+            $totalPrice = $ebook->price; 
             $order = EbookOrder::create([
                 'orders_status' => 'Chờ thanh toán',
                 'user_id' => $user->id,
@@ -52,9 +51,10 @@ class PaymentEbookModuleController extends Controller
             ]);
 
             // Gửi thông báo đặt hàng Ebook thành công cho user
-            \App\Services\NotificationService::send([
-                $user->id
-            ],
+            \App\Services\NotificationService::send(
+                [
+                    $user->id
+                ],
                 'Đặt hàng Ebook thành công',
                 'Bạn vừa đặt đơn hàng Ebook #' . $order->id . '. Trạng thái: ' . $order->orders_status,
                 'Đơn hàng Ebook'
@@ -64,7 +64,7 @@ class PaymentEbookModuleController extends Controller
                 'ebook_order_id' => $order->id,
                 'ebook_id' => $ebook->id,
                 'price' => $ebook->price,
-                'quantity' => 1, 
+                'quantity' => 1,
                 'total_price' => $ebook->price,
             ]);
 
@@ -86,9 +86,17 @@ class PaymentEbookModuleController extends Controller
                 return redirect($vnPay);
             } elseif ($request->payment_method === 'international') {
                 $stripeService = new StripeService();
-                $items = collect([$ebook]);
-                dd($items);
-                $session = $stripeService->createCheckoutSession($items, 0, $order->id);
+                $ebookItem = (object)[
+                    'item_type' => 'ebook',
+                    'ebook'     => $ebook,
+                    'quantity'  => 1,
+                ];
+                $session = $stripeService->createEbookCheckoutSession(
+                    collect([$ebookItem]),
+                    payment_id: $payment->id,   
+                    voucher: null
+                );
+
                 if (!$session) {
                     throw new \Exception('Không thể tạo session thanh toán với Stripe.');
                 }
@@ -161,30 +169,72 @@ class PaymentEbookModuleController extends Controller
         return redirect()->route('home')->with('error', 'Chữ ký không hợp lệ.');
     }
 
+    // public function internationalCallback($checkout_id, $payment_id)
+    // {
+    //     $stripeService = new StripeService();
+    //     $payment = EbookPaymentDetail::find($payment_id);
+    //     dd($payment);
+    //     // Nếu không tìm thấy hoặc user không khớp
+    //     if (!$payment || $payment->order->user_id !== Auth::id()) {
+    //         return redirect()->route('home')->with('error', 'Đường dẫn không hợp lệ hoặc không được phép.');
+    //     }
+
+    //     // Nếu không đúng session ID Stripe
+    //     if (!$stripeService->checkCheckoutId($checkout_id)) {
+    //         return redirect()->route('home')->with('error', 'Thanh toán không thành công.');
+    //     }
+
+    //     // Lấy mã thanh toán thật từ Stripe
+    //     $stripe_payment_id = $stripeService->getChargeId($checkout_id);
+
+    //     // Cập nhật vào DB
+    //     $payment->update([
+    //         'payment_id' => $stripe_payment_id
+    //     ]);
+
+    //     $order = $payment->order;
+    //     if ($order) {
+    //         $order->orders_status = 'Đã thanh toán';
+    //         $order->save();
+    //     }
+
+    //     return redirect()->route('ebook.thanks', ['payment_id' => $payment_id])
+    //         ->with('success', 'Đã đặt hàng thành công');
+    // }
     public function internationalCallback($checkout_id, $payment_id)
     {
         $stripeService = new StripeService();
         $payment = EbookPaymentDetail::find($payment_id);
+        Log::info('Payment ID tìm được:', [$payment]);
+        Log::info('Auth user ID:', [Auth::id()]);
+        Log::info('Order user ID:', [$payment?->order?->user_id]);
+        
         if (!$payment || $payment->order->user_id !== Auth::id()) {
             return redirect()->route('home')->with('error', 'Đường dẫn không hợp lệ hoặc không được phép.');
         }
-
-        if ($stripeService->checkCheckoutId($checkout_id)) {
-            $stripe_payment_id = $stripeService->getChargeId($checkout_id);
-            $payment->payment_id = $stripe_payment_id;
-            $payment->save();
-
-            $order = $payment->order;
-            if ($order) {
-                $order->orders_status = 'Đã thanh toán';
-                $order->save();
-            }
-            return redirect()->route('ebook.thanks', ['payment_id' => $payment_id])->with('success', 'Đã đặt hàng thành công');
+    
+        if (!$stripeService->checkCheckoutId($checkout_id)) {
+            return redirect()->route('home')->with('error', 'Thanh toán không thành công.');
         }
-
-        return redirect()->route('home')->with('error', 'Thanh toán không thành công.');
+    
+        $stripe_payment_id = $stripeService->getChargeId($checkout_id);
+    
+        // Lưu Stripe payment ID
+        $payment->update([
+            'payment_id' => $stripe_payment_id
+        ]);
+    
+        // Cập nhật trạng thái đơn hàng
+        $order = $payment->order;
+        if ($order) {
+            $order->orders_status = 'Đã thanh toán';
+            $order->save();
+        }
+    
+        return redirect()->route('ebook.thanks', ['payment_id' => $payment_id])
+            ->with('success', 'Đã đặt hàng thành công');
     }
-
+    
     public function payosWebhook(Request $request)
     {
         $payload = $request->all();
