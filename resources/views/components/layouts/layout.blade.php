@@ -8,7 +8,10 @@
     <title>{{ $title ?? 'BeeBook'}}</title>
     @livewireStyles
     @livewireScripts
-    @vite(['resources/scss/app.scss', 'resources/js/app.js', 'resources/css/app.css'])
+@vite([
+    'resources/scss/app.scss',
+    'resources/js/app.js'
+])
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
