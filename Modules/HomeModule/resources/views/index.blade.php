@@ -44,14 +44,14 @@
                             class="absolute z-30 flex -translate-x-1/2 space-x-3 rtl:space-x-reverse bottom-5 left-1/2">
                             <button type="button" class="w-3 h-3 rounded-full" aria-current="true" aria-label="Slide 1"
                                 data-carousel-slide-to="0"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
-                                aria-label="Slide 2" data-carousel-slide-to="1"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
-                                aria-label="Slide 3" data-carousel-slide-to="2"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
-                                aria-label="Slide 4" data-carousel-slide-to="3"></button>
-                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false"
-                                aria-label="Slide 5" data-carousel-slide-to="4"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 2"
+                                data-carousel-slide-to="1"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 3"
+                                data-carousel-slide-to="2"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 4"
+                                data-carousel-slide-to="3"></button>
+                            <button type="button" class="w-3 h-3 rounded-full" aria-current="false" aria-label="Slide 5"
+                                data-carousel-slide-to="4"></button>
                         </div>
                         <!-- Slider controls -->
                         <button type="button"
@@ -83,6 +83,13 @@
                     </div>
                 </div>
             </div>
+           <a href="/mini-game" class="fixed bottom-4 right-4 z-30 animate-bounce">
+    <div class="relative group">
+        <img src="{{ asset('assets/images/minigame.png') }}" alt="Mini game"
+             class="w-[120px] h-auto group-hover:scale-110 transition-transform duration-300">
+        <div class="absolute inset-0 rounded-full animate-ping bg-yellow-200 opacity-30 z-[-1]"></div>
+    </div>
+</a>
 
 
             <div class="w-2/6 h-full flex flex-col">
@@ -227,9 +234,9 @@
             </livewire:homemodule::components.product-category :childCategories="$childCategories">
         </div>
 
-        
+
         <livewire:homemodule::components.publisher-product />
-      
+
         <livewire:homemodule::components.combo-home />
         <livewire:suggestmodule::suggest />
         <script>

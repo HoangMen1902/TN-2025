@@ -125,7 +125,6 @@ class VoucherResource extends Resource
                     ->options([
                         'global' => 'Toàn sàn',
                         'shipping' => 'Miễn phí vận chuyển',
-                        'category' => 'Theo danh mục',
                     ])
                     ->default('global'),
 
@@ -204,10 +203,16 @@ class VoucherResource extends Resource
                 ->searchable()
                 ->sortable(),
 
-            TextColumn::make('voucher_name')
-                ->label('Tên hiển thị')
+            TextColumn::make('voucher_scope')
+                ->label('Phạm vi áp dụng')
+                ->formatStateUsing(fn($state) => match ($state) {
+                    'global' => 'Toàn sàn',
+                    'shipping' => 'Miễn phí vận chuyển',
+                    default => ucfirst($state),
+                })
                 ->searchable()
                 ->sortable(),
+
 
             TextColumn::make('voucher_type')
                 ->label('Loại')
