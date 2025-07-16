@@ -21,9 +21,9 @@ class Membership extends Model
         return $this->hasMany(User::class);
     }
 
-    public function voucher()
+  public function voucher()
 {
-    return $this->belongsTo(Voucher::class);
+    return $this->hasOne(Voucher::class, 'membership_id');
 }
 
 }

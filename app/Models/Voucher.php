@@ -28,6 +28,7 @@ class Voucher extends Model
         'is_redeemable',
         'required_points',
         'issued_by',
+        'membership_id',
     ];
 
 
@@ -43,5 +44,10 @@ class Voucher extends Model
     public function voucherUsed()
     {
         return $this->hasMany(VoucherUsed::class);
+    }
+
+    public function membership()
+    {
+        return $this->belongsTo(Membership::class, 'membership_id');
     }
 }

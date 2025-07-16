@@ -20,7 +20,7 @@ class PayOsService
     public function createPaymentLink($order, $returnUrl, $webhookUrl)
     {
         $data = [
-            'orderCode' => $order->id,
+            'orderCode' => (int) ($order->id . substr(now()->timestamp, -4)), 
             'amount' => (int) $order->total_price,
             'description' => 'Thanh toán đơn hàng #' . $order->id,
             'returnUrl' => $returnUrl,

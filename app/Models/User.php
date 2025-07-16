@@ -103,13 +103,6 @@ class User extends Authenticatable implements FilamentUser
         $this->user_status = $value ? 'active' : 'inactive';
     }
 
-    public function setPasswordAttribute($value)
-    {
-        if (!empty($value)) {
-            $this->attributes['password'] = bcrypt($value);
-        }
-    }
-
     public function membership()
     {
         return $this->belongsTo(Membership::class);

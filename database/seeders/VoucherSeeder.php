@@ -30,6 +30,7 @@ class VoucherSeeder extends Seeder
                 'is_redeemable' => false,
                 'required_points' => null,
                 'issued_by' => 'membership',
+                'membership_id' => 1,
             ],
             [
                 'voucher_code' => 'ThanhVienHangBac',
@@ -47,6 +48,7 @@ class VoucherSeeder extends Seeder
                 'is_redeemable' => false,
                 'required_points' => null,
                 'issued_by' => 'membership',
+                'membership_id' => 2,
             ],
             [
                 'voucher_code' => 'ThanhVienHangVang',
@@ -64,6 +66,7 @@ class VoucherSeeder extends Seeder
                 'is_redeemable' => false,
                 'required_points' => null,
                 'issued_by' => 'membership',
+                'membership_id' => 3,
             ],
             [
                 'voucher_code' => 'ThanhVienHangKimCuong',
@@ -81,6 +84,7 @@ class VoucherSeeder extends Seeder
                 'is_redeemable' => false,
                 'required_points' => null,
                 'issued_by' => 'membership',
+                'membership_id' => 4,
             ],
         ];
 

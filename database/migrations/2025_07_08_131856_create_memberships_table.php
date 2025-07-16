@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');                // "Đồng", "Bạc", "Vàng"
             $table->integer('required_points');   // 100, 500, ...
             $table->text('benefits')->nullable(); // có thể lưu JSON hoặc mô tả
-            $table->foreignId('voucher_id')->nullable()->constrained('vouchers')->nullOnDelete();
             $table->enum('status', ['active', 'inactive'])->default('active'); // Trạng thái hoạt động
             $table->timestamps();
         });

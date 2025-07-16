@@ -188,6 +188,17 @@ class VoucherResource extends Resource
                         'numeric' => 'Phải là số',
                         'min' => 'Tối thiểu là 1 điểm',
                     ]),
+                Select::make('membership_id')
+                    ->label('Áp dụng cho hạng thành viên')
+                    ->relationship('membership', 'name')
+                    ->nullable()
+                    ->searchable()
+                    ->preload()
+                    ->helperText('Chỉ áp dụng cho thành viên thuộc hạng này (nếu có)')
+                    ->validationMessages([
+                        'exists' => 'Hạng thành viên không tồn tại',
+                    ]),
+
 
 
             ])

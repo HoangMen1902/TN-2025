@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
             VoucherSeeder::class,
             MembershipSeeder::class,
         ]);
-        $this->call(FlashSaleSeeder::class);
+        // $this->call(FlashSaleSeeder::class);
         $this->call([
             PrizeSeeder::class,
         ]);

@@ -190,7 +190,7 @@ class ProductResource extends Resource
                     ->dehydrateStateUsing(fn($state) => $state ? 'active' : 'inactive')
                     ->rules(['required'])
                     ->validationMessages(['required' => 'Vui lòng chọn trạng thái *']),
-                DateTimePicker::make('published_at')->label('Thời gian mở bán')->native(false)->placeholder('Thời gian ra mắt')->minDate(now())->columnSpanFull(),
+                DateTimePicker::make('published_at')->label('Thời gian mở bán')->native(false)->placeholder('Thời gian ra mắt')->columnSpanFull(),
                 Repeater::make('previews')
                     ->label('Bản đọc thử (Tùy chọn)')
                     ->relationship('productPreview')

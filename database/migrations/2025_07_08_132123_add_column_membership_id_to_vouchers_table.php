@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('user_notifications', function (Blueprint $table) {
-             $table->boolean('is_read')->default(false); 
+        Schema::table('vouchers', function (Blueprint $table) {
+            $table->foreignId('membership_id')->nullable()->constrained()->nullOnDelete();
         });
     }
 
@@ -21,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('notification', function (Blueprint $table) {
-            //
+        Schema::table('vouchers', function (Blueprint $table) {
+            $table->dropForeign(['membership_id']);
+            $table->dropColumn('membership_id');
         });
     }
 };
