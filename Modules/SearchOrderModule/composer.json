@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/searchordermodule",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\SearchOrderModule\\": "app/",
+            "Modules\\SearchOrderModule\\Database\\Factories\\": "database/factories/",
+            "Modules\\SearchOrderModule\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\SearchOrderModule\\Tests\\": "tests/"
+        }
+    }
+}

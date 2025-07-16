@@ -502,7 +502,7 @@ class ViettelPostService
         //     'LIST_ITEM' => $products
         // ];
 
-        
+
 
         // $data = [
         //     "ORDER_NUMBER" => 'VTP_' . $order->id . '_' . time(),
@@ -525,14 +525,14 @@ class ViettelPostService
         //     "ORDER_PAYMENT" => 1,
         //     "PRODUCT_TYPE" => "HH",
         //     "ORDER_SERVICE" => "VCN",
-            // 'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
-            // 'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
-            // 'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
-            // 'PRODUCT_PRICE' => (float)$productTotal,
-            // 'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
-            // 'PRODUCT_LENGTH' => 30,
-            // 'PRODUCT_WIDTH' => 20,
-            // 'PRODUCT_HEIGHT' => 10,
+        // 'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
+        // 'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
+        // 'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
+        // 'PRODUCT_PRICE' => (float)$productTotal,
+        // 'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
+        // 'PRODUCT_LENGTH' => 30,
+        // 'PRODUCT_WIDTH' => 20,
+        // 'PRODUCT_HEIGHT' => 10,
         //     'ORDER_NOTE' => $this->generateOrderNote($order, $paymentMethod, $productTotal),
         //     'MONEY_COLLECTION' => (float)$codAmount,
         //     'MONEY_TOTALFEE' => 0,
@@ -780,5 +780,26 @@ class ViettelPostService
         $productName = preg_replace('/[\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{4E00}-\x{9FAF}]/u', '', $productName);
         $productName = preg_replace('/[^\p{L}\p{N}\s\-\.,]/u', '', $productName);
         return trim($productName) ?: 'Sản phẩm';
+    }
+
+    public function trackOrder($trackingId)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Token' => $this->token,
+                'Content-Type' => 'application/json',
+            ])->post('https://partner.viettelpost.vn/v2/order/getOrderDetail', [
+                'ORDER_NUMBER' => $trackingId
+            ]);
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                Log::error('ViettelPost tracking error: ' . $response->body());
+                return false;
+            }
+        } catch (\Exception $e) {
+            Log::error('ViettelPost tracking exception: ' . $e->getMessage());
+            return false;
+        }
     }
 }

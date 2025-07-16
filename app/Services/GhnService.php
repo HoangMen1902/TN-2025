@@ -550,7 +550,7 @@ class GhnService
         try {
             // SỬA: Dùng orderToken giống như createOrder
             $response = Http::withHeaders([
-                'Token' => $this->orderToken, // Dùng lại orderToken
+                'Token' => $this->apiToken, // Dùng lại orderToken
                 'ShopId' => (int)env('GHN_SHOPID'), // Thêm ShopId như createOrder
                 'Content-Type' => 'application/json'
             ])->post($this->base_url . '/v2/shipping-order/detail', [
@@ -559,7 +559,7 @@ class GhnService
 
             Log::info('GHN Tracking API Call (Using orderToken like createOrder)', [
                 'order_code' => $orderCode,
-                'token_used' => substr($this->orderToken, 0, 10) . '...',
+                'token_used' => substr($this->apiToken, 0, 10) . '...',
                 'shop_id' => env('GHN_SHOPID'),
                 'status' => $response->status(),
                 'response' => $response->body()
@@ -616,7 +616,7 @@ class GhnService
                         'ward_id' => $this->shop_ward_id ?? 'not_set',
                     ],
                     'provinces_count' => count($provinces),
-                    'token' => substr($this->orderToken, 0, 10) . '...' // Hiển thị 10 ký tự đầu
+                    'token' => substr($this->apiToken, 0, 10) . '...' // Hiển thị 10 ký tự đầu
                 ];
             } else {
                 return [
