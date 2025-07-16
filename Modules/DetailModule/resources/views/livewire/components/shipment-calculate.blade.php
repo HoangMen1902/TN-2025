@@ -190,8 +190,8 @@
                     <span class="font-bold text-sm"></span>
                     <a href="javascript:void(0)" class="change-address"><span
                             class="text-neutral-400 w-full text-sm flex items-center">Giao hàng đến
-                            {{$ward_default['WardName']}}, {{$district_default['DistrictName']}},
-                            {{$province_default['ProvinceName']}}</span></a>
+                            {{$ward_default['WardName'] ?? ''}} , {{$district_default['DistrictName'] ?? ''}},
+                            {{$province_default['ProvinceName'] ?? ''}}</span></a>
                 </div>
                 <a href="javascript:void(0)" class="change-address ml-auto"><svg xmlns="http://www.w3.org/2000/svg"
                         fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">

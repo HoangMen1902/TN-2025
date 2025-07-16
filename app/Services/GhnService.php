@@ -17,6 +17,7 @@ class GhnService
     protected $shop_province_id;
     protected $shop_district_id;
     protected $shop_ward_id;
+    protected $base_url;
 
     public function __construct()
     {
@@ -24,6 +25,7 @@ class GhnService
         $this->apiToken = env('GHN_API');
 
         // $this->orderToken = env('GHN_TOKEN');
+        $this->base_url = env('GHN_API_URL', 'https://online-gateway.ghn.vn/shiip/public-api');
 
         $provinceNameFromConfig = config('shopConfig.shop_province');
         $districtNameFromConfig = config('shopConfig.shop_district');
@@ -61,7 +63,7 @@ class GhnService
     {
         try {
             $response = Http::withHeaders(['Token' => $this->apiToken])
-                ->get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province');
+                ->get($this->base_url . '/master-data/province');
 
             if ($response->successful()) {
                 $data = $response->json('data');
@@ -77,7 +79,7 @@ class GhnService
         } catch (\Exception $e) {
             logger()->error('Error fetching provinces', [
                 'exception' => $e->getMessage(),
-                'url' => 'https://online-gateway.ghn.vn/shiip/public-api/master-data/province'
+                'url' => $this->base_url . '/master-data/province'
             ]);
             return [];
         }
@@ -87,7 +89,7 @@ class GhnService
     {
         try {
             $response = Http::withHeaders(['Token' => $this->apiToken])
-                ->post('https://online-gateway.ghn.vn/shiip/public-api/master-data/district', [
+                ->post($this->base_url . '/master-data/district', [
                     'province_id' => (int) $province_id,
                 ]);
 
@@ -107,7 +109,7 @@ class GhnService
     {
         try {
             $response = Http::withHeaders(['Token' => $this->apiToken])
-                ->post('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward', [
+                ->post($this->base_url . '/master-data/ward', [
                     'district_id' => (int) $district_id,
                 ]);
 
@@ -137,7 +139,7 @@ class GhnService
 
             $response = Http::withHeaders([
                 'token' => $this->apiToken
-            ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services', [
+            ])->post($this->base_url . '/v2/shipping-order/available-services', [
                 "shop_id" => $shop_id,
                 "from_district" => (int)$shop_district,
                 "to_district" => (int)$district
@@ -161,7 +163,7 @@ class GhnService
                 'Content-Type' => 'application/json',
                 'ShopId' => (int)env('GHN_SHOPID'),
                 'Token' => $this->apiToken
-            ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime', [
+            ])->post($this->base_url . '/v2/shipping-order/leadtime', [
                 "from_district_id" => (int)$this->shop_district_id,
                 "from_ward_code" => $this->shop_ward_id,
                 "to_district_id" => (int)$district_id,
@@ -210,7 +212,7 @@ class GhnService
                 'Content-Type' => 'application/json',
                 'ShopId' => (int)env('GHN_SHOPID'),
                 'Token' => $this->apiToken
-            ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', [
+            ])->post($this->base_url . '/v2/shipping-order/fee', [
                 "service_type_id" => $serviceTypeId,
                 "from_ward_code" => $this->shop_ward_id,
                 "to_district_id" => 1935,
@@ -490,13 +492,12 @@ class GhnService
                 'shop_id' => env('GHN_SHOPID'),
                 'token_being_used' => $this->orderToken ?? $this->token ?? 'UNDEFINED'
             ]);
-            $baseUrl = env('GHN_API_URL', 'https://online-gateway.ghn.vn/shiip/public-api');
 
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'ShopId' => (int)env('GHN_SHOPID'),
                 'Token' => $this->apiToken ?? $this->token
-            ])->post($baseUrl . '/v2/shipping-order/create', array_merge($orderData, [
+            ])->post($this->base_url . '/v2/shipping-order/create', array_merge($orderData, [
                 'from_ward_code' => $this->shop_ward_id,
                 'from_district_id' => $this->shop_district_id,
             ]));
@@ -552,7 +553,7 @@ class GhnService
                 'Token' => $this->orderToken, // Dùng lại orderToken
                 'ShopId' => (int)env('GHN_SHOPID'), // Thêm ShopId như createOrder
                 'Content-Type' => 'application/json'
-            ])->post('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail', [
+            ])->post($this->base_url . '/v2/shipping-order/detail', [
                 'order_code' => $orderCode
             ]);
 
