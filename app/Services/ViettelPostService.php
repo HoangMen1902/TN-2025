@@ -785,20 +785,46 @@ class ViettelPostService
     public function trackOrder($trackingId)
     {
         try {
+            $requestData = [
+                'ORDER_NUMBER' => $trackingId,
+                'GROUPADDRESS_ID' => $this->addressToken  
+            ];
+            Log::info('ViettelPost tracking request', [
+                'tracking_id' => $trackingId,
+                'token' => substr($this->token, 0, 10) . '...',
+                'endpoint' => 'https://partner.viettelpost.vn/v2/order/getOrderDetail',
+                'request_data' => $requestData
+            ]);
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'Token' => $this->token,
                 'Content-Type' => 'application/json',
-            ])->post('https://partner.viettelpost.vn/v2/order/getOrderDetail', [
-                'ORDER_NUMBER' => $trackingId
+            ])->post('https://partner.viettelpost.vn/v2/order/getOrderDetail', $requestData);
+
+            Log::info('ViettelPost tracking response', [
+                'status' => $response->status(),
+                'headers' => $response->headers(),
+                'body' => $response->body(),
+                'json' => $response->json(),
             ]);
+
             if ($response->successful()) {
                 return $response->json();
             } else {
-                Log::error('ViettelPost tracking error: ' . $response->body());
+                Log::error('ViettelPost tracking error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'json' => $response->json(),
+                    'headers' => $response->headers(),
+                    'request_data' => $requestData
+                ]);
                 return false;
             }
         } catch (\Exception $e) {
-            Log::error('ViettelPost tracking exception: ' . $e->getMessage());
+            Log::error('ViettelPost tracking exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'tracking_id' => $trackingId
+            ]);
             return false;
         }
     }
