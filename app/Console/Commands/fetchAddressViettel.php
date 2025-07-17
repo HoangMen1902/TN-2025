@@ -68,7 +68,8 @@ class fetchAddressViettel extends Command
                 ['provider_district_code' => $district['DISTRICT_ID']],
                 [
                     'provider_district_name' => $district['DISTRICT_NAME'],
-                    'provider_id' => $providerId
+                    'provider_id' => $providerId,
+                    'provider_province_code' => $district['PROVINCE_ID']
                 ]
             );
             if ($result) {
@@ -83,7 +84,8 @@ class fetchAddressViettel extends Command
                 ['provider_ward_code' => $ward['WARDS_ID']],
                 [
                     'provider_ward_name' => $ward['WARDS_NAME'],
-                    'provider_id' => $providerId
+                    'provider_id' => $providerId,
+                    'provider_district_id' => $ward['DISTRICT_ID']
                 ]
             );
             if ($result) {
