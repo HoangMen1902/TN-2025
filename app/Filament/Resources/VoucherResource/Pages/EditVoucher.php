@@ -18,6 +18,15 @@ class EditVoucher extends EditRecord
         ];
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (!($data['is_redeemable'] ?? false)) {
+            $data['required_points'] = null;
+        }
+
+        return $data;
+    }
+
     protected function afterSave(): void
     {
         activity()

@@ -53,10 +53,6 @@
                 </div>
 
                 <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
-                    <a href="/hoi-vien">Hội viên</a>
-                </div>
-
-                <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
                     Những Thiết Lập Riêng Tư
                 </div>
             </div>

@@ -99,7 +99,7 @@ class PaymentModuleController extends Controller
             Session::forget('decrease_amount');
 
             $order = Order::create([
-                'orders_status' => $request->payment_method === "cod" ? 'Chờ duyệt' : 'Chờ thanh toán',
+                'orders_status' => $request->payment_method === "cod" || $request->payment_method === "payos" ? 'Chờ duyệt' : 'Chờ thanh toán',
                 'user_id' => $user->id,
                 'address' => $fullAddress ?? $request->full_address,
                 'phone' => $addressModel?->phone ?? $request->phone,

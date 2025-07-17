@@ -112,9 +112,9 @@
                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                             @auth
-                                <span>{{ auth()->user()->name }}</span>
+                            <span>{{ auth()->user()->name }}</span>
                             @else
-                                <span>Tài khoản</span>
+                            <span>Tài khoản</span>
                             @endauth
                         </div>
 
@@ -123,23 +123,27 @@
                             class="absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow-md rounded-md w-40 text-sm z-50">
                             <ul class="text-gray-700 py-2">
                                 @auth
-                                    <li>
-                                        <a href="{{ route('infomation') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
-                                    </li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
-                                                xuất</button>
-                                        </form>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('infomation') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('membership') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Hội viên</a>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
+                                            xuất</button>
+                                    </form>
+                                </li>
                                 @else
-                                    <li>
-                                        <a href="{{ route('show.login') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('show.login') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
+                                </li>
                                 @endauth
                             </ul>
                         </div>
@@ -218,7 +222,7 @@
         </div>
     </header>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const categoryDrawer = document.getElementById('drawer-top-example');
             const categoryToggleButton = document.getElementById('category-trigger-desktop');
             const btn = document.getElementById('category-trigger-desktop');
@@ -390,41 +394,41 @@
             <div class="w-1/4 bg-gray-50 border-r border-gray-200 overflow-hidden">
                 <ul class="category-sidebar">
                     @foreach ($categories as $parent)
-                        <li class="category-item border-b border-gray-100 last:border-b-0">
-                            <a href="#"
-                                class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
-                                <span class="truncate">{{ $parent->name }}</span>
-                                @if ($parent->children->count())
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                @endif
-                            </a>
+                    <li class="category-item border-b border-gray-100 last:border-b-0">
+                        <a href="#"
+                            class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
+                            <span class="truncate">{{ $parent->name }}</span>
                             @if ($parent->children->count())
-                                <div
-                                    class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                                                                                                  opacity-0 invisible 
-                                                                                                                                  transition-opacity duration-200 ease-in-out">
-                                    <div class="h-full overflow-hidden">
-                                        <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
-                                        </div>
-                                        <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
-                                            <div class="grid grid-cols-3 gap-y-4">
-                                                @foreach ($parent->children as $child)
-                                                    <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
-                                                        class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
-                                                        {{ $child->name }}
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                            @endif
+                        </a>
+                        @if ($parent->children->count())
+                        <div
+                            class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
+                                                                                                                  opacity-0 invisible 
+                                                                                                                  transition-opacity duration-200 ease-in-out">
+                            <div class="h-full overflow-hidden">
+                                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                                    <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
+                                </div>
+                                <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
+                                    <div class="grid grid-cols-3 gap-y-4">
+                                        @foreach ($parent->children as $child)
+                                        <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
+                                            class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
+                                            {{ $child->name }}
+                                        </a>
+                                        @endforeach
                                     </div>
                                 </div>
-                            @endif
-                        </li>
+                            </div>
+                        </div>
+                        @endif
+                    </li>
                     @endforeach
                 </ul>
             </div>
@@ -584,21 +588,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if (session('success'))
-        <script>
-            $(() => {
-                if (typeof success === 'function') {
-                    success('Thành công', @json(session('error')));
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof success === 'function') {
+                success('Thành công', @json(session('error')));
+            }
+        });
+    </script>
     @elseif (session('error'))
-        <script>
-            $(() => {
-                if (typeof danger === 'function') {
-                    danger('Thất bại', @json(session('error')));
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof danger === 'function') {
+                danger('Thất bại', @json(session('error')));
+            }
+        });
+    </script>
     @endif
     <script>
         Livewire.on('toast', ({

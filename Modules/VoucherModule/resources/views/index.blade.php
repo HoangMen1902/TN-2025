@@ -1,7 +1,5 @@
 
 <x-layouts.layout>
- <x-vouchermodule::voucher>
-    
- </x-vouchermodule::voucher>
+ <x-vouchermodule::voucher :vouchers="$vouchers" />
 
 </x-layouts.layout>
