@@ -13,6 +13,7 @@ class EbookChapter extends Model
         'start_page',
         'end_page',
         'content',
+        'is_locked',
     ];
 
     public function ebook()

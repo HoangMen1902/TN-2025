@@ -88,16 +88,16 @@
                     <div class="ebook-status text-orange-400 text-sm mb-3">
                         <!-- <i class="fas fa-book-open mr-2"></i>Sách hiệu -->
                     </div>
-                    {{-- <button
-                        class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors"> --}}
-                        {{-- Đăng nhập --}}
-                        {{-- Mua trọn bộ sách ({{ number_format($ebook->price) }}) --}}
-                        <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">Mua trọn bộ sách {{ number_format($ebook->price) }}VNĐ </a>
-                    {{-- </button> --}}
-                    {{-- <button
-                        class="ebook-buy-btn w-full bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors">
-                        Mua trọn bộ sách ({{ number_format($ebook->price) }})
-                    </button> --}}
+                    @if ($hasPurchased)
+                    <div class="w-full bg-green-500 text-white text-center py-3 px-4 rounded-lg font-medium mb-3">
+                        Bạn đã mua sách này
+                    </div>
+                @else
+                    <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">
+                        Mua trọn bộ sách {{ number_format($ebook->price) }}VNĐ
+                    </a>
+                @endif
+                                  
                 </div>
 
                 <!-- Chapters List -->
@@ -105,14 +105,25 @@
                     <h3 class="text-lg font-semibold mb-3">Danh sách chương</h3>
                     <ul class="text-gray-300 text-sm space-y-2 max-h-64 overflow-y-auto">
                         @foreach ($chapters as $index => $chapter)
+                            @php
+                                $isLocked = $chapter->is_locked ?? false; // hoặc kiểm tra bằng logic khác
+                            @endphp 
                             <li>
-                                <a href="{{ route('ebooks.show', ['ebookId' => $ebook->id, 'chapter' => $index + 1]) }}"
-                                    class="block p-2 hover:bg-gray-700 rounded {{ request()->query('chapter', 1) == $index + 1 ? 'bg-gray-700' : '' }}">
-                                    {{ $chapter->chapter_name }}
-                                </a>
+                                @if (!$isLocked || $hasPurchased)
+                                    <a href="{{ route('ebooks.show', ['ebookId' => $ebook->id, 'chapter' => $index + 1]) }}"
+                                       class="block p-2 hover:bg-gray-700 rounded {{ request()->query('chapter', 1) == $index + 1 ? 'bg-gray-700' : '' }}">
+                                        {{ $chapter->chapter_name }}
+                                    </a>
+                                @else
+                                    <div class="block p-2 bg-gray-600 rounded cursor-not-allowed opacity-60 flex justify-between items-center">
+                                        {{ $chapter->chapter_name }}
+                                        <span class="text-red-400 text-xs">🔒 Thanh toán để đọc</span>
+                                    </div>
+                                @endif
                             </li>
                         @endforeach
                     </ul>
+
                 </div>
 
                 <!-- Description -->
@@ -205,7 +216,7 @@
                     </div>
 
                     <!-- Navigation Buttons -->
-                    @if ($chapters->isNotEmpty())
+                    {{-- @if ($chapters->isNotEmpty())
                         <button
                             class="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition-all z-10"
                             @if (request()->query('chapter', 1) > 1)
@@ -220,7 +231,7 @@
                             @endif>
                             <i class="fas fa-chevron-right"></i>
                         </button>
-                    @endif
+                    @endif --}}
                 </div>
 
                 <!-- Bottom Progress Bar -->

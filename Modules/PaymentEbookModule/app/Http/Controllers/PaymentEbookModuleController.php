@@ -221,9 +221,10 @@ class PaymentEbookModuleController extends Controller
     
         // Lưu Stripe payment ID
         $payment->update([
-            'payment_id' => $stripe_payment_id
+            'payment_id' => $stripe_payment_id,
+            'is_paid' => true 
         ]);
-    
+        
         // Cập nhật trạng thái đơn hàng
         $order = $payment->order;
         if ($order) {

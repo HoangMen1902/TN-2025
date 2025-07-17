@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Filament\Forms\Form;
 use Modules\EbookModule\Http\Controllers\EpubSplitController;
 use Modules\EbookModule\Http\Controllers\PdfSplitController;
+use Filament\Forms\Components\Toggle;
 
 class ProductEbookResource extends Resource
 {
@@ -175,6 +176,14 @@ class ProductEbookResource extends Resource
                                             ->numeric()
                                             ->required()
                                             ->minValue(1),
+                                        Toggle::make('is_locked')
+                                            ->label('Khóa chương')
+                                            ->onColor('danger')
+                                            ->offColor('success')
+                                            ->onIcon('heroicon-o-lock-closed')
+                                            ->offIcon('heroicon-o-lock-open')
+                                            ->default(true),
+
                                     ])
                                     ->columns(3),
                             ];

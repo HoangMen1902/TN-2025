@@ -112,6 +112,7 @@ class PdfSplitController extends Controller
                 'start_page' => $chapter['start_page'],
                 'end_page' => $chapter['end_page'],
                 'content' => $pdfText,
+                'is_locked' => isset($chapter['is_locked']) ? (bool)$chapter['is_locked'] : false, 
             ]);
         }
 
