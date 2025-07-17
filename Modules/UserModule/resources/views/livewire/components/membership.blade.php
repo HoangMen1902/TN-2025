@@ -5,43 +5,55 @@
           <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Tiến Trình Hạng Thành Viên Của Bạn</h1>
 
           <div class="bg-white rounded-lg shadow-xl border border-gray-200 p-6 mb-8">
+              {{-- Hạng hiện tại --}}
               <div class="flex items-center justify-between bg-purple-50 p-4 rounded-md mb-6 shadow-sm">
                   <div class="flex items-center">
                       <div class="bg-purple-200 p-2 rounded-full mr-3">
-                          <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.194A2.052 2.052 0 0113.111 2h.001a2.052 2.052 0 012.062 2.194l.872 3.655a1.026 1.026 0 00.742.742l3.655.872a2.052 2.052 0 010 4.124l-3.655.872a1.026 1.026 0 00-.742.742l-.872 3.655a2.052 2.052 0 01-4.124 0l-.872-3.655a1.026 1.026 0 00-.742-.742l-3.655-.872a2.052 2.052 0 010-4.124l3.655-.872a1.026 1.026 0 00.742-.742l.872-3.655z"></path>
+                          <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M11.049 2.194A2.052 2.052 0 0113.111 2h.001a2.052 2.052 0 012.062 2.194l.872 3.655a1.026 1.026 0 00.742.742l3.655.872a2.052 2.052 0 010 4.124l-3.655.872a1.026 1.026 0 00-.742.742l-.872 3.655a2.052 2.052 0 01-4.124 0l-.872-3.655a1.026 1.026 0 00-.742-.742l-3.655-.872a2.052 2.052 0 010-4.124l3.655-.872a1.026 1.026 0 00.742-.742l.872-3.655z"></path>
                           </svg>
                       </div>
                       <div>
                           <p class="text-sm text-gray-600 font-medium">Hạng hiện tại:</p>
-                          <p class="text-xl font-bold text-purple-700">Thành Viên Bạc</p>
+                          <p class="text-xl font-bold text-purple-700">{{ $currentMembershipName }}</p>
                       </div>
                   </div>
               </div>
 
+              {{-- Thông tin điểm & hạng tiếp theo --}}
               <div class="bg-blue-50 p-4 rounded-md mb-6 shadow-sm">
                   <div class="flex justify-between items-center mb-2">
-                      <span class="text-sm font-medium text-gray-600">Điểm của bạn:</span>
-                      <span class="text-lg font-bold text-blue-700">1,250 điểm</span>
+                      <span class="text-sm font-medium text-gray-600">Điểm hiện tại của bạn:</span>
+                      <span class="text-lg font-bold text-blue-700">{{ number_format($currentPoints) }} điểm</span>
+                  </div>                  <div class="flex justify-between items-center mb-2">
+                      <span class="text-sm font-medium text-gray-600">Điểm có thể tiêu còn lại:</span>
+                      <span class="text-lg font-bold text-blue-700">{{ number_format($redeemable_points) }} điểm</span>
                   </div>
                   <div class="flex justify-between items-center">
-                      <span class="text-sm font-medium text-gray-600">Để lên hạng Thành Viên Bạc:</span>
-                      <span class="text-lg font-bold text-blue-700">2,000 điểm</span>
+                      <span class="text-sm font-medium text-gray-600">Để lên hạng {{ $nextMembershipName }} cần thêm:</span>
+                      <span class="text-lg font-bold text-blue-700">{{ number_format($nextMembershipPoints) }} điểm</span>
                   </div>
-                  <p class="text-xs text-gray-500 mt-2 text-right">Cần thêm <span class="font-semibold text-blue-600">750 điểm</span> nữa</p>
+                  <p class="text-xs text-gray-500 mt-2 text-right">
+                      Cần thêm <span class="font-semibold text-blue-600">{{ number_format($pointsToNext) }} điểm</span> nữa
+                  </p>
               </div>
 
+              {{-- Tiến trình phần trăm --}}
               <div class="mb-6">
                   <p class="text-sm font-medium text-gray-700 mb-2">Tiến trình lên hạng:</p>
                   <div class="w-full bg-gray-200 rounded-full h-4 relative overflow-hidden">
-                      <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full rounded-full" style="width: 62.5%;"></div>
+                      <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-full rounded-full"
+                          style="width: {{ $progressPercent }}%"></div>
                   </div>
                   <div class="flex justify-between text-xs text-gray-500 mt-1">
-                      <span>0 điểm</span>
-                      <span>Thành Viên Vàng</span>
+                      <span></span>
+                      <span>{{ $nextMembershipName }}</span>
                   </div>
               </div>
           </div>
+
 
           <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Voucher Đặc Quyền Theo Hạng Thành Viên</h2>
 
