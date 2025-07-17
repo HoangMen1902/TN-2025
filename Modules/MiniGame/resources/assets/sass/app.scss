@@ -1,9 +1,12 @@
+// 
+
+
 .lucky-spin * {
   box-sizing: border-box;
 }
 
 .lucky-spin {
-  padding: 40px 0;
+  padding: 100px 0;
   background-color: #e3f8ff;
   font-family: 'Poppins', sans-serif;
   display: flex;
@@ -22,7 +25,7 @@
   height: 500px;
   background-color: #ccc;
   border-radius: 50%;
-  border: 15px solid #dde;
+  border: 15px solid rgb(255, 241, 51);
   overflow: hidden;
   transition: 5s;
   position: relative;
@@ -36,55 +39,59 @@
   transform: translateX(-50%);
   transform-origin: bottom;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; 
   font-size: 14px;
   font-weight: bold;
   color: #fff;
   left: 135px;
+  padding-top: 15px; 
 }
 
 .wheel .segment span {
-  transform: rotate(90deg);
-  text-align: center;
   line-height: 1.2;
   width: 80%;
+  transform: translateY(1px); 
 }
 
+
 /* Màu sắc các phần thưởng */
-.wheel .segment-1  { background-color: #FF3B30; transform: rotate(0deg); }  
-.wheel .segment-2  { background-color: #FF9500; transform: rotate(36deg); }                    
-.wheel .segment-3  { background-color: #FFCC00; transform: rotate(72deg); }  
-.wheel .segment-4  { background-color: #34C759; transform: rotate(108deg); }                  
-.wheel .segment-5  { background-color: #007AFF; transform: rotate(144deg); }                  
-.wheel .segment-6  { background-color: #5856D6; transform: rotate(180deg); }                  
-.wheel .segment-7  { background-color: #AF52DE; transform: rotate(216deg); }                  
-.wheel .segment-8  { background-color: #FF2D55; transform: rotate(252deg); }                  
-.wheel .segment-9  { background-color: #5AC8FA; transform: rotate(288deg); }                  
-.wheel .segment-10 { background-color: #FFD3E0; transform: rotate(324deg); }
+.wheel .segment-1  { background-color: #FCA5A5; transform: rotate(0deg); }       /* hồng nhạt */
+.wheel .segment-2  { background-color: #FCD34D; transform: rotate(45deg); }      /* vàng nhạt */
+.wheel .segment-3  { background-color: #A5F3FC; transform: rotate(90deg); }      /* xanh cyan nhạt */
+.wheel .segment-4  { background-color: #D9F99D; transform: rotate(135deg); }     /* xanh lá nhạt */
+.wheel .segment-5  { background-color: #BFDBFE; transform: rotate(180deg); }     /* xanh dương nhạt */
+.wheel .segment-6  { background-color: #E9D5FF; transform: rotate(225deg); }     /* tím pastel */
+.wheel .segment-7  { background-color: #FDE68A; transform: rotate(270deg); }     /* vàng kem */
+.wheel .segment-8  { background-color: #FED7AA; transform: rotate(315deg); }     /* cam nhạt */
+
+
 
 .arrow {
   position: absolute;
-  top: -60px;
+  top: -120px; 
   left: 50%;
   transform: translateX(-50%);
-  color: #e60e0e;
+  z-index: 20;
 }
-.arrow::before {
-  content: "\1F817";
-  font-size: 50px;
+
+.arrow-image {
+  width: 200px; 
+  height: auto;
 }
+
 
 .spin-button {
   position: absolute;
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #e2e2e2;
+  background-color: #ffffff;
   border: 8px solid #fff;
   font-weight: bold;
   font-size: 20px;
-  color: #a2a2a2;
+  color: #fa5757;
   width: 80px;
   height: 80px;
   border-radius: 50%;

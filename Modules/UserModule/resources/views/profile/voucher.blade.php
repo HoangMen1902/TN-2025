@@ -55,7 +55,13 @@
                                                         <svg class="w-4 h-4 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 4h6a2 2 0 012 2v6a2 2 0 01-2 2h-6a2 2 0 01-2-2v-6z" />
                                                         </svg>
-                                                        <p class="text-sm font-medium">{{ $voucher['code'] }}</p>
+                                                        <p class="text-sm font-medium">
+    {{ $voucher['code'] }}
+    @if (!empty($voucher['quantity']) && $voucher['quantity'] > 1)
+        <span class="text-xs text-gray-500">(x{{ $voucher['quantity'] }})</span>
+    @endif
+</p>
+
                                                     </div>
                                                 </div>
 

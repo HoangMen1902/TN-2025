@@ -127,7 +127,6 @@ window.addEventListener('spinResult', (event) => {
         resetSpinState();
     }, 4200);
 
-    console.log("Segments:", segments);
-    console.log("Prize:", prizeName, "Index:", index);
+   
 });
 

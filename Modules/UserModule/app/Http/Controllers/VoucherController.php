@@ -19,25 +19,30 @@ class VoucherController extends Controller
         ->where('status', 'active')
         ->get();
 
-    $vouchers = $voucherUsed->map(function ($used) {
-        $voucher = $used->voucher;
-        if (!$voucher) return null;
+    $vouchers = $voucherUsed->groupBy(function ($used) {
+    return $used->voucher->voucher_code ?? uniqid(); // fallback nếu bị null
+})->map(function ($group) {
+    $used = $group->first();
+    $voucher = $used->voucher;
+    if (!$voucher) return null;
 
-        return [
-            'id' => $voucher->id,
-            'name' => $voucher->voucher_name,
-            'category' => $voucher->voucher_type === 'percent' ? 'Phần trăm' : 'Cố định',
-            'discount' => $voucher->voucher_type === 'percent'
-                ? "Giảm {$voucher->reduced_amount}%"
-                : "Giảm " . number_format($voucher->reduced_amount, 0) . " ₫",
-            'condition' => "Cho đơn hàng từ " . number_format($voucher->requirement_price, 0) . " ₫",
-            'code' => $voucher->voucher_code,
-            'terms' => "Điều kiện áp dụng: áp dụng cho đơn hàng từ " . number_format($voucher->requirement_price, 0) . " ₫.",
-            'image' => 'https://cdn1.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_coupongreen.svg?q=11027',
-            'expiry' => $voucher->expired_at->format('d/m/Y'),
-            'is_used' => $used->is_used,
-        ];
-    })->filter(); // loại bỏ bản ghi null nếu có
+    return [
+        'id' => $voucher->id,
+        'name' => $voucher->voucher_name,
+        'category' => $voucher->voucher_type === 'percent' ? 'Phần trăm' : 'Cố định',
+        'discount' => $voucher->voucher_type === 'percent'
+            ? "Giảm {$voucher->reduced_amount}%"
+            : "Giảm " . number_format($voucher->reduced_amount, 0) . " ₫",
+        'condition' => "Cho đơn hàng từ " . number_format($voucher->requirement_price, 0) . " ₫",
+        'code' => $voucher->voucher_code,
+        'terms' => "Điều kiện áp dụng: áp dụng cho đơn hàng từ " . number_format($voucher->requirement_price, 0) . " ₫.",
+        'image' => 'https://cdn1.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_coupongreen.svg?q=11027',
+        'expiry' => $voucher->expired_at->format('d/m/Y'),
+        'is_used' => $group->every(fn($item) => $item->is_used), // nếu tất cả đã dùng
+        'quantity' => $group->count(), // số lượng trùng
+    ];
+})->filter()->values();
+// loại bỏ bản ghi null nếu có
 
     $tabs = [
         'percent' => 'Phần trăm',
