@@ -1,0 +1,11 @@
+{
+    "name": "ViettelPostWebhook",
+    "alias": "viettelpostwebhook",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ViettelPostWebhook\\Providers\\ViettelPostWebhookServiceProvider"
+    ],
+    "files": []
+}
