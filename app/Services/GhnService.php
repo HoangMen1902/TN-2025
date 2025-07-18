@@ -203,7 +203,7 @@ class GhnService
     {
         try {
 
-            $serviceTypeId = collect($this->getServiceList($this->shop_district_id, 1935)['data'] ?? [])
+            $serviceTypeId = collect($this->getServiceList($this->shop_district_id, $user_district)['data'] ?? [])
                 ->firstWhere('short_name', 'Hàng nhẹ')['service_type_id'] ?? null;
             if (!isset($serviceTypeId) || empty($serviceTypeId)) {
                 throw new Exception('Not Found Service Type');
@@ -215,7 +215,7 @@ class GhnService
             ])->post($this->base_url . '/v2/shipping-order/fee', [
                 "service_type_id" => $serviceTypeId,
                 "from_ward_code" => $this->shop_ward_id,
-                "to_district_id" => 1935,
+                "to_district_id" => (int)$user_district,
                 "to_ward_code" => "600401",
                 "length" => $size['length'],
                 "width" => $size['width'],
@@ -225,7 +225,7 @@ class GhnService
                 "coupon" => null,
             ]);
             if ($response->successful()) {
-                return $response->body();
+                    return $response->body();
             } else {
                 Log::error('Lỗi xảy ra khi lấy phí giao hàng' . $response->body());
                 return [];

@@ -123,7 +123,8 @@ class Delivery extends Component
 
     public function getGhnFee($data, GhnService $ghnService = new GhnService())
     {
-        $fee = $ghnService->getFee($this->size, $data->district_id, $data->ward_id);
+        $user_district = $data->district->district_code ?? null;
+        $fee = $ghnService->getFee($this->size, $user_district, $data->ward_id);
         if ($fee) {
             $ghnFeeRes = json_decode($fee, true);
             $this->ghnFee = $ghnFeeRes['data']['total'];
