@@ -20,26 +20,29 @@ class CategorySeeder extends Seeder
     $tieuThuyetId = DB::table('categories')->insertGetId([
         'name' => 'Tiểu thuyết',
         'category_status' => 'active',
+        "slug" => 'tieu-thuyet',
         'parent_id' => null,
     ]);
 
     $truyenNganId = DB::table('categories')->insertGetId([
         'name' => 'Truyện ngắn',
         'category_status' => 'active',
+        "slug" => 'truyen-ngan',
         'parent_id' => null,
     ]);
 
     $khoaHocId = DB::table('categories')->insertGetId([
         'name' => 'Khoa học',
         'category_status' => 'active',
+        "slug" => 'khoa-hoc',
         'parent_id' => null,
     ]);
 
     DB::table('categories')->insert([
-        ['name' => 'Cổ tích', 'category_status' => 'active', 'parent_id' => $truyenNganId],
-        ['name' => 'Cười', 'category_status' => 'active', 'parent_id' => $truyenNganId],
-        ['name' => 'Vũ trụ', 'category_status' => 'active', 'parent_id' => $khoaHocId],
-        ['name' => 'Toán học', 'category_status' => 'active', 'parent_id' => $khoaHocId],
+        ['name' => 'Cổ tích', 'category_status' => 'active', 'slug' => 'co-tich', 'parent_id' => $truyenNganId],
+        ['name' => 'Cười', 'category_status' => 'active', 'slug' => 'cuoi', 'parent_id' => $truyenNganId],
+        ['name' => 'Vũ trụ', 'category_status' => 'active', 'slug' => 'vu-tru', 'parent_id' => $khoaHocId],
+        ['name' => 'Toán học', 'category_status' => 'active', 'slug' => 'toan-hoc', 'parent_id' => $khoaHocId],
     ]);
 }
 
