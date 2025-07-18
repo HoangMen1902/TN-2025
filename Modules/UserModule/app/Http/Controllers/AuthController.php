@@ -17,6 +17,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Services\CartService;
+use Illuminate\Support\Facades\Schema;
 
 class AuthController extends Controller
 {
@@ -220,44 +221,47 @@ class AuthController extends Controller
     //         return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thát bại!');
     //     }
     // }
-    public function handleGoogleCallback()
-    {
-        try {
-            $googleUser = Socialite::driver('google')->user();
+   public function handleGoogleCallback()
+{
+    try {
+        $googleUser = Socialite::driver('google')->user();
 
-            // Ghi log thông tin người dùng Google
-            Log::info('Google login callback', [
-                'google_id' => $googleUser->getId(),
-                'name'      => $googleUser->getName(),
-                'email'     => $googleUser->getEmail(),
+        Log::info('Google login callback', [
+            'google_id' => $googleUser->getId(),
+            'name'      => $googleUser->getName(),
+            'email'     => $googleUser->getEmail(),
+        ]);
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name'     => $googleUser->getName(),
+                'email'    => $googleUser->getEmail(),
+                'password' => bcrypt(Str::random(16)),
             ]);
-
-            $user = User::where('email', $googleUser->getEmail())->first();
-
-            if (!$user) {
-                $user = User::create([
-                    'name'     => $googleUser->getName(),
-                    'email'    => $googleUser->getEmail(),
-                    'password' => bcrypt(Str::random(16)),
-                ]);
-                $user->assignRole('user');
-                Log::info('Created new user from Google login', ['user_id' => $user->id]);
-            }
-            $oldSessionId = session()->getId();
-            $currCart = Cart::where('session_id', '=',    $oldSessionId)->get();
-            CartService::syncCartAfterLogin($currCart, $user->id);
-            Auth::login($user);
-
-            Log::info('User logged in via Google', ['user_id' => $user->id]);
-
-            return redirect('/')->with('success', 'Đăng nhập Google thành công!');
-        } catch (\Exception $e) {
-            // Ghi log lỗi
-            Log::error('Google login failed', ['error' => $e->getMessage()]);
-
-            return redirect('/')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
+            $user->assignRole('user');
+            Log::info('Created new user from Google login', ['user_id' => $user->id]);
         }
+
+        Auth::login($user);
+
+        // Sync cart nếu có session_id
+        if (Schema::hasColumn('carts', 'session_id')) {
+            $oldSessionId = session()->getId();
+            $currCart = Cart::where('session_id', $oldSessionId)->get();
+            CartService::syncCartAfterLogin($currCart, $user->id);
+        }
+
+        Log::info('User logged in via Google', ['user_id' => $user->id]);
+
+        return redirect('/')->with('success', 'Đăng nhập Google thành công!');
+    } catch (\Exception $e) {
+        Log::error('Google login failed', ['error' => $e->getMessage()]);
+        return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
     }
+}
+
     //doi mat khau
     public function changePassword(Request $request)
     {
