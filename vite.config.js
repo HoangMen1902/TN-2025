@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/scss/app.scss',
                 'resources/js/app.js',
                 'Modules/MiniGame/resources/assets/js/app.js', 
+                'Modules/DetailModule/resources/assets/js/app.js'
             ],
             refresh: true,
         }),
