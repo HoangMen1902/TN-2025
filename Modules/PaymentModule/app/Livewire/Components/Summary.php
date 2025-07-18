@@ -67,14 +67,16 @@ class Summary extends Component
                 ->where('expired_at', '>=', $now);
         })->get();
 
-        $flashsaleMap = $flashsales->mapWithKeys(function ($item) {
+        $flashsaleMap = $flashsales->filter(function ($item) {
+            return $item->flashsale !== null;
+        })->mapWithKeys(function ($item) {
             return [
                 "$item->sku_id" => [
                     'discount_type' => $item->flashsale->discount_type,
                     'discount_amount' => $item->flashsale->discount_amount
                 ]
             ];
-        })->toArray();
+        })->toArray();        
         $this->flashsale_products = $flashsaleMap;
 
         return $flashsaleMap;

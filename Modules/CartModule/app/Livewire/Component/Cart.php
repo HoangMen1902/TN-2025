@@ -60,6 +60,8 @@ class Cart extends Component
 
             if ($flashsales) {
                 $flashsale_map = $flashsales->mapWithKeys(function ($item, $index) {
+                    $flashsale = $item->flashsale;
+                    if (!$flashsale) return [];
                     return [
                         $index => [
                             'sku_id' => $item->sku_id,
@@ -89,6 +91,8 @@ class Cart extends Component
 
             if ($flashsales) {
                 $flashsale_map = $flashsales->mapWithKeys(function ($item, $index) {
+                    $flashsale = $item->flashsale;
+                    if (!$flashsale) return [];
                     return [
                         $index => [
                             'sku_id' => $item->sku_id,

@@ -31,7 +31,8 @@
                         }
                     }
 
-                    $price += $cart->quantity * $unit_price;
+                    // $price += $cart->quantity * $unit_price;
+                    $price = $unit_price;
                 }
                 $totalPrice += $cart->quantity * $price;
                 $image = $cart->sku->images[0] ?? $cart->combo->images[0];
