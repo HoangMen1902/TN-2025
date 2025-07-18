@@ -59,11 +59,17 @@ class ViettelPostWebhookController extends Controller
         $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
 
         if ($header !== $provided_token) {
-            Log::warning('Request headers:', $request->headers->all());
-            Log::warning('Webhook: Token mismatch', ['received' => $header]);
+            // Log::warning('Request headers:', $request->headers->all());
+            // Log::warning('Webhook: Token mismatch', ['received' => $header]);
             return response()->json(['error' => 'Token không hợp lệ'], 401);
         }
 
         $payload = $request->all();
+
+        return response()->json([
+            'status' => 200,
+            'data' => $payload['DATA'] ?? [],
+            'token' => $payload['TOKEN'] ?? null,
+        ]);
     }
 }
