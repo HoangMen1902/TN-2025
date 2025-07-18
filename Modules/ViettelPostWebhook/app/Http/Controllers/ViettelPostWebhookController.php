@@ -65,6 +65,7 @@ class ViettelPostWebhookController extends Controller
         }
 
         $payload = $request->all();
+        
 
         return response()->json([
             'status' => 200,
