@@ -116,7 +116,7 @@ class PaymentModuleController extends Controller
                 'voucher_id' => $userVoucherCheck,
             ]);
 
-            if($voucher) {
+            if ($voucher) {
                 $user_voucher->is_used = true;
                 $user_voucher->save();
             }
@@ -228,12 +228,17 @@ class PaymentModuleController extends Controller
 
 
         $now = Carbon::now();
-        $flashsales = FlashsaleProduct::where('sku_id', $skuId)->with('flashsale', function ($q) use ($now) {
-            $q->where('started_at', '<=', $now)
-                ->where('expired_at', '>=', $now);
-        })->get();
+        $flashsales = FlashsaleProduct::where('sku_id', $skuId)
+            ->whereHas('flashsale', function ($q) use ($now) {
+                $q->where('started_at', '<=', $now)
+                    ->where('expired_at', '>=', $now);
+            })
+            ->with('flashsale')
+            ->get();
 
         $flashsaleMap = $flashsales->mapWithKeys(function ($item) {
+            dd($item->flashsale);
+
             return [
                 "$item->sku_id" => [
                     'discount_type' => $item->flashsale->discount_type,
