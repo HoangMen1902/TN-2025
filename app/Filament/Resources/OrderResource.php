@@ -46,7 +46,7 @@ class OrderResource extends Resource
 
                 TextColumn::make('orders_status')->label('Trạng thái'),
 
-             
+
                 TextColumn::make('shipping_status')
                     ->label('TT Vận chuyển')
                     ->badge()
@@ -62,7 +62,7 @@ class OrderResource extends Resource
                         default => 'gray',
                     }),
 
-      
+
                 TextColumn::make('shipping_order_code')
                     ->label('Mã vận đơn')
                     ->searchable()
@@ -75,9 +75,13 @@ class OrderResource extends Resource
                     ->color(fn(bool $state) => $state ? 'success' : 'danger'),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
-                    ->label('Ngày đặt'),
+                    ->label('Ngày đặt')
+                    ->sortable(),
+
             ])
+
             ->filters([
+
                 Tables\Filters\Filter::make('customer_name')
                     ->form([
                         TextInput::make('value')->label('Tên khách hàng'),
@@ -86,7 +90,25 @@ class OrderResource extends Resource
                         return $query->when($data['value'], fn($q, $value) =>
                         $q->where('customer_name', 'like', "%{$value}%"));
                     }),
-
+                Tables\Filters\SelectFilter::make('orders_status')
+                    ->label('Trạng thái đơn hàng')
+                    ->options([
+                        'chờ duyệt' => 'Chờ duyệt',
+                        'chờ thanh toán' => 'Chờ thanh toán',
+                        'đang xử lý' => 'Đang xử lý',
+                        'vận chuyển' => 'Vận chuyển',
+                        'chờ hoàn tiền' => 'Chờ hoàn tiền',
+                        'đã hoàn tiền' => 'Đã hoàn tiền',
+                        'đã giao' => 'Đã giao',
+                        'đã thanh toán' => 'Đã thanh toán',
+                        'đã hủy' => 'Đã hủy',
+                    ]),
+                Tables\Filters\SelectFilter::make('is_approved')
+                    ->label('Duyệt đơn')
+                    ->options([
+                        1 => 'Đã duyệt',
+                        0 => 'Chưa duyệt',
+                    ]),
                 Tables\Filters\Filter::make('phone')
                     ->form([
                         TextInput::make('value')->label('Số điện thoại'),
@@ -107,6 +129,7 @@ class OrderResource extends Resource
                             ->when($data['until'], fn($q, $date) => $q->whereDate('created_at', '<=', $date));
                     }),
             ])
+
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Action::make('viewDetail')
@@ -125,7 +148,7 @@ class OrderResource extends Resource
                             $paymentMethod = $record->paymentDetail->payment_method ?? 'cod';
                             $shipmentUnit = $record->paymentDetail->shipment_unit ?? null;
 
-                      
+
                             $record->is_approved = true;
 
                             if ($paymentMethod === 'cod') {
@@ -137,9 +160,10 @@ class OrderResource extends Resource
                             $record->save();
 
                             // Gửi thông báo trạng thái đơn hàng cho user
-                            \App\Services\NotificationService::send([
-                                $record->user_id
-                            ],
+                            \App\Services\NotificationService::send(
+                                [
+                                    $record->user_id
+                                ],
                                 'Trạng thái đơn hàng thay đổi',
                                 'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
                                 'Đơn hàng'
@@ -155,7 +179,7 @@ class OrderResource extends Resource
                                 'total_price' => $record->total_price
                             ]);
 
-               
+
                             OrderShipmentService::processShipment($record, $shipmentUnit);
                         })
                         ->color('success')
@@ -173,13 +197,13 @@ class OrderResource extends Resource
                                 $result = null;
                                 $serviceName = '';
 
-          
+
                                 if (str_starts_with($orderCode, 'VTP_') || str_starts_with($orderCode, 'VTP_MOCK_')) {
- 
+
                                     $serviceName = 'Viettel Post';
 
                                     if (str_starts_with($orderCode, 'VTP_MOCK_')) {
-                                     
+
                                         $statuses = [
                                             'Đã tiếp nhận',
                                             'Đang lấy hàng',
@@ -197,7 +221,7 @@ class OrderResource extends Resource
                                             ->send();
                                         return;
                                     } else {
-                                      
+
                                         \Filament\Notifications\Notification::make()
                                             ->title('Thông báo')
                                             ->body("Tracking Viettel Post đang được phát triển.\nMã vận đơn: {$orderCode}")
@@ -206,13 +230,13 @@ class OrderResource extends Resource
                                         return;
                                     }
                                 } else {
-                            
+
                                     $serviceName = 'Giao Hàng Nhanh';
                                     $ghnService = new GhnService();
                                     $result = $ghnService->trackOrder($orderCode);
                                 }
 
-                        
+
                                 if ($result && isset($result['data'])) {
                                     $status = $result['data']['status'] ?? 'Không xác định';
                                     $statusText = $ghnService->getStatusText($status) ?? $status;
@@ -223,7 +247,7 @@ class OrderResource extends Resource
                                         ->info()
                                         ->send();
                                 } else {
-                             
+
                                     $errorMsg = 'Không thể lấy thông tin tracking';
                                     if (isset($result['message'])) {
                                         $errorMsg .= ': ' . $result['message'];
@@ -264,9 +288,10 @@ class OrderResource extends Resource
                             $record->save();
 
                             // Gửi thông báo trạng thái đơn hàng cho user
-                            \App\Services\NotificationService::send([
-                                $record->user_id
-                            ],
+                            \App\Services\NotificationService::send(
+                                [
+                                    $record->user_id
+                                ],
                                 'Trạng thái đơn hàng thay đổi',
                                 'Đơn hàng #' . $record->id . ' đã bị hủy.',
                                 'Đơn hàng'
@@ -282,11 +307,9 @@ class OrderResource extends Resource
                 ])
             ])
 
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
+        
+
     }
 
     public static function canCreate(): bool

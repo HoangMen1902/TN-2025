@@ -15,13 +15,12 @@ class ListOrders extends ListRecords
         return 'Đơn hàng đã duyệt';
     }
 
-    public function getFilteredTableQuery(): Builder
+    public function getFilteredTableQuery(): \Illuminate\Database\Eloquent\Builder
     {
         return parent::getFilteredTableQuery()
             ->orderBy('is_approved', 'asc')
-            ->orderBy('created_at', 'asc');
+            ->orderBy('created_at', 'desc');
     }
-
 
     protected function getHeaderActions(): array
     {
