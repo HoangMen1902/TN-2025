@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\NotificationResource\Pages;
 use App\Filament\Resources\NotificationResource\RelationManagers\UserRelationManager;
 use App\Models\Notification;
+use Faker\Core\Color;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -93,17 +94,19 @@ class NotificationResource extends Resource
                     ->label('Nội dung')
                     ->limit(50)
                     ->html(),
-                TextColumn::make('user_notifications_count')->label('Số người dùng nhận được'),
+                TextColumn::make('user_notifications_count')->label('Số người nhận'),
                 TextColumn::make('notification_type')->label('Loại thông báo')->sortable(),
             ])
-            ->filters([
-
-            ])
+            ->filters([])
             ->actions([
-                EditAction::make(),
-                ViewAction::make(),
-                DeleteAction::make(),
-                RestoreAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    EditAction::make()
+                        ->color('warning'),
+
+                    ViewAction::make(),
+                    DeleteAction::make(),
+                    RestoreAction::make(),
+                ]),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -111,7 +114,7 @@ class NotificationResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]));
     }
