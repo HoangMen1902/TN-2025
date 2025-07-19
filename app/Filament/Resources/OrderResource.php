@@ -308,10 +308,11 @@ class OrderResource extends Resource
             ])
 
             ->bulkActions([]);
-        
-
     }
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::$model::count();
+    }
     public static function canCreate(): bool
     {
         return false;
