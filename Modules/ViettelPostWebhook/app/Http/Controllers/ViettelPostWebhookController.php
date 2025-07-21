@@ -107,7 +107,7 @@ class ViettelPostWebhookController extends Controller
             case 300:
             case 320:
             case 400:
-                $order->orders_status = 'Đang vận chuyển';
+                $order->orders_status = 'Vận chuyển';
                 break;
             default:
                 break;
