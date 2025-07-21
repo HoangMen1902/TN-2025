@@ -296,7 +296,7 @@ class ViettelPostService
                     $order->update([
                         'shipping_order_code' => $data['data']['ORDER_NUMBER'],
                         'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
-                        'shipping_info' => $data['data'],
+                        // 'shipping_info' => $data['data'],
                         'orders_status' => 'Vận chuyển'
                     ]);
 

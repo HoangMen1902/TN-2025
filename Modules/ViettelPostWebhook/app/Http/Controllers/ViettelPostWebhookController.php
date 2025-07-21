@@ -58,18 +58,23 @@ class ViettelPostWebhookController extends Controller
     {
         $header = $request->header('Authorization');
         $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
+        $payload = $request->all();
+
+        $payload = $request->all();
+        $logData = json_encode($payload, JSON_PRETTY_PRINT);
+        file_put_contents(storage_path('logs/order-payload.log'), "[" . now() . "]\n" . $logData . "\n\n", FILE_APPEND);
+
 
         if ($header !== $provided_token) {
 
             return response()->json(['error' => 'Token không hợp lệ'], 401);
         }
-        
 
-        $payload = $request->all();
 
-    
 
-        
+
+
+
         if (empty($payload) || !$payload['DATA']['ORDER_NUMBER'] || !$payload || !$payload['DATA']) {
             return response()->json([
                 'status' => 401,
