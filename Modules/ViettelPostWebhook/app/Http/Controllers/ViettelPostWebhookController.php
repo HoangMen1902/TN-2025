@@ -3,6 +3,7 @@
 namespace Modules\ViettelPostWebhook\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -59,18 +60,62 @@ class ViettelPostWebhookController extends Controller
         $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
 
         if ($header !== $provided_token) {
-            // Log::warning('Request headers:', $request->headers->all());
-            // Log::warning('Webhook: Token mismatch', ['received' => $header]);
+
             return response()->json(['error' => 'Token không hợp lệ'], 401);
         }
 
         $payload = $request->all();
-        
 
+        $orderNumber = $payload['DATA']['ORDER_NUMBER'];
+
+        if (!$orderNumber) {
+            return response()->json([
+                'status' => 401,
+                'data' => [],
+                'message' => 'ORDER_KHONG_HOP_LE',
+                'token' => $payload['TOKEN'] ?? null,
+            ]);
+        }
+
+        $order = Order::where('shipping_order_code', $orderNumber)->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 401,
+                'data' => [],
+                'message' => 'ORDER_KHONG_HOP_LE',
+                'token' => $payload['TOKEN'] ?? null,
+            ]);
+        }
+
+
+        switch ($payload['DATA']['ORDER_STATUS']) {
+            case 501:
+                $order->orders_status = 'Đã giao';
+                break;
+            case 107:
+            case 201:
+                $order->orders_status = 'Đã hủy';
+                break;
+            case 200:
+            case 202:
+            case 300:
+            case 320:
+            case 400:
+                $order->orders_status = 'Đang vận chuyển';
+                break;
+            default:
+                break;
+        }
+
+
+        $order->shipping_info = $payload['DATA'];
+        $order->save();
         return response()->json([
             'status' => 200,
             'data' => $payload['DATA'] ?? [],
             'token' => $payload['TOKEN'] ?? null,
+            'message' => 'ORDER_DA_GHI_NHAN'
         ]);
     }
 }
