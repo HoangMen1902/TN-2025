@@ -63,12 +63,14 @@ class ViettelPostWebhookController extends Controller
 
             return response()->json(['error' => 'Token không hợp lệ'], 401);
         }
+        
 
         $payload = $request->all();
 
-        $orderNumber = $payload['DATA']['ORDER_NUMBER'];
+    
 
-        if (!$orderNumber) {
+        
+        if (empty($payload) || !$payload['DATA']['ORDER_NUMBER'] || !$payload || !$payload['DATA']) {
             return response()->json([
                 'status' => 401,
                 'data' => [],
@@ -76,6 +78,9 @@ class ViettelPostWebhookController extends Controller
                 'token' => $payload['TOKEN'] ?? null,
             ]);
         }
+
+        $orderNumber = $payload['DATA']['ORDER_NUMBER'];
+
 
         $order = Order::where('shipping_order_code', $orderNumber)->first();
 
