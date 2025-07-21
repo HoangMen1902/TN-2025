@@ -1,6 +1,3 @@
-RewriteCond %{REQUEST_URI} ^/phpmyadmin [NC]
-RewriteRule ^ - [L]
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
