@@ -112,9 +112,9 @@
                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                             @auth
-                            <span>{{ auth()->user()->name }}</span>
+                                <span>{{ auth()->user()->name }}</span>
                             @else
-                            <span>Tài khoản</span>
+                                <span>Tài khoản</span>
                             @endauth
                         </div>
 
@@ -123,27 +123,23 @@
                             class="absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow-md rounded-md w-40 text-sm z-50">
                             <ul class="text-gray-700 py-2">
                                 @auth
-                                <li>
-                                    <a href="{{ route('infomation') }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('membership') }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Hội viên</a>
-                                </li>
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit"
-                                            class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
-                                            xuất</button>
-                                    </form>
-                                </li>
+                                    <li>
+                                        <a href="{{ route('infomation') }}"
+                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit"
+                                                class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
+                                                xuất</button>
+                                        </form>
+                                    </li>
                                 @else
-                                <li>
-                                    <a href="{{ route('show.login') }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
-                                </li>
+                                    <li>
+                                        <a href="{{ route('show.login') }}"
+                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
+                                    </li>
                                 @endauth
                             </ul>
                         </div>
@@ -222,21 +218,22 @@
         </div>
     </header>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const categoryDrawer = document.getElementById('drawer-top-example');
-            const categoryToggleButton = document.getElementById('category-trigger-desktop');
-            const btn = document.getElementById('category-trigger-desktop');
-            const drawer = document.getElementById('drawer-top-example');
+    document.addEventListener('DOMContentLoaded', function () {
+        const categoryDrawer = document.getElementById('drawer-top-example');
+        const desktopBtn = document.querySelector('#category-trigger-desktop');
+        const mobileBtn = document.querySelector('[data-drawer-show]');
+        const drawer = categoryDrawer;
 
-            let isHoveringBtn = false;
-            let isHoveringDrawer = false;
+        let isHoveringBtn = false;
+        let isHoveringDrawer = false;
 
-            btn.addEventListener('mouseenter', () => {
+        if (desktopBtn) {
+            desktopBtn.addEventListener('mouseenter', () => {
                 isHoveringBtn = true;
                 drawer.classList.remove('hidden');
             });
 
-            btn.addEventListener('mouseleave', () => {
+            desktopBtn.addEventListener('mouseleave', () => {
                 isHoveringBtn = false;
                 setTimeout(() => {
                     if (!isHoveringBtn && !isHoveringDrawer) {
@@ -244,204 +241,223 @@
                     }
                 }, 150);
             });
+        }
 
-            drawer.addEventListener('mouseenter', () => {
-                isHoveringDrawer = true;
+        drawer.addEventListener('mouseenter', () => {
+            isHoveringDrawer = true;
+            drawer.classList.remove('hidden');
+        });
+
+        drawer.addEventListener('mouseleave', () => {
+            isHoveringDrawer = false;
+            setTimeout(() => {
+                if (!isHoveringBtn && !isHoveringDrawer) {
+                    drawer.classList.add('hidden');
+                }
+            }, 150);
+        });
+
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
                 drawer.classList.remove('hidden');
             });
+        }
 
-            drawer.addEventListener('mouseleave', () => {
-                isHoveringDrawer = false;
+        const categoryItems = document.querySelectorAll('.category-item');
+        const defaultContent = document.querySelector('.default-content');
+        let activeSubmenu = null;
+        let submenuTimer = null;
+        let categoryTimer = null;
+
+        function hideAllSubmenus() {
+            document.querySelectorAll('.submenu').forEach(menu => {
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
                 setTimeout(() => {
-                    if (!isHoveringBtn && !isHoveringDrawer) {
-                        drawer.classList.add('hidden');
+                    if (menu.style.visibility === 'hidden') {
+                        menu.style.display = 'none';
                     }
-                }, 150);
+                }, 200);
             });
 
-            const categoryItems = document.querySelectorAll('.category-item');
-            const defaultContent = document.querySelector('.default-content');
-            let activeSubmenu = null;
-            let submenuTimer = null;
-            let categoryTimer = null;
-
-            function hideAllSubmenus() {
-                document.querySelectorAll('.submenu').forEach(menu => {
-                    menu.style.opacity = '0';
-                    menu.style.visibility = 'hidden';
-                    setTimeout(() => {
-                        if (menu.style.visibility === 'hidden') {
-                            menu.style.display = 'none';
-                        }
-                    }, 200);
-                });
-
-                if (defaultContent) {
-                    defaultContent.style.display = 'flex';
-                    setTimeout(() => {
-                        defaultContent.style.opacity = '1';
-                    }, 50);
-                }
-
-                activeSubmenu = null;
+            if (defaultContent) {
+                defaultContent.style.display = 'flex';
+                setTimeout(() => {
+                    defaultContent.style.opacity = '1';
+                }, 50);
             }
 
-            categoryItems.forEach(item => {
-                const submenu = item.querySelector('.submenu');
+            activeSubmenu = null;
+        }
 
-                item.addEventListener('mouseenter', () => {
-                    clearTimeout(categoryTimer);
-                    clearTimeout(submenuTimer);
+        categoryItems.forEach(item => {
+            const submenu = item.querySelector('.submenu');
 
-                    document.querySelectorAll('.submenu').forEach(menu => {
-                        if (menu !== submenu) {
-                            menu.style.opacity = '0';
-                            menu.style.visibility = 'hidden';
-                            menu.style.display = 'none';
-                        }
-                    });
+            item.addEventListener('mouseenter', () => {
+                clearTimeout(categoryTimer);
+                clearTimeout(submenuTimer);
 
-                    if (submenu) {
-                        if (defaultContent) {
-                            defaultContent.style.opacity = '0';
-                            setTimeout(() => {
-                                defaultContent.style.display = 'none';
-                            }, 200);
-                        }
-
-                        submenu.style.display = 'block';
-                        setTimeout(() => {
-                            submenu.style.opacity = '1';
-                            submenu.style.visibility = 'visible';
-                        }, 10);
-
-                        activeSubmenu = submenu;
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    if (menu !== submenu) {
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.display = 'none';
                     }
-                });
-
-                item.addEventListener('mouseleave', () => {
-                    categoryTimer = setTimeout(() => {
-                        if (submenu && !isMouseOverElement(submenu)) {
-                            submenu.style.opacity = '0';
-                            submenu.style.visibility = 'hidden';
-
-                            setTimeout(() => {
-                                if (submenu.style.visibility === 'hidden') {
-                                    submenu.style.display = 'none';
-
-                                    const visibleSubmenus = document.querySelectorAll('.submenu[style*="visibility: visible"]');
-                                    if (visibleSubmenus.length === 0) {
-                                        if (defaultContent) {
-                                            defaultContent.style.display = 'flex';
-                                            setTimeout(() => {
-                                                defaultContent.style.opacity = '1';
-                                            }, 50);
-                                        }
-                                    }
-                                }
-                            }, 200);
-                        }
-                    }, 100);
                 });
 
                 if (submenu) {
-                    submenu.addEventListener('mouseenter', () => {
-                        clearTimeout(categoryTimer);
-                        clearTimeout(submenuTimer);
-                    });
-
-                    submenu.addEventListener('mouseleave', () => {
-                        submenuTimer = setTimeout(() => {
-                            submenu.style.opacity = '0';
-                            submenu.style.visibility = 'hidden';
-                            setTimeout(() => {
-                                submenu.style.display = 'none';
-                                if (defaultContent) {
-                                    defaultContent.style.display = 'flex';
-                                    setTimeout(() => {
-                                        defaultContent.style.opacity = '1';
-                                    }, 50);
-                                }
-                            }, 200);
+                    if (defaultContent) {
+                        defaultContent.style.opacity = '0';
+                        setTimeout(() => {
+                            defaultContent.style.display = 'none';
                         }, 200);
-                    });
+                    }
+
+                    submenu.style.display = 'block';
+                    setTimeout(() => {
+                        submenu.style.opacity = '1';
+                        submenu.style.visibility = 'visible';
+                    }, 10);
+
+                    activeSubmenu = submenu;
                 }
             });
 
-            function isMouseOverElement(element) {
-                const rect = element.getBoundingClientRect();
-                const mouseX = event.clientX;
-                const mouseY = event.clientY;
+            item.addEventListener('mouseleave', () => {
+                categoryTimer = setTimeout(() => {
+                    if (submenu && !isMouseOverElement(submenu)) {
+                        submenu.style.opacity = '0';
+                        submenu.style.visibility = 'hidden';
 
-                return mouseX >= rect.left &&
-                    mouseX <= rect.right &&
-                    mouseY >= rect.top &&
-                    mouseY <= rect.bottom;
+                        setTimeout(() => {
+                            if (submenu.style.visibility === 'hidden') {
+                                submenu.style.display = 'none';
+
+                                const visibleSubmenus = document.querySelectorAll('.submenu[style*="visibility: visible"]');
+                                if (visibleSubmenus.length === 0) {
+                                    if (defaultContent) {
+                                        defaultContent.style.display = 'flex';
+                                        setTimeout(() => {
+                                            defaultContent.style.opacity = '1';
+                                        }, 50);
+                                    }
+                                }
+                            }
+                        }, 200);
+                    }
+                }, 100);
+            });
+
+            if (submenu) {
+                submenu.addEventListener('mouseenter', () => {
+                    clearTimeout(categoryTimer);
+                    clearTimeout(submenuTimer);
+                });
+
+                submenu.addEventListener('mouseleave', () => {
+                    submenuTimer = setTimeout(() => {
+                        submenu.style.opacity = '0';
+                        submenu.style.visibility = 'hidden';
+                        setTimeout(() => {
+                            submenu.style.display = 'none';
+                            if (defaultContent) {
+                                defaultContent.style.display = 'flex';
+                                setTimeout(() => {
+                                    defaultContent.style.opacity = '1';
+                                }, 50);
+                            }
+                        }, 200);
+                    }, 200);
+                });
             }
-
         });
-    </script>
-    <div id="drawer-top-example" class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
-            w-full max-w-[1200px] sm:w-[90%] md:w-[1000px] lg:w-[1200px]
-            h-[90vh] sm:h-[600px] 
-            shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden" tabindex="-1"
-        aria-labelledby="drawer-top-label">
-        <div class="flex items-center justify-between px-6 py-3 bg-blue-600 text-white">
-            <h2 class="text-lg font-semibold">Danh mục sản phẩm</h2>
 
-        </div>
-        <div class="flex w-full h-[calc(100%-52px)]">
-            <div class="w-1/4 bg-gray-50 border-r border-gray-200 overflow-hidden">
-                <ul class="category-sidebar">
-                    @foreach ($categories as $parent)
-                    <li class="category-item border-b border-gray-100 last:border-b-0">
+        function isMouseOverElement(element) {
+            const rect = element.getBoundingClientRect();
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+
+            return mouseX >= rect.left &&
+                mouseX <= rect.right &&
+                mouseY >= rect.top &&
+                mouseY <= rect.bottom;
+        }
+    });
+    const drawerCloseBtn = document.getElementById('drawer-close-btn');
+if (drawerCloseBtn) {
+    drawerCloseBtn.addEventListener('click', () => {
+        drawer.classList.add('hidden');
+    });
+}
+document.addEventListener('DOMContentLoaded', function () {
+        const closeBtn = document.getElementById('drawer-close-btn');
+        const drawer = document.getElementById('drawer-top-example');
+
+        closeBtn.addEventListener('click', () => {
+            drawer.classList.add('hidden');
+        });
+    });
+
+</script>
+
+    <div id="drawer-top-example"
+    class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
+    w-full max-w-[1200px] sm:w-[95%] md:w-[1000px] lg:w-[1200px]
+    h-[90vh] sm:h-[600px] 
+    shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden"
+    tabindex="-1" aria-labelledby="drawer-top-label">
+
+    <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-blue-600 text-white">
+        <h2 class="text-base sm:text-lg font-semibold">Danh mục sản phẩm</h2>
+        <button id="drawer-close-btn" class="text-white hover:text-gray-200 text-2xl sm:text-xl font-bold" type="button">✕</button>
+    </div>
+
+    <div class="flex flex-col sm:flex-row w-full h-[calc(100%-52px)]">
+        <div class="w-full sm:w-1/3 lg:w-1/4 bg-gray-50 border-r border-gray-200 overflow-auto">
+            <ul class="category-sidebar divide-y divide-gray-100">
+                @foreach ($categories as $parent)
+                    <li class="category-item">
                         <a href="#"
-                            class="block px-5 py-3 font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
-                            <span class="truncate">{{ $parent->name }}</span>
+                            class="block px-4 py-3 text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
+                            <span class="truncate w-full">{{ $parent->name }}</span>
                             @if ($parent->children->count())
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
                             @endif
                         </a>
+
                         @if ($parent->children->count())
-                        <div
-                            class="submenu hidden absolute top-[52px] left-1/4 w-3/4 h-[calc(100%-52px)] bg-white z-10
-                                                                                                                  opacity-0 invisible 
-                                                                                                                  transition-opacity duration-200 ease-in-out">
-                            <div class="h-full overflow-hidden">
-                                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                                    <h3 class="text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
-                                </div>
-                                <div class="p-6 h-[calc(100%-52px)] overflow-y-auto">
-                                    <div class="grid grid-cols-3 gap-y-4">
-                                        @foreach ($parent->children as $child)
-                                        <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
-                                            class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
-                                            {{ $child->name }}
-                                        </a>
-                                        @endforeach
+                            <div class="submenu hidden md:absolute top-[52px] left-1/3 lg:left-1/4 md:w-2/3 lg:w-3/4 
+                                h-[calc(100%-52px)] bg-white z-10 opacity-0 invisible 
+                                transition-opacity duration-200 ease-in-out">
+                                <div class="h-full overflow-hidden">
+                                    <div class="bg-gray-50 px-4 sm:px-6 py-3 border-b border-gray-200">
+                                        <h3 class="text-base sm:text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
+                                    </div>
+                                    <div class="p-4 sm:p-6 h-[calc(100%-52px)] overflow-y-auto">
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
+                                            @foreach ($parent->children as $child)
+                                                <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
+                                                    class="block px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
+                                                    {{ $child->name }}
+                                                </a>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
                     </li>
-                    @endforeach
-                </ul>
-            </div>
-            <div class="w-3/4 bg-white relative">
-                <div class="default-content h-full flex flex-col items-center justify-center p-8 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300 mb-4" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                            d="M4 6h16M4 12h16m-7 6h7" />
-                    </svg>
-                    <h2 class="text-xl font-bold mb-2 text-gray-700">Danh mục sản phẩm</h2>
-                </div>
-            </div>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+</div>
+
+            
         </div>
     </div>
 
@@ -588,21 +604,21 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if (session('success'))
-    <script>
-        $(() => {
-            if (typeof success === 'function') {
-                success('Thành công', @json(session('error')));
-            }
-        });
-    </script>
+        <script>
+            $(() => {
+                if (typeof success === 'function') {
+                    success('Thành công', @json(session('error')));
+                }
+            });
+        </script>
     @elseif (session('error'))
-    <script>
-        $(() => {
-            if (typeof danger === 'function') {
-                danger('Thất bại', @json(session('error')));
-            }
-        });
-    </script>
+        <script>
+            $(() => {
+                if (typeof danger === 'function') {
+                    danger('Thất bại', @json(session('error')));
+                }
+            });
+        </script>
     @endif
     <script>
         Livewire.on('toast', ({
