@@ -30,6 +30,7 @@ use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class ProductComboResource extends Resource
@@ -178,7 +179,7 @@ class ProductComboResource extends Resource
                 TextColumn::make('combo_name')->label('Tên combo')->html()->limit(50)->searchable(),
                 TextColumn::make('original_price')->label('Giá gốc')->money('VND'),
                 TextColumn::make('sale_price')->label('Giá Sale')->money('VND')->sortable(),
-                TextColumn::make('expired_at')->label('Thời gian hết hạn') ->sortable(),
+                TextColumn::make('expired_at')->label('Thời gian hết hạn')->sortable(),
                 TextColumn::make('product_combos_status')->label('Trạng thái')->badge()->formatStateUsing(function ($state) {
                     return match ($state) {
                         'active' => 'Hoạt động',
@@ -259,21 +260,24 @@ class ProductComboResource extends Resource
     public static function getFilteredSkus($categoryId = null): array
     {
         $skus = $categoryId
-            ? ProductSku::query()
-            ->join('products', 'products.id', '=', 'product_skus.product_id')
-            ->join('product_categories', 'product_categories.product_id', '=', 'products.id')
-            ->join('categories', 'categories.id', '=', 'product_categories.category_id')
-            ->where('categories.id', $categoryId)
-            ->select('product_skus.*')
-            ->with('product')
+            ? ProductSku::with('product')
+            ->whereHas('product', function ($q) use ($categoryId) {
+                $q->whereNull('deleted_at') 
+                    ->whereHas('categories', function ($q2) use ($categoryId) {
+                        $q2->where('categories.id', $categoryId);
+                    });
+            })
             ->get()
-            : ProductSku::with('product')->get();
-
+            : ProductSku::with('product')
+            ->whereHas('product', function ($q) {
+                $q->whereNull('deleted_at');
+            })
+            ->get();
         return $skus->map(function ($sku) {
             return [
                 'selected' => false,
                 'sku_id' => $sku->id,
-                'productName' => $sku->product->name . ' - ' . $sku->sku ?? 'Không tên',
+                'productName' => isset($sku->product->name) ? $sku->product->name . ' - ' . $sku->sku : 'Undefined',
                 'quantity' => $sku->quantity,
                 'sku_quantity' => 1,
                 'image_url' => is_string($sku->images) ? json_decode($sku->images, true) : ($sku->images ?? []),
