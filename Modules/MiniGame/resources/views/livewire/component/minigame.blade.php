@@ -7,6 +7,7 @@
                 <p class="text-lg font-semibold text-green-600">
                     Bạn còn <span class="text-blue-600">{{ $remainingSpins }}</span> lượt quay miễn phí hôm nay
                 </p>
+
                 @if ($nextSpinTime)
                     <p class="text-sm text-gray-500 mt-1">
                         Lượt tiếp theo sẽ có sau: <span id="countdown" class="font-semibold text-red-500">--:--:--</span>
@@ -58,8 +59,8 @@
 
                             <div class="flex flex-col items-center justify-center text-center z-30">
                                 <span class="text-base font-bold text-pink-600 leading-tight">
-    {{ $prizeName }}
-</span>
+                                    {{ $prizeName }}
+                                </span>
 
 
 
@@ -158,6 +159,8 @@
                 window.remainingSpins = {{ $remainingSpins ?? 0 }};
                 window.nextSpinTime = @json($nextSpinTime);
                 window.isAdmin = @json(auth()->user()?->email === 'admin@admin.com');
+                window.componentName = "minigame"; 
+
             </script>
 
         </div>

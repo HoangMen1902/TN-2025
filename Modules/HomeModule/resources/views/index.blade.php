@@ -46,7 +46,13 @@
                 </div>
             </div>
         </div>
-
+<a href="/mini-game" class="fixed bottom-4 right-4 z-30 animate-bounce">
+    <div class="relative group">
+        <img src="{{ asset('assets/images/minigame.png') }}" alt="Mini game"
+             class="w-[120px] h-auto group-hover:scale-110 transition-transform duration-300">
+        <div class="absolute inset-0 rounded-full animate-ping bg-yellow-200 opacity-30 z-[-1]"></div>
+    </div>
+</a>
         <!-- Grid Banners -->
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 my-3">
             <div class="p-1"><a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Freeship_t5_310x210.png" class="rounded w-full h-full object-cover" alt=""></a></div>

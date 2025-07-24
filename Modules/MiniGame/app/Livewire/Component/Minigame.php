@@ -49,7 +49,9 @@ class Minigame extends Component
             ->get();
 
         $count = $spinsToday->count();
-        $this->remainingSpins = max(0, 2 - $count);
+       $this->remainingSpins = max(0, 1 - $count);
+
+
 
         if ($count === 1) {
             $lastSpin = $spinsToday->first()->won_at;
@@ -95,13 +97,8 @@ class Minigame extends Component
 
         $count = $spinsToday->count();
 
-        if ($count >= 2) return false;
+        if ($count >= 1) return false;
 
-        if ($count === 1) {
-            $lastSpin = $spinsToday->first()->won_at;
-            $nextSpin = $lastSpin->copy()->addHours(12);
-            return now()->greaterThanOrEqualTo($nextSpin);
-        }
 
         return true;
     }
@@ -123,7 +120,7 @@ class Minigame extends Component
             if ($rand <= $cumulative) return $prize;
         }
 
-        return $prizes->last(); // fallback
+        return $prizes->last(); 
     }
 
     #[On('claimPrize')]
@@ -163,7 +160,7 @@ public function claimPrize(): void
         'voucher_id' => $prize->voucher_id,
     ]);
 
-    // 👇 Thêm bản ghi vào bảng voucher_used nếu có voucher
+    
     if ($prize->voucher_id) {
         VoucherUsed::create([
             'voucher_id' => $prize->voucher_id,
