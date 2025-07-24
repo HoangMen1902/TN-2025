@@ -73,6 +73,8 @@ class ImageSearchController extends Controller
         $product = Product::where('thumbnail', 'LIKE', "%$output%")
             ->where('product_status', 'active')
             ->first();
+        
+        Log::info('Product:' . $product);
 
         if ($product) {
             return redirect('/chi-tiet/' . $product->slug);
