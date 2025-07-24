@@ -36,7 +36,7 @@
                                     class="flex flex-col justify-between h-full bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-all duration-300">
                                     <div>
                                         <div class="w-full overflow-hidden">
-                                            <img src="{{ asset('storage/' . $thumbnailPath) }}"
+                                            <img src="{{ $product->is_ebook ? $thumbnailPAth : asset('storage/' . $thumbnailPath) }}"
                                                 class="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-300">
                                             @if($product->is_ebook)
                                                 <span class="absolute top-1 left-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">Ebook</span>
