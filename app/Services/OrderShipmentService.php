@@ -6,9 +6,162 @@ namespace App\Services;
 use App\Models\Order;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\providerProvinces;
+use App\Models\providerDistrict;
+use App\Models\providerWard;
+use App\Models\Provider;
 
 class OrderShipmentService
 {
+
+
+    public static function processReturnShipment(Order $order, $shipmentUnit)
+    {
+        Log::info('Bắt đầu đăng đơn trả hàng (lấy hàng từ khách)', [
+            'order_id' => $order->id,
+            'shipment_unit' => $shipmentUnit,
+        ]);
+
+        $switchValue = strtolower($shipmentUnit ?? '');
+
+        switch ($switchValue) {
+            case 'giao hàng nhanh':
+            case 'giao_hang_nhanh':
+            case 'ghn':
+                Log::info('Chọn GHN trả hàng');
+                $result = self::processGHNReturnShipment($order);
+                break;
+
+            case 'viettel post':
+            case 'viettel_post':
+            case 'viettelpost':
+                Log::info('Chọn Viettel Post trả hàng');
+                $result = self::processViettelPostReturnShipment($order);
+                break;
+
+            default:
+                Log::warning('Đơn vị vận chuyển không hỗ trợ trả hàng, dùng GHN mặc định');
+                $result = self::processGHNReturnShipment($order);
+        }
+
+        self::handleShipmentResult($order, $result, 'Trả hàng');
+    }
+    // GHN: Tạo đơn trả hàng (from: khách, to: shop)
+    private static function processGHNReturnShipment(Order $order)
+    {
+        $ghnService = new \App\Services\GhnService();
+
+        
+        $fromAddress = [
+            'from_name' => $order->customer_name,
+            'from_phone' => $order->phone,
+            'from_address' => $order->address,
+            'from_ward_code' => $order->ward_id,
+            'from_district_id' => $order->district_id,
+        ];
+
+        
+        $toAddress = [
+            'to_name' => config('shopConfig.shop_name'),
+            'to_phone' => config('shopConfig.shop_phone'),
+            'to_address' => config('shopConfig.shop_address'),
+            'to_ward_code' => $ghnService->shop_ward_id,
+            'to_district_id' => $ghnService->shop_district_id,
+        ];
+        $items = [];
+        foreach ($order->orderDetails as $detail) {
+            $items[] = [
+                'name' => $detail->product_name ?? 'Sản phẩm',
+                'quantity' => (int) ($detail->quantity ?? 1),
+                'price' => (int) ($detail->price ?? 0), 
+            ];
+        }
+
+       
+        if (empty($items)) {
+            $items[] = [
+                'name' => 'Trả hàng về shop',
+                'quantity' => 1,
+                'price' => 0,
+            ];
+        }
+        
+        $orderData = array_merge($fromAddress, $toAddress, [
+            'client_order_code' => 'RETURN_' . $order->id,
+            'weight' => 500,
+            'length' => 30,
+            'width' => 20,
+            'height' => 10,
+            'service_type_id' => 2,
+            'items' => $items,
+            'note' => 'Trả hàng về shop',
+            'required_note' => 'KHONGCHOXEMHANG',  
+            'payment_type_id' => 1,
+            'cod_amount' => 0,
+        ]);
+
+        return $ghnService->createOrder($orderData);
+    }
+
+    // Viettel Post: Tạo đơn trả hàng (from: khách, to: shop)
+    private static function processViettelPostReturnShipment(Order $order)
+    {
+        $viettelService = new \App\Services\ViettelPostService();
+
+       
+        $viettelProvider = Provider::where('provider_name', 'Viettel Post')->first();
+        $viettelProviderId = $viettelProvider->id;
+
+       
+        $provinceMap = providerProvinces::where([
+            'provider_id' => $viettelProviderId,
+            'province_id' => $order->province_id,
+        ])->first();
+
+        $districtMap = providerDistrict::where([
+            'provider_id' => $viettelProviderId,
+            'district_id' => $order->district_id,
+        ])->first();
+
+        $wardMap = providerWard::where([
+            'provider_id' => $viettelProviderId,
+            'ward_id' => $order->ward_id,
+        ])->first();
+
+        $fromAddress = [
+            'SENDER_FULLNAME' => $order->customer_name,
+            'SENDER_ADDRESS' => $order->address,
+            'SENDER_PHONE' => $order->phone,
+            'SENDER_WARD' => $wardMap?->provider_ward_code,
+            'SENDER_DISTRICT' => $districtMap?->provider_district_code,
+            'SENDER_PROVINCE' => $provinceMap?->provider_province_code,
+        ];
+ 
+        $toAddress = [
+            'RECEIVER_FULLNAME' => config('shopConfig.shop_name'),
+            'RECEIVER_ADDRESS' => config('shopConfig.shop_address'),
+            'RECEIVER_PHONE' => config('shopConfig.shop_phone'),
+            'RECEIVER_WARD' => $viettelService->shop_ward,  
+            'RECEIVER_DISTRICT' => $viettelService->shop_district,
+            'RECEIVER_PROVINCE' => $viettelService->shop_province,
+        ];
+
+        $orderData = array_merge($fromAddress, $toAddress, [
+            'ORDER_NUMBER' => 'RETURN_' . $order->id . '_' . time(),
+            'ORDER_PAYMENT' => 3,  
+            'PRODUCT_TYPE' => 'HH',
+            'ORDER_SERVICE' => 'VCN',
+            'PRODUCT_NAME' => 'Trả hàng về shop',
+            'PRODUCT_DESCRIPTION' => 'Trả hàng đơn #' . $order->id,
+            'PRODUCT_QUANTITY' => 1,
+            'PRODUCT_PRICE' => 0,
+            'PRODUCT_WEIGHT' => 500,
+        ]);
+
+        // Gọi API tạo đơn trả hàng
+        return $viettelService->createOrderFromData($orderData);
+    }
+
     public static function processShipment(Order $record, $shipmentUnit)
     {
         Log::info('OrderShipmentService::processShipment được gọi', [
@@ -47,7 +200,7 @@ class OrderShipmentService
                 case 'viettelpost':
                     Log::info('Chọn Viettel Post');
                     $shipmentName = 'Viettel Post';
- 
+
                     $tokenStatus = self::debugViettelPostToken();
                     Log::info('Viettel Post Token Debug', $tokenStatus);
 
@@ -96,7 +249,7 @@ class OrderShipmentService
                     }
             }
 
-         
+
             self::handleShipmentResult($record, $result, $shipmentName);
         } catch (\Exception $e) {
             Log::error("Lỗi đăng đơn vận chuyển: " . $e->getMessage(), [
@@ -272,15 +425,15 @@ class OrderShipmentService
         ]);
 
         if ($result && (
-            (isset($result['data']) && isset($result['data']['order_code'])) ||  
-            (isset($result['data']) && isset($result['data']['ORDER_NUMBER'])) ||  
-            (isset($result['status']) && $result['status'] == 200)  
+            (isset($result['data']) && isset($result['data']['order_code'])) ||
+            (isset($result['data']) && isset($result['data']['ORDER_NUMBER'])) ||
+            (isset($result['status']) && $result['status'] == 200)
         )) {
             $orderCode = '';
             if (isset($result['data']['order_code'])) {
-                $orderCode = $result['data']['order_code'];  
+                $orderCode = $result['data']['order_code'];
             } elseif (isset($result['data']['ORDER_NUMBER'])) {
-                $orderCode = $result['data']['ORDER_NUMBER'];  
+                $orderCode = $result['data']['ORDER_NUMBER'];
             }
 
             \Filament\Notifications\Notification::make()

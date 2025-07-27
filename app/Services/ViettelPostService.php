@@ -14,16 +14,16 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use PHPUnit\Event\Code\Throwable;
-
+use App\Models\Order;
 
 class ViettelPostService
 {
     private $shopData;
     private $token;
     private $userData;
-    private $shop_province;
-    private $shop_district;
-    private $shop_ward;
+    public $shop_province;
+    public $shop_district;
+    public $shop_ward;
     private $addressToken;
     private $cusId;
 
@@ -756,8 +756,55 @@ class ViettelPostService
         ];
     }
 
+   
+    public function createOrderFromData(array $orderData)
+    {
+        try {
+            Log::info('Bắt đầu tạo đơn trả hàng Viettel Post (fromData)', [
+                'order_data' => $orderData,
+            ]);
 
+            if (!$this->token) {
+                Log::error('Không có token Viettel Post');
+                return [
+                    'status' => 'error',
+                    'message' => 'Không có token Viettel Post'
+                ];
+            }
 
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Token' => $this->token,
+            ])->timeout(30)
+                ->post('https://partner.viettelpost.vn/v2/order/createOrder', $orderData);
+
+            Log::info('Viettel Post API Response (fromData)', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'successful' => $response->successful(),
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info('Viettel Post Response JSON (fromData)', $data);
+
+                return $data;
+            } else {
+                Log::error('Tạo đơn trả hàng Viettel Post thất bại (fromData): ' . $response->body());
+                return [
+                    'status' => 'error',
+                    'message' => 'HTTP Error: ' . $response->status(),
+                    'response_body' => $response->body()
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Lỗi tạo đơn trả hàng Viettel Post (fromData): ' . $e->getMessage());
+            return [
+                'status' => 'error',
+                'message' => 'Exception: ' . $e->getMessage()
+            ];
+        }
+    }
     /**
      * Lấy địa chỉ shop cho Viettel Post
      */
@@ -787,7 +834,7 @@ class ViettelPostService
         try {
             $requestData = [
                 'ORDER_NUMBER' => $trackingId,
-                'GROUPADDRESS_ID' => $this->addressToken  
+                'GROUPADDRESS_ID' => $this->addressToken
             ];
             Log::info('ViettelPost tracking request', [
                 'tracking_id' => $trackingId,

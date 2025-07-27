@@ -186,7 +186,74 @@ class OrderResource extends Resource
                         ->requiresConfirmation()
                         ->modalHeading('Xác nhận duyệt đơn')
                         ->modalSubheading('Sau khi duyệt, đơn hàng sẽ tự động được đăng lên đơn vị vận chuyển tương ứng.'),
+                    Action::make('refundOrder')
+                        ->label('Hoàn tiền')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'Chờ hoàn tiền')
+                        ->action(function (Order $record) {
+                            $paymentIntentId = $record->paymentDetail->payment_intent_id ?? null;
+                            if ($paymentIntentId) {
+                                $stripeService = new \App\Services\StripeService();
+                                $refund = $stripeService->refundStripe($paymentIntentId);
+                                if ($refund && $refund->status === 'succeeded') {
+                                    $record->orders_status = 'Đã hoàn tiền';
+                                    $record->save();
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Hoàn tiền thành công')
+                                        ->body('Đã hoàn tiền cho khách hàng qua Stripe.')
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Hoàn tiền thất bại')
+                                        ->body('Không thể hoàn tiền qua Stripe.')
+                                        ->danger()
+                                        ->send();
+                                }
+                            }
+                        })
+                        ->requiresConfirmation(),
+                    Action::make('returnAndRefund')
+                        ->label('Trả hàng & Hoàn tiền')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->visible(
+                            fn(Order $record) =>
+                            strtolower($record->orders_status) === 'chờ trả hàng'
+                                && $record->is_approved
+                                && ($record->paymentDetail?->payment_method === 'international')
+                        )
+                        ->action(function (Order $record) {
+                 
+                            $shipmentUnit = $record->paymentDetail->shipment_unit ?? 'ghn';
+                            $shipmentResult = OrderShipmentService::processReturnShipment($record, $shipmentUnit);
 
+      
+                            $record->orders_status = 'Đã trả hàng';
+                            $record->shipping_status = \App\Models\Order::SHIPPING_STATUS_DA_TRA_LAI;
+                            $record->save();
+
+                    
+                            $paymentIntentId = $record->paymentDetail->payment_intent_id ?? null;
+                            if ($paymentIntentId) {
+                                $stripeService = new \App\Services\StripeService();
+                                $refund = $stripeService->refundStripe($paymentIntentId);
+                                if ($refund && $refund->status === 'succeeded') {
+                                
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Trả hàng & hoàn tiền thành công')
+                                        ->body('Đã đăng đơn trả hàng và hoàn tiền cho khách qua Stripe.')
+                                        ->success()
+                                        ->send();
+                                } else {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Hoàn tiền thất bại')
+                                        ->body('Không thể hoàn tiền qua Stripe.')
+                                        ->danger()
+                                        ->send();
+                                }
+                            }
+                        })
+                        ->requiresConfirmation(),
                     Action::make('trackOrder')
                         ->label('Tracking')
                         ->icon('heroicon-o-magnifying-glass')

@@ -165,4 +165,13 @@ class StripeService
 
         return $line_items;
     }
+    public function refundStripe($paymentIntentId, $amount = null)
+{
+    \Stripe\Stripe::setApiKey(env('STRIPE_API_SECRET'));
+    $params = ['payment_intent' => $paymentIntentId];
+    if ($amount) {
+        $params['amount'] = $amount; // đơn vị: cent
+    }
+    return \Stripe\Refund::create($params);
+}
 }

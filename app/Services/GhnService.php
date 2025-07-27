@@ -7,16 +7,15 @@ use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
-
+use App\Models\Order;
 class GhnService
 {
     protected $token;
     protected $apiToken;
     protected $orderToken;
-    protected $shop_province_id;
-    protected $shop_district_id;
-    protected $shop_ward_id;
+    public $shop_province_id;
+    public $shop_district_id;
+    public $shop_ward_id;
     protected $base_url;
 
     public function __construct()
@@ -631,4 +630,5 @@ class GhnService
             ];
         }
     }
+   
 }
