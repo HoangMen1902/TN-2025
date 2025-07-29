@@ -39,7 +39,8 @@ class StripeService
     }
 
     public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = null, bool $is_ebook = false)
-    {     if (!$is_ebook) {
+    {
+        if (!$is_ebook) {
             $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
         } else {
             // $lineItems = $this->formatEbook($carts);
@@ -165,13 +166,13 @@ class StripeService
 
         return $line_items;
     }
-    public function refundStripe($paymentIntentId, $amount = null)
-{
-    \Stripe\Stripe::setApiKey(env('STRIPE_API_SECRET'));
-    $params = ['payment_intent' => $paymentIntentId];
-    if ($amount) {
-        $params['amount'] = $amount; // đơn vị: cent
+    public function refundStripe($chargeId, $amount = null)
+    {
+        \Stripe\Stripe::setApiKey(env('STRIPE_API_SECRET'));
+        $params = ['charge' => $chargeId];
+        if ($amount) {
+            $params['amount'] = $amount; // đơn vị: cent
+        }
+        return \Stripe\Refund::create($params);
     }
-    return \Stripe\Refund::create($params);
-}
 }

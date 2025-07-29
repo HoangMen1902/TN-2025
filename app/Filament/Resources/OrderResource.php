@@ -158,8 +158,7 @@ class OrderResource extends Resource
                             }
 
                             $record->save();
-
-                            // Gửi thông báo trạng thái đơn hàng cho user
+ 
                             \App\Services\NotificationService::send(
                                 [
                                     $record->user_id
@@ -189,27 +188,52 @@ class OrderResource extends Resource
                     Action::make('refundOrder')
                         ->label('Hoàn tiền')
                         ->icon('heroicon-o-currency-dollar')
-                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'Chờ hoàn tiền')
+                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'chờ hoàn tiền')
                         ->action(function (Order $record) {
-                            $paymentIntentId = $record->paymentDetail->payment_intent_id ?? null;
+                            $paymentIntentId = $record->paymentDetail->payment_id ?? null;
+                            Log::info('Bắt đầu hoàn tiền', [
+                                'order_id' => $record->id,
+                                'payment_id' => $paymentIntentId,
+                            ]);
                             if ($paymentIntentId) {
                                 $stripeService = new \App\Services\StripeService();
                                 $refund = $stripeService->refundStripe($paymentIntentId);
+                                Log::info('Kết quả refund Stripe', [
+                                    'order_id' => $record->id,
+                                    'refund' => $refund,
+                                ]);
                                 if ($refund && $refund->status === 'succeeded') {
                                     $record->orders_status = 'Đã hoàn tiền';
                                     $record->save();
+                                    \App\Services\NotificationService::send(
+                                        [$record->user_id],
+                                        'Hoàn tiền thành công',
+                                        'Đơn hàng #' . $record->id . ' đã được hoàn tiền qua Stripe.',
+                                        'Đơn hàng'
+                                    );
                                     \Filament\Notifications\Notification::make()
                                         ->title('Hoàn tiền thành công')
                                         ->body('Đã hoàn tiền cho khách hàng qua Stripe.')
                                         ->success()
                                         ->send();
+                                    Log::info('Hoàn tiền thành công', [
+                                        'order_id' => $record->id,
+                                    ]);
                                 } else {
                                     \Filament\Notifications\Notification::make()
                                         ->title('Hoàn tiền thất bại')
                                         ->body('Không thể hoàn tiền qua Stripe.')
                                         ->danger()
                                         ->send();
+                                    Log::error('Hoàn tiền thất bại', [
+                                        'order_id' => $record->id,
+                                        'refund' => $refund,
+                                    ]);
                                 }
+                            } else {
+                                Log::error('Không tìm thấy payment_id để hoàn tiền', [
+                                    'order_id' => $record->id,
+                                ]);
                             }
                         })
                         ->requiresConfirmation(),
@@ -223,22 +247,22 @@ class OrderResource extends Resource
                                 && ($record->paymentDetail?->payment_method === 'international')
                         )
                         ->action(function (Order $record) {
-                 
+
                             $shipmentUnit = $record->paymentDetail->shipment_unit ?? 'ghn';
                             $shipmentResult = OrderShipmentService::processReturnShipment($record, $shipmentUnit);
 
-      
+
                             $record->orders_status = 'Đã trả hàng';
                             $record->shipping_status = \App\Models\Order::SHIPPING_STATUS_DA_TRA_LAI;
                             $record->save();
 
-                    
-                            $paymentIntentId = $record->paymentDetail->payment_intent_id ?? null;
+
+                            $paymentIntentId = $record->paymentDetail->payment_id ?? null;
                             if ($paymentIntentId) {
                                 $stripeService = new \App\Services\StripeService();
                                 $refund = $stripeService->refundStripe($paymentIntentId);
                                 if ($refund && $refund->status === 'succeeded') {
-                                
+
                                     \Filament\Notifications\Notification::make()
                                         ->title('Trả hàng & hoàn tiền thành công')
                                         ->body('Đã đăng đơn trả hàng và hoàn tiền cho khách qua Stripe.')
