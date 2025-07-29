@@ -4,7 +4,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
         <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
         <!-- Fallback cho Alpine.js -->
-        <script defer>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+       <script defer>
             if (!window.Alpine) {
                 console.error('Alpine.js failed to load from CDN');
                 document.write('<script src="/path/to/local/alpine.min.js"><\/script>');
@@ -13,6 +14,9 @@
             }
         </script>
         <style>
+            header , footer {
+                display: none;
+            }
             /* Hiệu ứng chuyển đổi mượt mà cho sidebar */
             .ebook-sidebar {
                 transition: width 0.3s ease-in-out;
@@ -33,6 +37,7 @@
     </head>
 
     <div class="ebook-reader bg-gray-900 text-white overflow-hidden h-screen" x-data="{
+    
         tab: '{{ pathinfo($ebook->file_path, PATHINFO_EXTENSION) === 'text' ? 'pdf' : 'text' }}',
         fontSize: isNaN(parseInt(localStorage.getItem('ebookFontSize'))) ? 16 : parseInt(localStorage.getItem('ebookFontSize')),
         textAlign: localStorage.getItem('ebookTextAlign') || 'left',
@@ -106,7 +111,7 @@
                     <ul class="text-gray-300 text-sm space-y-2 max-h-64 overflow-y-auto">
                         @foreach ($chapters as $index => $chapter)
                             @php
-                                $isLocked = $chapter->is_locked ?? false; // hoặc kiểm tra bằng logic khác
+                              $isLocked = $chapter->is_locked ?? false; 
                             @endphp 
                             <li>
                                 @if (!$isLocked || $hasPurchased)
@@ -175,25 +180,41 @@
                         <button class="text-gray-400 hover:text-white z-10" @click="setAlign('right')" title="Căn phải">
                             <i class="fas fa-align-right"></i>
                         </button>
+                        <form method="POST" action="{{ route('ebooks.toggleRead', $chapter->id) }}">
+                            @csrf
+                            <button type="submit">
+                                {{ $isRead ? ' Đã đọc' : 'Đánh dấu đã đọc' }}
+                            </button>
+                        </form>
+                        
+                        <form method="POST" action="{{ route('ebooks.toggleFavorite', $chapter->id) }}">
+                            @csrf
+                            <button type="submit">
+                                {{ $isFavorite ? ' Yêu thích' : 'Đánh dấu yêu thích' }}
+                            </button>
+                        </form>
+                        
                     </div>
                 </div>
 
                 <!-- Reading Content -->
                 <div class="flex-1 relative">
-                    <!-- Tabs -->
-                    {{-- <div class="flex space-x-4 border-b mb-4 px-6">
-                        <button @click="tab = 'text'; console.log('Text tab button clicked')" :class="{ 'border-b-2 border-blue-500 font-semibold': tab === 'text' }">Nội dung</button>
-                        @if (pathinfo($ebook->file_path, PATHINFO_EXTENSION) === 'pdf')
-                            <button @click="tab = 'pdf'; console.log('PDF tab button clicked')" :class="{ 'border-b-2 border-blue-500 font-semibold': tab === 'pdf' }">Xem PDF</button>
-                        @endif
-                    </div> --}}
-
-                    <!-- Content -->
-                    <div x-show="tab === 'text'"
-                         class=" whitespace-pre-wrap 
-                         max-h-[700px] 
-                         overflow-y-auto p-4 rounded bg-gray-100 text-gray-800"
-                         :style="{ 'font-size': fontSize + 'px', 'text-align': textAlign }">
+                    <div class="fixed bottom-0 left-0 w-full z-50">
+                        <div class="relative bg-gray-700 h-2 w-full">
+                            <!-- Thanh phần trăm đọc -->
+                            <div id="reading-progress-bar"
+                                 class="absolute top-0 left-0 h-full bg-blue-500 transition-all duration-300"
+                                 style="width: 0%;"></div>
+                    
+                            <!-- Chữ hiển thị phần trăm đọc -->
+                            <div class="absolute right-0 bottom-full mb-1 bg-gray-800 text-white text-xs px-2 py-0.5 rounded">
+                                Đã đọc: <span id="reading-progress-text">{{ $position ?? 0 }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chapter-content" x-show="tab === 'text'"
+                        class="whitespace-pre-wrap h-screen overflow-y-auto p-4 pb-16 rounded bg-gray-100 text-black w-full"
+                        :style="{ 'font-size': fontSize + 'px', 'text-align': textAlign }">
                         @if ($chapters->isNotEmpty() && $chapters->count() >= request()->query('chapter', 1))
                             @php
                                 $chapter = $chapters[request()->query('chapter', 1) - 1];
@@ -203,73 +224,87 @@
                             Không có nội dung chương
                         @endif
                     </div>
-                    <div x-show="tab === 'pdf'">
+                    </div>
+                    <div x-show="tab === 'pdf'" x-ref="pdfContainer" @scroll="handleScroll" class="overflow-y-auto h-screen">
                         @if ($chapters->isNotEmpty() && $chapters->count() >= request()->query('chapter', 1))
                             @php
                                 $chapter = $chapters[request()->query('chapter', 1) - 1];
                             @endphp
-                            <iframe src="{{ asset('storage/' . $chapter->file_path) }}" width="100%" height="600px"
-                                class="rounded border"></iframe>
+
+                            <iframe id="pdf-viewer" src="{{ asset('storage/' . $chapter->file_path) }}" class="w-full h-full border-0"></iframe>
                         @else
-                            <div class="p-4 text-sm text-red-500">Không tìm thấy chương hoặc file PDF</div>
+                            <p class="text-center text-gray-500 py-10">Không tìm thấy chương PDF.</p>
                         @endif
                     </div>
+            
 
-                    <!-- Navigation Buttons -->
-                    {{-- @if ($chapters->isNotEmpty())
-                        <button
-                            class="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition-all z-10"
-                            @if (request()->query('chapter', 1) > 1)
-                                onclick="window.location.href='{{ route('ebooks.show', ['ebookId' => $ebook->id, 'chapter' => request()->query('chapter', 1) - 1]) }}'"
-                            @endif>
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button
-                            class="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition-all z-10"
-                            @if (request()->query('chapter', 1) < $chapters->count())
-                                onclick="window.location.href='{{ route('ebooks.show', ['ebookId' => $ebook->id, 'chapter' => request()->query('chapter', 1) + 1]) }}'"
-                            @endif>
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    @endif --}}
+                 
                 </div>
 
-                <!-- Bottom Progress Bar -->
-                <div class="bg-gray-800 px-6 py-4 border-t " style="background-color: #3a3a3c">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm text-gray-400">
-                            @if ($chapters->isNotEmpty() && $chapters->count() >= request()->query('chapter', 1))
-                                {{ $chapters[request()->query('chapter', 1) - 1]->chapter_name }}
-                            @else
-                                Chương 1
-                            @endif
-                        </span>
-                        <span class="text-sm text-gray-400">
-                            {{ round((request()->query('chapter', 1) / max($chapters->count(), 1)) * 100) }}%
-                        </span>
-                    </div>
-                    <div class="w-full bg-gray-700 rounded-full h-2">
-                        <div class="bg-white h-2 rounded-full"
-                            style="width: {{ round((request()->query('chapter', 1) / max($chapters->count(), 1)) * 100) }}%">
-                        </div>
-                    </div>
-                </div>
+               
             </div>
         </div>
     </div>
 
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const progressBar = document.querySelector('.bg-white.h-2.rounded-full');
-            const progressText = document.querySelector('.text-sm.text-gray-400:last-child');
-            let currentProgress = {{ round((request()->query('chapter', 1) / max($chapters->count(), 1)) * 100) }};
-
-            function updateProgress() {
-                progressBar.style.width = currentProgress + '%';
-                progressText.textContent = currentProgress + '%';
-            }
-
-            updateProgress();
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const content = document.getElementById('chapter-content');
+                const progressBar = document.getElementById('reading-progress-bar');
+                const progressText = document.getElementById('reading-progress-text');
+    
+                if (!content || !progressBar || !progressText) return;
+    
+                const savedPosition = {{ $position ?? 0 }};
+                const ebookId = {{ $ebook->id }};
+                const chapterId = {{ $chapter->id }};
+                let maxScrollPercent = savedPosition;
+                let timeoutId = null;
+    
+                // Scroll đến đúng vị trí lưu
+                const target = content.scrollHeight * savedPosition / 100;
+                content.scrollTo({ top: target, behavior: 'smooth' });
+    
+                function updateProgress(percent) {
+                    progressBar.style.width = percent + '%';
+                    progressText.textContent = percent + '%';
+                }
+    
+                updateProgress(savedPosition); // Hiển thị lúc đầu
+    
+                content.addEventListener('scroll', () => {
+                    const scrollTop = content.scrollTop;
+                    const scrollHeight = content.scrollHeight - content.clientHeight;
+                    const scrollPercent = scrollHeight > 0 ? Math.round((scrollTop / scrollHeight) * 100) : 0;
+    
+                    updateProgress(scrollPercent);
+    
+                    if (scrollPercent > maxScrollPercent) {
+                        maxScrollPercent = scrollPercent;
+    
+                        if (timeoutId) clearTimeout(timeoutId);
+                        timeoutId = setTimeout(() => {
+                            fetch(`/ebooks/${ebookId}/update-position`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    chapter_id: chapterId,
+                                    scroll_percent: maxScrollPercent
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(data => console.log('Đã lưu vị trí', data))
+                            .catch(err => console.error('Lỗi khi lưu', err));
+                        }, 1500);
+                    }
+                });
+            }, 200); 
         });
     </script>
+    
+    
 </x-layouts.layout>

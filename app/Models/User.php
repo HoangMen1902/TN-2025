@@ -117,4 +117,8 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(PointTransaction::class);
     }
+    public function chapterStatuses()
+    {
+        return $this->hasMany(UserEbookChapterStatus::class);
+    }
 }

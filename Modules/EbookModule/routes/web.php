@@ -11,4 +11,7 @@ use Modules\EbookModule\Http\Controllers\PdfSplitController;
     Route::get('/ebooks/{ebookId}', [EbookModuleController::class, 'show'])->name('ebooks.show');
     Route::get('/split-pdf/{ebookId}', [PdfSplitController::class, 'splitPdf'])->name('split-pdf');
     Route::get('/split-epub/{ebookId}', [EpubSplitController::class, 'splitEpub'])->name('split-epub');
-// });
+    Route::post('/ebooks/{chapter}/toggle-read', [EbookModuleController::class, 'toggleRead'])->name('ebooks.toggleRead');
+    Route::post('/ebooks/{chapter}/toggle-favorite', [EbookModuleController::class, 'toggleFavorite'])->name('ebooks.toggleFavorite');
+    Route::middleware('auth')->post('/ebooks/{ebook}/update-position', [EbookModuleController::class, 'updatePosition']);
+    // });
