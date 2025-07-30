@@ -293,11 +293,14 @@ class ViettelPostService
 
                 if (isset($data['status']) && $data['status'] == 200 && isset($data['data']['ORDER_NUMBER'])) {
 
+                    $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
+                    $orderStatus = $paymentMethod === 'cod' ? 'đang xử lý' : 'đã thanh toán';
+
                     $order->update([
                         'shipping_order_code' => $data['data']['ORDER_NUMBER'],
                         'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
                         // 'shipping_info' => $data['data'],
-                        'orders_status' => 'Vận chuyển'
+                        'orders_status' => $orderStatus
                     ]);
 
                     Log::info('Tạo đơn Viettel Post thành công', [
@@ -890,7 +893,7 @@ class ViettelPostService
             $inventories = $response->json('data');
 
             if (!empty($inventories)) {
-            
+
                 return $inventories[0]['groupaddressId'];
             }
         }

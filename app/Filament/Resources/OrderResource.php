@@ -158,7 +158,7 @@ class OrderResource extends Resource
                             }
 
                             $record->save();
- 
+
                             \App\Services\NotificationService::send(
                                 [
                                     $record->user_id
@@ -185,6 +185,36 @@ class OrderResource extends Resource
                         ->requiresConfirmation()
                         ->modalHeading('Xác nhận duyệt đơn')
                         ->modalSubheading('Sau khi duyệt, đơn hàng sẽ tự động được đăng lên đơn vị vận chuyển tương ứng.'),
+                    Action::make('viewReason')
+                        ->label('Xem lý do')
+                        ->icon('heroicon-o-question-mark-circle')
+                        ->visible(
+                            fn(Order $record) =>
+                            !empty($record->reason) ||
+                                strtolower($record->orders_status) === 'đã hủy'
+                        )
+                        
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Đóng')
+                        ->modalContent(function (Order $record) {
+                            $reason = $record->reason;
+                            $status = strtolower($record->orders_status);
+
+                            if ($status === 'chờ hoàn tiền') {
+                                $title = 'Lý do yêu cầu hoàn tiền:';
+                            } elseif ($status === 'chờ trả hàng') {
+                                $title = 'Lý do yêu cầu trả hàng:';
+                            } elseif ($status === 'đã hủy') {
+                                $title = 'Lý do hủy đơn:';
+                            } else {
+                                $title = 'Lý do:';
+                            }
+
+                            return view('filament.order-reason-modal', [
+                                'title' => $title,
+                                'reason' => $reason ?: 'Không có lý do nào được cung cấp.'
+                            ]);
+                        }),
                     Action::make('refundOrder')
                         ->label('Hoàn tiền')
                         ->icon('heroicon-o-currency-dollar')
@@ -235,6 +265,51 @@ class OrderResource extends Resource
                                     'order_id' => $record->id,
                                 ]);
                             }
+                        })
+                        ->requiresConfirmation(),
+                    Action::make('rejectRefund')
+                        ->label('Từ chối hoàn tiền')
+                        ->icon('heroicon-o-x-circle')
+                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'chờ hoàn tiền')
+                        ->action(function (Order $record) {
+
+                            $record->orders_status = 'đã thanh toán';
+                            $record->save();
+
+                            \App\Services\NotificationService::send(
+                                [$record->user_id],
+                                'Từ chối hoàn tiền',
+                                'Đơn hàng #' . $record->id . ' đã bị từ chối hoàn tiền.',
+                                'Đơn hàng'
+                            );
+                            \Filament\Notifications\Notification::make()
+                                ->title('Đã từ chối hoàn tiền')
+                                ->body('Đơn hàng đã trở lại trạng thái "Đã thanh toán".')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation(),
+
+                    Action::make('rejectReturn')
+                        ->label('Từ chối trả hàng')
+                        ->icon('heroicon-o-x-circle')
+                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'chờ trả hàng')
+                        ->action(function (Order $record) {
+
+                            $record->orders_status = 'đã giao';
+                            $record->save();
+
+                            \App\Services\NotificationService::send(
+                                [$record->user_id],
+                                'Từ chối trả hàng',
+                                'Đơn hàng #' . $record->id . ' đã bị từ chối trả hàng.',
+                                'Đơn hàng'
+                            );
+                            \Filament\Notifications\Notification::make()
+                                ->title('Đã từ chối trả hàng')
+                                ->body('Đơn hàng đã trở lại trạng thái "Đã giao".')
+                                ->success()
+                                ->send();
                         })
                         ->requiresConfirmation(),
                     Action::make('returnAndRefund')
@@ -369,16 +444,22 @@ class OrderResource extends Resource
                         ->label('Hủy đơn')
                         ->icon('heroicon-o-x-mark')
                         ->visible(function (Order $record) {
-                            $allowStatuses = ['đang xử lý', 'chờ thanh toán', 'đã thanh toán', 'chờ duyệt'];
-                            return in_array(strtolower($record->orders_status), $allowStatuses) &&
-                                !$record->shipping_order_code; // Không cho hủy nếu đã đăng GHN
+                            $allowStatuses = [
+                                'đang xử lý',
+                                'chờ thanh toán',
+                                'đã thanh toán',
+                                'chờ duyệt',
+                                'đã hoàn tiền'
+                            ];
+                            return in_array(strtolower($record->orders_status), $allowStatuses)
+                                && !$record->shipping_order_code;
                         })
                         ->action(function (Order $record) {
                             $record->orders_status = 'đã hủy';
                             $record->shipping_status = \App\Models\Order::SHIPPING_STATUS_DA_HUY;
                             $record->save();
 
-                            // Gửi thông báo trạng thái đơn hàng cho user
+
                             \App\Services\NotificationService::send(
                                 [
                                     $record->user_id

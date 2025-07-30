@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Models\Order;
+
 class GhnService
 {
     protected $token;
@@ -224,7 +225,7 @@ class GhnService
                 "coupon" => null,
             ]);
             if ($response->successful()) {
-                    return $response->body();
+                return $response->body();
             } else {
                 Log::error('Lỗi xảy ra khi lấy phí giao hàng' . $response->body());
                 return [];
@@ -385,11 +386,14 @@ class GhnService
             $response = $this->createOrder($orderData);
 
             if ($response && isset($response['data'])) {
+                $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
+                $orderStatus = $paymentMethod === 'cod' ? 'đang xử lý' : 'đã thanh toán';
+
                 $order->update([
                     'shipping_order_code' => $response['data']['order_code'],
                     'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON,
                     'shipping_info' => $response['data'],
-                    'orders_status' => 'Vận chuyển'
+                    'orders_status' => $orderStatus
                 ]);
 
                 Log::info('Order updated successfully', [
@@ -630,5 +634,4 @@ class GhnService
             ];
         }
     }
-   
 }
