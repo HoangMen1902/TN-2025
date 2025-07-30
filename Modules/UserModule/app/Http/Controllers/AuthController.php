@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Services\CartService;
 use Illuminate\Support\Facades\Schema;
+use Closure;
 
 class AuthController extends Controller
 {
@@ -45,7 +46,7 @@ class AuthController extends Controller
 
 
         if (Auth::attempt($credentials)) {
-            CartService::syncCartAfterLogin( Auth::id());
+            CartService::syncCartAfterLogin(Auth::id());
             return redirect()->intended('/')->with('success', 'Đăng nhập thành công!');
         }
 
@@ -178,7 +179,7 @@ class AuthController extends Controller
     {
         return view('usermodule::profile.notification');
     }
-        public function showMembership()
+    public function showMembership()
     {
         return view('usermodule::profile.membership');
     }
@@ -221,70 +222,71 @@ class AuthController extends Controller
     //         return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thát bại!');
     //     }
     // }
-   public function handleGoogleCallback()
-{
-    try {
-        $googleUser = Socialite::driver('google')->user();
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
 
-        Log::info('Google login callback', [
-            'google_id' => $googleUser->getId(),
-            'name'      => $googleUser->getName(),
-            'email'     => $googleUser->getEmail(),
-        ]);
-
-        $user = User::where('email', $googleUser->getEmail())->first();
-
-        if (!$user) {
-            $user = User::create([
-                'name'     => $googleUser->getName(),
-                'email'    => $googleUser->getEmail(),
-                'password' => bcrypt(Str::random(16)),
+            Log::info('Google login callback', [
+                'google_id' => $googleUser->getId(),
+                'name'      => $googleUser->getName(),
+                'email'     => $googleUser->getEmail(),
             ]);
-            $user->assignRole('user');
-            Log::info('Created new user from Google login', ['user_id' => $user->id]);
+
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name'     => $googleUser->getName(),
+                    'email'    => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(16)),
+                ]);
+                $user->assignRole('user');
+                Log::info('Created new user from Google login', ['user_id' => $user->id]);
+            }
+
+            Auth::login($user);
+
+            // Sync cart nếu có session_id
+            if (Schema::hasColumn('carts', 'session_id')) {
+                $oldSessionId = session()->getId();
+                $currCart = Cart::where('session_id', $oldSessionId)->get();
+                CartService::syncCartAfterLogin($currCart, $user->id);
+            }
+
+            Log::info('User logged in via Google', ['user_id' => $user->id]);
+
+            return redirect('/')->with('success', 'Đăng nhập Google thành công!');
+        } catch (\Exception $e) {
+            Log::error('Google login failed', ['error' => $e->getMessage()]);
+            return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
         }
-
-        Auth::login($user);
-
-        // Sync cart nếu có session_id
-        if (Schema::hasColumn('carts', 'session_id')) {
-            $oldSessionId = session()->getId();
-            $currCart = Cart::where('session_id', $oldSessionId)->get();
-            CartService::syncCartAfterLogin($currCart, $user->id);
-        }
-
-        Log::info('User logged in via Google', ['user_id' => $user->id]);
-
-        return redirect('/')->with('success', 'Đăng nhập Google thành công!');
-    } catch (\Exception $e) {
-        Log::error('Google login failed', ['error' => $e->getMessage()]);
-        return redirect('/dang-nhap')->with('error', 'Đăng nhập Google thất bại. Vui lòng thử lại.');
     }
-}
 
     //doi mat khau
     public function changePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required',
-            'password' => 'required|string|min:8|confirmed',
+            'current_password' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!Hash::check($value, Auth::user()->password)) {
+                        $fail('Mật khẩu hiện tại không chính xác.');
+                    }
+                }
+            ],
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|same:password',
         ], [
             'current_password.required' => 'Bạn chưa nhập mật khẩu hiện tại.',
             'password.required' => 'Bạn chưa nhập mật khẩu mới.',
             'password.string' => 'Mật khẩu mới phải là chuỗi ký tự.',
             'password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
-            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+            'password_confirmation.required' => 'Bạn chưa nhập xác nhận mật khẩu.',
+            'password_confirmation.same' => 'Xác nhận mật khẩu không khớp.',
         ]);
 
-
         $user = $request->user();
-
-        if (!Hash::check($request->current_password, $user->password)) {
-            return back()
-                ->withErrors(['current_password' => 'Mật khẩu hiện tại không chính xác'])
-                ->withInput();
-        }
-
         $user->password = Hash::make($request->password);
         $user->save();
 
