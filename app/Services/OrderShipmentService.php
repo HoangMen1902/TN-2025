@@ -51,7 +51,7 @@ class OrderShipmentService
     {
         $ghnService = new \App\Services\GhnService();
 
-        
+
         $fromAddress = [
             'from_name' => $order->customer_name,
             'from_phone' => $order->phone,
@@ -60,7 +60,7 @@ class OrderShipmentService
             'from_district_id' => $order->district_id,
         ];
 
-        
+
         $toAddress = [
             'to_name' => config('shopConfig.shop_name'),
             'to_phone' => config('shopConfig.shop_phone'),
@@ -73,11 +73,11 @@ class OrderShipmentService
             $items[] = [
                 'name' => $detail->product_name ?? 'Sản phẩm',
                 'quantity' => (int) ($detail->quantity ?? 1),
-                'price' => (int) ($detail->price ?? 0), 
+                'price' => (int) ($detail->price ?? 0),
             ];
         }
 
-       
+
         if (empty($items)) {
             $items[] = [
                 'name' => 'Trả hàng về shop',
@@ -85,7 +85,7 @@ class OrderShipmentService
                 'price' => 0,
             ];
         }
-        
+
         $orderData = array_merge($fromAddress, $toAddress, [
             'client_order_code' => 'RETURN_' . $order->id,
             'weight' => 500,
@@ -95,7 +95,7 @@ class OrderShipmentService
             'service_type_id' => 2,
             'items' => $items,
             'note' => 'Trả hàng về shop',
-            'required_note' => 'KHONGCHOXEMHANG',  
+            'required_note' => 'KHONGCHOXEMHANG',
             'payment_type_id' => 1,
             'cod_amount' => 0,
         ]);
@@ -107,23 +107,19 @@ class OrderShipmentService
     private static function processViettelPostReturnShipment(Order $order)
     {
         $viettelService = new \App\Services\ViettelPostService();
+        $inventoryId = $viettelService->getShopInventoryId();
 
-       
-        $viettelProvider = Provider::where('provider_name', 'Viettel Post')->first();
-        $viettelProviderId = $viettelProvider->id;
+        $viettelProviderId = 1; 
 
-       
-        $provinceMap = providerProvinces::where([
+        $senderProvinceMap = providerProvinces::where([
             'provider_id' => $viettelProviderId,
             'province_id' => $order->province_id,
         ])->first();
-
-        $districtMap = providerDistrict::where([
+        $senderDistrictMap = providerDistrict::where([
             'provider_id' => $viettelProviderId,
             'district_id' => $order->district_id,
         ])->first();
-
-        $wardMap = providerWard::where([
+        $senderWardMap = providerWard::where([
             'provider_id' => $viettelProviderId,
             'ward_id' => $order->ward_id,
         ])->first();
@@ -132,23 +128,15 @@ class OrderShipmentService
             'SENDER_FULLNAME' => $order->customer_name,
             'SENDER_ADDRESS' => $order->address,
             'SENDER_PHONE' => $order->phone,
-            'SENDER_WARD' => $wardMap?->provider_ward_code,
-            'SENDER_DISTRICT' => $districtMap?->provider_district_code,
-            'SENDER_PROVINCE' => $provinceMap?->provider_province_code,
-        ];
- 
-        $toAddress = [
-            'RECEIVER_FULLNAME' => config('shopConfig.shop_name'),
-            'RECEIVER_ADDRESS' => config('shopConfig.shop_address'),
-            'RECEIVER_PHONE' => config('shopConfig.shop_phone'),
-            'RECEIVER_WARD' => $viettelService->shop_ward,  
-            'RECEIVER_DISTRICT' => $viettelService->shop_district,
-            'RECEIVER_PROVINCE' => $viettelService->shop_province,
+            'SENDER_PROVINCE' => (int)$senderProvinceMap?->provider_province_code,
+            'SENDER_DISTRICT' => (int)$senderDistrictMap?->provider_district_code,
+            'SENDER_WARD' => (int)$senderWardMap?->provider_ward_code,
         ];
 
-        $orderData = array_merge($fromAddress, $toAddress, [
+        $orderData = array_merge($fromAddress, [
+            'INVENTORY_ID' => $inventoryId,
             'ORDER_NUMBER' => 'RETURN_' . $order->id . '_' . time(),
-            'ORDER_PAYMENT' => 3,  
+            'ORDER_PAYMENT' => 3,
             'PRODUCT_TYPE' => 'HH',
             'ORDER_SERVICE' => 'VCN',
             'PRODUCT_NAME' => 'Trả hàng về shop',
@@ -158,7 +146,10 @@ class OrderShipmentService
             'PRODUCT_WEIGHT' => 500,
         ]);
 
-        // Gọi API tạo đơn trả hàng
+        Log::info('DEBUG Viettel Post trả hàng', [
+            'orderData' => $orderData,
+        ]);
+
         return $viettelService->createOrderFromData($orderData);
     }
 

@@ -756,7 +756,7 @@ class ViettelPostService
         ];
     }
 
-   
+
     public function createOrderFromData(array $orderData)
     {
         try {
@@ -808,7 +808,7 @@ class ViettelPostService
     /**
      * Lấy địa chỉ shop cho Viettel Post
      */
-    private function getShopViettelAddress()
+    public function getShopViettelAddress()
     {
         // Sử dụng địa chỉ đã setup trong constructor
         return [
@@ -874,5 +874,26 @@ class ViettelPostService
             ]);
             return false;
         }
+    }
+
+    public function getShopInventoryId()
+    {
+        $provider = Provider::where('provider_name', 'Viettel Post')->first();
+        $token = Crypt::decrypt($provider->provider_token ?? '');
+        $this->token = $token;
+        $response = Http::withHeaders([
+            'Token' => $token,
+        ])->get('https://partner.viettelpost.vn/v2/user/listInventory');
+        Log::info('ViettelPost listInventory response', $response->json());
+
+        if ($response->successful()) {
+            $inventories = $response->json('data');
+
+            if (!empty($inventories)) {
+            
+                return $inventories[0]['groupaddressId'];
+            }
+        }
+        return null;
     }
 }
