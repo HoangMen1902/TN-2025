@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Support\Renderable;
 use App\Models\Wishlist;
 use App\Models\Cart;
+use App\Models\ProductEbook;
 use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
@@ -175,6 +176,32 @@ class AuthController extends Controller
     {
         return view('usermodule::profile.order');
     }
+    public function showUserEbook(Request $request)
+{
+    $userId = Auth::id();
+
+    $purchasedEbooks = ProductEbook::whereIn('id', function ($query) use ($userId) {
+        $query->select('ebook_id')
+            ->from('ebook_order_details')
+            ->join('ebook_orders', 'ebook_orders.id', '=', 'ebook_order_details.ebook_order_id')
+            ->join('ebook_payment_details', 'ebook_orders.id', '=', 'ebook_payment_details.ebook_order_id')
+            ->where('ebook_orders.user_id', $userId)
+            ->where('ebook_payment_details.is_paid', 1);
+    })->get();
+
+    $likedEbooks = ProductEbook::whereIn('id', function ($query) use ($userId) {
+        $query->select('ebook_id')
+            ->from('user_ebook_chapter_statuses')
+            ->where('user_id', $userId)
+            ->where('is_favorite', 1)
+            ->distinct();
+    })->get();
+
+    $selectedTab = $request->get('tab', 'purchased');
+
+    return view('usermodule::profile.userEbook', compact('purchasedEbooks', 'likedEbooks', 'selectedTab'));
+}
+
     public function showNotification()
     {
         return view('usermodule::profile.notification');

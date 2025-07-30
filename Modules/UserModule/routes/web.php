@@ -37,6 +37,7 @@ Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('in
 Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
 Route::get('/don-hang', [AuthController::class, 'showOrderInfomation'])->name('order');
 Route::get('/hoi-vien', [AuthController::class, 'showMembership'])->name('membership');
+Route::get('/quan-ly-ebook', [AuthController::class, 'showUserEbook'])->name('membership');
 
 // Route::get('/wishlist', [AuthController::class, 'showWishList'])->name('wishlist');
 

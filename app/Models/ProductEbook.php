@@ -45,8 +45,8 @@ class ProductEbook extends Model
             ->where('ebook_payment_details.is_paid', true)
             ->exists();
     }
-    
-        
+
+
     public function readProgress()
     {
         return $this->hasMany(EbookReadProgress::class, 'ebook_id');
@@ -64,5 +64,13 @@ class ProductEbook extends Model
     public function tags()
     {
         return $this->belongsToMany(RelatedTag::class, 'ebook_tag', 'ebook_id', 'tag_id');
+    }
+    public function purchasedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_ebooks', 'ebook_id', 'user_id');
+    }
+    public function likedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'user_liked_ratings', 'rating_id', 'user_id');
     }
 }
