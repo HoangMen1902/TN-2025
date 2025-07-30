@@ -106,8 +106,8 @@
                                 <div class="p-3 md:p-4 border-b border-gray-200">
                                     <div class="flex items-start">
                                         <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                            <img src="{{ asset('storage/' . $imagePath) ?? '/default.jpg' }}"
-                                                alt="Sản phẩm" class="w-full h-full object-cover">
+                                            <img src="{{ asset('storage/' . $imagePath) ?? '/default.jpg' }}" alt="Sản phẩm"
+                                                class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
@@ -275,10 +275,16 @@
                             @endphp
 
                             <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                @if (in_array($order->orders_status, ['Đang xử lý', 'Đã thanh toán']))
+                                @if (in_array($order->orders_status, ['Đang xử lý']))
                                     <button wire:click="openCancelModal({{ $order->id }})"
                                         class="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Hủy đơn
+                                    </button>
+
+                                @elseif ($order->orders_status === 'Đã thanh toán')
+                                    <button wire:click="openRefundModal({{ $order->id }}, 'refund')"
+                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                        Yêu cầu hoàn tiền
                                     </button>
 
                                 @elseif ($order->orders_status === 'Vận chuyển')
@@ -288,7 +294,7 @@
                                     </button>
 
                                 @elseif ($order->orders_status === 'Đã giao')
-                                    <button wire:click="requestReturn({{ $order->id }})"
+                                    <button wire:click="openRefundModal({{ $order->id }}, 'return')"
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Yêu cầu trả hàng
                                     </button>
@@ -315,6 +321,28 @@
 
                         </div>
                     </div>
+                    @if($showRefundModal)
+                        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+                                <h2 class="text-lg font-semibold mb-4">
+                                    {{ $refundType === 'refund' ? 'Lý do yêu cầu hoàn tiền' : 'Lý do yêu cầu trả hàng & hoàn tiền' }}
+                                </h2>
+                                @error('refundReason') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
+                                <textarea wire:model="refundReason" rows="3" class="w-full border border-gray-300 rounded p-2 mb-4"
+                                    placeholder="Nhập lý do..."></textarea>
+                                <div class="flex justify-end gap-2">
+                                    <button wire:click="$set('showRefundModal', false)"
+                                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
+                                        Đóng
+                                    </button>
+                                    <button wire:click="confirmRefundRequest"
+                                        class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
+                                        Xác nhận
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     @if ($showRatingModal)
                         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
                             <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">

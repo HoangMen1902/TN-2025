@@ -26,7 +26,11 @@ class Order extends Component
     public $orderId;
     public $selectedReason = '';
     public $customReason = '';
-
+    // refund
+    public $showRefundModal = false;
+    public $refundOrderId = null;
+    public $refundReason = '';
+    public $refundType = '';
     // Rating Modal
     public $currentDetailId = null;
     public $showRatingModal = false;
@@ -36,6 +40,47 @@ class Order extends Component
     public $rating = 0;
     public $images = [];
     public $anonymous = [];
+
+    // =====================
+    // return/refund Modal
+    // =====================
+    public function openRefundModal($orderId, $type)
+    {
+        $this->refundOrderId = $orderId;
+        $this->refundType = $type; // 'refund' hoặc 'return'
+        $this->refundReason = '';
+        $this->showRefundModal = true;
+    }
+    public function confirmRefundRequest()
+    {
+        $order = OrderModel::find($this->refundOrderId);
+        if (!$order) {
+            $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng!');
+            return;
+        }
+        if (!$this->refundReason) {
+            $this->addError('refundReason', 'Vui lòng nhập lý do!');
+            return;
+        }
+
+        if ($this->refundType === 'refund' && $order->orders_status === 'Đã thanh toán') {
+            $order->update([
+                'orders_status' => 'Chờ hoàn tiền',
+                'reason' => $this->refundReason,
+            ]);
+            $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu hoàn tiền!');
+        } elseif ($this->refundType === 'return' && $order->orders_status === 'Đã giao') {
+            $order->update([
+                'orders_status' => 'Chờ trả hàng',
+                'reason' => $this->refundReason,
+            ]);
+            $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu trả hàng & hoàn tiền!');
+        } else {
+            $this->dispatch('toast', type: 'error', message: 'Trạng thái đơn hàng không hợp lệ!');
+        }
+
+        $this->reset(['showRefundModal', 'refundOrderId', 'refundReason', 'refundType']);
+    }
     // =====================
     // FILTER + SEARCH
     // =====================
@@ -254,11 +299,31 @@ class Order extends Component
                 'type' => 'earn',
                 'source' => 'Cộng điểm từ đánh giá đơn hàng #' . $order->id,
             ]);
-            
+
             $this->dispatch('toast', type: 'success', message: 'Đánh giá thành công! bạn đã nhận được ' . $earnedPoints . ' điểm hội viên!');
         }
     }
+    public function requestRefund($orderId)
+    {
+        $order = OrderModel::find($orderId);
+        if ($order && $order->orders_status === 'Đã thanh toán') {
+            $order->update(['orders_status' => 'Chờ hoàn tiền']);
+            $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu hoàn tiền!');
+        } else {
+            $this->dispatch('toast', type: 'error', message: 'Chỉ gửi hoàn tiền cho đơn đã thanh toán!');
+        }
+    }
 
+    public function requestReturnRefund($orderId)
+    {
+        $order = OrderModel::find($orderId);
+        if ($order && $order->orders_status === 'Đã giao') {
+            $order->update(['orders_status' => 'Chờ trả hàng']);
+            $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu trả hàng & hoàn tiền!');
+        } else {
+            $this->dispatch('toast', type: 'error', message: 'Chỉ gửi trả hàng cho đơn đã giao!');
+        }
+    }
 
     public function render()
     {
