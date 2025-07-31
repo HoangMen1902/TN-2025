@@ -56,76 +56,66 @@ class ViettelPostWebhookController extends Controller
 
     public function handle(Request $request)
     {
-        $header = $request->header('Authorization');
-        $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
-        $payload = $request->all();
+        // $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
 
-        $payload = $request->all();
+        // $payload = $request->all();
+        $method = $request->method();
+        $payload = $request->getContent();
         $logData = json_encode($payload, JSON_PRETTY_PRINT);
+        Log::info('method: ' . $method);
         file_put_contents(storage_path('logs/order-payload.log'), "[" . now() . "]\n" . $logData . "\n\n", FILE_APPEND);
 
+        // if (empty($payload) || !$payload['DATA']['ORDER_NUMBER'] || !$payload || !$payload['DATA']) {
+        //     return response()->json([
+        //         'status' => 401,
+        //         'data' => [],
+        //         'message' => 'ORDER_KHONG_HOP_LE',
+        //         'token' => $payload['TOKEN'] ?? null,
+        //     ]);
+        // }
 
-        if ($header !== $provided_token) {
-
-            return response()->json(['error' => 'Token không hợp lệ'], 401);
-        }
-
-
-
-
-
-
-        if (empty($payload) || !$payload['DATA']['ORDER_NUMBER'] || !$payload || !$payload['DATA']) {
-            return response()->json([
-                'status' => 401,
-                'data' => [],
-                'message' => 'ORDER_KHONG_HOP_LE',
-                'token' => $payload['TOKEN'] ?? null,
-            ]);
-        }
-
-        $orderNumber = $payload['DATA']['ORDER_NUMBER'];
+        // $orderNumber = $payload['DATA']['ORDER_NUMBER'];
 
 
-        $order = Order::where('shipping_order_code', $orderNumber)->first();
+        // $order = Order::where('shipping_order_code', $orderNumber)->first();
 
-        if (!$order) {
-            return response()->json([
-                'status' => 401,
-                'data' => [],
-                'message' => 'ORDER_KHONG_HOP_LE',
-                'token' => $payload['TOKEN'] ?? null,
-            ]);
-        }
-
-
-        switch ($payload['DATA']['ORDER_STATUS']) {
-            case 501:
-                $order->orders_status = 'Đã giao';
-                break;
-            case 107:
-            case 201:
-                $order->orders_status = 'Đã hủy';
-                break;
-            case 200:
-            case 202:
-            case 300:
-            case 320:
-            case 400:
-                $order->orders_status = 'Vận chuyển';
-                break;
-            default:
-                break;
-        }
+        // if (!$order) {
+        //     return response()->json([
+        //         'status' => 401,
+        //         'data' => [],
+        //         'message' => 'ORDER_KHONG_HOP_LE',
+        //         'token' => $payload['TOKEN'] ?? null,
+        //     ]);
+        // }
 
 
-        $order->shipping_info = $payload['DATA'];
-        $order->save();
-        return response()->json([
-            'status' => 200,
-            'data' => $payload['DATA'] ?? [],
-            'token' => $payload['TOKEN'] ?? null,
-            'message' => 'ORDER_DA_GHI_NHAN'
-        ]);
+        // switch ($payload['DATA']['ORDER_STATUS']) {
+        //     case 501:
+        //         $order->orders_status = 'Đã giao';
+        //         break;
+        //     case 107:
+        //     case 201:
+        //         $order->orders_status = 'Đã hủy';
+        //         break;
+        //     case 200:
+        //     case 202:
+        //     case 300:
+        //     case 320:
+        //     case 400:
+        //         $order->orders_status = 'Vận chuyển';
+        //         break;
+        //     default:
+        //         break;
+        // }
+
+
+        // $order->shipping_info = $payload['DATA'];
+        // $order->save();
+        // return response()->json([
+        //     'status' => 200,
+        //     'data' => $payload['DATA'] ?? [],
+        //     'token' => $payload['TOKEN'] ?? null,
+        //     'message' => 'ORDER_DA_GHI_NHAN'
+        // ]);
     }
 }
