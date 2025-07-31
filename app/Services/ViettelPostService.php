@@ -299,7 +299,7 @@ class ViettelPostService
                     $order->update([
                         'shipping_order_code' => $data['data']['ORDER_NUMBER'],
                         'shipping_status' => \App\Models\Order::SHIPPING_STATUS_DA_TAO_DON ?? 'da_tao_don',
-                        // 'shipping_info' => $data['data'],
+                        'shipping_info' => $data['data'],
                         'orders_status' => $orderStatus
                     ]);
 
@@ -848,7 +848,7 @@ class ViettelPostService
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'Token' => $this->token,
                 'Content-Type' => 'application/json',
-            ])->post('https://partner.viettelpost.vn/v2/order/getOrderDetail', $requestData);
+            ])->post('https://api.viettelpost.vn/api/orders/viewTrackingOrders3', $requestData);
 
             Log::info('ViettelPost tracking response', [
                 'status' => $response->status(),
@@ -865,7 +865,7 @@ class ViettelPostService
                     'body' => $response->body(),
                     'json' => $response->json(),
                     'headers' => $response->headers(),
-                    'request_data' => $requestData
+                    'request_data' => $requestData,
                 ]);
                 return false;
             }
