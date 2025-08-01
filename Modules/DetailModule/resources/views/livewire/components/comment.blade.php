@@ -86,16 +86,23 @@
                             </div>
                             <!-- Upload ảnh -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá (tối đa 3
-                                    ảnh):</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá</label>
                                 <label
                                     class="flex flex-row items-center gap-2 px-3 py-2 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150 w-fit">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
                                     </svg>
-                                    <span class="text-sm leading-normal">Chọn ảnh</span>
-                                    <input type="file" multiple accept="image/*" wire:model="images" class="hidden" />
+                                    <span class="text-sm leading-normal">Chọn ảnh/video</span>
+                                    <input type="file" multiple wire:model="images" class="hidden" />
+                                    <span wire:loading wire:target="images">
+                                        <svg class="animate-spin h-5 w-5 text-blue-500 ml-2"
+                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                        </svg>
+                                    </span>
                                 </label>
                                 @if (!empty($images))
                                     <div class="flex mt-2 gap-2">
@@ -132,7 +139,53 @@
         @endif
 
 
-
+        @if ($showEditModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
+                <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                    <div class="p-4 border-b rounded-t flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-900">Sửa đánh giá sản phẩm</h3>
+                        <button type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                            wire:click="$set('showEditModal', false)">
+                            <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                            </svg>
+                            <span class="sr-only">Đóng</span>
+                        </button>
+                    </div>
+                    <form wire:submit.prevent="submitEditReview">
+                        <div class="p-6 space-y-6">
+                            <div class="text-center">
+                                <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
+                                <div class="flex items-center justify-center space-x-1 mb-2">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <button type="button" wire:click="$set('editRating', {{ $i }})"
+                                            class="{{ ($editRating ?? 0) >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 text-2xl">
+                                            ★
+                                        </button>
+                                    @endfor
+                                </div>
+                                @error('editRating') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                            <div>
+                                <textarea wire:model.defer="editReview" rows="4"
+                                    class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
+                                    placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                                @error('editReview') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                            <button type="button" wire:click="$set('showEditModal', false)"
+                                class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
+                            <button type="submit"
+                                class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5">Cập
+                                nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
 
 
     </div>
@@ -200,11 +253,28 @@
                                     $images = is_array($rating->images) ? $rating->images : json_decode($rating->images, true);
                                 @endphp
                                 @if (!empty($images))
-                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                    <div class="flex mt-2 gap-2 flex-wrap">
                                         @foreach ($images as $img)
-                                            <a href="{{ asset('storage/' . $img) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $img) }}" class="w-20 h-20 object-cover rounded border" />
-                                            </a>
+                                            <div class="relative group">
+                                                @php
+                                                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                                                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                                    $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg', '3gp', 'webm']);
+                                                @endphp
+
+                                                @if ($isImage)
+                                                    <a href="{{ asset('storage/' . $img) }}" target="_blank">
+                                                        <img src="{{ asset('storage/' . $img) }}"
+                                                            class="w-16 h-16 object-cover rounded border" />
+                                                    </a>
+                                                @elseif ($isVideo)
+                                                    <video class="w-16 h-16 rounded border" controls>
+                                                        <source src="{{ asset('storage/' . $img) }}" type="video/{{ $ext }}">
+                                                        Trình duyệt không hỗ trợ video.
+                                                    </video>
+                                                @endif
+
+                                            </div>
                                         @endforeach
                                     </div>
                                 @endif
@@ -225,16 +295,23 @@
                                     </span>
                                 </a>
 
-                                <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500">
-                                    {{-- Icon Báo cáo --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                        stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                                    </svg>
+                                @if (
+                                        Auth::check() &&
+                                        $rating->user_id === Auth::id() &&
+                                        \Carbon\Carbon::parse($rating->created_at)->diffInDays(now()) < 7
+                                    )
+                                    <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500"
+                                        wire:click="editReviewModal({{ $rating->id }})">
 
-                                    Báo cáo
-                                </a>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                            stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.862 4.487 19.5 7.125m-2.638-2.638a2.121 2.121 0 1 1 3 3L7.5 19.5H4.5v-3l12.362-12.363Z" />
+                                        </svg>
+                                        Sửa
+                                    </a>
+                                    <button wire:click="$set('showEditModal', true)">Test Sửa</button>
+                                @endif
                             </div>
 
                         </div>
@@ -294,11 +371,28 @@
                                     $images = is_array($rating->images) ? $rating->images : json_decode($rating->images, true);
                                 @endphp
                                 @if (!empty($images))
-                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                    <div class="flex mt-2 gap-2 flex-wrap">
                                         @foreach ($images as $img)
-                                            <a href="{{ asset('storage/' . $img) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $img) }}" class="w-20 h-20 object-cover rounded border" />
-                                            </a>
+                                            <div class="relative group">
+                                                @php
+                                                    $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                                                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                                    $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg', '3gp', 'webm']);
+                                                @endphp
+
+                                                @if ($isImage)
+                                                    <a href="{{ asset('storage/' . $img) }}" target="_blank">
+                                                        <img src="{{ asset('storage/' . $img) }}"
+                                                            class="w-16 h-16 object-cover rounded border" />
+                                                    </a>
+                                                @elseif ($isVideo)
+                                                    <video class="w-16 h-16 rounded border" controls>
+                                                        <source src="{{ asset('storage/' . $img) }}" type="video/{{ $ext }}">
+                                                        Trình duyệt không hỗ trợ video.
+                                                    </video>
+                                                @endif
+
+                                            </div>
                                         @endforeach
                                     </div>
                                 @endif
@@ -321,16 +415,22 @@
                                     </a>
                                 </div>
 
-                                <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500">
-                                    {{-- Icon Báo cáo --}}
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                        stroke="currentColor" class="size-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                                    </svg>
-
-                                    Báo cáo
-                                </a>
+                                @if (
+                                        Auth::check() &&
+                                        $rating->user_id === Auth::id() &&
+                                        \Carbon\Carbon::parse($rating->created_at)->diffInDays(now()) < 7
+                                    )
+                                    <a href="javascript:void(0)" class="flex items-center text-sm text-neutral-500"
+                                        wire:click="editReview({{ $rating->id }})">
+                                        {{-- Icon sửa --}}
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                            stroke="currentColor" class="size-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M16.862 4.487 19.5 7.125m-2.638-2.638a2.121 2.121 0 1 1 3 3L7.5 19.5H4.5v-3l12.362-12.363Z" />
+                                        </svg>
+                                        Sửa
+                                    </a>
+                                @endif
                             </div>
 
                         </div>
