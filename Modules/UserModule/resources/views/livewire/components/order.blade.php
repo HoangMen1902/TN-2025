@@ -298,10 +298,24 @@
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Yêu cầu trả hàng
                                     </button>
-                                    <button wire:click="openRatingModal({{ $order->id }})"
-                                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Đánh giá
-                                    </button>
+                                    @php
+                                        $allRated = $order->orderDetails->every(function ($detail) {
+                                            return \App\Models\Rating::where('user_id', Auth::id())
+                                                ->where('order_detail_id', $detail->id)
+                                                ->exists();
+                                        });
+                                    @endphp
+                                    @if ($allRated)
+                                        <button wire:click="viewRating({{ $order->id }})"
+                                            class="bg-green-500 hover:bg-green-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Xem đánh giá
+                                        </button>
+                                    @else
+                                        <button wire:click="openRatingModal({{ $order->id }})"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Đánh giá
+                                        </button>
+                                    @endif
                                     <a href="{{ url('/chi-tiet/' . $product->slug) }}"
                                         class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                         Mua lại
@@ -339,6 +353,60 @@
                                         class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
                                         Xác nhận
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    @if ($showViewRatingModal)
+                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
+                            <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                                <div class="p-4 border-b rounded-t flex justify-between items-center">
+                                    <h3 class="text-xl font-semibold text-gray-900">Đánh giá của bạn</h3>
+                                    <button type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        wire:click="$set('showViewRatingModal', false)">
+                                        <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span class="sr-only">Đóng</span>
+                                    </button>
+                                </div>
+                                <div class="p-6 space-y-6">
+                                    @foreach ($viewRatings as $rating)
+                                        <div class="mb-6 border-b pb-4">
+                                            <div class="flex items-center mb-2">
+                                                <span class="font-medium mr-2">Sản phẩm:</span>
+                                                <span>{{ $rating->orderDetail->sku->product->name ?? 'Sản phẩm' }}</span>
+                                            </div>
+                                            <div class="flex items-center mb-2">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    <span class="{{ $i <= $rating->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                                                @endfor
+                                            </div>
+                                            <div class="mb-2 text-gray-700">{{ $rating->review }}</div>
+                                            @if (!empty($rating->images))
+                                                <div class="flex gap-2 mt-2">
+                                                    @foreach (json_decode($rating->images, true) as $img)
+                                                        @php
+                                                            $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                                                            $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                                            $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg', '3gp', 'webm']);
+                                                        @endphp
+                                                        @if ($isImage)
+                                                            <img src="{{ asset('storage/' . $img) }}"
+                                                                class="w-16 h-16 object-cover rounded border" />
+                                                        @elseif ($isVideo)
+                                                            <video class="w-16 h-16 rounded border" controls>
+                                                                <source src="{{ asset('storage/' . $img) }}" type="video/{{ $ext }}">
+                                                                Trình duyệt không hỗ trợ video.
+                                                            </video>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -406,34 +474,50 @@
                                                 </div>
                                                 <!-- Upload ảnh -->
                                                 <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá (tối đa 3
-                                                        ảnh):</label>
+                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá:</label>
                                                     <label
-                                                        class="flex flex-row items-center gap-1 w-30 px-1 py-1 h-12 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150">
+                                                        class="flex flex-row items-center gap-2 px-3 py-2 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150 w-fit">
                                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
                                                             viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4">
                                                             </path>
                                                         </svg>
-                                                        <span class=" text-sm leading-normal">Chọn ảnh</span>
-                                                        <input type="file" multiple accept="image/*"
-                                                            wire:model="images.{{ $detail->id }}" class="hidden" />
+                                                        <span class="text-sm leading-normal">Chọn ảnh/video</span>
+                                                        <input type="file" multiple wire:model="images.{{ $detail->id }}"
+                                                            class="hidden" />
+                                                        <span wire:loading wire:target="images.{{ $detail->id }}">
+                                                            <svg class="animate-spin h-5 w-5 text-blue-500 ml-2"
+                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                                    stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z">
+                                                                </path>
+                                                            </svg>
+                                                        </span>
                                                     </label>
                                                     @if (!empty($images[$detail->id]))
                                                         <div class="flex mt-2 gap-2">
                                                             @foreach ($images[$detail->id] as $img)
                                                                 <div class="relative group">
-                                                                    <img src="{{ $img->temporaryUrl() }}"
-                                                                        class="w-16 h-16 object-cover rounded border" />
+                                                                    @php
+                                                                        $mime = $img->getMimeType();
+                                                                    @endphp
+                                                                    @if(\Illuminate\Support\Str::startsWith($mime, 'image/'))
+                                                                        <img src="{{ $img->temporaryUrl() }}"
+                                                                            class="w-16 h-16 object-cover rounded border" />
+                                                                    @elseif(\Illuminate\Support\Str::startsWith($mime, 'video/'))
+                                                                        <video class="w-16 h-16 rounded border" controls>
+                                                                            <source src="{{ $img->temporaryUrl() }}" type="{{ $mime }}">
+                                                                            Trình duyệt không hỗ trợ video.
+                                                                        </video>
+                                                                    @endif
                                                                     <button type="button"
                                                                         wire:click="removeImage({{ $detail->id }}, {{ $loop->index }})"
                                                                         class="absolute top-0 right-0 text-black rounded-full p-1 opacity-70 hover:opacity-100 transition text-2xl leading-none">
                                                                         &times;
                                                                     </button>
-
                                                                 </div>
                                                             @endforeach
-
                                                         </div>
                                                     @endif
                                                     @error('images.' . $detail->id) <span

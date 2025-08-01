@@ -9,6 +9,7 @@ use App\Models\Order as OrderModel;
 use App\Models\Rating;
 use Livewire\WithFileUploads;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class Order extends Component
 {
@@ -40,6 +41,8 @@ class Order extends Component
     public $rating = 0;
     public $images = [];
     public $anonymous = [];
+    public $showViewRatingModal = false;
+    public $viewRatings = [];
 
     // =====================
     // return/refund Modal
@@ -135,7 +138,23 @@ class Order extends Component
     // =====================
     // RATING
     // =====================
+    public function viewRating($orderId)
+    {
+ 
 
+        $order = \App\Models\Order::with('orderDetails')->find($orderId);
+        $ratings = [];
+        foreach ($order->orderDetails as $detail) {
+            $rating = \App\Models\Rating::where('user_id', Auth::id())
+                ->where('order_detail_id', $detail->id)
+                ->first();
+            if ($rating) {
+                $ratings[] = $rating;
+            }
+        }
+        $this->viewRatings = $ratings;
+        $this->showViewRatingModal = true;
+    }
     public function setRating($value)
     {
         $this->rating = $value;
@@ -184,10 +203,16 @@ class Order extends Component
             $this->validate([
                 "ratings.{$detail->id}" => 'required|integer|min:1|max:5',
                 "comments.{$detail->id}" => 'required|string|min:10',
+                "images.{$detail->id}" => 'nullable|array|max:3',
+                "images.{$detail->id}.*" => 'file|max:10240|mimes:jpg,jpeg,png,webp,mp4,mov,avi,mpeg,3gp,webm',
             ], [
                 "ratings.{$detail->id}.required" => 'Vui lòng chọn số sao.',
                 "comments.{$detail->id}.required" => 'Vui lòng nhập nhận xét.',
                 "comments.{$detail->id}.min" => 'Nhận xét tối thiểu 10 ký tự.',
+                "images.{$detail->id}.max" => 'Chỉ được chọn tối đa 3 file.',
+                "images.{$detail->id}.*.file" => 'File không hợp lệ.',
+                "images.{$detail->id}.*.max" => 'Mỗi file tối đa 10MB.',
+                "images.{$detail->id}.*.mimes" => 'Chỉ cho phép các định dạng: jpg, jpeg, png, webp, mp4, mov, avi, mpeg, 3gp, webm.',
             ]);
         }
 
@@ -316,6 +341,7 @@ class Order extends Component
 
     public function requestReturnRefund($orderId)
     {
+
         $order = OrderModel::find($orderId);
         if ($order && $order->orders_status === 'Đã giao') {
             $order->update(['orders_status' => 'Chờ trả hàng']);
