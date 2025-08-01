@@ -70,29 +70,49 @@ class ProductEbookResource extends Resource
                         ->label('Tiêu đề')
                         ->required()
                         ->maxLength(255),
-
-                    TextInput::make('author')
-                        ->label('Tác giả')
-                        ->required()
-                        ->maxLength(255),
-
-                    SelectTree::make('categories')
+                    Select::make('publisher_id')->label('Nhà xuất bản')
+                        ->preload()
+                        ->createOptionForm([
+                            TextInput::make('publisher_name')
+                                ->label('Tên nhà xuất bản')
+                                ->rules(['required', 'unique:publishers,publisher_name'])
+                                ->validationMessages([
+                                    'required' => 'Vui lòng nhập thông tin này',
+                                    'unique' => 'Nhà xuất bản này đã tồn tại'
+                                ])
+                        ])
+                        ->relationship('publisher', 'publisher_name')
+                        ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản'])->searchable(),
+                        SelectTree::make('categories')
                         ->label('Phân loại sản phẩm')
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Tên phân loại')
+                                ->rules(['required', 'unique:categories,name'])
+                                ->validationMessages([
+                                    'required' => 'Vui lòng nhập tên phân loại',
+                                    'unique' => 'Phân loại này đã tồn tại'
+                                ])
+                        ])
                         ->relationship('categories', 'name', 'parent_id')
                         ->placeholder('Vui lòng chọn phân loại sản phẩm')
-                        ->required()
-                        ->multiple()
+                        ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn ít nhất 1 phân loại sản phẩm'])
                         ->searchable(),
-
-                    Select::make('tags')
-                        ->label('Thẻ (Tùy chọn)')
+                        select::make('tags')
                         ->relationship('tags', 'tag_name')
                         ->preload()
                         ->searchable()
+                        ->label('Thẻ (Tùy chọn)')
                         ->multiple()
-                        ->placeholder('Chọn các thẻ liên quan'),
-                ]),
-
+                        ->placeholder('Chọn các thẻ liên quan')
+                        ->createOptionForm([
+                            TextInput::make('tag_name')
+                            ->label('Tên thẻ')
+                            ->rules(['required', 'unique:related_tags'])
+                            ->validationMessages(['required' => 'Vui lòng nhập thông tin này', 'unique' => 'Thẻ này đã tồn tại'])
+                        ]),
+                ])
+                ->columns(2),
             Textarea::make('description')
                 ->label('Mô tả')
                 ->rows(3),

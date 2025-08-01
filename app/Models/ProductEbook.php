@@ -46,7 +46,10 @@ class ProductEbook extends Model
             ->exists();
     }
 
-
+    public function publisher()
+    {
+        return $this->belongsTo(Publisher::class, 'publisher_id');
+    }
     public function readProgress()
     {
         return $this->hasMany(EbookReadProgress::class, 'ebook_id');
@@ -61,9 +64,13 @@ class ProductEbook extends Model
     {
         return $this->hasMany(EbookChapter::class, 'ebook_id');
     }
+    // public function tags()
+    // {
+    //     return $this->belongsToMany(RelatedTag::class, 'ebook_tag', 'ebook_id', 'tag_id');
+    // }
     public function tags()
     {
-        return $this->belongsToMany(RelatedTag::class, 'ebook_tag', 'ebook_id', 'tag_id');
+        return $this->belongsToMany(RelatedTag::class, 'product_tags', 'product_id', 'tag_id');
     }
     public function purchasedByUsers()
     {
