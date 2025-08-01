@@ -81,7 +81,7 @@
                           <div class="flex-grow p-3 flex flex-col justify-between">
                               <div>
                                   <h4 class="font-semibold text-base text-gray-800">{{ $voucher->voucher_name }}</h4>
-                                  <p class="text-xs text-gray-600 mt-1">Đơn từ {{ number_format($voucher->requirement_price) }} VNĐ</p>
+                                  <p class="text-xs text-gray-600 mt-1">Đơn từ {{ number_format($voucher->requirement_price) }}<span class="text-sm">đ</span></p>
                                   <p class="text-xs text-gray-500 mt-1">HSD: {{ $voucher->expired_at->format('d/m/Y') }}</p>
                               </div>
                               <div class="flex justify-end mt-2">

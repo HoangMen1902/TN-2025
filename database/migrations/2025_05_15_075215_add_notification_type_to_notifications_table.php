@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('notifications', function (Blueprint $table) {
-            $table->enum('notification_type', ['Tài khoản', 'Khuyến mãi', 'Ưu đãi độc quyền','Đơn hàng', 'Hệ thống'])->default('Khuyến mãi');
+            $table->enum('notification_type', ['Tài khoản', 'Khuyến mãi', 'Ưu đãi độc quyền','Đơn hàng', 'Đơn hàng Ebook', 'Hệ thống'])->default('Khuyến mãi');
         });
     }
 

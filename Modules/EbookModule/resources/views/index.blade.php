@@ -99,7 +99,7 @@
                     </div>
                 @else
                     <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">
-                        Mua trọn bộ sách {{ number_format($ebook->price) }}VNĐ
+                        Mua trọn bộ sách {{ number_format($ebook->price) }}<span class="text-sm">đ</span>
                     </a>
                 @endif
                                   

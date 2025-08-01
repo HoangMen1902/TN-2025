@@ -54,7 +54,7 @@
                     @endif
                     <p class="text-sm text-gray-600">Số lượng: {{ $cart->quantity }}</p>
                     <p class="font-medium text-sm text-red-600 mt-1">Tổng:
-                        {{ number_format($cart->quantity * $price) }} VNĐ
+                        {{ number_format($cart->quantity * $price) }}<span class="text-sm">đ</span>
                     </p>
                 </div>
             </div>
@@ -151,23 +151,23 @@
         <div class="space-y-2 mb-4 pb-4 border-b border-b-neutral-300">
             <div class="flex justify-between">
                 <span class="text-gray-600">Tổng</span>
-                <span>{{ number_format($originalPrice) }} VNĐ</span>
+                <span>{{ number_format($originalPrice) }}<span class="text-sm">đ</span></span>
             </div>
             @if ($voucherDiscount > 0)
                 <div class="flex justify-between">
                     <span class="text-gray-600">Giảm giá</span>
-                    <span class="text-red-600">-{{ number_format($voucherDiscount) }} VNĐ</span>
+                    <span class="text-red-600">-{{ number_format($voucherDiscount) }}<span class="text-sm">đ</span></span>
                 </div>
             @endif
             <div class="flex justify-between">
                 <span class="text-gray-600">Phí ship</span>
-                <span class="text-green-600">{{ number_format($shipping_fee) }} VNĐ</span>
+                <span class="text-green-600">{{ number_format($shipping_fee) }}<span class="text-sm">đ</span></span>
             </div>
         </div>
 
         <div class="flex justify-between items-center mb-6">
             <span class="text-lg font-semibold">Tổng</span>
-            <span class="text-lg font-semibold">{{ number_format($finalPrice) }} VNĐ</span>
+            <span class="text-lg font-semibold">{{ number_format($finalPrice) }}<span class="text-sm">đ</span></span>
         </div>
 
         @php

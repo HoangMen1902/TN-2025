@@ -39,7 +39,7 @@
     
     <div class="w-1/4 bg-white p-4 rounded-xl border">
       <p class="text-gray-800 font-semibold text-sm">Doanh thu</p>
-      <h2 class="text-2xl font-bold mt-2">{{ number_format($this->getRevenue(), 0) }} VNĐ</h2>
+      <h2 class="text-2xl font-bold mt-2">{{ number_format($this->getRevenue(), 0) }}<span class="text-sm">đ</span></h2>
       <p class="text-sm text-green-500 mt-1">+6.65% <span class="text-gray-600">so với tuần trước</span></p>
     </div>
   </div>

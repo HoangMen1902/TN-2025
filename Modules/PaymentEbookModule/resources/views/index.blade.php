@@ -13,20 +13,20 @@
                             <div class="flex-1">
                                 <h3 class="font-medium line-clamp-2">{{ $ebook->title }}</h3>
                                 <p class="text-sm text-gray-600">Số lượng: 1</p>
-                                <p class="font-medium text-sm text-red-600 mt-1">Tổng: {{ number_format($ebook->price) }} VNĐ</p>
+                                <p class="font-medium text-sm text-red-600 mt-1">Tổng: {{ number_format($ebook->price) }}<span class="text-sm">đ</span></p>
                             </div>
                         </div>
 
                         <div class="space-y-2 mb-4 pb-4 border-b border-b-neutral-300">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Tổng</span>
-                                <span>{{ number_format($ebook->price) }} VNĐ</span>
+                                <span>{{ number_format($ebook->price) }}<span class="text-sm">đ</span></span>
                             </div>
                         </div>
 
                         <div class="flex justify-between items-center mb-6">
                             <span class="text-lg font-semibold">Tổng thanh toán</span>
-                            <span class="text-lg font-semibold">{{ number_format($ebook->price) }} VNĐ</span>
+                            <span class="text-lg font-semibold">{{ number_format($ebook->price) }}<span class="text-sm">đ</span></span>
                         </div>
 
                         <section class="bg-white p-6 rounded-lg shadow-sm mb-6">

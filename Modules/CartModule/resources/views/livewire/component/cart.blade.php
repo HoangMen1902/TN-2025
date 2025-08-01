@@ -124,7 +124,7 @@
         '.'
     ) 
 }}
-                                    VNĐ
+                                    <span class="text-sm">đ</span>
                                 </div>
                             </div>
                         </div>
@@ -221,7 +221,7 @@
                             ',',
                             '.'
                         ) }}
-                                    VNĐ
+                                    <span class="text-sm">đ</span>
                                 </div>
                             </div>
                         </div>
@@ -292,7 +292,7 @@
                             ',',
                             '.'
                         ) }}
-                                    VNĐ
+                                    <span class="text-sm">đ</span>
                                 </div>
                             </div>
                         </div>
@@ -311,13 +311,13 @@
             <div class="cart__summary-item flex flex-col md:flex-row md:items-center md:gap-2 mb-2 md:mb-3">
                 <span class="font-medium text-base md:text-lg">Tổng phụ</span>
                 <span class="text-red-700 ml-0 md:ml-2 text-base md:text-lg" wire:loading.remove>
-                    {{ number_format($total_price ?? 0, 0, ',', '.') }} VNĐ
+                    {{ number_format($total_price ?? 0, 0, ',', '.') }} <span class="text-sm">đ</span>
                 </span>
                 <span class="text-red-700 ml-0 md:ml-2 text-base md:text-lg" wire:loading>Đang tính giá tiền..</span>
             </div>
             <div class="cart__summary-item flex flex-col md:flex-row md:items-center md:gap-2 mb-2 md:mb-3">
                 <h3 class="font-bold text-lg md:text-xl text-red-700" wire:loading.remove>
-                    {{ number_format($total_price ?? 0, 0, ',', '.') }} VNĐ
+                    {{ number_format($total_price ?? 0, 0, ',', '.') }} <span class="text-sm">đ</span>
                 </h3>
                 <h3 class="font-bold text-lg md:text-xl text-red-700 ml-0 md:ml-2" wire:loading>Đang tính giá tiền..
                 </h3>

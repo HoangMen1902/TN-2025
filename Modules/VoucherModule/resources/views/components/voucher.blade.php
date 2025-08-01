@@ -46,7 +46,7 @@
 
                     <div class="flex-grow p-4">
                         <h3 class="font-semibold text-lg text-gray-800">{{ $voucher->voucher_name }}</h3>
-                        <p class="text-sm text-gray-600 mt-1">Đơn từ {{ number_format($voucher->requirement_price, 0) }} VNĐ</p>
+                        <p class="text-sm text-gray-600 mt-1">Đơn từ {{ number_format($voucher->requirement_price, 0) }}<span class="text-sm">đ</span></p>
                         <p class="text-xs mt-2 {{ $expiredSoon ? 'text-red-500' : 'text-gray-500' }}">
                             HSD: {{ \Carbon\Carbon::parse($voucher->expired_at)->format('d/m/Y') }}
                         </p>

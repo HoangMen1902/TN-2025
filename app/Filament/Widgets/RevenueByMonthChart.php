@@ -46,7 +46,7 @@ class RevenueByMonthChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Doanh thu (VNĐ)', 
+                    'label' => 'Doanh thu (đ)', 
                     'data' => $data,
                 ],
             ],

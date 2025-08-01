@@ -36,7 +36,7 @@ class UserOrderStats extends BaseWidget
                 ->chart([3, 5, 7, 9, 11, 13]),
 
             Stat::make('Tổng doanh thu', Order::where('orders_status', 'Đã thanh toán')->whereBetween('created_at', [$startDate, $endDate])->sum('total_price'))
-                ->description('Tổng doanh thu (VNĐ)')
+                ->description('Tổng doanh thu (đ)')
                 ->descriptionIcon('heroicon-m-banknotes', \Filament\Support\Enums\IconPosition::Before)
                 ->color('warning')
                 ->chart([100, 200, 300, 400, 500, 600]),

@@ -66,7 +66,7 @@ class VoucherResource extends Resource
                     ]),
 
                 TextInput::make('requirement_price')
-                    ->label('Giá trị đơn hàng tối thiểu (VNĐ)')
+                    ->label('Giá trị đơn hàng tối thiểu (đ)')
                     ->numeric()
                     ->minValue(0)
                     ->rules(['required', 'numeric'])
@@ -92,7 +92,7 @@ class VoucherResource extends Resource
                         fn($get) =>
                         $get('voucher_type') === 'percent'
                             ? 'Phần trăm giảm (%)'
-                            : 'Số tiền giảm (VNĐ)'
+                            : 'Số tiền giảm (đ)'
                     )
                     ->numeric()
                     ->minValue(fn($get) => $get('voucher_type') === 'percent' ? 1 : 1000)
@@ -240,7 +240,7 @@ class VoucherResource extends Resource
                 ->formatStateUsing(function ($state, $record) {
                     return $record->voucher_type === 'percent'
                         ? $state . ' %'
-                        : number_format($state, 0, ',', '.') . ' VNĐ';
+                        : number_format($state, 0, ',', '.') . ' đ';
                 }),
             TextColumn::make('is_redeemable')
                 ->label('Có thể đổi điểm')
