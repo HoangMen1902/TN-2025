@@ -32,6 +32,8 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
+use Filament\Forms\Components\DateTimePicker;
 
 class ProductComboResource extends Resource
 {
@@ -47,8 +49,23 @@ class ProductComboResource extends Resource
     {
         return $form->schema([
             Grid::make(4)->schema([
-                TextInput::make('combo_name')->label('Tên Combo')->rules('required')->validationMessages(['required' => 'Vui lòng nhập tên combo'])->unique(ignoreRecord: true)->columnSpanFull(),
-                TextInput::make('slug')->label('Đường dẫn')->rules('required')->validationMessages(['required' => 'Vui lòng nhập đường dẫn'])->unique(ignoreRecord: true)->columnSpanFull(),
+                Grid::make(2)->schema([
+                    TextInput::make('combo_name')
+                        ->label('Tên Combo')
+                        ->rules('required')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $set('slug', Str::slug($state));
+                        })
+                        ->validationMessages(['required' => 'Vui lòng nhập tên combo'])
+                        ->unique(ignoreRecord: true),
+
+                    TextInput::make('slug')
+                        ->label('Đường dẫn')
+                        ->rules('required')
+                        ->validationMessages(['required' => 'Vui lòng nhập đường dẫn'])
+                        ->unique(ignoreRecord: true),
+                ])->columnSpan(4),
                 RichEditor::make('description')
                     ->label('Mô tả combo')
                     ->columnSpanFull()
@@ -88,15 +105,17 @@ class ProductComboResource extends Resource
                         'required' => 'Vui lòng nhập thông tin này.',
                         'min' => 'Giá khuyến mãi không được nhỏ hơn 0.',
                     ]),
-
-                DatePicker::make('expired_at')
+                    DateTimePicker::make('expired_at')
                     ->label('Ngày hết hạn')
-                    ->minDate(now())
+                    ->displayFormat('d/m/Y H:i') 
+                    ->minDate(now())           
+                    ->seconds(false)             
                     ->rules(['required'])
                     ->validationMessages([
                         'required' => 'Vui lòng chọn ngày hết hạn.',
                     ])
-                    ->columnSpan(2),
+                    ->columnSpan(1),
+
 
 
                 TextInput::make('quantity')
@@ -262,7 +281,7 @@ class ProductComboResource extends Resource
         $skus = $categoryId
             ? ProductSku::with('product')
             ->whereHas('product', function ($q) use ($categoryId) {
-                $q->whereNull('deleted_at') 
+                $q->whereNull('deleted_at')
                     ->whereHas('categories', function ($q2) use ($categoryId) {
                         $q2->where('categories.id', $categoryId);
                     });
