@@ -43,24 +43,22 @@ class WonPrizeResource extends Resource
     }
 
     public static function table(Table $table): Table
-    {
-        return $table->columns([
+{
+    return $table
+        ->columns([
             Tables\Columns\TextColumn::make('username')->label('Người trúng'),
             Tables\Columns\TextColumn::make('user_id')->label('ID'),
             Tables\Columns\TextColumn::make('prize.name')->label('Phần thưởng'),
             Tables\Columns\TextColumn::make('won_at')->dateTime('d/m/Y H:i')->label('Thời gian'),
             Tables\Columns\TextColumn::make('voucher.voucher_code')
-    ->label('Mã voucher')
-    ->sortable()
-    ->copyable()
-    ->color('info'),
-
+                ->label('Mã voucher')
+                ->sortable()
+                ->copyable()
+                ->color('info'),
         ])
-        ->actions([
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
-        ]);
-    }
+        ->actions([]);
+}
+
 
     public static function getRelations(): array
     {
@@ -73,8 +71,7 @@ class WonPrizeResource extends Resource
     {
         return [
             'index' => Pages\ListWonPrizes::route('/'),
-            'create' => Pages\CreateWonPrize::route('/create'),
-            'edit' => Pages\EditWonPrize::route('/{record}/edit'),
+            
         ];
     }
 }

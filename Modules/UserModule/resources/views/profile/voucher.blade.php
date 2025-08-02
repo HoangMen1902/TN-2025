@@ -7,7 +7,7 @@
 
             <div class="bg-white w-full md:w-[900px] py-4 md:py-8 rounded shadow-sm">
                 <div class="mb-4 md:mb-6 flex justify-between items-center px-4">
-                    <h1 class="text-lg md:text-2xl font-medium">Ví Voucher</h1>
+                    <h1 class="text-xl md:text-3xl font-bold text-blue-600 tracking-wide">🎟 Ví Voucher</h1>
                 </div>
 
                 <hr class="border-t border-gray-300 my-2 md:my-4 mx-4">
@@ -18,9 +18,13 @@
                             @foreach($tabs as $id => $label)
                                 <li class="mr-2" role="presentation">
                                     <button
-                                        class="inline-block text-gray-500 p-4 border-b-2 border-transparent {{ $loop->first ? 'border-red-500 text-red-500' : 'hover:text-gray-600 hover:border-gray-300' }} rounded-t-lg"
-                                        id="{{ $id }}-tab" data-tabs-target="#{{ $id }}" type="button" role="tab"
-                                        aria-controls="{{ $id }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                        class="inline-block text-sm md:text-base font-medium px-4 py-2 border-b-4 {{ $loop->first ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-blue-500 hover:border-blue-300' }} transition-colors duration-300"
+                                        id="{{ $id }}-tab"
+                                        data-tabs-target="#{{ $id }}"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="{{ $id }}"
+                                        aria-selected="{{ $loop->first ? 'true' : 'false' }}">
                                         {{ $label }}
                                     </button>
                                 </li>
@@ -32,78 +36,49 @@
                 <div id="notificationTabContent" class="p-4">
                     @foreach($tabs as $id => $label)
                         <div class="tab-content {{ !$loop->first ? 'hidden' : '' }}" id="{{ $id }}">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto">
                                 @foreach ($vouchers as $voucher)
-                                    @if ($id == 'percent' && $voucher['category'] == 'Phần trăm' || $id == 'amount' && $voucher['category'] == 'Cố định')
-                                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex">
-                                            <div class="bg-green-500" style="width: 85px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                                                <img src="{{ $voucher['image'] }}" style="width: 80px; height: 40px;" alt="Voucher icon">
-                                            </div>
+                                    @if (
+                                        $id === 'all' ||
+                                        ($id === 'percent' && $voucher['category'] === 'Phần trăm') ||
+                                        ($id === 'amount' && $voucher['category'] === 'Cố định')
+                                    )
+                                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-400 shadow-md rounded-xl flex overflow-hidden transition-transform duration-300">
+    <div class="bg-blue-500 flex items-center justify-center px-3 text-white font-bold text-sm">
+        <img src="{{ $voucher['image'] }}" class="w-10 h-10 object-contain" alt="Voucher icon">
+    </div>
 
                                             <div class="flex-1 p-4">
-                                                <div class="flex justify-between items-start mb-2">
-                                                    <p class="text-sm font-bold text-gray-800">
-                                                        {{ $voucher['discount'] }}
-                                                    </p>
-                                                    <button type="button" class="text-xs text-blue-600 hover:underline" data-modal-id="voucher-modal-{{ $voucher['id'] }}">Chi tiết</button>
-                                                </div>
-                                                <p class="text-xs text-gray-800 mb-2">
-                                                    {{ $voucher['condition'] }}
-                                                </p>
-                                                <div class="flex items-center mb-2">
-                                                    <div class="flex items-center mb-2" style="background-color: #E3E5E5; border-radius: 4px; padding: 8px 12px;">
-                                                        <svg class="w-4 h-4 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 4h6a2 2 0 012 2v6a2 2 0 01-2 2h-6a2 2 0 01-2-2v-6z" />
-                                                        </svg>
-                                                        <p class="text-sm font-medium">
-    {{ $voucher['code'] }}
-    @if (!empty($voucher['quantity']) && $voucher['quantity'] > 1)
-        <span class="text-xs text-gray-500">(x{{ $voucher['quantity'] }})</span>
-    @endif
-</p>
-
-                                                    </div>
-                                                </div>
-
-                                                <div class="flex justify-between items-center">
-                                                    <p class="text-xs text-gray-500">
-                                                        HSD: {{ $voucher['expiry'] }}
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <p class="text-base font-semibold text-gray-800">
+                                                        🎁 {{ $voucher['discount'] }}
                                                     </p>
                                                     @if ($voucher['is_used'])
-                                                        <span class="text-xs text-gray-500 font-medium">Đã sử dụng</span>
+                                                        <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded">Đã sử dụng</span>
                                                     @else
-                                                        <button type="button" class="bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
+                                                        <button type="button" class="bg-blue-600 text-white text-xs px-3 py-1 rounded-lg hover:bg-blue-700" onclick="copyCode('{{ $voucher['code'] }}')">
                                                             Copy mã
                                                         </button>
                                                     @endif
                                                 </div>
-                                            </div>
-                                        </div>
+                                                <!-- Toast thông báo -->
 
-                                        <!-- Modal chi tiết -->
-                                        <div id="voucher-modal-{{ $voucher['id'] }}" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-                                            <div class="fixed inset-0" style="background-color: #261E1E; opacity: 0.5;" data-modal-backdrop="voucher-modal-{{ $voucher['id'] }}"></div>
-                                            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
-                                                <button type="button" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" data-modal-close="voucher-modal-{{ $voucher['id'] }}">
-                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                                <h2 class="text-lg font-bold text-gray-800 mb-4">Điều kiện áp dụng</h2>
-                                                <div class="p-4 mb-4" style="background-color: #ffdc73; border-radius: 4px;">
-                                                    <p class="text-sm text-gray-800"><strong>Mã giảm giá:</strong> {{ $voucher['discount'] }}</p>
-                                                    <p class="text-sm text-gray-800">{{ $voucher['terms'] }}</p>
-                                                </div>
-                                                <div class="flex justify-between items-center">
-                                                    <p class="text-xs text-gray-500">HSD: {{ $voucher['expiry'] }}</p>
-                                                    @if ($voucher['is_used'])
-                                                        <span class="text-xs text-gray-500 font-medium">Đã sử dụng</span>
-                                                    @else
-                                                        <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600" onclick="copyCode('{{ $voucher['code'] }}')">
-                                                            Copy mã
-                                                        </button>
-                                                    @endif
-                                                </div>
+
+                                                
+                                                <p class="text-sm text-gray-700 mb-1">📄 <strong></strong> {{ $voucher['terms'] }}</p>
+                                                
+                                                <div class="flex items-center justify-between mt-2">
+            <div class="flex items-center bg-gray-100 text-sm text-gray-700 px-3 py-1 rounded">
+                <svg class="w-4 h-4 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 4h6a2 2 0 012 2v6a2 2 0 01-2 2h-6a2 2 0 01-2-2v-6z" />
+                </svg>
+                {{ $voucher['code'] }}
+                @if (!empty($voucher['quantity']) && $voucher['quantity'] > 1)
+                    <span class="ml-1 text-xs text-gray-500">(x{{ $voucher['quantity'] }})</span>
+                @endif
+            </div>
+            <p class="text-xs text-gray-500">⏳ HSD: {{ $voucher['expiry'] }}</p>
+        </div>
                                             </div>
                                         </div>
                                     @endif
@@ -117,6 +92,7 @@
     </div>
 
     <script>
+        
         document.addEventListener('DOMContentLoaded', () => {
             const tabButtons = document.querySelectorAll('[data-tabs-target]');
             const tabContents = document.querySelectorAll('#notificationTabContent > .tab-content');
@@ -128,8 +104,8 @@
                     tabContents.forEach(content => content.classList.add('hidden'));
 
                     tabButtons.forEach(btn => {
-                        btn.classList.remove('border-red-500', 'text-red-500');
-                        btn.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                        btn.classList.remove('border-red-500', 'text-red-600');
+                        btn.classList.add('border-transparent', 'text-gray-500');
                     });
 
                     const targetContent = document.getElementById(targetId);
@@ -137,57 +113,38 @@
                         targetContent.classList.remove('hidden');
                     }
 
-                    button.classList.add('border-red-500', 'text-red-500');
-                    button.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
-                });
-            });
-
-            const modalButtons = document.querySelectorAll('[data-modal-id]');
-            const modalCloses = document.querySelectorAll('[data-modal-close]');
-            const modalBackdrops = document.querySelectorAll('[data-modal-backdrop]');
-
-            modalButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const modalId = button.getAttribute('data-modal-id');
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.remove('hidden');
-                    }
-                });
-            });
-
-            modalCloses.forEach(button => {
-                button.addEventListener('click', () => {
-                    const modalId = button.getAttribute('data-modal-close');
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.add('hidden');
-                    }
-                });
-            });
-
-            modalBackdrops.forEach(backdrop => {
-                backdrop.addEventListener('click', () => {
-                    const modalId = backdrop.getAttribute('data-modal-backdrop');
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.add('hidden');
-                    }
+                    button.classList.add('border-red-500', 'text-red-600');
+                    button.classList.remove('border-transparent', 'text-gray-500');
                 });
             });
         });
-
         function copyCode(code) {
-            navigator.clipboard.writeText(code).then(() => {
-                alert('Mã ' + code + ' đã được sao chép!');
-            }).catch(err => {
-                console.error('Không thể sao chép mã: ', err);
-            });
-        }
-    </script>
-    <script>
-    console.log("Dữ liệu vouchers truyền vào view:");
-    console.log(@json($vouchers));
-</script>
+    navigator.clipboard.writeText(code).then(() => {
+        showToast("Đã sao chép mã: " + code);
+    }).catch(err => {
+        console.error('Không thể sao chép mã: ', err);
+    });
+}
 
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.remove("opacity-0");
+    toast.classList.add("opacity-100");
+
+    setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+    }, 2000);
+}
+
+    </script>
+
+    <script>
+        console.log("Dữ liệu vouchers truyền vào view:");
+        console.log(@json($vouchers));
+    </script>
+<div id="toast"
+     class="fixed bottom-6 right-6 bg-green-500 text-white text-sm font-medium px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-300 z-50">
+</div>
 </x-layouts.layout>

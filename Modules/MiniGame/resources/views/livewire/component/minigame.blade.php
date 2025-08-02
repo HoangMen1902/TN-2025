@@ -1,8 +1,12 @@
 <div>
+    <!-- Nền hiệu ứng chấm màu bay lên -->
+    <div id="particles-bg" class="fixed inset-0 z-0 pointer-events-none"></div>
+
     <div class="container max-w-[1200px] mx-auto bg-white rounded-lg mb-6 shadow-md p-6">
         <!-- Tiêu đề -->
         <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-pink-600">🎡 Vòng Quay May Mắn 🎉</h1>
+            <h1 class="text-3xl font-bold text-pink-600 animate-glow">🎡 Vòng Quay May Mắn 🎉</h1>
+
             <div class="text-center mt-4">
                 <p class="text-lg font-semibold text-green-600">
                     Bạn còn <span class="text-blue-600">{{ $remainingSpins }}</span> lượt quay miễn phí hôm nay
@@ -98,9 +102,9 @@
         <div class=" mt-6 text-left bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm">
                         <h3 class="text-xl font-bold text-yellow-700 mb-2">📜 Quy luật vòng quay</h3>
                         <ul class="list-disc list-inside text-gray-700 text-sm leading-relaxed">
-                            <li>Mỗi ngày bạn có <span class="font-semibold text-green-600">2 lượt quay miễn phí</span>,
+                            <li>Mỗi ngày bạn có <span class="font-semibold text-green-600">1 lượt quay miễn phí</span>,
                                 cách nhau ít
-                                nhất 12 giờ.</li>
+                                nhất 24 giờ.</li>
                             <li>Khi hết lượt, bạn phải chờ đến lượt tiếp theo hoặc quay lại vào ngày hôm sau.</li>
                             <li>Các phần thưởng được phân bổ ngẫu nhiên theo tỷ lệ xác suất.</li>
                             <li>Kết quả sẽ được lưu trong <span class="text-blue-600 font-medium">lịch sử phần
@@ -111,6 +115,8 @@
                 </div>
 
             </div>
+            
+  
 
             <!-- Modal kết quả -->
             <div id="resultModal"
@@ -152,6 +158,39 @@
                     </button>
                 </div>
             </div>
+            <!-- particles.js -->
+            <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+            <!-- Cấu hình particles -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    particlesJS("particles-bg", {
+                        "particles": {
+                            "number": {
+                                "value": 80,
+                                "density": { "enable": true, "value_area": 800 }
+                            },
+                            "color": { "value": ["#f39c12", "#9b59b6", "#3498db", "#e74c3c"] },
+                            "shape": { "type": "circle" },
+                            "opacity": { "value": 0.6, "random": true },
+                            "size": { "value": 4, "random": true },
+                            "move": {
+                                "enable": true,
+                                "speed": 1,
+                                "direction": "top",
+                                "out_mode": "out"
+                            }
+                        },
+                        "interactivity": {
+                            "events": { "onhover": { "enable": false } }
+                        },
+                        "retina_detect": true
+                    });
+                });
+            </script>
+
+
+
 
             <!-- Script biến truyền từ backend -->
             <script>
@@ -159,7 +198,7 @@
                 window.remainingSpins = {{ $remainingSpins ?? 0 }};
                 window.nextSpinTime = @json($nextSpinTime);
                 window.isAdmin = @json(auth()->user()?->email === 'admin@admin.com');
-                window.componentName = "minigame"; 
+                window.componentName = "minigame";
 
             </script>
 
