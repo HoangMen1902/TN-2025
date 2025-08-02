@@ -31,7 +31,12 @@ class OptionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     protected static ?string $label = 'Thuộc tính';
+    protected static ?int $navigationSort = 7;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form

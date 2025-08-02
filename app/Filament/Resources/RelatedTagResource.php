@@ -34,7 +34,11 @@ class RelatedTagResource extends Resource
     protected static ?string $navigationLabel = 'Thẻ sản phẩm';
     protected static ?string $modelLabel = 'Thẻ sản phẩm';
     protected static ?string $pluralModelLabel = 'Các Thẻ sản phẩm';
-
+    protected static ?int $navigationSort = 4;
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form->schema([

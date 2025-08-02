@@ -20,7 +20,10 @@ class WonPrizeResource extends Resource
     protected static ?string $navigationLabel = 'Lịch sử trúng thưởng';
     protected static ?string $pluralModelLabel = 'Lịch sử trúng thưởng';
     protected static ?string $navigationGroup = 'Quản lí Mini Game';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
      public static function form(Form $form): Form
     {
         return $form->schema([

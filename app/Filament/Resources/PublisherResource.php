@@ -40,7 +40,12 @@ class PublisherResource extends Resource
     protected static ?string $navigationLabel = 'Nhà xuất bản';
     protected static ?string $modelLabel = 'Nhà xuất bản';
     protected static ?string $pluralModelLabel = 'Các Nhà xuất bản';
+    protected static ?int $navigationSort = 5;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form

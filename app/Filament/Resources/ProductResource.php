@@ -46,7 +46,7 @@ class ProductResource extends Resource
 
     protected static ?string $label = 'Sản phẩm';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationBadge(): ?string
     {

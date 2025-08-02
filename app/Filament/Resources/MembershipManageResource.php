@@ -36,7 +36,10 @@ class MembershipManageResource extends Resource
     protected static ?string $modelLabel = 'Hội viên';
     protected static ?string $pluralModelLabel = 'Danh sách Hội viên';
     protected static ?string $navigationGroup = 'Quản lý Người Dùng';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function table(Table $table): Table
     {
         return $table

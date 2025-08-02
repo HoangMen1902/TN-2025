@@ -39,7 +39,7 @@ class ProductEbookResource extends Resource
     protected static ?string $navigationLabel = 'Ebook';
     protected static ?string $pluralModelLabel = 'Ebook';
     protected static ?string $modelLabel = 'Ebook';
-
+    protected static ?int $navigationSort = 2;
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

@@ -21,7 +21,10 @@ class OrderEbookResource extends Resource
     protected static ?string $pluralModelLabel = 'Đơn hàng Ebook';
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
     protected static ?string $modelLabel = 'Đơn hàng Ebook';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function table(Table $table): Table
     {
         return $table

@@ -26,7 +26,10 @@ class MembershipResource extends Resource
     protected static ?string $modelLabel = 'Hạng thành viên';
     protected static ?string $pluralModelLabel = 'Các hạng thành viên';
     protected static ?string $navigationGroup = 'Chương trình giảm giá';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form->schema([

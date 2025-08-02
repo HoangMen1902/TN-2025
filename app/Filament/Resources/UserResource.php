@@ -40,7 +40,10 @@ class UserResource extends Resource
     protected static ?string $navigationLabel = 'Người Dùng';
     protected static ?string $modelLabel = 'Người Dùng';
     protected static ?string $pluralModelLabel = 'Các Người Dùng';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form->schema([

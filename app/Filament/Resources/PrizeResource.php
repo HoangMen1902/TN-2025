@@ -20,7 +20,10 @@ class PrizeResource extends Resource
     protected static ?string $navigationLabel = 'Phần thưởng';
     protected static ?string $pluralModelLabel = 'Phần thưởng';
     protected static ?string $navigationGroup = 'Quản lí Mini Game';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
      public static function form(Form $form): Form
     {
         return $form->schema([

@@ -38,7 +38,10 @@ class NotificationResource extends Resource
     protected static ?string $navigationLabel = 'Thông báo';
     protected static ?string $modelLabel = 'Thông báo';
     protected static ?string $pluralModelLabel = 'Các Thông báo';
-
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
     public static function form(Form $form): Form
     {
         return $form
