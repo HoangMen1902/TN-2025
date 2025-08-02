@@ -11,6 +11,65 @@ use Smalot\PdfParser\Parser;
 
 class PdfSplitController extends Controller
 {
+
+    public function autoSplitByToc($ebookId, $tocPage = 1)
+    {
+        $ebook = ProductEbook::findOrFail($ebookId);
+        $pdfPath = Storage::disk('public')->path($ebook->file_path);
+
+        $text = $this->extractPageText($pdfPath, $tocPage);
+        $chapters = $this->parseChaptersFromTocText($text);
+
+        $this->splitPdf($ebookId, $chapters);
+    }
+
+    protected function extractPageText($pdfPath, $pageNumber): ?string
+    {
+        $tempPath = storage_path("app/temp_page.pdf");
+
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $pageCount = $pdf->setSourceFile($pdfPath);
+
+        // Kiểm tra page hợp lệ
+        if ($pageNumber < 1 || $pageNumber > $pageCount) {
+            throw new \Exception("Trang $pageNumber không tồn tại (PDF có $pageCount trang)");
+        }
+
+        $tplId = $pdf->importPage($pageNumber);
+
+        $pdf->AddPage();
+        $pdf->useTemplate($tplId);
+
+        $pdf->Output($tempPath, 'F');
+
+        $parser = new \Smalot\PdfParser\Parser();
+        try {
+            $parsed = $parser->parseFile($tempPath);
+            return $parsed->getText();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+
+    protected function parseChaptersFromTocText($text): array
+    {
+        $lines = explode("\n", $text);
+        $chapters = [];
+
+        foreach ($lines as $line) {
+            if (preg_match('/(Chương\s+\d+)[\s\p{Z}\.]*?(\d+)/u', trim($line), $matches)) {
+                $chapters[] = [
+                    'chapter_name' => $matches[1],
+                    'start_page' => (int)$matches[2],
+                ];
+            }
+        }
+        for ($i = 0; $i < count($chapters) - 1; $i++) {
+            $chapters[$i]['end_page'] = $chapters[$i + 1]['start_page'] - 1;
+        }
+        return $chapters;
+    }
     public function splitPdf($ebookId, array $chapters = [])
     {
         // Tìm ebook theo ID
@@ -38,38 +97,6 @@ class PdfSplitController extends Controller
         $pdf = new Fpdi();
         $pageCount = $pdf->setSourceFile($pdfPath);
 
-        // foreach ($chapters as $chapter) {
-        //     // Kiểm tra phạm vi trang hợp lệ
-        //     if (
-        //         !isset($chapter['start_page']) ||
-        //         !isset($chapter['end_page']) ||
-        //         $chapter['start_page'] < 1 ||
-        //         $chapter['end_page'] > $pageCount ||
-        //         $chapter['start_page'] > $chapter['end_page']
-        //     ) {
-        //         continue; // Bỏ qua nếu phạm vi không hợp lệ
-        //     }
-
-        //     $newPdf = new Fpdi();
-        //     for ($pageNo = $chapter['start_page']; $pageNo <= $chapter['end_page']; $pageNo++) {
-        //         $newPdf->AddPage();
-        //         $newPdf->setSourceFile($pdfPath);
-        //         $tplId = $newPdf->importPage($pageNo);
-        //         $newPdf->useTemplate($tplId);
-        //     }
-
-        //     // Lưu file chương
-        //     $chapterPath = "ebooks/chapters/{$ebookId}_" . Str::slug($chapter['chapter_name']) . ".pdf";
-        //     $newPdf->Output(Storage::disk('public')->path($chapterPath), 'F');
-
-        //     // Lưu thông tin chương vào cơ sở dữ liệu
-        //     $ebook->chapters()->create([
-        //         'chapter_name' => $chapter['chapter_name'],
-        //         'file_path' => $chapterPath,
-        //         'start_page' => $chapter['start_page'],
-        //         'end_page' => $chapter['end_page'],
-        //     ]);
-        // }
 
         foreach ($chapters as $chapter) {
             if (
@@ -112,7 +139,7 @@ class PdfSplitController extends Controller
                 'start_page' => $chapter['start_page'],
                 'end_page' => $chapter['end_page'],
                 'content' => $pdfText,
-                'is_locked' => isset($chapter['is_locked']) ? (bool)$chapter['is_locked'] : false, 
+                'is_locked' => isset($chapter['is_locked']) ? (bool)$chapter['is_locked'] : false,
             ]);
         }
 

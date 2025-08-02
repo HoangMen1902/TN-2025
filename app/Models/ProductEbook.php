@@ -70,7 +70,7 @@ class ProductEbook extends Model
     // }
     public function tags()
     {
-        return $this->belongsToMany(RelatedTag::class, 'product_tags', 'product_id', 'tag_id');
+        return $this->belongsToMany(RelatedTag::class, 'ebook_tag', 'ebook_id', 'tag_id');
     }
     public function purchasedByUsers()
     {

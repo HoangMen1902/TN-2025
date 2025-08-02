@@ -70,20 +70,24 @@ class ProductEbookResource extends Resource
                         ->label('Tiêu đề')
                         ->required()
                         ->maxLength(255),
-                    Select::make('publisher_id')->label('Nhà xuất bản')
-                        ->preload()
-                        ->createOptionForm([
-                            TextInput::make('publisher_name')
-                                ->label('Tên nhà xuất bản')
-                                ->rules(['required', 'unique:publishers,publisher_name'])
-                                ->validationMessages([
-                                    'required' => 'Vui lòng nhập thông tin này',
-                                    'unique' => 'Nhà xuất bản này đã tồn tại'
-                                ])
-                        ])
-                        ->relationship('publisher', 'publisher_name')
-                        ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản'])->searchable(),
-                        SelectTree::make('categories')
+                    TextInput::make('author')
+                        ->label('Tác giả')
+                        ->required()
+                        ->maxLength(255),
+                    // Select::make('publisher_id')->label('Nhà xuất bản')
+                    //     ->preload()
+                    //     ->createOptionForm([
+                    //         TextInput::make('publisher_name')
+                    //             ->label('Tên nhà xuất bản')
+                    //             ->rules(['required', 'unique:publishers,publisher_name'])
+                    //             ->validationMessages([
+                    //                 'required' => 'Vui lòng nhập thông tin này',
+                    //                 'unique' => 'Nhà xuất bản này đã tồn tại'
+                    //             ])
+                    //     ])
+                    //     ->relationship('publisher', 'publisher_name')
+                    //     ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn nhà xuất bản'])->searchable(),
+                    SelectTree::make('categories')
                         ->label('Phân loại sản phẩm')
                         ->createOptionForm([
                             TextInput::make('name')
@@ -98,7 +102,7 @@ class ProductEbookResource extends Resource
                         ->placeholder('Vui lòng chọn phân loại sản phẩm')
                         ->rules(['required'])->validationMessages(['required' => 'Vui lòng chọn ít nhất 1 phân loại sản phẩm'])
                         ->searchable(),
-                        select::make('tags')
+                    select::make('tags')
                         ->relationship('tags', 'tag_name')
                         ->preload()
                         ->searchable()
@@ -107,10 +111,38 @@ class ProductEbookResource extends Resource
                         ->placeholder('Chọn các thẻ liên quan')
                         ->createOptionForm([
                             TextInput::make('tag_name')
-                            ->label('Tên thẻ')
-                            ->rules(['required', 'unique:related_tags'])
-                            ->validationMessages(['required' => 'Vui lòng nhập thông tin này', 'unique' => 'Thẻ này đã tồn tại'])
+                                ->label('Tên thẻ')
+                                ->rules(['required', 'unique:related_tags'])
+                                ->validationMessages(['required' => 'Vui lòng nhập thông tin này', 'unique' => 'Thẻ này đã tồn tại'])
                         ]),
+                    //     Section::make('Thông tin Ebook')
+                    // ->schema([
+                    //     TextInput::make('title')
+                    //         ->label('Tiêu đề')
+                    //         ->required()
+                    //         ->maxLength(255),
+
+                    //     TextInput::make('author')
+                    //         ->label('Tác giả')
+                    //         ->required()
+                    //         ->maxLength(255),
+
+                    //     SelectTree::make('categories')
+                    //         ->label('Phân loại sản phẩm')
+                    //         ->relationship('categories', 'name', 'parent_id')
+                    //         ->placeholder('Vui lòng chọn phân loại sản phẩm')
+                    //         ->required()
+                    //         ->multiple()
+                    //         ->searchable(),
+
+                    //     Select::make('tags')
+                    //         ->label('Thẻ (Tùy chọn)')
+                    //         ->relationship('tags', 'tag_name')
+                    //         ->preload()
+                    //         ->searchable()
+                    //         ->multiple()
+                    //         ->placeholder('Chọn các thẻ liên quan'),
+                    // ]),
                 ])
                 ->columns(2),
             Textarea::make('description')
@@ -174,49 +206,110 @@ class ProductEbookResource extends Resource
                 Action::make('split_chapters')
                     ->label('Tách Chương')
                     ->icon('heroicon-o-scissors')
+                    // ->form(function (Model $record) {
+                    //     $filePath = $record->file_path;
+                    //     $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+                    //     if ($extension === 'pdf') {
+                    //         return [
+                    //             Forms\Components\Repeater::make('chapters')
+                    //                 ->label('Danh sách chương')
+                    //                 ->schema([
+                    //                     TextInput::make('chapter_name')
+                    //                         ->label('Tên chương')
+                    //                         ->required(),
+                    //                     TextInput::make('start_page')
+                    //                         ->label('Trang bắt đầu')
+                    //                         ->numeric()
+                    //                         ->required()
+                    //                         ->minValue(1),
+                    //                     TextInput::make('end_page')
+                    //                         ->label('Trang kết thúc')
+                    //                         ->numeric()
+                    //                         ->required()
+                    //                         ->minValue(1),
+                    //                     Toggle::make('is_locked')
+                    //                         ->label('Khóa chương')
+                    //                         ->onColor('danger')
+                    //                         ->offColor('success')
+                    //                         ->onIcon('heroicon-o-lock-closed')
+                    //                         ->offIcon('heroicon-o-lock-open')
+                    //                         ->default(true),
+
+                    //                 ])
+                    //                 ->columns(3),
+                    //         ];
+                    //     }
+                    //     return []; // Không cần form cho ePub
+                    // })
                     ->form(function (Model $record) {
                         $filePath = $record->file_path;
                         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
                         if ($extension === 'pdf') {
                             return [
+                                Select::make('mode')
+                                    ->label('Chế độ tách chương')
+                                    ->options([
+                                        'manual' => 'Tách thủ công',
+                                        'auto' => 'Tách tự động từ mục lục',
+                                    ])
+                                    ->default('manual')
+                                    ->reactive(),
+
+                                // Tách thủ công
                                 Forms\Components\Repeater::make('chapters')
                                     ->label('Danh sách chương')
                                     ->schema([
-                                        TextInput::make('chapter_name')
-                                            ->label('Tên chương')
-                                            ->required(),
-                                        TextInput::make('start_page')
-                                            ->label('Trang bắt đầu')
-                                            ->numeric()
-                                            ->required()
-                                            ->minValue(1),
-                                        TextInput::make('end_page')
-                                            ->label('Trang kết thúc')
-                                            ->numeric()
-                                            ->required()
-                                            ->minValue(1),
-                                        Toggle::make('is_locked')
-                                            ->label('Khóa chương')
-                                            ->onColor('danger')
-                                            ->offColor('success')
-                                            ->onIcon('heroicon-o-lock-closed')
-                                            ->offIcon('heroicon-o-lock-open')
-                                            ->default(true),
-
+                                        TextInput::make('chapter_name')->label('Tên chương')->required(),
+                                        TextInput::make('start_page')->label('Trang bắt đầu')->numeric()->required()->minValue(1),
+                                        TextInput::make('end_page')->label('Trang kết thúc')->numeric()->required()->minValue(1),
+                                        Toggle::make('is_locked')->label('Khóa chương')->default(true),
                                     ])
-                                    ->columns(3),
+                                    ->columns(3)
+                                    ->visible(fn($get) => $get('mode') === 'manual'),
+
+                                // Tách tự động
+                                TextInput::make('toc_page')
+                                    ->label('Trang chứa mục lục')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->required()
+                                    ->visible(fn($get) => $get('mode') === 'auto'),
                             ];
                         }
-                        return []; // Không cần form cho ePub
+
+                        return []; // Không xử lý epub
                     })
+
+                    // ->action(function (Model $record, array $data) {
+                    //     $filePath = $record->file_path;
+                    //     $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+                    //     if ($extension === 'pdf') {
+                    //         $controller = new PdfSplitController();
+                    //         $controller->splitPdf($record->id, $data['chapters'] ?? []);
+                    //     } elseif ($extension === 'epub') {
+                    //         $controller = new EpubSplitController();
+                    //         $controller->splitEpub($record->id);
+                    //     } else {
+                    //         throw new \Exception('Định dạng file không được hỗ trợ.');
+                    //     }
+                    // })
                     ->action(function (Model $record, array $data) {
                         $filePath = $record->file_path;
                         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
                         if ($extension === 'pdf') {
                             $controller = new PdfSplitController();
-                            $controller->splitPdf($record->id, $data['chapters'] ?? []);
+
+                            if ($data['mode'] === 'manual') {
+                                $controller->splitPdf($record->id, $data['chapters'] ?? []);
+                            } elseif ($data['mode'] === 'auto') {
+                                $controller->autoSplitByToc($record->id, $data['toc_page'] ?? 1);
+                            } else {
+                                throw new \Exception('Chế độ tách chương không hợp lệ.');
+                            }
                         } elseif ($extension === 'epub') {
                             $controller = new EpubSplitController();
                             $controller->splitEpub($record->id);
