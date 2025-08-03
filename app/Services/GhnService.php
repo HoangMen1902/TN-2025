@@ -216,7 +216,7 @@ class GhnService
                 "service_type_id" => $serviceTypeId,
                 "from_ward_code" => $this->shop_ward_id,
                 "to_district_id" => (int)$user_district,
-                "to_ward_code" => "600401",
+                "to_ward_code" => (string)$user_ward,
                 "length" => $size['length'],
                 "width" => $size['width'],
                 "height" => $size['height'],
