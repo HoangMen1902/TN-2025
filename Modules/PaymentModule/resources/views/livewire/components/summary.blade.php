@@ -69,7 +69,7 @@
             <div class="flex space-x-2">
                 <input type="text" wire:model.defer="voucherCode" name="voucher_code"
                     class="flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Nhập mã giảm giá">
-                <button type="button" wire:click="applyVoucher"
+                <button type="button" wire:click="applyVoucher(true)"
                     class="px-2 py-2 bg-blue-500 text-white rounded-lg transition hover:bg-blue-700">
                     Áp dụng
                 </button>

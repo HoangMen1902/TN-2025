@@ -6,6 +6,7 @@ use App\Models\FlashsaleProduct;
 use Livewire\Component;
 use App\Models\Voucher;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
 
@@ -26,8 +27,9 @@ class Summary extends Component
     public int $voucher_applied_id;
     public bool $applied_voucher = false;
 
-
+    public bool $is_first = true;
     public $submitable = false;
+
 
     #[On('update-submit')]
     public function updateSubmit()
@@ -46,9 +48,13 @@ class Summary extends Component
         $this->shipping_fee = $fee;
         $this->original_shipping_fee = $this->shipping_fee;
         $this->finalPrice += $this->shipping_fee;
+        if ($this->is_first || !$this->applied_voucher) {
+            $this->is_first = false;
+        } else {
+            $this->dispatch('apply-voucher');
+        }
         session()->put('order_total', $this->finalPrice);
         $this->dispatch('update-submit');
-        $this->dispatch('apply-voucher');
     }
 
 
@@ -76,7 +82,7 @@ class Summary extends Component
                     'discount_amount' => $item->flashsale->discount_amount
                 ]
             ];
-        })->toArray();        
+        })->toArray();
         $this->flashsale_products = $flashsaleMap;
 
         return $flashsaleMap;
@@ -115,15 +121,20 @@ class Summary extends Component
 
 
         $this->availableVouchers = Voucher::where('voucher_status', 'active')->where('start_at', '<', now())->where('expired_at', '>', now())
-            ->whereHas('voucherUsed', function($q) {
+            ->whereHas('voucherUsed', function ($q) {
                 $q->where('is_used', false);
             })->get();
     }
 
     #[On('apply-voucher')]
-    public function applyVoucher()
+    public function applyVoucher($is_chosen = false)
     {
+
+        // if($is_chosen) {
         $this->finalPrice = $this->originalPrice;
+        // } else {
+        //     return;
+        // }
         $this->shipping_fee = $this->original_shipping_fee;
 
         $totalPrice = $this->originalPrice;
@@ -171,6 +182,8 @@ class Summary extends Component
                     $discountAmount = $voucher_max_amount;
                 }
                 $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+                $this->finalPrice += $this->shipping_fee;
+                $this->applied_voucher = true;
             } elseif ($voucher->voucher_type === "amount") {
 
                 if ($this->shipping_fee <= 0 && !$this->applied_voucher) {
@@ -179,7 +192,11 @@ class Summary extends Component
                 }
                 $discountAmount = ($voucher->reduced_amount);
                 $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+                $this->finalPrice += $this->shipping_fee;
+                $this->applied_voucher = true;
+
             }
+
             Session::put('shipping_fee', $this->shipping_fee);
             $this->voucherDiscount = $discountAmount;
         }
@@ -191,11 +208,13 @@ class Summary extends Component
                     $discountAmount = $voucher_max_amount;
                 }
                 $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->finalPrice - $discountAmount);
+                
             } elseif ($voucher->voucher_type === 'amount') {
                 $discountAmount = ($voucher->reduced_amount);
                 $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
             }
             $this->voucherDiscount = $discountAmount;
+            $this->applied_voucher = true;
         }
         $this->voucherMessage = 'Đã áp dụng mã giảm giá thành công!';
         session()->put('order_total', $this->finalPrice);
