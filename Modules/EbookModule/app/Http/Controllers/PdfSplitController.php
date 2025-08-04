@@ -30,7 +30,6 @@ class PdfSplitController extends Controller
         $pdf = new \setasign\Fpdi\Fpdi();
         $pageCount = $pdf->setSourceFile($pdfPath);
 
-        // Kiểm tra page hợp lệ
         if ($pageNumber < 1 || $pageNumber > $pageCount) {
             throw new \Exception("Trang $pageNumber không tồn tại (PDF có $pageCount trang)");
         }
@@ -55,8 +54,7 @@ class PdfSplitController extends Controller
     protected function parseChaptersFromTocText($text): array
     {
         $lines = explode("\n", $text);
-        $chapters = [];
-
+        $chapters = []; 
         foreach ($lines as $line) {
             if (preg_match('/(Chương\s+\d+)[\s\p{Z}\.]*?(\d+)/u', trim($line), $matches)) {
                 $chapters[] = [
@@ -67,6 +65,9 @@ class PdfSplitController extends Controller
         }
         for ($i = 0; $i < count($chapters) - 1; $i++) {
             $chapters[$i]['end_page'] = $chapters[$i + 1]['start_page'] - 1;
+        }  
+        foreach ($chapters as $index => &$chapter) {
+            $chapter['is_locked'] = $index === 0 ? 0 : 1;
         }
         return $chapters;
     }
