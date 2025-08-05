@@ -172,7 +172,7 @@ class PaymentModuleController extends Controller
             }
 
             do {
-                $trackingId = Str::uuid();
+                $trackingId =   strtoupper(Str::random(8));
             } while (PaymentDetail::where('tracking_id', $trackingId)->exists());
 
             $paymentMethod = $request->payment_method;
