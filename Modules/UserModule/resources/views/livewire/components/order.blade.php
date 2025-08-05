@@ -151,6 +151,11 @@
                                         'color' => 'text-yellow-500',
                                         'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
                                     ],
+                                    'Chờ thanh toán' => [
+                                        'label' => 'Chờ thanh toán',
+                                        'color' => 'text-blue-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
+                                    ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
                                         'color' => 'text-blue-500',

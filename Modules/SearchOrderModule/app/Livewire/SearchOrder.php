@@ -46,7 +46,16 @@ class SearchOrder extends Component
         $this->result = null;
 
         // Tìm đơn theo tracking_id
-        $order = Order::where('shipping_order_code', $this->tracking_id)->first();
+        $payment = PaymentDetail::where('tracking_id', $this->tracking_id)->first();
+
+        if(!$payment) {
+            $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng với mã này!');
+            Log::error('Tra cứu đơn hàng thất bại: Không tìm thấy đơn với mã shipping_order_code = ' . $this->tracking_id);
+            $this->error = 'Không tìm thấy đơn hàng với mã này!';
+            return;
+        }
+
+        $order = $payment->order->shipping_order_code;
 
         if (!$order) {
             $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng với mã này!');
@@ -56,7 +65,7 @@ class SearchOrder extends Component
         }
 
         // Lấy đơn vị vận chuyển từ paymentDetail
-        $paymentDetail = $order->paymentDetail;
+        $paymentDetail = $payment;
         $shipment_unit = strtolower($paymentDetail->shipment_unit ?? '');
 
         if (!$shipment_unit) {
@@ -68,7 +77,7 @@ class SearchOrder extends Component
 
         if ($shipment_unit === 'giao hàng nhanh') {
             $ghn = new GhnService();
-            $apiResult = $ghn->trackOrder($this->tracking_id);
+            $apiResult = $ghn->trackOrder($order);
 
 
             $data = $apiResult['data'] ?? [];
