@@ -48,7 +48,7 @@ class SearchOrder extends Component
         // Tìm đơn theo tracking_id
         $payment = PaymentDetail::where('tracking_id', $this->tracking_id)->first();
 
-        if(!$payment) {
+        if (!$payment) {
             $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng với mã này!');
             Log::error('Tra cứu đơn hàng thất bại: Không tìm thấy đơn với mã shipping_order_code = ' . $this->tracking_id);
             $this->error = 'Không tìm thấy đơn hàng với mã này!';
@@ -98,26 +98,53 @@ class SearchOrder extends Component
                 ],
             ];
         } elseif ($shipment_unit === 'viettel post') {
-            $viettel = new ViettelPostService();
-            $apiResult = $viettel->trackOrder($this->tracking_id);
+            $vtpService =  new ViettelPostService();
 
-            $data = $apiResult['data'] ?? $apiResult;
+            $shopInfo = $vtpService->getShopInventoryId(true);
+
+            $created_at = $payment->order->created_at;
+            $pickup_at = $created_at->copy()->addDay();
+            $recieve_at = $pickup_at->copy()->addDays(2);
             $this->result = [
-                'unit' => 'ViettelPost',
+                'unit' => 'GHN',
                 'data' => [
-                    'order_code'      => $data['ORDER_NUMBER'] ?? '',
-                    'pick_date'    => $this->beautifyDatetime($data['ORDER_DATE'] ?? ''),
-                    'deliver_date' => $this->beautifyDatetime($data['DELIVERY_DATE'] ?? ''),
-                    'status' => $this->beautifyStatus($data['ORDER_STATUS'] ?? ''),
-                    'sender_name'     => $data['SENDER_FULLNAME'] ?? '',
-                    'sender_phone'    => $data['SENDER_PHONE'] ?? '',
-                    'sender_address'  => $data['SENDER_ADDRESS'] ?? '',
-                    'receiver_name'   => $data['RECEIVER_FULLNAME'] ?? '',
-                    'receiver_phone'  => $data['RECEIVER_PHONE'] ?? '',
-                    'receiver_address' => $data['RECEIVER_ADDRESS'] ?? '',
+                    'order_code'      => $payment->tracking_id ?? '',
+                    'pick_date' => $pickup_at?->format('d-m-Y'),
+                    'deliver_date' => $recieve_at?->format('d-m-Y'),
+                    'status' => $this->beautifyStatus($payment->order->orders_status ?? ''),
+                    'sender_name'     => 'Beebook' ?? '',
+                    'sender_phone'    => $shopInfo['phone'] ?? '',
+                    'sender_address'  => $shopInfo['address'] ?? '',
+                    'receiver_name'   => $payment->order->customer_name ?? '',
+                    'receiver_phone'  => $payment->order->phone ?? '',
+                    'receiver_address' => $payment->order->address ?? '',
                     'history'         => [],
                 ],
             ];
+            // $viettel = new ViettelPostService();
+            // $apiResult = $viettel->trackOrder($this->tracking_id);
+
+            // $data = $apiResult['data'] ?? $apiResult;
+            // $this->result = [
+            //     'unit' => 'ViettelPost',
+            //     'data' => [
+            //         'order_code'      => $data['ORDER_NUMBER'] ?? '',
+            //         'pick_date'    => $this->beautifyDatetime($data['ORDER_DATE'] ?? ''),
+            //         'deliver_date' => $this->beautifyDatetime($data['DELIVERY_DATE'] ?? ''),
+            //         'status' => $this->beautifyStatus($data['ORDER_STATUS'] ?? ''),
+            //         'sender_name'     => $data['SENDER_FULLNAME'] ?? '',
+            //         'sender_phone'    => $data['SENDER_PHONE'] ?? '',
+            //         'sender_address'  => $data['SENDER_ADDRESS'] ?? '',
+            //         'receiver_name'   => $data['RECEIVER_FULLNAME'] ?? '',
+            //         'receiver_phone'  => $data['RECEIVER_PHONE'] ?? '',
+            //         'receiver_address' => $data['RECEIVER_ADDRESS'] ?? '',
+            //         'history'         => [],
+            //     ],
+            // ];
+
+
+
+
         } else {
             $this->error = 'Không xác định được đơn vị vận chuyển! 2' . $shipment_unit;
             $this->dispatch('toast', type: 'error', message: 'Không xác định được đơn vị vận chuyển!');

@@ -27,6 +27,7 @@ class ViettelPostService
     private $addressToken;
     private $cusId;
 
+    
     public function __construct()
     {
         $provider = Provider::where('provider_name', 'Viettel Post')->first();
@@ -848,13 +849,11 @@ class ViettelPostService
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'Token' => $this->token,
                 'Content-Type' => 'application/json',
-            ])->post('https://api.viettelpost.vn/api/orders/viewTrackingOrders3', $requestData);
+            ])->post('https://partner.viettelpost.vn/v2/order/getOrderDetail', $requestData);
 
             Log::info('ViettelPost tracking response', [
-                'status' => $response->status(),
-                'headers' => $response->headers(),
                 'body' => $response->body(),
-                'json' => $response->json(),
+                'data' => $response->json()
             ]);
 
             if ($response->successful()) {
@@ -879,7 +878,7 @@ class ViettelPostService
         }
     }
 
-    public function getShopInventoryId()
+    public function getShopInventoryId($fullData = false)
     {
         $provider = Provider::where('provider_name', 'Viettel Post')->first();
         $token = Crypt::decrypt($provider->provider_token ?? '');
@@ -893,7 +892,9 @@ class ViettelPostService
             $inventories = $response->json('data');
 
             if (!empty($inventories)) {
-
+                if($fullData) {
+                    return $inventories[0];
+                }
                 return $inventories[0]['groupaddressId'];
             }
         }
