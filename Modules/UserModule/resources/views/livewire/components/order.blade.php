@@ -1,3 +1,7 @@
+@php
+    use Carbon\Carbon;
+    $now = Carbon::now();
+@endphp
 <div class="">
     <div class="bg-white w-full md:w-[900px] py-4 md:py-8 rounded shadow-sm">
         <div class="mb-4 md:mb-6 flex justify-between items-center px-4">
@@ -151,11 +155,6 @@
                                         'color' => 'text-yellow-500',
                                         'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
                                     ],
-                                    'Chờ thanh toán' => [
-                                        'label' => 'Chờ thanh toán',
-                                        'color' => 'text-blue-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
-                                    ],
                                     'Đã thanh toán' => [
                                         'label' => 'Đã thanh toán',
                                         'color' => 'text-blue-500',
@@ -189,6 +188,19 @@
                                 ];
 
                                 $status = $order->orders_status;
+                                if ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at > $now)) {
+                                    $statusMessages[$status] = [
+                                        'label' => 'Chờ thanh toán',
+                                        'color' => 'text-blue-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
+                                    ];
+                                } elseif ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at < $now)) {
+                                    $statusMessages[$status] = [
+                                        'label' => 'Đã hủy',
+                                        'color' => 'text-red-500',
+                                        'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
+                                    ];
+                                }
                                 $statusInfo = $statusMessages[$status] ?? ['label' => 'Không rõ trạng thái', 'color' => 'text-gray-500', 'icon' => ''];
                                 $total_price = $order->orderDetails->sum(function ($detail) {
                                     return $detail->price * $detail->quantity;
@@ -267,6 +279,14 @@
                                     <div class="text-sm text-red-500">
                                         Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.
                                     </div>
+                                @elseif($status === "Chờ thanh toán")
+                                    @if ($order->paymentDetail->payment_expired_at > $now)
+                                        <a href="{{$order->paymentDetail->payment_url}}" class="bg-red-500 px-4 py-2 rounded-lg text-white font-bold" >Thanh toán ngay</a>
+                                    @else
+                                        <div class="text-sm text-red-500">
+                                            Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.
+                                        </div>
+                                    @endif
                                 @else
                                     <div class="text-sm text-gray-500">
                                         Trạng thái đơn hàng không xác định.
