@@ -34,7 +34,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\RestoreAction;
 use Filament\Tables\Actions\ForceDeleteAction;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Str;
 use function Laravel\Prompts\select;
 
 class ProductResource extends Resource
@@ -62,15 +62,18 @@ class ProductResource extends Resource
                 TextInput::make('slug')
                     ->label('Đường dẫn sản phẩm')
                     ->rules([
-                        'required',
+                        'unique:products,slug',
                         'regex:/^[a-z0-9\-]+$/'
                     ])
                     ->validationMessages([
-                        'required' => 'Vui lòng điền thông tin *',
+                        'unique' => 'Slug đã tồn tại.',
                         'regex' => 'Slug chỉ được chứa chữ thường không dấu, số và dấu gạch ngang (không dấu cách, không dấu tiếng Việt)',
                     ])
                     ->placeholder('VD: san-pham-vi-du')
+                    ->helperText('Để trống để tự động tạo từ tên sản phẩm')
+                    ->default(fn($get) => $get('name') ? Str::slug($get('name')) : null)
                     ->unique(ignoreRecord: true)
+                    ->dehydrateStateUsing(fn($state, $record, $set) => $state ?: null) // Dòng này giúp truyền null nếu để trống
                     ->columnSpanFull(),
                 RichEditor::make('short_description')->label('Mô tả ngắn')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 RichEditor::make('description')->label('Mô tả')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *']),
@@ -301,7 +304,7 @@ class ProductResource extends Resource
                 SoftDeletingScope::class,
             ]));
     }
-
+  
     public static function getRelations(): array
     {
         return [];
