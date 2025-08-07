@@ -90,42 +90,38 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="w-full md:w-1/7 p-1 md:p-2 flex flex-col items-center justify-center">
-                                    <div class="flex items-center ">
-                                        <button
-                                            class="w-6 h-6 rounded-full border border-gray-500 text-base md:text-xl leading-none flex items-center justify-center hover:bg-gray-200"
-                                            wire:click="decreaseQuantity({{ $item->id }})">−</button>
-                                        <span
-                                            class="w-8 md:w-10 text-center text-sm md:text-base">{{ $quantities[$item->id] ?? 1 }}</span>
-                                        <button
-                                            class="w-6 h-6 rounded-full border border-gray-500 text-base md:text-xl leading-none flex items-center justify-center hover:bg-gray-200"
-                                            wire:click="increaseQuantity({{ $item->id }})">+</button>
-                                    </div>
-                                    <button wire:key="cart-item-{{ $item->id }}" wire:click="removeItem({{ $item->id }})"
-                                        class="mt-1 md:mt-2 text-gray-600 hover:text-red-500">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                            stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div
-                                    class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base">
-              {{ isset($discounted_price) && $type === 'sku' 
-    ? number_format($discounted_price, 0, ',', '.') 
-    : number_format(
-        ($type === 'sku'
-            ? ($item->sku->sale_price ?? $item->sku->price ?? 0)
-            : ($item->combo->sale_price ?? 0)
-        ) * ($quantities[$item->id] ?? $item->quantity ?? 1),
-        0,
-        ',',
-        '.'
-    ) 
-}}
-                                    <span class="text-sm">đ</span>
-                                </div>
+                               <div class="w-full md:w-1/7 flex flex-col items-center justify-center">
+                              <div class="flex items-center mb-2">
+                                   <button
+                                      class="w-2 h-2 rounded-full border border-gray-500 text-base md:text-lg leading-none flex items-center justify-center hover:bg-gray-200"
+                                      style="min-width: 20px; min-height: 20px; font-size: 18px;"
+                                        wire:click="decreaseQuantity({{ $item->id }})">−</button>
+                                   <span
+                                     class="w-8 md:w-10 text-center text-sm md:text-base">{{ $quantities[$item->id] ?? 1 }}</span>
+                                  <button
+                                        class="w-2 h-2 rounded-full border border-gray-500 text-base md:text-lg leading-none flex items-center justify-center hover:bg-gray-200"
+                                      style="min-width: 20px; min-height: 20px; font-size: 18px;"
+                                       wire:click="increaseQuantity({{ $item->id }})">+</button>
+                             </div>
+                             <div class="text-xs text-gray-500">
+                                    Còn lại: {{ $type === 'sku' ? ($item->sku->quantity ?? 0) : ($item->combo->quantity ?? 0) }}
+                              </div>
+                            </div>
+                            <div class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base" style="margin-left: 12px;">
+                             {{ isset($discounted_price) && $type === 'sku' 
+                                    ? number_format($discounted_price, 0, ',', '.') 
+                                    : number_format(
+                                      ($type === 'sku'
+                                           ? ($item->sku->sale_price ?? $item->sku->price ?? 0)
+                                          : ($item->combo->sale_price ?? 0)
+                                        ) * ($quantities[$item->id] ?? $item->quantity ?? 1),
+                                       0,
+                                        ',',
+                                     '.'
+                                  ) 
+                             }}
+                                <span class="text-sm">đ</span>
+                            </div>
                             </div>
                         </div>
                     @endif
@@ -163,7 +159,7 @@
                                         $flashsaleSku = $productInFlashsale->firstWhere('sku_id', $item->id);
                                     @endphp
 
-.
+
                                     @if($flashsaleSku)
                                         @php
                                             $flashsaleType = $flashsaleSku['discount_type'];
