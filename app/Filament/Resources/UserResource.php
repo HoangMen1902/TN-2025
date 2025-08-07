@@ -244,7 +244,7 @@ class UserResource extends Resource
                                         ->title("Không thể xóa vĩnh viễn tài khoản ID {$record->id} đã từng mua hàng.")
                                         ->danger()
                                         ->send();
-                                  
+
                                     $action->cancel();
                                     return;
                                 }
@@ -269,10 +269,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'view' => Pages\ViewUser::route('/{record}'),
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 
