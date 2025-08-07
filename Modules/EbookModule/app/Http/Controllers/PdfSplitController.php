@@ -3,15 +3,41 @@
 namespace Modules\EbookModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\EbookAudioJob;
+use App\Models\EbookChapter;
 use App\Models\ProductEbook;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\Fpdi;
 use Illuminate\Support\Str;
 use Smalot\PdfParser\Parser;
+use Illuminate\Support\Facades\File;
+use App\Jobs\GenerateEbookAudioJob;
 
 class PdfSplitController extends Controller
 {
 
+    public function processJob($jobId)
+{
+    $job = EbookAudioJob::findOrFail($jobId);
+
+    // Kiểm tra dữ liệu trước khi dispatch Job
+    $chapterIds = json_decode($job->chapter_ids, true);
+
+    if (!is_array($chapterIds) || empty($chapterIds) || !$job->voice) {
+        return response()->json(['error' => 'Thiếu dữ liệu job.'], 400);
+    }
+
+    // Cập nhật trạng thái sang "processing"
+    $job->update(['status' => 'processing']);
+
+    // Gửi job vào queue để xử lý nền
+    GenerateEbookAudioJob::dispatch($job->id);
+
+    return response()->json([
+        'message' => 'Đang xử lý. Vui lòng kiểm tra sau vài phút.'
+    ]);
+}
     public function autoSplitByToc($ebookId, $tocPage = 1)
     {
         $ebook = ProductEbook::findOrFail($ebookId);

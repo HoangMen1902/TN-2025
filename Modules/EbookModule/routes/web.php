@@ -14,4 +14,6 @@ use Modules\EbookModule\Http\Controllers\PdfSplitController;
     Route::post('/ebooks/{chapter}/toggle-read', [EbookModuleController::class, 'toggleRead'])->name('ebooks.toggleRead');
     Route::post('/ebooks/{chapter}/toggle-favorite', [EbookModuleController::class, 'toggleFavorite'])->name('ebooks.toggleFavorite');
     Route::middleware('auth')->post('/ebooks/{ebook}/update-position', [EbookModuleController::class, 'updatePosition']);
+    Route::post('/ebook-audio-jobs/{id}/process', [PdfSplitController::class, 'processJob']);
+
     // });
