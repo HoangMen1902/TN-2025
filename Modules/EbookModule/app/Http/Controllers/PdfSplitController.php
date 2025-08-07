@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Smalot\PdfParser\Parser;
 use Illuminate\Support\Facades\File;
 use App\Jobs\GenerateEbookAudioJob;
+use Illuminate\Support\Facades\Artisan;
 
 class PdfSplitController extends Controller
 {
@@ -33,6 +34,7 @@ class PdfSplitController extends Controller
 
     // Gửi job vào queue để xử lý nền
     GenerateEbookAudioJob::dispatch($job->id);
+    Artisan::call('queue:work', ['--once' => true]);
 
     return response()->json([
         'message' => 'Đang xử lý. Vui lòng kiểm tra sau vài phút.'
