@@ -22,7 +22,6 @@ class EbookAudioJob extends Model
     ];
 
     protected $casts = [
-        'chapter_ids' => 'array',
         'is_locked_voice' => 'boolean',
     ];
 

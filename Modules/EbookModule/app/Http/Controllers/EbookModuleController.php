@@ -3,27 +3,30 @@
 namespace  Modules\EbookModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\EbookAudioJob;
 use App\Models\ProductEbook;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\UserEbookChapterStatus;
+use Illuminate\Support\Facades\Log;
 
 class EbookModuleController extends Controller
-{public function index()
+{
+    public function index()
     {
         $ebooks = ProductEbook::all();
         $userId = Auth::id();
-    
+
         $position = null;
-    
+
         if ($userId) {
             $position = UserEbookChapterStatus::where('user_id', $userId)
                 ->orderByDesc('reading_position')
                 ->value('reading_position') ?? 0;
         }
-    
+
         return view('ebookmodule::index_list', compact('ebooks', 'position'));
     }
 
@@ -58,6 +61,10 @@ class EbookModuleController extends Controller
             ])->first();
         }
         $readingPosition = $status?->position ?? 0;
+        $query = EbookAudioJob::where('ebook_id', $ebook->id)
+            ->whereJsonContains('chapter_ids', (string) $chapter->id)
+            ->whereNotNull('output_path');
+        $audioJobs = $query->get();
         return view('ebookmodule::index', [
             'ebook' => $ebook,
             'chapters' => $chapters,
@@ -66,6 +73,7 @@ class EbookModuleController extends Controller
             'isRead' => $status?->is_read ?? false,
             'isFavorite' => $status?->is_favorite ?? false,
             'position' => $status?->reading_position ?? 0,
+            'audioJobs' => $audioJobs,
         ]);
     }
     public static function mapEbookToProductFormat()
@@ -84,7 +92,7 @@ class EbookModuleController extends Controller
                 'price' => $price,
                 'sale_price' => $salePrice,
                 'discount' => $discount,
-                'categories' => collect([]), // hoặc null nếu không dùng
+                'categories' => collect([]),
                 'first_sku' => null,
                 'rating' => rand(3, 5),
                 'review_count' => rand(5, 100),
@@ -94,23 +102,22 @@ class EbookModuleController extends Controller
                 'is_ebook' => true, // quan trọng
             ];
         });
-
     }
- 
+
     public function updatePosition(Request $request, $ebookId)
     {
         $userId = Auth::id();
         if (!$userId) {
             return redirect()->route('login');
         }
-    
+
         $chapterId = $request->input('chapter_id');
         $scrollPercent = $request->input('scroll_percent');
-    
+
         if (!$chapterId || !is_numeric($scrollPercent)) {
             return response()->json(['error' => 'Dữ liệu không hợp lệ'], 422);
         }
-    
+
         $status = UserEbookChapterStatus::updateOrCreate(
             [
                 'user_id' => $userId,
@@ -121,7 +128,7 @@ class EbookModuleController extends Controller
                 'reading_position' => $scrollPercent,
             ]
         );
-    
+
         return response()->json(['success' => true, 'position' => $scrollPercent]);
     }
 

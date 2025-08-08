@@ -90,15 +90,14 @@
 
                 <!-- Book Stats -->
                 <div class="ebook-stats p-4 border-b " style="background-color: #3a3a3c">
-                    <div class="ebook-status text-orange-400 text-sm mb-3">
-                        <!-- <i class="fas fa-book-open mr-2"></i>Sách hiệu -->
+                    <div class="ebook-status text-orange-400 text-sm ">
                     </div>
                     @if ($hasPurchased)
                     <div class="w-full bg-green-500 text-white text-center py-3 px-4 rounded-lg font-medium mb-3">
                         Bạn đã mua sách này
                     </div>
                 @else
-                    <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="ebook-login-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">
+                    <a href="{{ route('ebook.payment', ['ebook_id' => $ebook->id]) }}" class="ebook-login-btn w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium mb-3 transition-colors">
                         Mua trọn bộ sách {{ number_format($ebook->price) }}<span class="text-sm">đ</span>
                     </a>
                 @endif
@@ -122,7 +121,7 @@
                                 @else
                                     <div class="block p-2 bg-gray-600 rounded cursor-not-allowed opacity-60 flex justify-between items-center">
                                         {{ $chapter->chapter_name }}
-                                        <span class="text-red-400 text-xs">🔒 Thanh toán để đọc</span>
+                                        <span class="text-red-400 text-xs">Thanh toán để đọc</span>
                                     </div>
                                 @endif
                             </li>
@@ -149,7 +148,7 @@
                         </button>
                         <h1 class="text-xl font-semibold">{{ $ebook->product->name ?? $ebook->title }}</h1>
                     </div>
-                    <div class="text-sm text-gray-400">
+                    <div class="text-sm font-bold ">
                         @if ($chapters->isNotEmpty() && $chapters->count() >= request()->query('chapter', 1))
                             {{ $chapters[request()->query('chapter', 1) - 1]->chapter_name }}
                         @else
@@ -157,6 +156,41 @@
                         @endif
                     </div>
                     <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-4">
+                            @if($audioJobs->isNotEmpty())
+                            <div class="space-y-4 relative">
+                                <button 
+                                    style=" background-color: #0A68FF;" class="m-0 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    onclick="toggleAudioSelector()">
+                                    Sách nói
+                                </button>
+                        
+                                <div id="audio-selector" style="background-color: #3a3a3c"  class="hidden absolute top-14 left-0  shadow-xl border border-gray-700 rounded-xl p-5 z-50 w-80 transform transition-all duration-300 ease-in-out">
+                                    <label for="voice-select" class="block text-gray-200 font-semibold text-sm mb-3">
+                                        Chọn giọng đọc:
+                                    </label>
+                                    <select 
+                                    id="voice-select" 
+                                    class="border border-gray-300 bg-white text-gray-900 rounded-lg p-3 w-full 
+                                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm cursor-pointer
+                                           hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    @foreach($audioJobs as $job)
+                                        <option value="{{ asset($job->output_path) }}">
+                                            {{ $job->voice }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                
+
+                                    <button  class="mt-4 bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg w-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" onclick="playSelectedVoice()"> bắt đầu
+                                    </button>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        
+                            <video id="pip-player" style="display:none;" playsinline></video>
                         <button class="text-gray-400 hover:text-white z-10" @click="tab = 'text'; console.log('Text tab clicked')" title="Nội dung">
                             <i class="fas fa-book"></i>
                         </button>
@@ -245,8 +279,46 @@
             </div>
         </div>
     </div>
+    <script>
+        function toggleAudioSelector() {
+            const selector = document.getElementById("audio-selector");
+            selector.classList.toggle("hidden");
+        }
+        
+        // Ẩn khi click ra ngoài
+        document.addEventListener("click", function(event) {
+            const selector = document.getElementById("audio-selector");
+            const button = event.target.closest("button[onclick='toggleAudioSelector()']");
+        
+            // Nếu click không phải vào menu hoặc nút mở menu → ẩn menu
+            if (!selector.contains(event.target) && !button) {
+                selector.classList.add("hidden");
+            }
+        });
 
-    
+        function toggleAudioSelector() {
+            document.getElementById('audio-selector').classList.toggle('hidden');
+        }
+        
+        function playSelectedVoice() {
+            const select = document.getElementById('voice-select');
+            const audioUrl = select.value;
+        
+            const w = 350;
+            const h = 120;
+            const left = (screen.width - w) / 2;
+            const top = (screen.height - h) / 2;
+        
+            const url = `/ebook/background-player?src=${encodeURIComponent(audioUrl)}`;
+            const win = window.open(url, 'MiniPlayer', `width=${w},height=${h},top=${top},left=${left}`);
+        
+            if (!win) {
+                alert("Trình duyệt đã chặn pop-up. Hãy bật pop-up để dùng tính năng này.");
+            }
+        }
+        </script>
+        
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
