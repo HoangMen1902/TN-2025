@@ -9,7 +9,7 @@ return new class extends Migration {
         Schema::create('payment_detail', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id');
-            $table->enum('payment_method', ['vnpay', 'momo', 'cod', 'bank_transfer', 'international'])->default('cod');
+            $table->enum('payment_method', ['payos', 'vnpay', 'momo', 'cod', 'bank_transfer', 'international'])->default('cod');
             $table->string('payment_id')->nullable();
             $table->string('tracking_id')->nullable();
             $table->string('shipment_unit')->nullable();

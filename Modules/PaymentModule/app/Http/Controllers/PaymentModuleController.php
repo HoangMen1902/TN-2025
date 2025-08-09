@@ -208,7 +208,7 @@ class PaymentModuleController extends Controller
                 $payosResponse = $payosService->createPaymentLink(
                     $order,
                     route('thanks', ['payment_id' => $payment->id]),
-                    route('payment.payosWebhook')
+                    route('cart.index')
                 );
                 return redirect($payosResponse['checkoutUrl']);
             }
@@ -400,37 +400,62 @@ class PaymentModuleController extends Controller
     }
     public function payosWebhook(Request $request)
     {
-        $payload = $request->all();
+        try {
+            $payload = $request->all();
+            Log::info('Webhook nhận từ PayOS:', $payload);
 
-        $payosService = new PayOsService();
+            $payosService = new PayOsService();
 
-        if (!$payosService->verifyWebhook($payload)) {
-            return response()->json(['message' => 'unauthorized'], 401);
-        }
+            if (!$payosService->verifyWebhook($payload)) {
+                Log::warning('Webhook PayOS: Chữ ký không hợp lệ.');
+                return response()->json(['message' => 'unauthorized'], 401);
+            }
 
+            $data = $payload['data'] ?? [];
+            $orderCode = $data['orderCode'] ?? null;
 
-        $orderId = $payload['orderCode'];
-        $status = $payload['status']; // 1 = Thành công
+            // Bỏ qua webhook test khi đổi URL
+            if ((int) $orderCode === 123) {
+                Log::info("Nhận webhook test từ PayOS khi đổi URL, bỏ qua xử lý đơn hàng.");
+                return response()->json(['message' => 'OK']);
+            }
 
-        $order = Order::find($orderId);
+            $order = Order::where('order_code', $orderCode)->first();
 
-        if (!$order) {
-            Log::error("Không tìm thấy đơn hàng PayOS: $orderId");
-            return response()->json(['message' => 'Order not found'], 404);
-        }
+            if (!$order) {
+                Log::error(" Không tìm thấy đơn hàng PayOS: $orderCode");
+                return response()->json(['message' => 'Order not found'], 404);
+            }
 
-        if ($status == 1) {
-            $order->orders_status = 'Chờ duyệt';
-            $order->save();
+            // Kiểm tra trạng thái thanh toán
+            $paymentSuccess = ($data['code'] ?? null) === "00";
 
-            PaymentDetail::where('order_id', $orderId)->update([
-                'payment_id' => $payload['transactionId'] ?? null,
+            if ($paymentSuccess) {
+                $order->orders_status = 'Đã thanh toán';
+                $order->is_paid = true;
+                $order->save();
+
+                PaymentDetail::where('order_id', $order->id)->update([
+                    'payment_id' => $data['reference'] ?? null,
+                ]);
+
+                Log::info("Đơn hàng {$order->id} đã được thanh toán thành công.");
+            } else {
+                $order->orders_status = 'Đã hủy';
+                $order->save();
+                Log::info("Đơn hàng {$order->id} đã bị hủy.");
+            }
+
+            return response()->json(['message' => 'OK']);
+        } catch (\Throwable $e) {
+            Log::error("Lỗi xử lý webhook PayOS: " . $e->getMessage(), [
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
             ]);
-        } else {
-            $order->orders_status = 'Thanh toán thất bại';
-            $order->save();
-        }
 
-        return response()->json(['message' => 'OK']);
+            // Trả về 200 để PayOS không retry, nhưng vẫn log lỗi
+            return response()->json(['message' => 'internal error'], 200);
+        }
     }
 }
