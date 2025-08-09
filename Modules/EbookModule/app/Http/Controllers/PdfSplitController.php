@@ -34,8 +34,11 @@ class PdfSplitController extends Controller
 
     // Gửi job vào queue để xử lý nền
     GenerateEbookAudioJob::dispatch($job->id);
-    Artisan::call('queue:work', ['--once' => true]);
 
+    $artisanPath = base_path('artisan');
+    $phpPath = PHP_BINARY;
+    exec("$phpPath $artisanPath queue:work --once > /dev/null 2>&1 &");
+    
     return response()->json([
         'message' => 'Đang xử lý. Vui lòng kiểm tra sau vài phút.'
     ]);
