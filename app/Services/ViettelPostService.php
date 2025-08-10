@@ -75,7 +75,6 @@ class ViettelPostService
 
         $this->addressToken = env('VIETTELPOST_GROUP_ADDRESS_ID');
         $this->cusId = env('VIETTELPOST_CUS_ID');
-        Log::info('ViettelPostService addressToken debug', ['addressToken' => $this->addressToken]);
     }
 
 
@@ -400,7 +399,7 @@ class ViettelPostService
     /**
      * Chuẩn bị dữ liệu đơn hàng - CẬP NHẬT
      */
-    private function prepareOrderData(\App\Models\Order $order)
+    public function prepareOrderData(\App\Models\Order $order, bool $is_return = false)
     {
 
 
@@ -445,6 +444,7 @@ class ViettelPostService
         $paymentMethod = $order->paymentDetail->payment_method ?? 'cod';
         $codAmount = ($paymentMethod === 'cod') ? $productTotal : 0;
 
+
         $province = Province::find($order->province_id);
         $district = District::find($order->district_id);
         $ward = Ward::find($order->ward_id);
@@ -453,6 +453,7 @@ class ViettelPostService
         $senderWard = isset($senderAddress['ward_id']) ? (int)$senderAddress['ward_id'] : 0;
         $senderDistrict = isset($senderAddress['district_id']) ? (int)$senderAddress['district_id'] : 0;
         $senderProvince = isset($senderAddress['province_id']) ? (int)$senderAddress['province_id'] : 0;
+
         $receiverWard = $ward->providerWard->provider_ward_code ?? 0;
         $receiverDistrict = $district->provider_district->provider_district_code ?? 0;
         $receiverProvince = $province->provider_province->provider_province_code ?? 0;;
@@ -556,17 +557,17 @@ class ViettelPostService
 
         $data = [
             "ORDER_NUMBER" => 'VTP_' . $order->id . '_' . time(),
-            'SENDER_FULLNAME' => config('shopConfig.shop_name'),
-            'SENDER_ADDRESS' => config('shopConfig.shop_address'),
-            'SENDER_PHONE' => config('shopConfig.shop_phone'),
-            "RECEIVER_ADDRESS" => $order->address,
-            'RECEIVER_FULLNAME' => $order->customer_name,
-            'RECEIVER_PHONE' => $order->phone,
-            "ORDER_PAYMENT" => 1,
+            'SENDER_FULLNAME' => $is_return === true ? $order->customer_name : config('shopConfig.shop_name') ,
+            'SENDER_ADDRESS' => $is_return === true ? $order->address : config('shopConfig.shop_address'),
+            'SENDER_PHONE' => $is_return === true ? $order->phone : config('shopConfig.shop_phone'),
+            "RECEIVER_ADDRESS" => $is_return === true ?  config('shopConfig.shop_address') : $order->address,
+            'RECEIVER_FULLNAME' => $is_return === true ?  config('shopConfig.shop_name') : $order->customer_name,
+            'RECEIVER_PHONE' => $is_return === true ?  config('shopConfig.shop_phone') : $order->phone,
+            "ORDER_PAYMENT" => $codAmount <= 0 ? 1 : 3 ,
             "PRODUCT_TYPE" => "HH",
             "ORDER_SERVICE" => "VCN",
             'PRODUCT_NAME' => $this->cleanProductName(implode(', ', array_column($products, 'PRODUCT_NAME'))),
-            'PRODUCT_DESCRIPTION' => 'Đơn hàng #' . $order->id,
+            'PRODUCT_DESCRIPTION' => $is_return === false ? 'Đơn hàng #' . $order->id : 'Tra don hang #' . $order->id,
             'PRODUCT_QUANTITY' => (int)array_sum(array_column($products, 'PRODUCT_QUANTITY')),
             'PRODUCT_PRICE' => (float)$productTotal,
             'PRODUCT_WEIGHT' => (float)max($totalWeight, 500),
@@ -764,12 +765,13 @@ class ViettelPostService
     public function createOrderFromData(array $orderData)
     {
         try {
-            Log::info('Bắt đầu tạo đơn trả hàng Viettel Post (fromData)', [
-                'order_data' => $orderData,
-            ]);
+            // Log::info('Bắt đầu tạo đơn trả hàng Viettel Post (fromData)', [
+            //     'order_data' => $orderData,
+            // ]);
 
+            // dd($orderData);
             if (!$this->token) {
-                Log::error('Không có token Viettel Post');
+                // Log::error('Không có token Viettel Post');
                 return [
                     'status' => 'error',
                     'message' => 'Không có token Viettel Post'
@@ -791,7 +793,6 @@ class ViettelPostService
             if ($response->successful()) {
                 $data = $response->json();
                 Log::info('Viettel Post Response JSON (fromData)', $data);
-
                 return $data;
             } else {
                 Log::error('Tạo đơn trả hàng Viettel Post thất bại (fromData): ' . $response->body());
@@ -886,7 +887,7 @@ class ViettelPostService
         $response = Http::withHeaders([
             'Token' => $token,
         ])->get('https://partner.viettelpost.vn/v2/user/listInventory');
-        Log::info('ViettelPost listInventory response', $response->json());
+        // Log::info('ViettelPost listInventory response', $response->json());
 
         if ($response->successful()) {
             $inventories = $response->json('data');

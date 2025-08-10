@@ -106,82 +106,95 @@ class OrderShipmentService
     // Viettel Post: Tạo đơn trả hàng (from: khách, to: shop)
     private static function processViettelPostReturnShipment(Order $order)
     {
-        $viettelService = new \App\Services\ViettelPostService();
-        $inventoryId = $viettelService->getShopInventoryId();
+        // $inventory = $viettelService->getShopInventoryId(true);
 
-        $viettelProviderId = 1; 
+        // $viettelProviderId = 1;
 
-        $senderProvinceMap = providerProvinces::where([
-            'provider_id' => $viettelProviderId,
-            'province_id' => $order->province_id,
-        ])->first();
-        $senderDistrictMap = providerDistrict::where([
-            'provider_id' => $viettelProviderId,
-            'district_id' => $order->district_id,
-        ])->first();
-        $senderWardMap = providerWard::where([
-            'provider_id' => $viettelProviderId,
-            'ward_id' => $order->ward_id,
-        ])->first();
+        // $total_quantity = $order->orderDetails->count();
+        // $items = $order->orderDetails;
+        // $list_item = $items->map(function ($i) {
+        //     return [
+        //         'PRODUCT_NAME' => $i?->sku?->product?->name ?? '',
+        //         "PRODUCT_DESCRIPTION" => "Trả hàng đơn #" . $i->order->id,
+        //         "PRODUCT_QUANTITY" => $i?->quantity ?? 0,
+        //         "PRODUCT_PRICE" => $i?->price ?? 0,
+        //         "PRODUCT_WEIGHT" => $i?->sku?->product?->weight ?? 0,
+        //     ];
+        // })->toArray();
 
-        $fromAddress = [
-            'SENDER_FULLNAME' => $order->customer_name,
-            'SENDER_ADDRESS' => $order->address,
-            'SENDER_PHONE' => $order->phone,
-            'SENDER_PROVINCE' => (int)$senderProvinceMap?->provider_province_code,
-            'SENDER_DISTRICT' => (int)$senderDistrictMap?->provider_district_code,
-            'SENDER_WARD' => (int)$senderWardMap?->provider_ward_code,
-        ];
 
-        $orderData = array_merge($fromAddress, [
-            'INVENTORY_ID' => $inventoryId,
-            'ORDER_NUMBER' => 'RETURN_' . $order->id . '_' . time(),
-            'ORDER_PAYMENT' => 3,
-            'PRODUCT_TYPE' => 'HH',
-            'ORDER_SERVICE' => 'VCN',
-            'PRODUCT_NAME' => 'Trả hàng về shop',
-            'PRODUCT_DESCRIPTION' => 'Trả hàng đơn #' . $order->id,
-            'PRODUCT_QUANTITY' => 1,
-            'PRODUCT_PRICE' => 0,
-            'PRODUCT_WEIGHT' => 500,
-        ]);
 
-        Log::info('DEBUG Viettel Post trả hàng', [
-            'orderData' => $orderData,
-        ]);
+        // $fromAddress = [
+        //     'SENDER_FULLNAME' => $order->customer_name,
+        //     'SENDER_ADDRESS' => $order->address,
+        //     'SENDER_PHONE' => $order->phone,
+        //     'SENDER_PROVINCE' => (int)$senderProvinceMap?->provider_province_code,
+        //     'SENDER_DISTRICT' => (int)$senderDistrictMap?->provider_district_code,
+        //     'SENDER_WARD' => (int)$senderWardMap?->provider_ward_code,
+        // ];
 
+        // $recieverData = [
+        //     "RECEIVER_FULLNAME" => $inventory['name'],
+        //     "RECEIVER_ADDRESS" => $inventory['address'],
+        //     "RECEIVER_PHONE" => $inventory['phone'],
+        //     "RECEIVER_WARD" => $inventory['wardsId'],
+        // ];
+
+
+
+        // $orderData = array_merge($fromAddress, [
+        //     'ORDER_NUMBER' => 'RETURN_' . $order->id . '_' . time(),
+        //     'ORDER_PAYMENT' => 2,
+        //     'PRODUCT_TYPE' => 'HH',
+        //     'ORDER_SERVICE' => 'VCN',
+        //     'PRODUCT_NAME' => 'Trả hàng về shop - ' . $order->id,
+        //     'PRODUCT_DESCRIPTION' => 'Trả hàng đơn #' . $order->id,
+        //     'PRODUCT_QUANTITY' => $total_quantity,
+        //     'PRODUCT_PRICE' => $order->total_price,
+        // ], $recieverData);
+
+        // // $orderData['LIST_ITEM'] = $list_item;
+
+
+        // // Log::info('DEBUG Viettel Post trả hàng', [
+        // //     'orderData' => $orderData,
+        // // ]);
+
+
+        $viettelService = new ViettelPostService();
+        $orderData = $viettelService->prepareOrderData($order, true);
         return $viettelService->createOrderFromData($orderData);
     }
 
     public static function processShipment(Order $record, $shipmentUnit)
     {
-        Log::info('OrderShipmentService::processShipment được gọi', [
-            'order_id' => $record->id,
-            'shipment_unit' => $shipmentUnit,
-            'shipment_unit_type' => gettype($shipmentUnit),
-            'shipment_unit_lower' => strtolower($shipmentUnit ?? ''),
-            'payment_detail' => $record->paymentDetail ? [
-                'payment_method' => $record->paymentDetail->payment_method,
-                'shipment_unit' => $record->paymentDetail->shipment_unit,
-            ] : 'NULL'
-        ]);
+        // Log::info('OrderShipmentService::processShipment được gọi', [
+        //     'order_id' => $record->id,
+        //     'shipment_unit' => $shipmentUnit,
+        //     'shipment_unit_type' => gettype($shipmentUnit),
+        //     'shipment_unit_lower' => strtolower($shipmentUnit ?? ''),
+        //     'payment_detail' => $record->paymentDetail ? [
+        //         'payment_method' => $record->paymentDetail->payment_method,
+        //         'shipment_unit' => $record->paymentDetail->shipment_unit,
+        //     ] : 'NULL'
+        // ]);
 
         try {
             $result = false;
             $shipmentName = '';
 
             $switchValue = strtolower($shipmentUnit ?? '');
-            Log::info('Switch case debug', [
-                'switch_value' => $switchValue,
-                'is_ghn' => in_array($switchValue, ['giao hàng nhanh', 'giao_hang_nhanh', 'ghn']),
-                'is_viettel' => in_array($switchValue, ['viettel post', 'viettel_post', 'viettelpost'])
-            ]);
+            // Log::info('Switch case debug', [
+            //     'switch_value' => $switchValue,
+            //     'is_ghn' => in_array($switchValue, ['giao hàng nhanh', 'giao_hang_nhanh', 'ghn']),
+            //     'is_viettel' => in_array($switchValue, ['viettel post', 'viettel_post', 'viettelpost'])
+            // ]);
 
             switch ($switchValue) {
                 case 'giao hàng nhanh':
                 case 'giao_hang_nhanh':
                 case 'ghn':
-                    Log::info('Chọn GHN');
+                    // Log::info('Chọn GHN');
                     $shipmentName = 'Giao Hàng Nhanh';
                     $result = self::processGHNShipment($record);
                     break;
@@ -189,18 +202,18 @@ class OrderShipmentService
                 case 'viettel post':
                 case 'viettel_post':
                 case 'viettelpost':
-                    Log::info('Chọn Viettel Post');
+                    // Log::info('Chọn Viettel Post');
                     $shipmentName = 'Viettel Post';
 
                     $tokenStatus = self::debugViettelPostToken();
-                    Log::info('Viettel Post Token Debug', $tokenStatus);
+                    // Log::info('Viettel Post Token Debug', $tokenStatus);
 
                     if ($tokenStatus['has_token']) {
                         $result = self::processViettelPostShipment($record);
                     } else {
-                        Log::info('Skip Viettel Post - chưa có token hợp lệ', [
-                            'order_id' => $record->id
-                        ]);
+                        // Log::info('Skip Viettel Post - chưa có token hợp lệ', [
+                        // 'order_id' => $record->id
+                        // ]);
 
                         \Filament\Notifications\Notification::make()
                             ->title('Thông báo!')
@@ -408,12 +421,12 @@ class OrderShipmentService
 
     private static function handleShipmentResult(Order $record, $result, $shipmentName)
     {
-        Log::info('Xử lý kết quả shipment', [
-            'order_id' => $record->id,
-            'shipment_name' => $shipmentName,
-            'result_type' => gettype($result),
-            'result' => $result
-        ]);
+        // Log::info('Xử lý kết quả shipment', [
+        //     'order_id' => $record->id,
+        //     'shipment_name' => $shipmentName,
+        //     'result_type' => gettype($result),
+        //     'result' => $result
+        // ]);
 
         if ($result && (
             (isset($result['data']) && isset($result['data']['order_code'])) ||
