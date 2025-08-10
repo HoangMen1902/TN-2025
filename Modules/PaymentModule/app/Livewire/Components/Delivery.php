@@ -145,7 +145,7 @@ class Delivery extends Component
         $viettelFee = $viettel->getFee($total, $this->size, $reciver_province, $reciver_district);
         if ($viettelFee) {
             $res = json_decode($viettelFee, true)['data'];
-            $this->viettelFee = $res['MONEY_TOTAL'];
+            $this->viettelFee = ceil($res['MONEY_TOTAL']/1000) * 1000;
         } else {
             return;
         }
