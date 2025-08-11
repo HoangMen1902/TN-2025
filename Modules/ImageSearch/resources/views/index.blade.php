@@ -5,17 +5,21 @@
             rel="stylesheet" />
     </x-slot>
     <x-imagesearch::form></x-imagesearch::form>
+
     <x-slot name="scripts">
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
         <script
             src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
         <script
             src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-            <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js"></script>
+        <script src="https://unpkg.com/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.js"></script>
 
         <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
 
         <script>
+
+
+
             FilePond.registerPlugin(
                 FilePondPluginFileEncode,
                 FilePondPluginImagePreview,
@@ -35,6 +39,13 @@
                 labelMaxFileSize: 'Kích thước tối đa là {filesize}',
             });
 
+
+            function loading() {
+                $('.loading').css('display', 'block')
+                $('#searchBtn').removeClass('bg-primary');
+                $('#searchBtn').addClass('bg-blue-300');
+                $('#searchBtn').prop('disabled', true).text('Đang xử lý...');
+            }
 
         </script>
 
