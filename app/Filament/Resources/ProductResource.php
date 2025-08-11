@@ -75,8 +75,8 @@ class ProductResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->dehydrateStateUsing(fn($state, $record, $set) => $state ?: null) // Dòng này giúp truyền null nếu để trống
                     ->columnSpanFull(),
-                RichEditor::make('short_description')->label('Mô tả ngắn')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *']),
-                RichEditor::make('description')->label('Mô tả')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *']),
+                RichEditor::make('short_description')->label('Mô tả ngắn')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *'])->columnSpanFull(),
+                RichEditor::make('description')->label('Mô tả')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *'])->columnSpanFull(),
                 Section::make('Thông tin sản phẩm')
                     ->description('Thông tin chi tiết của sản phẩm')
                     ->schema([
