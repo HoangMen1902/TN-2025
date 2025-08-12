@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                         @foreach ($parent->children as $child)
                                             <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
                                                 class="flex items-center gap-3 px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
-                                                <img src="{{ $parent->image ? asset('storage/' . $child->image) : asset('https://static.thenounproject.com/png/1077596-200.png') }}"
+                                                <img src="{{ $child->image ? asset('storage/' . $child->image) : asset('https://static.thenounproject.com/png/1077596-200.png') }}"
                                                      alt="{{ $child->name }}"
                                                      class="w-14 h-14 object-cover rounded flex-shrink-0 shadow-sm">
                                                 <span>{{ $child->name }}</span>
