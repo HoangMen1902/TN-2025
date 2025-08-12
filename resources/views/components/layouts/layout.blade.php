@@ -413,48 +413,60 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 
     <div class="flex flex-col sm:flex-row w-full h-[calc(100%-52px)]">
-        <div class="w-full sm:w-1/3 lg:w-1/4 bg-gray-50 border-r border-gray-200 overflow-auto">
-            <ul class="category-sidebar divide-y divide-gray-100">
-                @foreach ($categories as $parent)
-                    <li class="category-item">
-                        <a href="#"
-                            class="block px-4 py-3 text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
-                            <span class="truncate w-full">{{ $parent->name }}</span>
-                            @if ($parent->children->count())
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5l7 7-7 7" />
-                                </svg>
-                            @endif
-                        </a>
+    <!-- Sidebar danh mục cha -->
+    <div class="w-full sm:w-1/3 lg:w-1/4 bg-gray-50 border-r border-gray-200 overflow-auto">
+        <ul class="category-sidebar divide-y divide-gray-100">
+            @foreach ($categories as $parent)
+                <li class="category-item">
+                    <a href="#"
+                        class="block px-4 py-3 text-sm sm:text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-between transition-colors duration-200">
+
+                        <div class="flex items-center gap-3 w-full">
+                           <img src="{{ $parent->image ? asset('storage/' . $parent->image) : asset('https://static.thenounproject.com/png/1077596-200.png') }}"
+     alt="{{ $parent->name }}"
+     class="w-16 h-16 object-cover rounded-md flex-shrink-0 shadow-sm">
+                            <span class="truncate">{{ $parent->name }}</span>
+                        </div>
 
                         @if ($parent->children->count())
-                            <div class="submenu hidden md:absolute top-[52px] left-1/3 lg:left-1/4 md:w-2/3 lg:w-3/4 
-                                h-[calc(100%-52px)] bg-white z-10 opacity-0 invisible 
-                                transition-opacity duration-200 ease-in-out">
-                                <div class="h-full overflow-hidden">
-                                    <div class="bg-gray-50 px-4 sm:px-6 py-3 border-b border-gray-200">
-                                        <h3 class="text-base sm:text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
-                                    </div>
-                                    <div class="p-4 sm:p-6 h-[calc(100%-52px)] overflow-y-auto">
-                                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
-                                            @foreach ($parent->children as $child)
-                                                <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
-                                                    class="block px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
-                                                    {{ $child->name }}
-                                                </a>
-                                            @endforeach
-                                        </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        @endif
+                    </a>
+
+                    @if ($parent->children->count())
+                        <div class="submenu hidden md:absolute top-[52px] left-1/3 lg:left-1/4 md:w-2/3 lg:w-3/4 
+                            h-[calc(100%-52px)] bg-white z-10 opacity-0 invisible 
+                            transition-opacity duration-200 ease-in-out">
+                            <div class="h-full overflow-hidden">
+                                <div class="bg-gray-50 px-4 sm:px-6 py-3 border-b border-gray-200">
+                                    <h3 class="text-base sm:text-lg font-bold text-blue-600">{{ $parent->name }}</h3>
+                                </div>
+                                <div class="p-4 sm:p-6 h-[calc(100%-52px)] overflow-y-auto">
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-4">
+                                        @foreach ($parent->children as $child)
+                                            <a href="{{ route('store-category', ['categorySlug' => $child->slug]) }}"
+                                                class="flex items-center gap-3 px-4 py-2 text-sm sm:text-base text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors duration-150">
+                                                <img src="{{ $parent->image ? asset('storage/' . $child->image) : asset('https://static.thenounproject.com/png/1077596-200.png') }}"
+                                                     alt="{{ $child->name }}"
+                                                     class="w-14 h-14 object-cover rounded flex-shrink-0 shadow-sm">
+                                                <span>{{ $child->name }}</span>
+                                            </a>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
-        </div>
+                        </div>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
     </div>
+</div>
+
 </div>
 
             

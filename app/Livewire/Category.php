@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Livewire;
 
 use Livewire\Component;
@@ -8,12 +7,14 @@ use App\Models\Category as CategoryModel;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Group;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -38,6 +39,11 @@ class Category extends Component implements HasForms, HasTable
             ->query(CategoryModel::with('parent')->withTrashed())
             ->defaultPaginationPageOption(50)
             ->columns([
+                ImageColumn::make('image')
+                    ->label('Hình ảnh')
+                    ->getStateUsing(fn($record) => $record->image ? asset('storage/' . $record->image) : null)
+                    ->square()
+                    ->size(80),
                 TextColumn::make('parent.name')
                     ->label('Danh mục cha')
                     ->sortable()
@@ -104,6 +110,11 @@ class Category extends Component implements HasForms, HasTable
                     ->label('Sửa')
                     ->form(function ($record) {
                         $fields = [
+                            FileUpload::make('image')
+                                ->label('Hình ảnh')
+                                ->image()
+                                ->directory('categories')
+                                ->maxSize(2048),
                             TextInput::make('name')
                                 ->label('Tên danh mục')
                                 ->required()
@@ -127,7 +138,6 @@ class Category extends Component implements HasForms, HasTable
                                 ->default(null),
                         ];
 
-                        // Chỉ thêm slug nếu là danh mục con (có parent_id)
                         if ($record->parent_id) {
                             $fields[] = TextInput::make('slug')
                                 ->label('Slug')
@@ -155,9 +165,9 @@ class Category extends Component implements HasForms, HasTable
                         $updateData = [
                             'name' => $data['name'],
                             'parent_id' => $data['parent_id'] ?? null,
+                            'image' => $data['image'] ?? $record->image,
                         ];
 
-                        // Chỉ cập nhật slug nếu là danh mục con
                         if ($record->parent_id || $data['parent_id']) {
                             if (empty($data['slug'])) {
                                 $updateData['slug'] = $record->generateUniqueSlug($data['name']);
@@ -165,7 +175,6 @@ class Category extends Component implements HasForms, HasTable
                                 $updateData['slug'] = $data['slug'];
                             }
                         } else {
-                            // Nếu chuyển từ con thành cha, xóa slug
                             $updateData['slug'] = null;
                         }
 
@@ -184,6 +193,11 @@ class Category extends Component implements HasForms, HasTable
                     ->label('Thêm mục con')
                     ->icon('heroicon-o-plus')
                     ->form([
+                        FileUpload::make('image')
+                            ->label('Hình ảnh')
+                            ->image()
+                            ->directory('categories')
+                            ->maxSize(2048),
                         TextInput::make('name')
                             ->label('Tên danh mục')
                             ->placeholder('Nhập tên danh mục con')
@@ -192,7 +206,6 @@ class Category extends Component implements HasForms, HasTable
                                 'required' => 'Vui lòng điền tên danh mục.',
                                 'unique' => 'Tên danh mục đã tồn tại.',
                             ]),
-
                         TextInput::make('slug')
                             ->label('Slug')
                             ->rules([
@@ -204,7 +217,6 @@ class Category extends Component implements HasForms, HasTable
                                 'regex' => 'Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.',
                             ])
                             ->helperText('Để trống để tự động tạo từ tên danh mục'),
-
                         Toggle::make('status')
                             ->label('Kích hoạt')
                             ->default(true),
@@ -214,19 +226,25 @@ class Category extends Component implements HasForms, HasTable
                         $record->children()->create([
                             'name' => $data['name'],
                             'slug' => $slug,
+                            'image' => $data['image'] ?? null,
                             'category_status' => $data['status'] ? 'active' : 'inactive',
                         ]);
                     })
                     ->modalHeading('Thêm danh mục con')
                     ->modalSubmitActionLabel('Thêm')
                     ->modalCancelActionLabel('Hủy')
-                    ->visible(fn($record) => !$record->parent_id) // Chỉ hiển thị cho danh mục cha
+                    ->visible(fn($record) => !$record->parent_id)
             ]);
     }
 
     public function recursiveCategoryRepeater(int $level = 0): Group
     {
         $schema = [
+            FileUpload::make('image')
+                ->label('Hình ảnh')
+                ->image()
+                ->directory('categories')
+                ->maxSize(2048),
             TextInput::make('name')
                 ->label(str_repeat('—', $level) . ' Tên danh mục')
                 ->rules(['required', 'unique:categories,name'])
@@ -236,7 +254,6 @@ class Category extends Component implements HasForms, HasTable
                 ]),
         ];
 
-        // Chỉ thêm slug cho danh mục con (level > 0)
         if ($level > 0) {
             $schema[] = TextInput::make('slug')
                 ->label(str_repeat('—', $level) . ' Slug')
@@ -274,9 +291,9 @@ class Category extends Component implements HasForms, HasTable
         $categoryData = [
             'name' => $data['name'],
             'parent_id' => $parentId,
+            'image' => $data['image'] ?? null,
         ];
 
-        // Chỉ thêm slug nếu là danh mục con (có parentId)
         if ($parentId) {
             $categoryData['slug'] = $data['slug'] ?? Str::slug($data['name']);
         }

@@ -18,6 +18,7 @@ class Category extends Model
         'category_status',
         'parent_id',
         'slug',
+        'image',
     ];
 
     protected $appends = ['category_status_bool'];
