@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('webhook_shipping_bills', function (Blueprint $table) {
+            $table->id();
             $table->string('shipping_status')->nullable();
             $table->text('status_name')->nullable();
             $table->text('current_location')->nullable();
