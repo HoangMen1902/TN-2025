@@ -3,6 +3,8 @@
 namespace Modules\OrderDetail\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\PaymentDetail;
 use Illuminate\Http\Request;
 
 class OrderDetailController extends Controller
@@ -10,9 +12,10 @@ class OrderDetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($tracking_id)
     {
-        return view('orderdetail::index');
+        $data = PaymentDetail::where('tracking_id', $tracking_id)->first();
+        return view('orderdetail::index', ['data' => $data]);
     }
 
     /**

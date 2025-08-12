@@ -97,7 +97,7 @@
                                     <span class="font-medium">
                                         {{ $order->orderDetails->first()?->sku?->product?->categories?->first()?->name ?? 'Đơn hàng' }}</span>
                                 </div>
-
+                                <a href="/chi-tiet-don-hang/{{$order->paymentDetail->tracking_id}}" class="text-blue-600 underline">Chi tiết đơn hàng</a>
                             </div>
 
                             @foreach ($order->orderDetails as $detail)
