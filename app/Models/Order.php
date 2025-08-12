@@ -35,6 +35,7 @@ class Order extends Model
         'is_paid',
         'reduced_amount',
         'voucher_id',
+        'order_code',
     ];
 
     protected $casts = [

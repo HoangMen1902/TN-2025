@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Services\PayOsService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
+use PayOS\PayOS;
 
 class PaymentModuleController extends Controller
 {
@@ -208,7 +209,7 @@ class PaymentModuleController extends Controller
                 $payosResponse = $payosService->createPaymentLink(
                     $order,
                     route('thanks', ['payment_id' => $payment->id]),
-                    route('cart.index')
+                    route('cancel')
                 );
                 return redirect($payosResponse['checkoutUrl']);
             }
@@ -457,5 +458,32 @@ class PaymentModuleController extends Controller
             // Trả về 200 để PayOS không retry, nhưng vẫn log lỗi
             return response()->json(['message' => 'internal error'], 200);
         }
+    }
+
+    public function cancel(Request $request)
+    {
+        $payload = $request->all();
+        $orderCode = $payload['orderCode'] ?? null;
+        Log::info('Webhook nhận từ PayOS:', $payload);
+
+        if (!$orderCode) {
+            return redirect()->route('home')->with('error', 'Không tìm thấy mã đơn hàng để hủy.');
+        }
+
+        $order = Order::where('order_code', $orderCode)->first();
+
+        if (!$order) {
+            return redirect()->route('home')->with('error', 'Đơn hàng không tồn tại.');
+        }
+
+        // Nếu đơn hàng chưa thanh toán, mới cho hủy
+        if ($order->orders_status !== 'Đã thanh toán') {
+            $order->orders_status = 'Đã hủy';
+            $order->save();
+
+            return redirect()->route('home')->with('success', 'Đã hủy đơn hàng thành công.');
+        }
+
+        return redirect()->route('home')->with('error', 'Không thể hủy đơn hàng đã thanh toán.');
     }
 }

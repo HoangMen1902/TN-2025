@@ -6,6 +6,7 @@ use Modules\PaymentModule\Http\Controllers\PaymentModuleController;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('paymentmodules', PaymentModuleController::class)->names('paymentmodule');
 });
@@ -15,7 +16,7 @@ Route::middleware(['web', CartCheckoutMiddleware::class])->group(function () {
     Route::post('/thanh-toan', [PaymentModuleController::class, 'paymentPage'])->name('payment');
 });
 Route::get('/cam-on-quy-khach/{payment_id}', [PaymentModuleController::class, 'thanks'])->name('thanks');
- 
+
 Route::post('/checkout', [PaymentModuleController::class, 'store'])->name('checkout.store');
 
 Route::get('/vnpay/return', [PaymentModuleController::class, 'vnpayCallback'])->name('vnpay.callback');
@@ -24,5 +25,6 @@ Route::get('/international-return/{checkout_id}/{payment_id}', [PaymentModuleCon
 
 Route::post('/payment/webhook/payos', [PaymentModuleController::class, 'payosWebhook'])
     ->name('payment.payosWebhook')
-    ->withoutMiddleware([VerifyCsrfToken::class]); 
+    ->withoutMiddleware([VerifyCsrfToken::class]);
 
+Route::get('/cancel', [PaymentModuleController::class, 'cancel'])->name('cancel');
