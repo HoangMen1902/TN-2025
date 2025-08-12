@@ -9,6 +9,7 @@
         "php": "^8.2",
         "15web/filament-tree": "*",
         "barryvdh/laravel-dompdf": "^3.1",
+        "bensampo/laravel-enum": "^6.12",
         "bezhansalleh/filament-shield": "^3.3",
         "codewithdennis/filament-select-tree": "^3.1",
         "doctrine/dbal": "^4.2",

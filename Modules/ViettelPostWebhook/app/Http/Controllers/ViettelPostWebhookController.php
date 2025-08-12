@@ -2,8 +2,11 @@
 
 namespace Modules\ViettelPostWebhook\Http\Controllers;
 
+use App\Enums\OrderStatusEnum;
+use App\Enums\ViettelPostStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -56,66 +59,62 @@ class ViettelPostWebhookController extends Controller
 
     public function handle(Request $request)
     {
-        // $provided_token = env('VIETTELPOST_WEBHOOK_TOKEN');
 
-        // $payload = $request->all();
-        $method = $request->method();
-        $payload = $request->getContent();
-        $logData = json_encode($payload, JSON_PRETTY_PRINT);
-        Log::info('method: ' . $method);
-        file_put_contents(storage_path('logs/order-payload.log'), "[" . now() . "]\n" . $logData . "\n\n", FILE_APPEND);
-
-        // if (empty($payload) || !$payload['DATA']['ORDER_NUMBER'] || !$payload || !$payload['DATA']) {
-        //     return response()->json([
-        //         'status' => 401,
-        //         'data' => [],
-        //         'message' => 'ORDER_KHONG_HOP_LE',
-        //         'token' => $payload['TOKEN'] ?? null,
-        //     ]);
-        // }
-
-        // $orderNumber = $payload['DATA']['ORDER_NUMBER'];
+        try {
+            $method = $request->method();
+            $payload = $request->getContent();
 
 
-        // $order = Order::where('shipping_order_code', $orderNumber)->first();
-
-        // if (!$order) {
-        //     return response()->json([
-        //         'status' => 401,
-        //         'data' => [],
-        //         'message' => 'ORDER_KHONG_HOP_LE',
-        //         'token' => $payload['TOKEN'] ?? null,
-        //     ]);
-        // }
+            if (!$payload) {
+                return response()->json([
+                    'error' => 'Du lieu khong hop le'
+                ], 400);
+            }
 
 
-        // switch ($payload['DATA']['ORDER_STATUS']) {
-        //     case 501:
-        //         $order->orders_status = 'Đã giao';
-        //         break;
-        //     case 107:
-        //     case 201:
-        //         $order->orders_status = 'Đã hủy';
-        //         break;
-        //     case 200:
-        //     case 202:
-        //     case 300:
-        //     case 320:
-        //     case 400:
-        //         $order->orders_status = 'Vận chuyển';
-        //         break;
-        //     default:
-        //         break;
-        // }
+            $data = json_decode($payload, true)['DATA'];
+            $order_number = $data['ORDER_NUMBER'];
 
+            $order = Order::where('shipping_order_code', $order_number)->first();
 
-        // $order->shipping_info = $payload['DATA'];
-        // $order->save();
-        // return response()->json([
-        //     'status' => 200,
-        //     'data' => $payload['DATA'] ?? [],
-        //     'token' => $payload['TOKEN'] ?? null,
-        //     'message' => 'ORDER_DA_GHI_NHAN'
-        // ]);
+            if (!$order) {
+                return response()->json([
+                    'error' => 'Khong tim thay don hang',
+                ], 400);
+            }
+            $requiredFields = ['ORDER_STATUS', 'LOCALION_CURRENTLY', 'STATUS_NAME'];
+
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field]) || empty($data[$field])) {
+                    return response()->json([
+                        'error'   => 'Thiếu hoặc rỗng dữ liệu: ' . $field
+                    ], 400);
+                }
+            }
+
+            $order_status = $data['ORDER_STATUS'];
+            $insert_data = [
+                'shipping_status'   => $order_status,
+                'raw_response'      => json_encode($data),
+                'current_location'  => $data['LOCALION_CURRENTLY'] ?? null,
+                'status_name'       => $data['STATUS_NAME'] ?? ViettelPostStatusEnum::getDescription($order_status) ?? null,
+            ];
+
+            $result = $order->webhook()->create($insert_data);
+
+            $general_status = ViettelPostStatusEnum::getOrderStatusLabel($order_status);
+            $shipping_status = Order::mapViettelPostStatusToOrderStatus($order_status);
+
+            $order->orders_status = $general_status;
+            $order->shipping_status = $shipping_status;
+            $order->save();
+            if ($result) {
+                return response()->json(['success' => 'Da cap nhat thong tin'], 200);
+            } else {
+                return response()->json(['error' => 'Da co loi khi cap nhat thong tin'], 500);
+            }
+        } catch (Exception $e) {
+            return response()->json(['error => ' . $e->getMessage()], 500);
+        }
     }
 }
