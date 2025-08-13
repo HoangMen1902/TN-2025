@@ -30,6 +30,7 @@ use Filament\Forms\Form;
 use Modules\EbookModule\Http\Controllers\EpubSplitController;
 use Modules\EbookModule\Http\Controllers\PdfSplitController;
 use Filament\Forms\Components\Toggle;
+use Filament\Tables\Actions\ActionGroup;
 
 class ProductEbookResource extends Resource
 {
@@ -203,140 +204,278 @@ class ProductEbookResource extends Resource
                     ->label('Tạo lúc')
                     ->dateTime('d/m/Y H:i'),
             ])
+            // ->actions([
+            //     EditAction::make(),
+            //     DeleteAction::make(),
+
+            //     Action::make('split_chapters')
+            //         ->label('Tách Chương')
+            //         ->icon('heroicon-o-scissors')
+            //         ->form(function (Model $record) {
+            //             $filePath = $record->file_path;
+            //             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+            //             if ($extension === 'pdf') {
+            //                 return [
+            //                     Select::make('mode')
+            //                         ->label('Chế độ tách chương')
+            //                         ->options([
+            //                             'manual' => 'Tách thủ công',
+            //                             'auto' => 'Tách tự động từ mục lục',
+            //                         ])
+            //                         ->default('manual')
+            //                         ->reactive(),
+
+            //                     Forms\Components\Repeater::make('chapters')
+            //                         ->label('Danh sách chương')
+            //                         ->schema([
+            //                             TextInput::make('chapter_name')->label('Tên chương')->required(),
+            //                             TextInput::make('start_page')->label('Trang bắt đầu')->numeric()->required()->minValue(1),
+            //                             TextInput::make('end_page')->label('Trang kết thúc')->numeric()->required()->minValue(1),
+            //                             Toggle::make('is_locked')->label('Khóa chương')->default(true),
+            //                         ])
+            //                         ->columns(3)
+            //                         ->visible(fn($get) => $get('mode') === 'manual'),
+
+            //                     TextInput::make('toc_page')
+            //                         ->label('Trang chứa mục lục')
+            //                         ->numeric()
+            //                         ->minValue(1)
+            //                         ->required()
+            //                         ->visible(fn($get) => $get('mode') === 'auto'),
+            //                 ];
+            //             }
+
+            //             return []; // Không xử lý epub
+            //         })
+            //         ->action(function (Model $record, array $data) {
+            //             $filePath = $record->file_path;
+            //             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+            //             if ($extension === 'pdf') {
+            //                 $controller = new PdfSplitController();
+
+            //                 if ($data['mode'] === 'manual') {
+            //                     $controller->splitPdf($record->id, $data['chapters'] ?? []);
+            //                 } elseif ($data['mode'] === 'auto') {
+            //                     $controller->autoSplitByToc($record->id, $data['toc_page'] ?? 1);
+            //                 } else {
+            //                     throw new \Exception('Chế độ tách chương không hợp lệ.');
+            //                 }
+            //             } elseif ($extension === 'epub') {
+            //                 $controller = new EpubSplitController();
+            //                 $controller->splitEpub($record->id);
+            //             } else {
+            //                 throw new \Exception('Định dạng file không được hỗ trợ.');
+            //             }
+            //         }),
+
+            //     Action::make('create_audio_book')
+            //         ->label('Tạo sách nói')
+            //         ->icon('heroicon-o-microphone')
+            //         ->form(function (Model $record) {
+            //             return [
+            //                 Select::make('chapter_ids')
+            //                     ->label('Chọn chương')
+            //                     ->options(
+            //                         EbookChapter::where('ebook_id', $record->id)
+            //                             ->pluck('chapter_name', 'id')
+            //                     )
+            //                     ->multiple()
+            //                     ->required(),
+
+            //                 Select::make('voice')
+            //                     ->label('Giọng đọc')
+            //                     ->options(function () {
+            //                         try {
+            //                             $response = \Illuminate\Support\Facades\Http::withHeaders([
+            //                                 'api-key' => env('FPT_AI_API_KEY'),
+            //                             ])->get(env('FPT_AI_VOICE_LIST_URL', 'https://api.fpt.ai/hmi/tts/list-voices'));
+
+            //                             if ($response->ok()) {
+            //                                 return collect($response->json())->pluck('name', 'voice')->toArray();
+            //                             }
+            //                         } catch (\Exception $e) {
+            //                         }
+
+            //                         return [
+            //                             'banmai' => 'Ban Mai',
+            //                             'leminh' => 'Lê Minh',
+            //                             'thuminh' => 'Thu Minh',
+            //                             'giahuy' => 'Gia Huy',
+            //                         ];
+            //                     })
+            //                     ->default('banmai')
+            //                     ->required(),
+
+            //                 Select::make('speed')
+            //                     ->label('Tốc độ đọc')
+            //                     ->options([
+            //                         '-3' => '-3 (chậm nhất)',
+            //                         '-2' => '-2',
+            //                         '-1' => '-1',
+            //                         '0' => '0 (bình thường)',
+            //                         '1' => '1',
+            //                         '2' => '2',
+            //                         '3' => '3 (nhanh nhất)',
+            //                     ])
+            //                     ->default('0'),
+            //             ];
+            //         })
+            //         ->action(function (Model $record, array $data) {
+            //             $job = \App\Models\EbookAudioJob::create([
+            //                 'ebook_id' => $record->id,
+            //                 'chapter_ids' => json_encode($data['chapter_ids']),
+            //                 'voice' => $data['voice'],
+            //                 'speed' => (float) $data['speed'],
+            //                 'status' => 'pending',
+            //             ]);
+
+            //             app(\Modules\EbookModule\Http\Controllers\PdfSplitController::class)->processJob($job->id);
+            //         }),
+            // ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-    
-                Action::make('split_chapters')
-                    ->label('Tách Chương')
-                    ->icon('heroicon-o-scissors')
-                    ->form(function (Model $record) {
-                        $filePath = $record->file_path;
-                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-    
-                        if ($extension === 'pdf') {
-                            return [
-                                Select::make('mode')
-                                    ->label('Chế độ tách chương')
-                                    ->options([
-                                        'manual' => 'Tách thủ công',
-                                        'auto' => 'Tách tự động từ mục lục',
-                                    ])
-                                    ->default('manual')
-                                    ->reactive(),
-    
-                                Forms\Components\Repeater::make('chapters')
-                                    ->label('Danh sách chương')
-                                    ->schema([
-                                        TextInput::make('chapter_name')->label('Tên chương')->required(),
-                                        TextInput::make('start_page')->label('Trang bắt đầu')->numeric()->required()->minValue(1),
-                                        TextInput::make('end_page')->label('Trang kết thúc')->numeric()->required()->minValue(1),
-                                        Toggle::make('is_locked')->label('Khóa chương')->default(true),
-                                    ])
-                                    ->columns(3)
-                                    ->visible(fn($get) => $get('mode') === 'manual'),
-    
-                                TextInput::make('toc_page')
-                                    ->label('Trang chứa mục lục')
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->required()
-                                    ->visible(fn($get) => $get('mode') === 'auto'),
-                            ];
-                        }
-    
-                        return []; // Không xử lý epub
-                    })
-                    ->action(function (Model $record, array $data) {
-                        $filePath = $record->file_path;
-                        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-    
-                        if ($extension === 'pdf') {
-                            $controller = new PdfSplitController();
-    
-                            if ($data['mode'] === 'manual') {
-                                $controller->splitPdf($record->id, $data['chapters'] ?? []);
-                            } elseif ($data['mode'] === 'auto') {
-                                $controller->autoSplitByToc($record->id, $data['toc_page'] ?? 1);
-                            } else {
-                                throw new \Exception('Chế độ tách chương không hợp lệ.');
+                ActionGroup::make([
+                    DeleteAction::make(),
+                    EditAction::make()
+                        ->color('warning'),
+                    Action::make('split_chapters')
+                        ->label('Tách Chương')
+                        ->icon('heroicon-o-scissors')
+                        ->color('warning')
+                        ->form(function (Model $record) {
+                            $filePath = $record->file_path;
+                            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+                            if ($extension === 'pdf') {
+                                return [
+                                    Select::make('mode')
+                                        ->label('Chế độ tách chương')
+                                        ->options([
+                                            'manual' => 'Tách thủ công',
+                                            'auto' => 'Tách tự động từ mục lục',
+                                        ])
+                                        ->default('manual')
+                                        ->reactive(),
+
+                                    Forms\Components\Repeater::make('chapters')
+                                        ->label('Danh sách chương')
+                                        ->schema([
+                                            TextInput::make('chapter_name')->label('Tên chương')->required(),
+                                            TextInput::make('start_page')->label('Trang bắt đầu')->numeric()->required()->minValue(1),
+                                            TextInput::make('end_page')->label('Trang kết thúc')->numeric()->required()->minValue(1),
+                                            Toggle::make('is_locked')->label('Khóa chương')->default(true),
+                                        ])
+                                        ->columns(3)
+                                        ->visible(fn($get) => $get('mode') === 'manual'),
+
+                                    TextInput::make('toc_page')
+                                        ->label('Trang chứa mục lục')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->required()
+                                        ->visible(fn($get) => $get('mode') === 'auto'),
+                                ];
                             }
-                        } elseif ($extension === 'epub') {
-                            $controller = new EpubSplitController();
-                            $controller->splitEpub($record->id);
-                        } else {
-                            throw new \Exception('Định dạng file không được hỗ trợ.');
-                        }
-                    }),
-    
-                Action::make('create_audio_book')
-                    ->label('Tạo sách nói')
-                    ->icon('heroicon-o-microphone')
-                    ->form(function (Model $record) {
-                        return [
-                            Select::make('chapter_ids')
-                                ->label('Chọn chương')
-                                ->options(
-                                    EbookChapter::where('ebook_id', $record->id)
-                                        ->pluck('chapter_name', 'id')
-                                )
-                                ->multiple()
-                                ->required(),
-    
-                            Select::make('voice')
-                                ->label('Giọng đọc')
-                                ->options(function () {
-                                    try {
-                                        $response = \Illuminate\Support\Facades\Http::withHeaders([
-                                            'api-key' => env('FPT_AI_API_KEY'),
-                                        ])->get(env('FPT_AI_VOICE_LIST_URL', 'https://api.fpt.ai/hmi/tts/list-voices'));
-    
-                                        if ($response->ok()) {
-                                            return collect($response->json())->pluck('name', 'voice')->toArray();
+
+                            return [];
+                        })
+                        ->action(function (Model $record, array $data) {
+                            $filePath = $record->file_path;
+                            $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+                            if ($extension === 'pdf') {
+                                $controller = new PdfSplitController();
+
+                                if ($data['mode'] === 'manual') {
+                                    $controller->splitPdf($record->id, $data['chapters'] ?? []);
+                                } elseif ($data['mode'] === 'auto') {
+                                    $controller->autoSplitByToc($record->id, $data['toc_page'] ?? 1);
+                                } else {
+                                    throw new \Exception('Chế độ tách chương không hợp lệ.');
+                                }
+                            } elseif ($extension === 'epub') {
+                                $controller = new EpubSplitController();
+                                $controller->splitEpub($record->id);
+                            } else {
+                                throw new \Exception('Định dạng file không được hỗ trợ.');
+                            }
+                        }),
+
+                    Action::make('create_audio_book')
+                        ->label('Tạo sách nói')
+                        ->icon('heroicon-o-microphone')
+                        ->color('warning')
+                        ->form(function (Model $record) {
+                            return [
+                                Select::make('chapter_ids')
+                                    ->label('Chọn chương')
+                                    ->options(
+                                        EbookChapter::where('ebook_id', $record->id)
+                                            ->pluck('chapter_name', 'id')
+                                    )
+                                    ->multiple()
+                                    ->required(),
+
+                                Select::make('voice')
+                                    ->label('Giọng đọc')
+                                    ->options(function () {
+                                        try {
+                                            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                                                'api-key' => env('FPT_AI_API_KEY'),
+                                            ])->get(env('FPT_AI_VOICE_LIST_URL', 'https://api.fpt.ai/hmi/tts/list-voices'));
+
+                                            if ($response->ok()) {
+                                                return collect($response->json())->pluck('name', 'voice')->toArray();
+                                            }
+                                        } catch (\Exception $e) {
                                         }
-                                    } catch (\Exception $e) {
-                                    }
-    
-                                    return [
-                                        'banmai' => 'Ban Mai',
-                                        'leminh' => 'Lê Minh',
-                                        'thuminh' => 'Thu Minh',
-                                        'giahuy' => 'Gia Huy',
-                                    ];
-                                })
-                                ->default('banmai')
-                                ->required(),
-    
-                            Select::make('speed')
-                                ->label('Tốc độ đọc')
-                                ->options([
-                                    '-3' => '-3 (chậm nhất)',
-                                    '-2' => '-2',
-                                    '-1' => '-1',
-                                    '0' => '0 (bình thường)',
-                                    '1' => '1',
-                                    '2' => '2',
-                                    '3' => '3 (nhanh nhất)',
-                                ])
-                                ->default('0'),
-                        ];
-                    })
-                    ->action(function (Model $record, array $data) {
-                        $job = \App\Models\EbookAudioJob::create([
-                            'ebook_id' => $record->id,
-                            'chapter_ids' => json_encode($data['chapter_ids']),
-                            'voice' => $data['voice'],
-                            'speed' => (float) $data['speed'],
-                            'status' => 'pending',
-                        ]);
-    
-                        app(\Modules\EbookModule\Http\Controllers\PdfSplitController::class)->processJob($job->id);
-                    }),
+
+                                        return [
+                                            'banmai' => 'Ban Mai',
+                                            'leminh' => 'Lê Minh',
+                                            'thuminh' => 'Thu Minh',
+                                            'giahuy' => 'Gia Huy',
+                                        ];
+                                    })
+                                    ->default('banmai')
+                                    ->required(),
+
+                                Select::make('speed')
+                                    ->label('Tốc độ đọc')
+                                    ->options([
+                                        '-3' => '-3 (chậm nhất)',
+                                        '-2' => '-2',
+                                        '-1' => '-1',
+                                        '0' => '0 (bình thường)',
+                                        '1' => '1',
+                                        '2' => '2',
+                                        '3' => '3 (nhanh nhất)',
+                                    ])
+                                    ->default('0'),
+                            ];
+                        })
+                        ->action(function (Model $record, array $data) {
+                            $job = \App\Models\EbookAudioJob::create([
+                                'ebook_id' => $record->id,
+                                'chapter_ids' => json_encode($data['chapter_ids']),
+                                'voice' => $data['voice'],
+                                'speed' => (float) $data['speed'],
+                                'status' => 'pending',
+                            ]);
+
+                            app(\Modules\EbookModule\Http\Controllers\PdfSplitController::class)->processJob($job->id);
+                        }),
+
+                ])
+                    ->label('Thao tác khác')
+                    ->icon('heroicon-o-cog'),
             ])
+
             ->bulkActions([
                 DeleteBulkAction::make(),
             ]);
-    }    
+    }
 
     public static function beforeCreate(array $data): array
     {
