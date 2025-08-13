@@ -74,19 +74,19 @@
             </div>
         </a>
         <!-- Grid Banners -->
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 my-3">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 my-3 h-[205px]">
             <div class=""><a href="#"><img
                         src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Freeship_t5_310x210.png"
-                        class="rounded w-full h-full object-cover" alt=""></a></div>
+                        class="rounded block w-full h-full object-cover" alt=""></a></div>
             <div class=""><a href="#"><img
                         src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/TrangQuaTang_T5_310x210_1.png"
-                        class="rounded w-full h-full object-cover" alt=""></a></div>
+                        class="rounded block w-full h-full object-cover" alt=""></a></div>
             <div class=""><a href="#"><img
                         src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Mcbooks_small_310x210.png"
-                        class="rounded w-full h-full object-cover" alt=""></a></div>
+                        class="rounded block w-full h-full object-cover" alt=""></a></div>
             <div class=""><a href="#"><img
                         src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/MayTinh_T5_310X210.png"
-                        class="rounded w-full h-full object-cover" alt=""></a></div>
+                        class="rounded block w-full h-full object-cover" alt=""></a></div>
         </div>
 
         <!-- Icon Menu Grid -->
