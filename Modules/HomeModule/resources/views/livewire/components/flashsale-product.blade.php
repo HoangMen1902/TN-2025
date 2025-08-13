@@ -24,7 +24,7 @@
                         @foreach ($products as $product)
                             <div class="swiper-slide">
                                 <div class="bg-white p-4 rounded shadow-sm rounded-[10px] h-full flex flex-col">
-                                    <img src="{{ $product['image'] }}" alt="Sản phẩm flashsale"
+                                    <img src="{{ asset('storage/' . $product['image']) }}" alt="Sản phẩm flashsale"
                                         class="w-full aspect-[4/3] object-contain mx-auto">
                                     <h3 class="text-sm mt-2 font-medium leading-5 line-clamp-2">
                                         {{ $product['name'] }}
