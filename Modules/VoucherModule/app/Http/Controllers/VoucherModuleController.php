@@ -15,34 +15,46 @@ use Exception;
 
 class VoucherModuleController extends Controller
 {
+
     public function index(Request $request)
     {
-        $query = Voucher::where('voucher_status', 1)
-            ->whereNotNull('expired_at')
-            ->where('expired_at', '>', now())
-            ->where(function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('issued_by', 'point')
-                        ->whereNotNull('required_points');
-                })
-                    ->orWhere('issued_by', 'manual');
-            });
+        try {
+            $query = Voucher::where('voucher_status', 1)
+                ->whereNotNull('expired_at')
+                ->where('expired_at', '>', now())
+                ->where(function ($q) {
+                    $q->where(function ($sub) {
+                        $sub->where('issued_by', 'point')
+                            ->whereNotNull('required_points');
+                    })
+                        ->orWhere('issued_by', 'manual');
+                });
 
-        if ($request->filled('keyword')) {
-            $query->where('voucher_name', 'like', '%' . $request->keyword . '%');
+            if ($request->filled('keyword')) {
+                $query->where('voucher_name', 'like', '%' . $request->keyword . '%');
+            }
+
+            $vouchers = $query->orderBy('expired_at', 'asc')->get();
+
+            $userId = Auth::id();
+            $usedVouchers = VoucherUsed::where('user_id', $userId)->pluck('voucher_id')->toArray();
+
+            foreach ($vouchers as $voucher) {
+                $voucher->usedByCurrentUser = in_array($voucher->id, $usedVouchers);
+            }
+
+            return view('vouchermodule::index', compact('vouchers'));
+        } catch (\Exception $e) {
+            // Ghi log để debug
+            \Log::error('Lỗi khi lấy danh sách voucher: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Hiển thị thông báo lỗi hoặc view fallback
+            return back()->with('error', 'Đã xảy ra lỗi khi tải danh sách mã giảm giá.');
         }
-
-        $vouchers = $query->orderBy('expired_at', 'asc')->get();
-
-        $userId = Auth::id();
-        $usedVouchers = VoucherUsed::where('user_id', $userId)->pluck('voucher_id')->toArray();
-
-        foreach ($vouchers as $voucher) {
-            $voucher->usedByCurrentUser = in_array($voucher->id, $usedVouchers);
-        }
-
-        return view('vouchermodule::index', compact('vouchers'));
     }
+
 
 
     public function create()
@@ -52,6 +64,9 @@ class VoucherModuleController extends Controller
 
     public function store(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để lưu voucher.');
+        }
         $request->validate([
             'voucher_id' => 'required|exists:vouchers,id',
         ]);
@@ -103,6 +118,9 @@ class VoucherModuleController extends Controller
 
     public function redeem(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để đổi voucher.');
+        }
         $request->validate([
             'voucher_id' => 'required|exists:vouchers,id',
         ]);

@@ -1,5 +1,5 @@
 <div class="bg-gray-100 font-sans antialiased py-8">
-    <div class="container mx-auto px-4 max-w-screen-xl">
+    <div class="mx-auto w-full max-w-[1200px] px-4 pt-20 pb-4">
         <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Mã Giảm Giá</h1>
 
         <!-- Form tìm kiếm -->
@@ -16,6 +16,11 @@
         <!-- Danh sách voucher -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @foreach ($vouchers as $voucher)
+            @if(empty($voucher->id))
+            <div class="col-span-full text-center text-gray-500 py-8">
+                Hiện tại chưa có mã giảm giá nào
+            </div>
+            @else
             @php
             $colors = [
             'point' => ['bg' => 'bg-orange-100', 'text' => 'text-orange-600'],
@@ -90,6 +95,7 @@
 
                     </div>
                 </div>
+                @endif
                 @endforeach
         </div>
     </div>

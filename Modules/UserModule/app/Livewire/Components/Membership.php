@@ -24,6 +24,10 @@ class Membership extends Component
 
     public function mount()
     {
+        if (!Auth::check()) {
+            $this->dispatch('toast', type: 'error', message: 'Bạn chưa đăng nhập.');
+            return redirect()->route('login');
+        }
         $this->loadVouchers();
         $user = Auth::user();
         $this->currentPoints = $user->point->total_points ?? 0;
@@ -95,6 +99,10 @@ class Membership extends Component
 
     public function claimVoucher($voucherId)
     {
+        if (!Auth::check()) {
+            $this->dispatch('toast', type: 'error', message: 'Bạn chưa đăng nhập.');
+            return redirect()->route('login');
+        }
         $user = Auth::user();
         $voucher = Voucher::findOrFail($voucherId);
 
@@ -128,10 +136,6 @@ class Membership extends Component
         // Thông báo
         $this->dispatch('toast', type: 'success', message: 'Đã nhận voucher thành công!');
     }
-
-
-
-
 
     public function render()
     {

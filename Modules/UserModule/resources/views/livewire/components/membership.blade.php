@@ -66,8 +66,13 @@
                       <span class="text-sm text-gray-500 ml-2">({{ number_format($tier['points']) }} điểm)</span>
                   </h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      @foreach ($tier['vouchers'] as $voucher)
-                      <div class="relative flex bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                      @php
+                      $isTierLocked = $currentPoints < $tier['points'];
+                          @endphp
+
+                          @foreach ($tier['vouchers'] as $voucher)
+                          {{-- Thêm class 'opacity-60' nếu hạng bị khóa --}}
+                          <div class="relative flex bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden {{ $isTierLocked ? 'opacity-60' : '' }}">
                           <div class="flex-none w-28 p-3 bg-gray-50 flex items-center justify-center rounded-l-lg">
                               <span class="text-green-600 font-bold text-lg text-center leading-tight">
                                   {{ $voucher->voucher_type == 'amount' ? number_format($voucher->reduced_amount).'K' : $voucher->reduced_amount.'%' }}
@@ -85,7 +90,12 @@
                                   <p class="text-xs text-gray-500 mt-1">HSD: {{ $voucher->expired_at->format('d/m/Y') }}</p>
                               </div>
                               <div class="flex justify-end mt-2">
-                                  @if ($voucher->claimed)
+                                  {{-- Logic mới cho nút bấm --}}
+                                  @if ($isTierLocked)
+                                  <button class="bg-gray-300 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium cursor-not-allowed" disabled>
+                                      Chưa đủ hạng
+                                  </button>
+                                  @elseif ($voucher->claimed)
                                   <button class="bg-gray-300 text-gray-600 px-4 py-1.5 rounded-full text-sm font-medium cursor-not-allowed">
                                       Đã lưu
                                   </button>
@@ -98,13 +108,13 @@
                               </div>
 
                           </div>
-                      </div>
-                      @endforeach
                   </div>
+                  @endforeach
               </div>
-              @endforeach
           </div>
-
+          @endforeach
       </div>
+
+  </div>
 
   </div>

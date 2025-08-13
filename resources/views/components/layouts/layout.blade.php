@@ -8,10 +8,10 @@
     <title>{{ $title ?? 'BeeBook'}}</title>
     @livewireStyles
     @livewireScripts
-@vite([
+    @vite([
     'resources/scss/app.scss',
     'resources/js/app.js'
-])
+    ])
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/embla-carousel/embla-carousel.umd.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css" rel="stylesheet">
@@ -64,33 +64,34 @@
 
 
                 <div class="hidden md:flex md:items-center md:gap-6">
-                    <div class="text-center">
-                        <a href="/mini-game"
-                            class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M16.712 4.33a9.027 9.027 0 0 1 1.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 0 0-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 0 1 0 9.424m-4.138-5.976a3.736 3.736 0 0 0-.88-1.388 3.737 3.737 0 0 0-1.388-.88m2.268 2.268a3.765 3.765 0 0 1 0 2.528m-2.268-4.796a3.765 3.765 0 0 0-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 0 1-1.388.88m2.268-2.268 4.138 3.448m0 0a9.027 9.027 0 0 1-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0-3.448-4.138m3.448 4.138a9.014 9.014 0 0 1-9.424 0m5.976-4.138a3.765 3.765 0 0 1-2.528 0m0 0a3.736 3.736 0 0 1-1.388-.88 3.737 3.737 0 0 1-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 0 1-1.652-1.306 9.027 9.027 0 0 1-1.306-1.652m0 0 4.138-3.448M4.33 16.712a9.014 9.014 0 0 1 0-9.424m4.138 5.976a3.765 3.765 0 0 1 0-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 0 1 1.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 0 0-1.652 1.306A9.025 9.025 0 0 0 4.33 7.288" />
-                            </svg>
-
-                            <span>Mini Game</span>
-                        </a>
-                    </div>
                     <div class="text-center relative">
-                        <a href="/thong-bao"
+                        @auth
+                        <a href="{{ route('notification.index') }}"
                             class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                             <livewire:notification-count />
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="size-6 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                             </svg>
                             <span>Thông Báo</span>
                         </a>
-                    </div>
-                    <div class="text-center relative">
+                        @endauth
 
+                        @guest
+                        <a href="{{ route('login') }}"
+                            class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6 mb-1">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                            </svg>
+                            <span>Thông Báo</span>
+                        </a>
+                        @endguest
+                    </div>
+
+                    <div class="text-center relative">
                         <a href="{{route('cart.index')}}"
                             class="flex flex-col items-center text-gray-600 text-xs hover:text-blue-600">
                             <livewire:cart-count />
@@ -112,9 +113,9 @@
                                     d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                             </svg>
                             @auth
-                                <span>{{ auth()->user()->name }}</span>
+                            <span>{{ auth()->user()->name }}</span>
                             @else
-                                <span>Tài khoản</span>
+                            <span>Tài khoản</span>
                             @endauth
                         </div>
 
@@ -123,23 +124,23 @@
                             class="absolute left-1/2 -translate-x-1/2 mt-2 bg-white shadow-md rounded-md w-40 text-sm z-50">
                             <ul class="text-gray-700 py-2">
                                 @auth
-                                    <li>
-                                        <a href="{{ route('infomation') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
-                                    </li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit"
-                                                class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
-                                                xuất</button>
-                                        </form>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('infomation') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Xem hồ sơ</a>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit"
+                                            class="block w-full text-left px-4 py-2 hover:bg-gray-100">Đăng
+                                            xuất</button>
+                                    </form>
+                                </li>
                                 @else
-                                    <li>
-                                        <a href="{{ route('show.login') }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
-                                    </li>
+                                <li>
+                                    <a href="{{ route('show.login') }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 text-left w-full">Đăng nhập</a>
+                                </li>
                                 @endauth
                             </ul>
                         </div>
@@ -218,199 +219,198 @@
         </div>
     </header>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const categoryDrawer = document.getElementById('drawer-top-example');
-        const desktopBtn = document.querySelector('#category-trigger-desktop');
-        const mobileBtn = document.querySelector('[data-drawer-show]');
-        const drawer = categoryDrawer;
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryDrawer = document.getElementById('drawer-top-example');
+            const desktopBtn = document.querySelector('#category-trigger-desktop');
+            const mobileBtn = document.querySelector('[data-drawer-show]');
+            const drawer = categoryDrawer;
 
-        let isHoveringBtn = false;
-        let isHoveringDrawer = false;
+            let isHoveringBtn = false;
+            let isHoveringDrawer = false;
 
-        if (desktopBtn) {
-            desktopBtn.addEventListener('mouseenter', () => {
-                isHoveringBtn = true;
+            if (desktopBtn) {
+                desktopBtn.addEventListener('mouseenter', () => {
+                    isHoveringBtn = true;
+                    drawer.classList.remove('hidden');
+                });
+
+                desktopBtn.addEventListener('mouseleave', () => {
+                    isHoveringBtn = false;
+                    setTimeout(() => {
+                        if (!isHoveringBtn && !isHoveringDrawer) {
+                            drawer.classList.add('hidden');
+                        }
+                    }, 150);
+                });
+            }
+
+            drawer.addEventListener('mouseenter', () => {
+                isHoveringDrawer = true;
                 drawer.classList.remove('hidden');
             });
 
-            desktopBtn.addEventListener('mouseleave', () => {
-                isHoveringBtn = false;
+            drawer.addEventListener('mouseleave', () => {
+                isHoveringDrawer = false;
                 setTimeout(() => {
                     if (!isHoveringBtn && !isHoveringDrawer) {
                         drawer.classList.add('hidden');
                     }
                 }, 150);
             });
-        }
 
-        drawer.addEventListener('mouseenter', () => {
-            isHoveringDrawer = true;
-            drawer.classList.remove('hidden');
-        });
-
-        drawer.addEventListener('mouseleave', () => {
-            isHoveringDrawer = false;
-            setTimeout(() => {
-                if (!isHoveringBtn && !isHoveringDrawer) {
-                    drawer.classList.add('hidden');
-                }
-            }, 150);
-        });
-
-        if (mobileBtn) {
-            mobileBtn.addEventListener('click', () => {
-                drawer.classList.remove('hidden');
-            });
-        }
-
-        const categoryItems = document.querySelectorAll('.category-item');
-        const defaultContent = document.querySelector('.default-content');
-        let activeSubmenu = null;
-        let submenuTimer = null;
-        let categoryTimer = null;
-
-        function hideAllSubmenus() {
-            document.querySelectorAll('.submenu').forEach(menu => {
-                menu.style.opacity = '0';
-                menu.style.visibility = 'hidden';
-                setTimeout(() => {
-                    if (menu.style.visibility === 'hidden') {
-                        menu.style.display = 'none';
-                    }
-                }, 200);
-            });
-
-            if (defaultContent) {
-                defaultContent.style.display = 'flex';
-                setTimeout(() => {
-                    defaultContent.style.opacity = '1';
-                }, 50);
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    drawer.classList.remove('hidden');
+                });
             }
 
-            activeSubmenu = null;
-        }
+            const categoryItems = document.querySelectorAll('.category-item');
+            const defaultContent = document.querySelector('.default-content');
+            let activeSubmenu = null;
+            let submenuTimer = null;
+            let categoryTimer = null;
 
-        categoryItems.forEach(item => {
-            const submenu = item.querySelector('.submenu');
-
-            item.addEventListener('mouseenter', () => {
-                clearTimeout(categoryTimer);
-                clearTimeout(submenuTimer);
-
+            function hideAllSubmenus() {
                 document.querySelectorAll('.submenu').forEach(menu => {
-                    if (menu !== submenu) {
-                        menu.style.opacity = '0';
-                        menu.style.visibility = 'hidden';
-                        menu.style.display = 'none';
+                    menu.style.opacity = '0';
+                    menu.style.visibility = 'hidden';
+                    setTimeout(() => {
+                        if (menu.style.visibility === 'hidden') {
+                            menu.style.display = 'none';
+                        }
+                    }, 200);
+                });
+
+                if (defaultContent) {
+                    defaultContent.style.display = 'flex';
+                    setTimeout(() => {
+                        defaultContent.style.opacity = '1';
+                    }, 50);
+                }
+
+                activeSubmenu = null;
+            }
+
+            categoryItems.forEach(item => {
+                const submenu = item.querySelector('.submenu');
+
+                item.addEventListener('mouseenter', () => {
+                    clearTimeout(categoryTimer);
+                    clearTimeout(submenuTimer);
+
+                    document.querySelectorAll('.submenu').forEach(menu => {
+                        if (menu !== submenu) {
+                            menu.style.opacity = '0';
+                            menu.style.visibility = 'hidden';
+                            menu.style.display = 'none';
+                        }
+                    });
+
+                    if (submenu) {
+                        if (defaultContent) {
+                            defaultContent.style.opacity = '0';
+                            setTimeout(() => {
+                                defaultContent.style.display = 'none';
+                            }, 200);
+                        }
+
+                        submenu.style.display = 'block';
+                        setTimeout(() => {
+                            submenu.style.opacity = '1';
+                            submenu.style.visibility = 'visible';
+                        }, 10);
+
+                        activeSubmenu = submenu;
                     }
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    categoryTimer = setTimeout(() => {
+                        if (submenu && !isMouseOverElement(submenu)) {
+                            submenu.style.opacity = '0';
+                            submenu.style.visibility = 'hidden';
+
+                            setTimeout(() => {
+                                if (submenu.style.visibility === 'hidden') {
+                                    submenu.style.display = 'none';
+
+                                    const visibleSubmenus = document.querySelectorAll('.submenu[style*="visibility: visible"]');
+                                    if (visibleSubmenus.length === 0) {
+                                        if (defaultContent) {
+                                            defaultContent.style.display = 'flex';
+                                            setTimeout(() => {
+                                                defaultContent.style.opacity = '1';
+                                            }, 50);
+                                        }
+                                    }
+                                }
+                            }, 200);
+                        }
+                    }, 100);
                 });
 
                 if (submenu) {
-                    if (defaultContent) {
-                        defaultContent.style.opacity = '0';
-                        setTimeout(() => {
-                            defaultContent.style.display = 'none';
+                    submenu.addEventListener('mouseenter', () => {
+                        clearTimeout(categoryTimer);
+                        clearTimeout(submenuTimer);
+                    });
+
+                    submenu.addEventListener('mouseleave', () => {
+                        submenuTimer = setTimeout(() => {
+                            submenu.style.opacity = '0';
+                            submenu.style.visibility = 'hidden';
+                            setTimeout(() => {
+                                submenu.style.display = 'none';
+                                if (defaultContent) {
+                                    defaultContent.style.display = 'flex';
+                                    setTimeout(() => {
+                                        defaultContent.style.opacity = '1';
+                                    }, 50);
+                                }
+                            }, 200);
                         }, 200);
-                    }
-
-                    submenu.style.display = 'block';
-                    setTimeout(() => {
-                        submenu.style.opacity = '1';
-                        submenu.style.visibility = 'visible';
-                    }, 10);
-
-                    activeSubmenu = submenu;
+                    });
                 }
             });
 
-            item.addEventListener('mouseleave', () => {
-                categoryTimer = setTimeout(() => {
-                    if (submenu && !isMouseOverElement(submenu)) {
-                        submenu.style.opacity = '0';
-                        submenu.style.visibility = 'hidden';
+            function isMouseOverElement(element) {
+                const rect = element.getBoundingClientRect();
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
 
-                        setTimeout(() => {
-                            if (submenu.style.visibility === 'hidden') {
-                                submenu.style.display = 'none';
-
-                                const visibleSubmenus = document.querySelectorAll('.submenu[style*="visibility: visible"]');
-                                if (visibleSubmenus.length === 0) {
-                                    if (defaultContent) {
-                                        defaultContent.style.display = 'flex';
-                                        setTimeout(() => {
-                                            defaultContent.style.opacity = '1';
-                                        }, 50);
-                                    }
-                                }
-                            }
-                        }, 200);
-                    }
-                }, 100);
-            });
-
-            if (submenu) {
-                submenu.addEventListener('mouseenter', () => {
-                    clearTimeout(categoryTimer);
-                    clearTimeout(submenuTimer);
-                });
-
-                submenu.addEventListener('mouseleave', () => {
-                    submenuTimer = setTimeout(() => {
-                        submenu.style.opacity = '0';
-                        submenu.style.visibility = 'hidden';
-                        setTimeout(() => {
-                            submenu.style.display = 'none';
-                            if (defaultContent) {
-                                defaultContent.style.display = 'flex';
-                                setTimeout(() => {
-                                    defaultContent.style.opacity = '1';
-                                }, 50);
-                            }
-                        }, 200);
-                    }, 200);
-                });
+                return mouseX >= rect.left &&
+                    mouseX <= rect.right &&
+                    mouseY >= rect.top &&
+                    mouseY <= rect.bottom;
             }
         });
-
-        function isMouseOverElement(element) {
-            const rect = element.getBoundingClientRect();
-            const mouseX = event.clientX;
-            const mouseY = event.clientY;
-
-            return mouseX >= rect.left &&
-                mouseX <= rect.right &&
-                mouseY >= rect.top &&
-                mouseY <= rect.bottom;
+        const drawerCloseBtn = document.getElementById('drawer-close-btn');
+        if (drawerCloseBtn) {
+            drawerCloseBtn.addEventListener('click', () => {
+                drawer.classList.add('hidden');
+            });
         }
-    });
-    const drawerCloseBtn = document.getElementById('drawer-close-btn');
-if (drawerCloseBtn) {
-    drawerCloseBtn.addEventListener('click', () => {
-        drawer.classList.add('hidden');
-    });
-}
-document.addEventListener('DOMContentLoaded', function () {
-        const closeBtn = document.getElementById('drawer-close-btn');
-        const drawer = document.getElementById('drawer-top-example');
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeBtn = document.getElementById('drawer-close-btn');
+            const drawer = document.getElementById('drawer-top-example');
 
-        closeBtn.addEventListener('click', () => {
-            drawer.classList.add('hidden');
+            closeBtn.addEventListener('click', () => {
+                drawer.classList.add('hidden');
+            });
         });
-    });
-
-</script>
+    </script>
 
     <div id="drawer-top-example"
-    class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
+        class="hidden fixed top-28 left-1/2 transform -translate-x-1/2 z-40 
     w-full max-w-[1200px] sm:w-[95%] md:w-[1000px] lg:w-[1200px]
     h-[90vh] sm:h-[600px] 
     shadow-xl bg-white border border-gray-200 rounded-lg overflow-hidden"
-    tabindex="-1" aria-labelledby="drawer-top-label">
+        tabindex="-1" aria-labelledby="drawer-top-label">
 
-    <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-blue-600 text-white">
-        <h2 class="text-base sm:text-lg font-semibold">Danh mục sản phẩm</h2>
-        <button id="drawer-close-btn" class="text-white hover:text-gray-200 text-2xl sm:text-xl font-bold" type="button">✕</button>
-    </div>
+        <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-blue-600 text-white">
+            <h2 class="text-base sm:text-lg font-semibold">Danh mục sản phẩm</h2>
+            <button id="drawer-close-btn" class="text-white hover:text-gray-200 text-2xl sm:text-xl font-bold" type="button">✕</button>
+        </div>
 
     <div class="flex flex-col sm:flex-row w-full h-[calc(100%-52px)]">
     <!-- Sidebar danh mục cha -->
@@ -465,7 +465,6 @@ document.addEventListener('DOMContentLoaded', function () {
             @endforeach
         </ul>
     </div>
-</div>
 
 </div>
 
@@ -579,18 +578,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
 
                     <div class="hidden md:flex flex-wrap justify-center gap-6 items-center mb-12 px-4 py-8">
-                        <img src="{{ asset('assets/images/logo_lex.jpg') }}" alt="LEX" class="h-12 md:h-[70px]">
-                        <img src="{{ asset('assets/images/Logo_ninjavan.jpg') }}" alt="Ninja Van"
-                            class="h-12 md:h-[70px]">
+                        <img src="{{ asset('assets/images/ghn.png') }}" alt="LEX" class="h-12 md:h-[70px]">
                         <img src="{{ asset('assets/images/vnpost.jpg') }}" alt="ViettelPost" class="h-12 md:h-[70px]">
                     </div>
 
                     <div class="hidden md:flex flex-wrap justify-center gap-6 items-center mt-12 px-4 py-8">
                         <img src="{{ asset('assets/images/vnpay_log.jpg') }}" alt="VNPAY" class="h-8 md:h-[40px]">
-                        <img src="{{ asset('assets/images/momopay.jpg') }}" alt="MoMo" class="h-8 md:h-[40px]">
-                        <img src="{{ asset('assets/images/shopeepay_logo.jpg') }}" alt="ShopeePay"
-                            class="h-8 md:h-[40px]">
-                        <img src="{{ asset('assets/images/logo_zalopay_2.png') }}" alt="ZaloPay"
+                        <img src="{{ asset('assets/images/payos.png') }}" alt="MoMo" class="h-8 md:h-[40px]">
+                        <img src="{{ asset('assets/images/stripe.png') }}" alt="ShopeePay"
                             class="h-8 md:h-[40px]">
                     </div>
 
@@ -616,21 +611,21 @@ document.addEventListener('DOMContentLoaded', function () {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if (session('success'))
-        <script>
-            $(() => {
-                if (typeof success === 'function') {
-                    success('Thành công', @json(session('error')));
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof success === 'function') {
+                success('Thành công', @json(session('error')));
+            }
+        });
+    </script>
     @elseif (session('error'))
-        <script>
-            $(() => {
-                if (typeof danger === 'function') {
-                    danger('Thất bại', @json(session('error')));
-                }
-            });
-        </script>
+    <script>
+        $(() => {
+            if (typeof danger === 'function') {
+                danger('Thất bại', @json(session('error')));
+            }
+        });
+    </script>
     @endif
     <script>
         Livewire.on('toast', ({

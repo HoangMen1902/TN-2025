@@ -24,12 +24,16 @@
                         <!-- Controls -->
                         <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4" data-carousel-prev>
                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30">
-                                <svg class="w-4 h-4 text-white rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 10" fill="none"><path d="M5 1 1 5l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg class="w-4 h-4 text-white rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 10" fill="none">
+                                    <path d="M5 1 1 5l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
                             </span>
                         </button>
                         <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4" data-carousel-next>
                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30">
-                                <svg class="w-4 h-4 text-white rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 10" fill="none"><path d="m1 9 4-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <svg class="w-4 h-4 text-white rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 10" fill="none">
+                                    <path d="m1 9 4-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
                             </span>
                         </button>
                     </div>
@@ -46,13 +50,13 @@
                 </div>
             </div>
         </div>
-<a href="/mini-game" class="fixed bottom-4 right-4 z-30 animate-bounce">
-    <div class="relative group">
-        <img src="{{ asset('assets/images/minigame.png') }}" alt="Mini game"
-             class="w-[120px] h-auto group-hover:scale-110 transition-transform duration-300">
-        <div class="absolute inset-0 rounded-full animate-ping bg-yellow-200 opacity-30 z-[-1]"></div>
-    </div>
-</a>
+        <a href="/mini-game" class="fixed bottom-4 right-4 z-30 animate-bounce">
+            <div class="relative group">
+                <img src="{{ asset('assets/images/minigame.png') }}" alt="Mini game"
+                    class="w-[120px] h-auto group-hover:scale-110 transition-transform duration-300">
+                <div class="absolute inset-0 rounded-full animate-ping bg-yellow-200 opacity-30 z-[-1]"></div>
+            </div>
+        </a>
         <!-- Grid Banners -->
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 my-3">
             <div class="p-1"><a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Freeship_t5_310x210.png" class="rounded w-full h-full object-cover" alt=""></a></div>
@@ -63,14 +67,68 @@
 
         <!-- Icon Menu Grid -->
         <div class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2 bg-light p-2 rounded">
-            @foreach(range(1, 10) as $i)
-                <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
-                    <div class="h-[45px] sm:h-[50px] aspect-square">
-                        <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
-                    </div>
-                    <p class="text-center mt-1">Tên mục</p>
+
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="{{ route('voucher') }}"><img src="{{ asset('assets/images/Icon_MaGiamGia_8px_1.jpg') }}" alt=""></a>
                 </div>
-            @endforeach
+                <p class="text-center mt-1">Mã giảm giá</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="{{ route('store') }}"><img src="{{ asset('assets/images/Icon_SanPhamMoi_8px_1.jpg') }}" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Sản phẩm mới</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="{{ asset('assets/images/IconFlashSale120x120.jpg') }}" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Flash Sale</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="{{ asset('assets/images/icon_ManngaT06.jpg') }}" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Manga</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+            <div class="p-1 flex flex-col items-center justify-between h-[90px] md:h-[100px] text-[12px] sm:text-sm">
+                <div class="h-[45px] sm:h-[50px] aspect-square">
+                    <a href="#"><img src="https://cdn1.fahasa.com/media/wysiwyg/Thang-05-2025/Icon_1505_120x120_1.png" class="w-full h-full object-cover" alt=""></a>
+                </div>
+                <p class="text-center mt-1">Tên mục</p>
+            </div>
+
         </div>
 
         <!-- Livewire Components -->
@@ -88,9 +146,9 @@
 </x-layouts.layout>
 
 <style>
-@media (max-width: 767px) {
-    .bg-light {
-        background-color: #f3f4f6;
+    @media (max-width: 767px) {
+        .bg-light {
+            background-color: #f3f4f6;
+        }
     }
-}
 </style>
