@@ -19,6 +19,7 @@ final class OrderStatusEnum extends Enum
     const ChoDuyet       = 'Chờ duyệt';
     const VanChuyen      = 'Vận chuyển';
     const GiaoThatBai = 'Giao hàng thất bại';
+    const ChoTraHang = 'Chờ trả hàng';
     const ChoHoanTien    = 'Chờ hoàn tiền';
     const DaHoanTien     = 'Đã hoàn tiền';
     const DaGiao         = 'Đã giao';

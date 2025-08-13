@@ -24,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->enum('orders_status', ['Đang xử lý', 'Chờ thanh toán', 'Đã thanh toán','Chờ duyệt', 'Vận chuyển', 'Chờ hoàn tiền' , 'Đã hoàn tiền' , 'Đã giao', 'Đã hủy'])->default('Đang xử lý')->change();
+            $table->enum('orders_status', ['Đang xử lý', 'Chờ thanh toán', 'Đã thanh toán','Chờ duyệt', 'Vận chuyển', 'Chờ hoàn tiền' , 'Đã hoàn tiền' , 'Đã giao', 'Đã hủy', 'Chờ trả hàng'])->default('Đang xử lý')->change();
         });
     }
 };
