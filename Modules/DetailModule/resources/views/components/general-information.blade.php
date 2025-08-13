@@ -10,25 +10,26 @@
             <a href="#" class="text-blue-500">Cty Văn Hóa Minh Lâm</a>
         </div>
         <div class="text-sm">
-            <span>Nhà xuất bản: </span>
-            <span class="font-bold">
-                @if ($type === "product")
-                    {{$data->publisher->publisher_name}}
-                @elseif ($type === "combo")
-                    {{ $data->productSkus->pluck('product.publisher.publisher_name')->unique()->implode(', ') }}
-                @endif
-            </span>
-        </div>
-        <div class="text-sm">
-            <span>Tác giả:</span>
-            <span class="font-bold">
-                @if ($type === "product")
-                    {{$data->author}}
-                @elseif ($type === "combo")
-                    {{ $data->productSkus->pluck('product.author')->unique()->implode(', ') }}
-                @endif
-            </span>
-        </div>
+    <span>Nhà xuất bản: </span>
+    <span class="font-bold inline-block max-w-[200px] truncate align-bottom">
+        @if ($type === "product")
+            {{ $data->publisher->publisher_name }}
+        @elseif ($type === "combo")
+            {{ $data->productSkus->pluck('product.publisher.publisher_name')->unique()->implode(', ') }}
+        @endif
+    </span>
+</div>
+
+<div class="text-sm">
+    <span>Tác giả:</span>
+    <span class="font-bold inline-block max-w-[200px] truncate align-bottom">
+        @if ($type === "product")
+            {{ $data->author }}
+        @elseif ($type === "combo")
+            {{ $data->productSkus->pluck('product.author')->unique()->implode(', ') }}
+        @endif
+    </span>
+</div>
         <div class="text-sm">
             <span>Hình thức bìa:</span>
             <span class="font-bold">

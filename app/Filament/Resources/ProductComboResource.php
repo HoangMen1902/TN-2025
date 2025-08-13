@@ -58,8 +58,8 @@ class ProductComboResource extends Resource
                     TextInput::make('combo_name')
                         ->label('Tên Combo')
                         ->rules('required')
-                        ->live()
-                        ->afterStateUpdated(function ($state, callable $set) {
+                        ->live(debounce: 1000) 
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             $set('slug', Str::slug($state));
                         })
                         ->validationMessages(['required' => 'Vui lòng nhập tên combo'])
@@ -110,11 +110,10 @@ class ProductComboResource extends Resource
                         'required' => 'Vui lòng nhập thông tin này.',
                         'min' => 'Giá khuyến mãi không được nhỏ hơn 0.',
                     ]),
-                    DateTimePicker::make('expired_at')
+                DateTimePicker::make('expired_at')
                     ->label('Ngày hết hạn')
-                    ->displayFormat('d/m/Y H:i') 
-                    ->minDate(now())           
-                    ->seconds(false)             
+                    ->displayFormat('d/m/Y H:i')
+                    ->minDate(now())
                     ->rules(['required'])
                     ->validationMessages([
                         'required' => 'Vui lòng chọn ngày hết hạn.',
