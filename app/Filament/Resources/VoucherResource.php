@@ -7,6 +7,7 @@ use App\Filament\Resources\VoucherResource\RelationManagers;
 use App\Models\Voucher;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -39,169 +40,164 @@ class VoucherResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Card::make()->schema([
-                TextInput::make('voucher_code')
-                    ->label('Mã voucher')
-                    ->required()
-                    ->maxLength(50)
-                    ->unique(ignoreRecord: true)
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập mã voucher',
-                        'unique' => 'Mã voucher đã tồn tại',
-                        'max' => 'Mã không được vượt quá 50 ký tự',
-                    ])
+            Card::make()
+                ->schema([
+                    TextInput::make('voucher_code')
+                        ->label('Mã voucher')
+                        ->required()
+                        ->maxLength(50)
+                        ->unique(ignoreRecord: true)
+                        ->validationMessages([
+                            'required' => 'Vui lòng nhập mã voucher',
+                            'unique' => 'Mã voucher đã tồn tại',
+                            'max' => 'Mã không được vượt quá 50 ký tự',
+                        ]),
 
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập mã voucher',
-                        'unique' => 'Mã voucher đã tồn tại',
-                        'max' => 'Mã không được vượt quá 50 ký tự',
-                    ]),
+                    TextInput::make('voucher_name')
+                        ->label('Tên hiển thị')
+                        ->rules(['required', 'max:255'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng nhập tên voucher',
+                            'max' => 'Tên voucher không được vượt quá 255 ký tự',
+                        ]),
 
-                TextInput::make('voucher_name')
-                    ->label('Tên hiển thị')
-                    ->rules(['required', 'max:255'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập tên voucher',
-                        'max' => 'Tên voucher không được vượt quá 255 ký tự',
-                    ]),
+                    TextInput::make('requirement_price')
+                        ->label('Giá trị đơn hàng tối thiểu (đ)')
+                        ->numeric()
+                        ->minValue(0)
+                        ->rules(['required', 'numeric'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng nhập giá trị tối thiểu',
+                            'numeric' => 'Phải là số',
+                        ]),
 
-                TextInput::make('requirement_price')
-                    ->label('Giá trị đơn hàng tối thiểu (đ)')
-                    ->numeric()
-                    ->minValue(0)
-                    ->rules(['required', 'numeric'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập giá trị tối thiểu',
-                        'numeric' => 'Phải là số',
-                    ]),
+                    Select::make('voucher_type')
+                        ->label('Loại giảm giá')
+                        ->options([
+                            'percent' => 'Phần trăm',
+                            'amount' => 'Cố định',
+                        ])
+                        ->rules(['required'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng chọn loại voucher',
+                        ])
+                        ->reactive(),
 
-                Select::make('voucher_type')
-                    ->label('Loại giảm giá')
-                    ->options([
-                        'percent' => 'Phần trăm',
-                        'amount' => 'Cố định',
-                    ])
-                    ->rules(['required'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng chọn loại voucher',
-                    ])
-                    ->reactive(),
+                    TextInput::make('reduced_amount')
+                        ->label(
+                            fn($get) => $get('voucher_type') === 'percent'
+                                ? 'Phần trăm giảm (%)'
+                                : 'Số tiền giảm (đ)'
+                        )
+                        ->numeric()
+                        ->minValue(fn($get) => $get('voucher_type') === 'percent' ? 1 : 1000)
+                        ->maxValue(fn($get) => $get('voucher_type') === 'percent' ? 100 : null)
+                        ->rules(['required'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng nhập giá trị giảm',
+                        ]),
 
-                TextInput::make('reduced_amount')
-                    ->label(
-                        fn($get) =>
-                        $get('voucher_type') === 'percent'
-                            ? 'Phần trăm giảm (%)'
-                            : 'Số tiền giảm (đ)'
-                    )
-                    ->numeric()
-                    ->minValue(fn($get) => $get('voucher_type') === 'percent' ? 1 : 1000)
-                    ->maxValue(fn($get) => $get('voucher_type') === 'percent' ? 100 : null)
-                    ->rules(['required'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập giá trị giảm',
-                    ]),
+                    TextInput::make('max_discount_amount')
+                        ->label('Giảm tối đa (chỉ áp dụng nếu là %)')
+                        ->numeric()
+                        ->minValue(0)
+                        ->visible(fn($get) => $get('voucher_type') === 'percent'),
 
-                TextInput::make('max_discount_amount')
-                    ->label('Giảm tối đa (chỉ áp dụng nếu là %)')
-                    ->numeric()
-                    ->minValue(0)
-                    ->visible(fn($get) => $get('voucher_type') === 'percent'),
+                    TextInput::make('quantity')
+                        ->label('Tổng số lượng')
+                        ->numeric()
+                        ->minValue(1)
+                        ->nullable(),
 
-                TextInput::make('quantity')
-                    ->label('Tổng số lượng')
-                    ->numeric()
-                    ->minValue(1)
-                    ->nullable(),
-
-                TextInput::make('usage_per_user')
-                    ->label('Số lần mỗi người dùng được dùng')
-                    ->numeric()
-                    ->minValue(1)
-                    ->nullable(),
-
-                Select::make('voucher_scope')
-                    ->label('Phạm vi áp dụng')
-                    ->options([
-                        'global' => 'Toàn sàn',
-                        'shipping' => 'Miễn phí vận chuyển',
-                    ])
-                    ->default('global'),
-
-                DateTimePicker::make('start_at')
-                    ->label('Thời gian bắt đầu')
-                    ->nullable(),
-
-                DateTimePicker::make('expired_at')
-                    ->label('Thời gian hết hạn')
-                    ->rules(['required', 'after:now'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng chọn thời gian hết hạn',
-                        'after' => 'Phải sau thời điểm hiện tại',
-                    ]),
-
-                Select::make('voucher_status')
-                    ->label('Trạng thái')
-                    ->options([
-                        'active' => 'Hoạt động',
-                        'inactive' => 'Không hoạt động',
-                    ])
-                    ->rules(['required'])
-                    ->validationMessages([
-                        'required' => 'Vui lòng chọn trạng thái voucher',
-                    ]),
-                Select::make('issued_by')
-                    ->label('Nguồn phát hành')
-                    ->options([
-                        'manual' => 'Tạo thủ công',
-                        'membership' => 'Thăng hạng thành viên',
-                        'point' => 'Đổi điểm',
-                    ])
-                    ->default('manual')
-                    ->rules([
-                        'required',
-                        'in:manual,membership,point',
-                    ])
-                    ->validationMessages([
-                        'required' => 'Vui lòng chọn nguồn phát hành.',
-                        'in' => 'Giá trị không hợp lệ. Chỉ chấp nhận: Tạo thủ công, Thăng hạng, hoặc Đổi điểm.',
-                    ]),
-
-                Toggle::make('is_redeemable')
-                    ->label('Cho phép đổi bằng điểm')
-                    ->default(false)
-                    ->inline(false)
-                    ->reactive(),
-
-                TextInput::make('required_points')
-                    ->label('Số điểm cần để đổi')
-                    ->numeric()
-                    ->minValue(1)
-                    ->visible(fn($get) => $get('is_redeemable'))
-                    ->rules(function (callable $get) {
-                        return $get('is_redeemable')
-                            ? ['required', 'numeric', 'min:1']
-                            : ['nullable'];
-                    })
-                    ->validationMessages([
-                        'required' => 'Vui lòng nhập số điểm để đổi voucher',
-                        'numeric' => 'Phải là số',
-                        'min' => 'Tối thiểu là 1 điểm',
-                    ]),
-                Select::make('membership_id')
-                    ->label('Áp dụng cho hạng thành viên')
-                    ->relationship('membership', 'name')
-                    ->nullable()
-                    ->searchable()
-                    ->preload()
-                    ->helperText('Chỉ áp dụng cho thành viên thuộc hạng này (nếu có)')
-                    ->validationMessages([
-                        'exists' => 'Hạng thành viên không tồn tại',
-                    ]),
+                    Hidden::make('usage_per_user')
+                        ->label('Số lần mỗi người dùng được dùng')
+                        ->default(1)
+                        ->dehydrateStateUsing(fn($state) => $state ?? 1),
 
 
+                    Select::make('voucher_scope')
+                        ->label('Phạm vi áp dụng')
+                        ->options([
+                            'global' => 'Toàn sàn',
+                            'shipping' => 'Miễn phí vận chuyển',
+                        ])
+                        ->default('global'),
 
-            ])
+                    DateTimePicker::make('start_at')
+                        ->label('Thời gian bắt đầu')
+                        ->nullable(),
+
+                    DateTimePicker::make('expired_at')
+                        ->label('Thời gian hết hạn')
+                        ->rules(['required', 'after:now'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng chọn thời gian hết hạn',
+                            'after' => 'Phải sau thời điểm hiện tại',
+                        ]),
+
+                    Select::make('voucher_status')
+                        ->label('Trạng thái')
+                        ->options([
+                            'active' => 'Hoạt động',
+                            'inactive' => 'Không hoạt động',
+                        ])
+                        ->rules(['required'])
+                        ->validationMessages([
+                            'required' => 'Vui lòng chọn trạng thái voucher',
+                        ]),
+
+                    Select::make('issued_by')
+                        ->label('Nguồn phát hành')
+                        ->options([
+                            'manual' => 'Tạo thủ công',
+                            'membership' => 'Thăng hạng thành viên',
+                            'point' => 'Đổi điểm',
+                        ])
+                        ->default('manual')
+                        ->rules([
+                            'required',
+                            'in:manual,membership,point',
+                        ])
+                        ->validationMessages([
+                            'required' => 'Vui lòng chọn nguồn phát hành.',
+                            'in' => 'Giá trị không hợp lệ. Chỉ chấp nhận: Tạo thủ công, Thăng hạng, hoặc Đổi điểm.',
+                        ]),
+                    Select::make('membership_id')
+                        ->label('Áp dụng cho hạng thành viên')
+                        ->relationship('membership', 'name')
+                        ->nullable()
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Chỉ áp dụng cho thành viên thuộc hạng này (nếu có)')
+                        ->validationMessages([
+                            'exists' => 'Hạng thành viên không tồn tại',
+                        ])->columnSpan(1),
+                    Toggle::make('is_redeemable')
+                        ->label('Cho phép đổi bằng điểm')
+                        ->default(false)
+                        ->inline(false)
+                        ->reactive(),
+
+                    TextInput::make('required_points')
+                        ->label('Số điểm cần để đổi')
+                        ->numeric()
+                        ->minValue(1)
+                        ->visible(fn($get) => $get('is_redeemable'))
+                        ->rules(function (callable $get) {
+                            return $get('is_redeemable')
+                                ? ['required', 'numeric', 'min:1']
+                                : ['nullable'];
+                        })->columnSpan(2)
+                        ->validationMessages([
+                            'required' => 'Vui lòng nhập số điểm để đổi voucher',
+                            'numeric' => 'Phải là số',
+                            'min' => 'Tối thiểu là 1 điểm',
+                        ]),
+
+
+                ])
+                ->columns(2)
+
         ]);
     }
 

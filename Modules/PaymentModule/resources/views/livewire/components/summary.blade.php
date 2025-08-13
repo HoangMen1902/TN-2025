@@ -116,7 +116,7 @@
                                     <li class="border border-gray-200 p-4 rounded-xl hover:bg-blue-50 cursor-pointer transition"
                                     onclick="selectVoucher('{{ $voucher->voucher_code }}')">
                                     <div class="flex justify-between items-center">
-                                        <p class="font-semibold text-blue-600 text-base">{{ $voucher->voucher_code }}</p>
+                                        <p class="font-semibold text-blue-600 text-base">{{ $voucher->voucher_name }}</p>
                                         <span class="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded">
                                             @if ($voucher->voucher_type === 'percent')
                                                 {{ $voucher->reduced_amount }}%

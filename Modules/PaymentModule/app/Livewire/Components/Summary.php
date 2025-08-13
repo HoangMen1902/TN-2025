@@ -44,10 +44,15 @@ class Summary extends Component
         if ($fee === null) {
             return;
         }
+        Log::info($this->finalPrice);
         $this->finalPrice  -= $this->shipping_fee;
+        Log::info($this->finalPrice);
+
         $this->shipping_fee = $fee;
         $this->original_shipping_fee = $this->shipping_fee;
         $this->finalPrice += $this->shipping_fee;
+        Log::info($this->finalPrice);
+
         if ($this->is_first || !$this->applied_voucher) {
             $this->is_first = false;
         } else {
@@ -194,7 +199,6 @@ class Summary extends Component
                 $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
                 $this->finalPrice += $this->shipping_fee;
                 $this->applied_voucher = true;
-
             }
 
             Session::put('shipping_fee', $this->shipping_fee);
@@ -204,15 +208,17 @@ class Summary extends Component
         if ($voucher_type === 'global') {
             if ($voucher->voucher_type === "percent") {
                 $discountAmount = $this->finalPrice * ($voucher->reduced_amount / 100);
+
                 if ($discountAmount > $voucher_max_amount) {
                     $discountAmount = $voucher_max_amount;
                 }
-                $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->finalPrice - $discountAmount);
-                
+                $this->finalPrice = max(0, $this->finalPrice - $discountAmount);
             } elseif ($voucher->voucher_type === 'amount') {
-                $discountAmount = ($voucher->reduced_amount);
-                $this->finalPrice = ($this->finalPrice - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
+                $discountAmount = $voucher->reduced_amount;
+
+                $this->finalPrice = max(0, $this->finalPrice - $discountAmount);
             }
+
             $this->voucherDiscount = $discountAmount;
             $this->applied_voucher = true;
         }
