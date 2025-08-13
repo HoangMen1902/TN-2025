@@ -19,7 +19,7 @@ class CreateProduct extends CreateRecord
             ->performedOn($this->record)
             ->log('Tạo mới sản phẩm: ' . $this->record->name);
     }
-    protected  function mutateFormDataBeforeCreate(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         if (empty($data['slug']) && !empty($data['name'])) {
             $data['slug'] = Str::slug($data['name']);

@@ -128,7 +128,6 @@ class Category extends Component implements HasForms, HasTable
                                     'unique' => 'Tên danh mục đã tồn tại.',
                                     'max' => 'Tên danh mục không được vượt quá :max ký tự.',
                                 ]),
-
                             Select::make('parent_id')
                                 ->label('Danh mục cha')
                                 ->options(CategoryModel::pluck('name', 'id'))
@@ -205,7 +204,12 @@ class Category extends Component implements HasForms, HasTable
                             ->validationMessages([
                                 'required' => 'Vui lòng điền tên danh mục.',
                                 'unique' => 'Tên danh mục đã tồn tại.',
-                            ]),
+                            ])
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('slug', Str::slug($state));
+                            }),
+
                         TextInput::make('slug')
                             ->label('Slug')
                             ->rules([
@@ -251,7 +255,11 @@ class Category extends Component implements HasForms, HasTable
                 ->validationMessages([
                     'required' => 'Vui lòng điền tên danh mục.',
                     'unique' => 'Tên danh mục đã tồn tại.',
-                ]),
+                ])
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set) {
+                    $set('slug', Str::slug($state));
+                }),
         ];
 
         if ($level > 0) {

@@ -57,7 +57,15 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')->label('Tên sách')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Sản phẩm này đã tồn tại'])->unique(ignoreRecord: true),
+                TextInput::make('name')
+                    ->label('Tên sách')
+                    ->rules(['required'])
+                    ->validationMessages(['required' => 'Vui lòng điền thông tin *', 'unique' => 'Sản phẩm này đã tồn tại'])
+                    ->unique(ignoreRecord: true)
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('slug', Str::slug($state));
+                    }),
                 TextInput::make('author')->label('Tác giả')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *']),
                 TextInput::make('slug')
                     ->label('Đường dẫn sản phẩm')
@@ -70,10 +78,8 @@ class ProductResource extends Resource
                         'regex' => 'Slug chỉ được chứa chữ thường không dấu, số và dấu gạch ngang (không dấu cách, không dấu tiếng Việt)',
                     ])
                     ->placeholder('VD: san-pham-vi-du')
-                    ->helperText('Để trống để tự động tạo từ tên sản phẩm')
-                    ->default(fn($get) => $get('name') ? Str::slug($get('name')) : null)
+                    ->helperText('Có thể sửa lại. Nếu để trống sẽ tự động tạo từ tên sản phẩm')
                     ->unique(ignoreRecord: true)
-                    ->dehydrateStateUsing(fn($state, $record, $set) => $state ?: null) // Dòng này giúp truyền null nếu để trống
                     ->columnSpanFull(),
                 RichEditor::make('short_description')->label('Mô tả ngắn')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *'])->columnSpanFull(),
                 RichEditor::make('description')->label('Mô tả')->rules(['required'])->validationMessages(['required' => 'Vui lòng điền thông tin *'])->columnSpanFull(),
@@ -304,7 +310,7 @@ class ProductResource extends Resource
                 SoftDeletingScope::class,
             ]));
     }
-  
+
     public static function getRelations(): array
     {
         return [];
