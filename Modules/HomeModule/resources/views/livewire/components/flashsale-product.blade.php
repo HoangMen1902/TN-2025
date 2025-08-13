@@ -23,12 +23,13 @@
                     <div class="swiper-wrapper">
                         @foreach ($products as $product)
                             <div class="swiper-slide">
-                                <div class="bg-white p-4 rounded shadow-sm rounded-[10px] h-full flex flex-col">
+                                <div class="bg-white p-4 shadow-sm rounded-[10px] h-full flex flex-col ">
                                     <img src="{{ asset('storage/' . $product['image']) }}" alt="Sản phẩm flashsale"
                                         class="w-full aspect-[4/3] object-contain mx-auto">
-                                    <h3 class="text-sm mt-2 font-medium leading-5 line-clamp-2">
-                                        {{ $product['name'] }}
-                                    </h3>
+        <h3 class="text-sm mt-2 font-medium leading-5 line-clamp-2"
+            style="min-height: calc(1.25rem * 2);">
+            {{ $product['name'] }}
+        </h3>
                                     <div class="text-red-600 font-bold text-lg mt-1">
                                         {{ number_format($product['sale_price'], 0, '', '.') }} đ
                                         <span class="bg-red-500 text-white text-xs font-semibold px-1 py-0.5 rounded ml-1">
