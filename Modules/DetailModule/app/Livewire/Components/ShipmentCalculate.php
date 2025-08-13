@@ -2,8 +2,10 @@
 
 namespace Modules\DetailModule\Livewire\Components;
 
+use App\Models\VoucherUsed;
 use App\Services\GhnService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -36,6 +38,9 @@ class ShipmentCalculate extends Component
         'ward_id' => 'required',
     ];
 
+    public $vouchers;
+
+
     public function setStoreLocation(GhnService $ghn)
     {
 
@@ -63,6 +68,7 @@ class ShipmentCalculate extends Component
         $this->ward_default = $default_ward_data;
     }
 
+
     public function mount(GhnService $ghn)
     {
         try {
@@ -74,19 +80,31 @@ class ShipmentCalculate extends Component
             $estimated = $res['data']['leadtime_order']['to_estimate_date'];
             $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
             $this->estimatedTime = ucwords($date->translatedFormat('l - d/m'));
-
             $this->currentSku = $this->data->productSkus->first();
+
+            $current_price = $this->currentSku->sale_price ?? $this->currentSku->price ?? 0;
+
+
+            $user_id = Auth::id();
+            $this->vouchers = VoucherUsed::with('voucher')
+                ->where('user_id', $user_id)
+                ->where('is_used', false)
+                ->whereHas('voucher', function ($query) use ($current_price) {
+                    $query->where('expired_at', '>', now())
+                        ->where('requirement_price', '<=', $current_price);
+                })
+                ->get();
         } catch (\Throwable $th) {
             Log::error('Loi khi fetch du lieu: ' . $th->getMessage());
         }
     }
 
-    public function selectSku($skuId) {
+    public function selectSku($skuId)
+    {
         $currentSku = $this->data->productSkus->firstWhere('id', $skuId);
-        if($currentSku) {
+        if ($currentSku) {
             $this->currentSku = $currentSku;
             $this->dispatch('updatedSku', skuId: $skuId);
-            
         }
     }
     function updateTime(GhnService $ghn)
@@ -101,7 +119,8 @@ class ShipmentCalculate extends Component
         $this->updateCustomerLocation();
     }
 
-    public function updateCustomerLocation() {
+    public function updateCustomerLocation()
+    {
         $customer_province = collect($this->provinces)->firstWhere('ProvinceID', $this->province_id);
         $customer_district = collect($this->districts)->firstWhere('DistrictID', $this->district_id);
         $customer_ward = collect($this->wards)->firstWhere('WardCode', $this->ward_id);
@@ -110,7 +129,6 @@ class ShipmentCalculate extends Component
         $this->province_default = $customer_province;
         $this->district_default = $customer_district;
         $this->ward_default = $customer_ward;
-
     }
 
     #[On('updateProvince')]

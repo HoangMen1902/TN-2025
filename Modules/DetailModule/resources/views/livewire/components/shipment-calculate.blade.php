@@ -24,68 +24,35 @@
                     <span class="text-sm">Dự kiến giao <span class="font-bold">{{$estimatedTime}}</span></span>
                 </div>
             </div>
-            <div class="flex flex-col">
-                <div class="flex items-center gap-4">
-                    <h1 class="text-lg font-bold">Ưu đãi có thể áp dụng</h1>
-                    <a href="" class="text-sm text-blue-500">Xem thêm ></a>
-                </div>
-                <div class="coupon-related w-full mt-4">
-                    <div class="coupon-scroller flex items-center overflow-x-auto w-full gap-3">
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
-                        <div class="coupon-container flex items-center gap-1">
-                            <div class="coupon-img bg-amber-500 p-1 rounded">
-                                <img src="{{asset('assets/images/coupon.png')}}" alt="">
-                            </div>
-                            <div class="coupon-name truncate text-[13px] font-bold">
-                                Mã giảm giá 10K - cho đơn hàng 30K
-                            </div>
-                        </div>
+            @if($vouchers && !empty($voucher))
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <h1 class="text-lg font-bold">Ưu đãi có thể áp dụng</h1>
+                        <a href="{{route('voucher.index')}}" class="text-sm text-blue-500">Xem thêm ></a>
                     </div>
+                    <div class="coupon-related w-full mt-4">
+                        <div class="coupon-scroller flex items-center overflow-x-auto w-full gap-3">
+                            @foreach ($vouchers as $voucher)
+                                <div class="coupon-container flex items-center gap-1">
+                                    <div class="coupon-img bg-amber-500 p-1 rounded">
+                                        <img src="{{asset('assets/images/coupon.png')}}" alt="">
+                                    </div>
+                                    <div class="coupon-name truncate text-[13px] font-bold">
+                                        Mã giảm giá {{$voucher?->voucher?->voucher_type === 'amount' ? number_format($voucher->voucher->reduced_amount, 0 ,'.', '.') : $voucher->voucher->reduced_amount . '%'}} - cho đơn hàng {{number_format($voucher?->voucher?->requirement_price, 0, '.', '.')}}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
 
+                    </div>
                 </div>
-            </div>
+            @endif
             <div class="flex items-center gap-12 mt-4">
                 <div class="flex flex-col gap-4 justify-between">
-                    @if ($type === "product")
+                    @php
+                        $has_variant = $type === "product" && isset($data) && $data && $data->productSkus && $data->productSkus->count() > 1;
+                    @endphp
+                    @if ($has_variant)
                         <h1>Phân loại</h1>
 
                     @endif
@@ -94,7 +61,7 @@
 
 
                 <div class="flex flex-col gap-4 justify-between">
-                    @if ($type === "product" && isset($data) && $data && $data->productSkus)
+                    @if ($has_variant)
                         <div class="flex space-x-2">
                             @foreach ($data->productSkus as $sku)
                                 <a href="javascript:void(0)" wire:click="selectSku({{ $sku->id }})"
@@ -114,8 +81,6 @@
                                 </a>
                             @endforeach
                         </div>
-                    @elseif ($type === "product")
-                        <div class="text-gray-500 text-sm">Không có phân loại sản phẩm</div>
                     @endif
                     <div class="quantity-container w-min">
                         <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
