@@ -14,8 +14,10 @@ class OrderDetailController extends Controller
      */
     public function index($tracking_id)
     {
+        $map_box_api = env('MAP_BOX_API_KEY');
+        $google_map_api = env('GOOGLE_MAP_API');
         $data = PaymentDetail::where('tracking_id', $tracking_id)->first();
-        return view('orderdetail::index', ['data' => $data]);
+        return view('orderdetail::index', ['data' => $data, 'api' => $map_box_api, 'google_map' => $google_map_api]);
     }
 
     /**

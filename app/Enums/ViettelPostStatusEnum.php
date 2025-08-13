@@ -82,6 +82,7 @@ final class ViettelPostStatusEnum extends Enum
 
     public static function getDescription($value): string
     {
+
         return match ($value) {
             self::NEW_ORDER => 'Đơn hàng mới tạo, chưa duyệt',
             self::SENT_AT_POST_OFFICE => 'Đơn hàng gửi tại bưu cục',
@@ -125,7 +126,7 @@ final class ViettelPostStatusEnum extends Enum
             self::RETURN_APPROVED_BY_POST_OFFICE => 'Bưu cục phát duyệt hoàn',
             self::DELIVERY_EXTENSION_REQUEST => 'Đơn vị yêu cầu phát tiếp',
 
-            default => parent::getDescription($value),
+            default => (string) parent::getDescription($value),
         };
     }
 
