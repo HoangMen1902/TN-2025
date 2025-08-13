@@ -42,29 +42,38 @@ class EbookModuleController extends Controller
             abort(404);
         }
 
-        $user = Auth::id();
+        $userId = Auth::id();
         $hasPurchased = false;
 
-        if ($user) {
-            $hasPurchased = $ebook->isPurchasedBy($user);
+        if ($userId) {
+            $hasPurchased = $ebook->isPurchasedBy($userId);
         }
 
         if ($chapter->is_locked && !$hasPurchased) {
             abort(403, 'Bạn cần thanh toán để đọc chương này');
         }
+
+        $positions = [];
+        if ($userId) {
+            $positions = UserEbookChapterStatus::where('user_id', $userId)
+                ->where('ebook_id', $ebookId)
+                ->pluck('reading_position', 'chapter_id');
+        }
+
         $status = null;
-        if ($user && $chapter) {
+        if ($userId && $chapter) {
             $status = UserEbookChapterStatus::where([
-                'user_id' => $user,
+                'user_id' => $userId,
                 'ebook_id' => $ebook->id,
                 'chapter_id' => $chapter->id,
             ])->first();
         }
-        $readingPosition = $status?->position ?? 0;
+
         $query = EbookAudioJob::where('ebook_id', $ebook->id)
             ->whereJsonContains('chapter_ids', (string) $chapter->id)
             ->whereNotNull('output_path');
         $audioJobs = $query->get();
+
         return view('ebookmodule::index', [
             'ebook' => $ebook,
             'chapters' => $chapters,
@@ -72,10 +81,12 @@ class EbookModuleController extends Controller
             'hasPurchased' => $hasPurchased,
             'isRead' => $status?->is_read ?? false,
             'isFavorite' => $status?->is_favorite ?? false,
-            'position' => $status?->reading_position ?? 0,
+            'position' => $status?->reading_position ?? 0, 
+            'positions' => $positions, 
             'audioJobs' => $audioJobs,
         ]);
     }
+
     public static function mapEbookToProductFormat()
     {
         return ProductEbook::all()->map(function ($ebook) {
