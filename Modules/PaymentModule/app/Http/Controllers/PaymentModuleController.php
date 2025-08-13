@@ -238,7 +238,6 @@ class PaymentModuleController extends Controller
             ->get();
 
         $flashsaleMap = $flashsales->mapWithKeys(function ($item) {
-            dd($item->flashsale);
 
             return [
                 "$item->sku_id" => [
