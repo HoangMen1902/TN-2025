@@ -121,8 +121,7 @@ class Category extends Component implements HasForms, HasTable
                                 ->rules([
                                     'required',
                                     'max:255',
-                                    'unique:categories,name,' . $record->id,
-                                ])
+                                ])->unique(ignoreRecord: true)
                                 ->validationMessages([
                                     'required' => 'Vui lòng nhập tên danh mục.',
                                     'unique' => 'Tên danh mục đã tồn tại.',
