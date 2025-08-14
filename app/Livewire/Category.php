@@ -25,6 +25,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
 class Category extends Component implements HasForms, HasTable
@@ -121,7 +122,8 @@ class Category extends Component implements HasForms, HasTable
                                 ->rules([
                                     'required',
                                     'max:255',
-                                ])->unique(ignoreRecord: true)
+                                    Rule::unique('categories', 'name')->ignore($record?->id),
+                                ])
                                 ->validationMessages([
                                     'required' => 'Vui lòng nhập tên danh mục.',
                                     'unique' => 'Tên danh mục đã tồn tại.',
