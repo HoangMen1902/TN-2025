@@ -27,7 +27,7 @@ class Minigame extends Component
     protected function isAdmin(): bool
     {
         $user = Auth::user();
-        return $user && $user->email === 'admin@admin.com';
+        return $user && $user->email === 'hoangmen0715@gmail.com';
     }
 
     public function updateSpinInfo(): void
