@@ -129,7 +129,7 @@
                 </div>
             </div>
             <div class="p-2 flex flex-col items-center justify-between h-[100px]">
-                <div class="h-[50px] aspect-square"><a href="">
+                <div class="h-[50px] aspect-square"><a href="{{ route('voucher') }}">
                         <img src="	https://cdn1.fahasa.com/media/wysiwyg/icon-menu/Icon_MaGiamGia_8px_1.png"
                             class="rounded block w-full h-full object-cover" alt="Banner 1"></a>
                 </div>
@@ -138,7 +138,7 @@
                 </div>
             </div>
             <div class="p-2 flex flex-col items-center justify-between h-[100px]">
-                <div class="h-[50px] aspect-square"><a href="">
+                <div class="h-[50px] aspect-square"><a href="{{ route('store') }}">
                         <img src="		https://cdn1.fahasa.com/media/wysiwyg/icon-menu/Icon_SanPhamMoi_8px_1.png"
                             class="rounded block w-full h-full object-cover" alt="Banner 1"></a>
                 </div>
