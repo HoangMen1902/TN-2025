@@ -256,7 +256,7 @@ class Category extends Component implements HasForms, HasTable
                 ->validationMessages([
                     'required' => 'Vui lòng điền tên danh mục.',
                     'unique' => 'Tên danh mục đã tồn tại.',
-                ])
+                ])->live(debounce: 1000)
                 ->reactive()
                 ->afterStateUpdated(function ($state, callable $set) {
                     $set('slug', Str::slug($state));
