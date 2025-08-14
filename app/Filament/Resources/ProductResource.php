@@ -70,13 +70,12 @@ class ProductResource extends Resource
                 TextInput::make('slug')
                     ->label('Đường dẫn sản phẩm')
                     ->rules([
-                        'unique:products,slug',
                         'regex:/^[a-z0-9\-]+$/'
                     ])
                     ->validationMessages([
                         'unique' => 'Slug đã tồn tại.',
                         'regex' => 'Slug chỉ được chứa chữ thường không dấu, số và dấu gạch ngang (không dấu cách, không dấu tiếng Việt)',
-                    ])
+                    ])->unique(ignoreRecord: true)
                     ->placeholder('VD: san-pham-vi-du')
                     ->helperText('Có thể sửa lại. Nếu để trống sẽ tự động tạo từ tên sản phẩm')
                     ->unique(ignoreRecord: true)
