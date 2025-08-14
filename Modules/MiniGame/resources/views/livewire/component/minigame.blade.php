@@ -197,7 +197,7 @@
                 window.segments = @json($prizes);
                 window.remainingSpins = {{ $remainingSpins ?? 0 }};
                 window.nextSpinTime = @json($nextSpinTime);
-                window.isAdmin = @json(auth()->user()?->email === 'admin@admin.com' || auth()->user()?->email === 'hoangmen0715@gmail.com');
+                window.isAdmin = @json(auth()->user()?->email === 'hoangmen0715@gmail.com');
                 window.componentName = "minigame";
 
             </script>
