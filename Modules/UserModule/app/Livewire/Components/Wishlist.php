@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\UserModule\Livewire\Component;
+namespace  Modules\UserModule\Livewire\Components;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,10 +14,11 @@ class Wishlist extends Component
 
     protected $listeners = ['wishlistUpdated' => 'refreshWishlist'];
 
-    public function refreshWishlist()
-    {
-        $this->loadWishlist();
-    }
+   public function refreshWishlist()
+{
+    $this->resetPage(); 
+}
+
     public function render()
     {
         $wishLists = Auth::check()
@@ -26,7 +27,7 @@ class Wishlist extends Component
             ->paginate(10)
             : collect();
 
-        return view('usermodule::livewire.component.wishlist', [
+        return view('usermodule::livewire.components.wishlist', [
             'wishLists' => $wishLists,
         ]);
     }

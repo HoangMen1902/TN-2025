@@ -24,7 +24,7 @@
                         </ul>
                     </div>
                 </div>
-                <livewire:usermodule::component.wishlist  />
+                <livewire:usermodule::components.wishlist  />
             </div>
         </div>
     </div>
