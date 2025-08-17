@@ -6,6 +6,9 @@ use App\Filament\Resources\OrderResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Enums\TabsLayout;
+use Filament\Resources\Components\Tab;
 
 class ListOrders extends ListRecords
 {
@@ -32,5 +35,15 @@ class ListOrders extends ListRecords
     {
         return parent::getEloquentQuery()
             ->with('orderDetails.productSku.product');
+    }
+    public function getTabs(): array
+    {
+        return [
+            'all' => Tab::make('Tất cả'),
+            'approved' => Tab::make('Đã duyệt')
+                ->modifyQueryUsing(fn($query) => $query->where('is_approved', true)),
+            'not_approved' => Tab::make('Chưa duyệt')
+                ->modifyQueryUsing(fn($query) => $query->where('is_approved', false)),
+        ];
     }
 }

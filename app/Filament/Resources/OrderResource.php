@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\GhnService;
 use Illuminate\Support\Facades\Log;
 use App\Services\OrderShipmentService;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Enums\TabsLayout;
+use Filament\Tables\Tabs\Tab;
 
 class OrderResource extends Resource
 {
@@ -79,7 +82,7 @@ class OrderResource extends Resource
                     ->sortable(),
 
             ])
-
+           
             ->filters([
 
                 Tables\Filters\Filter::make('customer_name')
@@ -193,7 +196,7 @@ class OrderResource extends Resource
                             !empty($record->reason) ||
                                 strtolower($record->orders_status) === 'đã hủy'
                         )
-                        
+
                         ->modalSubmitAction(false)
                         ->modalCancelActionLabel('Đóng')
                         ->modalContent(function (Order $record) {
