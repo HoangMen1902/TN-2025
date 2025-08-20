@@ -190,8 +190,12 @@ class FlashSaleResource extends Resource
                                 fn($state, callable $set, callable $get) =>
                                 $set('skus', static::getFilteredSkus(
                                     $get('category_id'),
-                                    $state,                      // sort_by
-                                    $get('sort_order') ?? 'asc' // direction
+                                    $get('sort_by') ?? 'price',
+                                    $get('sort_order') ?? 'asc',
+                                    5,
+                                    0,
+                                    $get('started_at'),
+                                    $get('expired_at')
                                 ))
                             )
                             ->visible(fn(Get $get): bool => in_array($get('apply_type'), ['sku', 'both']))
@@ -346,6 +350,18 @@ class FlashSaleResource extends Resource
                 ForceDeleteBulkAction::make(),
             ]);
     }
+    public static function mutateFormDataBeforeCreate(array $data): array
+    {
+        static::validateUniqueSkusInTimeRange($data);
+        return $data;
+    }
+
+    public static function mutateFormDataBeforeSave(array $data): array
+    {
+        static::validateUniqueSkusInTimeRange($data, $data['id'] ?? null);
+        return $data;
+    }
+
 
     public static function getRelations(): array
     {
@@ -368,7 +384,10 @@ class FlashSaleResource extends Resource
         $sortBy = 'price',
         $direction = 'asc',
         int $load_amount = 5,
-        int $offset = 0
+        int $offset = 0,
+        $started_at = null,
+        $expired_at = null,
+        $ignoreFlashSaleId = null
     ): array {
         $query = ProductSku::with('product')
             ->whereHas('product', fn($q) => $q->where('product_status', 'active'));
@@ -376,6 +395,13 @@ class FlashSaleResource extends Resource
         if ($categoryId) {
             $query->whereHas('product.categories', fn($q) => $q->where('categories.id', $categoryId));
         }
+
+        // Lọc SKU không nằm trong flash sale nào trùng thời gian
+        $query->whereDoesntHave('flashsales', function ($q) use ($ignoreFlashSaleId) {
+            if ($ignoreFlashSaleId) {
+                $q->where('flashsales.id', '!=', $ignoreFlashSaleId);
+            }
+        });
 
         return $query
             ->orderBy("product_skus.$sortBy", $direction)

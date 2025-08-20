@@ -10,6 +10,7 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateFlashSale extends CreateRecord
 {
     protected static string $resource = FlashSaleResource::class;
+    
     protected function afterCreate(): void
     {
         $recordId = $this->record->id;
