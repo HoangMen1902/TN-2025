@@ -12,7 +12,9 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         SendBirthdayVouchers::class,
         CreateSuperAdmin::class,
+        \Modules\DetailModule\Console\SendPreorderNotifications::class,
     ];
+
 
     protected function schedule(Schedule $schedule)
     {

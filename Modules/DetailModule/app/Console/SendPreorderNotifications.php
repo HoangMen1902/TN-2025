@@ -52,7 +52,7 @@ class SendPreorderNotifications extends Command
                 'name' => 'Sản phẩm "' . $product->name . '" đã có hàng!',
                 'content' => 'Sản phẩm bạn đặt trước hiện đã có hàng. Hãy kiểm tra ngay!',
                 'thumbnail' => $product->thumbnail,
-                'notification_type' => 'Ưu đãi độc quyền',
+                'notification_type' => 'Đơn hàng',
             ]);
 
             foreach ($preorders as $preorder) {
