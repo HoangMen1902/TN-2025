@@ -80,50 +80,54 @@ class FlashSaleResource extends Resource
             ->schema([
                 Section::make('Thông tin chương trình')
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Tên Flash Sale')
-                            ->maxLength(255)
-                            ->rules(['required', 'string', 'max:255'])
-                            ->validationMessages([
-                                'required' => 'Vui lòng nhập tên Flash Sale.',
-                                'string'   => 'Tên Flash Sale phải là chuỗi ký tự.',
-                                'max'      => 'Tên Flash Sale không được vượt quá 255 ký tự.',
+                        Grid::make(12)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Tên Flash Sale')
+                                    ->maxLength(255)
+                                    ->rules(['required', 'string', 'max:255'])
+                                    ->validationMessages([
+                                        'required' => 'Vui lòng nhập tên Flash Sale.',
+                                        'string'   => 'Tên Flash Sale phải là chuỗi ký tự.',
+                                        'max'      => 'Tên Flash Sale không được vượt quá 255 ký tự.',
+                                    ])
+                                    ->columnSpan(12),
                             ]),
+                        Grid::make(12)
+                            ->schema([
+                                DateTimePicker::make('started_at')
+                                    ->label('Thời gian bắt đầu')
+                                    ->required()
+                                    ->reactive()
+                                    ->minDate(now())
+                                    ->rules(['required', 'date', 'after_or_equal:now'])
+                                    ->validationMessages([
+                                        'required' => 'Vui lòng chọn thời gian bắt đầu.',
+                                        'after_or_equal' => 'Thời gian bắt đầu không được trước thời điểm hiện tại.',
+                                    ])
+                                    ->native(false)
+                                    ->columnSpan(6),
 
-
-                        DateTimePicker::make('started_at')
-                            ->label('Thời gian bắt đầu')
-                            ->required()
-                            ->reactive()
-                            ->minDate(now())
-                            ->rules(['required', 'date', 'after_or_equal:now'])
-                            ->validationMessages([
-                                'required' => 'Vui lòng chọn thời gian bắt đầu.',
-                                'after_or_equal' => 'Thời gian bắt đầu không được trước thời điểm hiện tại.',
-                            ])
-                            ->native(false),
-
-                        DateTimePicker::make('expired_at')
-                            ->label('Thời gian kết thúc')
-                            ->required()
-                            ->reactive()
-                            ->minDate(now())
-                            ->rule(function (callable $get) {
-                                $start = $get('started_at');
-                                return function (string $attribute, $value, Closure $fail) use ($start) {
-                                    if ($start && $value <= $start) {
-                                        $fail('Thời gian kết thúc phải sau thời gian bắt đầu.');
-                                    }
-                                };
-                            })
-                            ->validationMessages([
-                                'required' => 'Vui lòng chọn thời gian kết thúc.',
-                            ])
-                            ->native(false),
-
-
-
-                    ])->columns(2),
+                                DateTimePicker::make('expired_at')
+                                    ->label('Thời gian kết thúc')
+                                    ->required()
+                                    ->reactive()
+                                    ->minDate(now())
+                                    ->rule(function (callable $get) {
+                                        $start = $get('started_at');
+                                        return function (string $attribute, $value, Closure $fail) use ($start) {
+                                            if ($start && $value <= $start) {
+                                                $fail('Thời gian kết thúc phải sau thời gian bắt đầu.');
+                                            }
+                                        };
+                                    })
+                                    ->validationMessages([
+                                        'required' => 'Vui lòng chọn thời gian kết thúc.',
+                                    ])
+                                    ->native(false)
+                                    ->columnSpan(6),
+                            ]),
+                    ]),
 
                 Section::make('Giảm giá áp dụng')
                     ->schema([
