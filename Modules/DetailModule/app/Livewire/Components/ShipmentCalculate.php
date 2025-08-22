@@ -30,6 +30,7 @@ class ShipmentCalculate extends Component
     public $data;
 
     public $currentSku;
+    public $skuQuantity;
 
     public $type;
     protected $rules = [
@@ -81,6 +82,7 @@ class ShipmentCalculate extends Component
             $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
             $this->estimatedTime = ucwords($date->translatedFormat('l - d/m'));
             $this->currentSku = $this->data->productSkus->first();
+            $this->skuQuantity = $this->currentSku->quantity;
 
             $current_price = $this->currentSku->sale_price ?? $this->currentSku->price ?? 0;
 

@@ -83,13 +83,22 @@ class CartModuleController extends Controller
 
 
         if ($cartItem) {
+            if ($cartItem->quantity + $request->quantity > $sku->quantity) {
+                return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+            }
             $cartItem->quantity += $request->quantity;
             $cartItem->user_id = $userId;
             $cartItem->save();
         } elseif ($existed_cart) {
+            if ($carts[$itemType][$itemId]['quantity'] + $request->quantity > $sku->quantity) {
+                return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+            }
             $carts[$itemType][$itemId]['quantity'] += $request->quantity;
             Session::put('carts', $carts);
         } elseif (Auth::check() && !$cartItem) {
+            if ($request->quantity > $sku->quantity) {
+                return back()->with('error', 'Số lượng sản phẩm hiện tại không đáp ứng đủ');
+            }
             $result = Cart::create([
                 'user_id' => $userId,
                 'sku_id' => $request->sku_id,

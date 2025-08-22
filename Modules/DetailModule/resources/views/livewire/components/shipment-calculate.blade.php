@@ -38,7 +38,9 @@
                                         <img src="{{asset('assets/images/coupon.png')}}" alt="">
                                     </div>
                                     <div class="coupon-name truncate text-[13px] font-bold">
-                                        Mã giảm giá {{$voucher?->voucher?->voucher_type === 'amount' ? number_format($voucher->voucher->reduced_amount, 0 ,'.', '.') : $voucher->voucher->reduced_amount . '%'}} - cho đơn hàng {{number_format($voucher?->voucher?->requirement_price, 0, '.', '.')}}
+                                        Mã giảm giá
+                                        {{$voucher?->voucher?->voucher_type === 'amount' ? number_format($voucher->voucher->reduced_amount, 0, '.', '.') : $voucher->voucher->reduced_amount . '%'}}
+                                        - cho đơn hàng {{number_format($voucher?->voucher?->requirement_price, 0, '.', '.')}}
                                     </div>
                                 </div>
                             @endforeach
@@ -82,11 +84,14 @@
                             @endforeach
                         </div>
                     @endif
-                    <div class="quantity-container w-min">
-                        <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
-                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold"
-                            form="addToCart" />
-                        <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
+                    <div class="flex items-center gap-4">
+                        <div class="quantity-container w-min">
+                            <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
+                            <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold"
+                                form="addToCart" />
+                            <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
+                        </div>
+                        <span class="text-neutral-400 text-sm">Số lượng còn lại: {{$skuQuantity}}</span>
                     </div>
 
                 </div>
