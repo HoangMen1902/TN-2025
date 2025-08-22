@@ -16,7 +16,8 @@ class OrderDetail extends Model
         'sku_id',
         'price',
         'quantity',
-        'combo_id'
+        'combo_id',
+        'item_type'
     ];
 
 

@@ -255,6 +255,7 @@ class OrderShipmentService
 
 
             self::handleShipmentResult($record, $result, $shipmentName);
+            return true;
         } catch (\Exception $e) {
             Log::error("Lỗi đăng đơn vận chuyển: " . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
@@ -267,6 +268,7 @@ class OrderShipmentService
                 ->body("Lỗi khi đăng đơn vận chuyển: " . $e->getMessage())
                 ->danger()
                 ->send();
+            return false;
         }
     }
 

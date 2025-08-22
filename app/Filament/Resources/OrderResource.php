@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\OrderStatusEnum;
 use App\Models\Order;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
@@ -18,6 +19,7 @@ use App\Services\OrderShipmentService;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\TabsLayout;
 use Filament\Tables\Tabs\Tab;
+use Illuminate\Support\Facades\DB;
 
 class OrderResource extends Resource
 {
@@ -82,7 +84,7 @@ class OrderResource extends Resource
                     ->sortable(),
 
             ])
-           
+
             ->filters([
 
                 Tables\Filters\Filter::make('customer_name')
@@ -155,21 +157,21 @@ class OrderResource extends Resource
                             $record->is_approved = true;
 
                             if ($paymentMethod === 'cod') {
-                                $record->orders_status = 'đang xử lý';
+                                $record->orders_status = OrderStatusEnum::DangXuLy;
                             } else {
-                                $record->orders_status = 'đã thanh toán';
+                                $record->orders_status = OrderStatusEnum::DaThanhToan;
                             }
 
-                            $record->save();
+                            // $record->save();
 
-                            \App\Services\NotificationService::send(
-                                [
-                                    $record->user_id
-                                ],
-                                'Trạng thái đơn hàng thay đổi',
-                                'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
-                                'Đơn hàng'
-                            );
+                            // \App\Services\NotificationService::send(
+                            //     [
+                            //         $record->user_id
+                            //     ],
+                            //     'Trạng thái đơn hàng thay đổi',
+                            //     'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                            //     'Đơn hàng'
+                            // );
 
                             Log::info('Bắt đầu đăng đơn vận chuyển', [
                                 'order_id' => $record->id,
@@ -182,7 +184,67 @@ class OrderResource extends Resource
                             ]);
 
 
-                            OrderShipmentService::processShipment($record, $shipmentUnit);
+                            $result = OrderShipmentService::processShipment($record, $shipmentUnit);
+                            // $result = true; DEBUG MODE ONLY
+                            if ($result) {
+                                try {
+                                    DB::transaction(function () use ($record) {
+                                        $orderDetails = $record->orderDetails;
+
+                                        foreach ($orderDetails as $detail) {
+                                            if ($detail->item_type === 'sku') {
+                                                $detail->sku()
+                                                    ->where('id', $detail->sku_id)
+                                                    ->where('quantity', '>=', $detail->quantity)
+                                                    ->decrement('quantity', $detail->quantity);
+                                            } elseif ($detail->item_type === 'combo') {
+                                                $detail->combo()
+                                                    ->where('id', $detail->combo_id)
+                                                    ->where('quantity', '>=', $detail->quantity)
+                                                    ->decrement('quantity', $detail->quantity);
+                                            }
+                                        }
+                                    });
+                                    $record->save();
+                                        \App\Services\NotificationService::send(
+                                [
+                                    $record->user_id
+                                ],
+                                'Trạng thái đơn hàng thay đổi',
+                                'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                                'Đơn hàng'
+                            );
+                                    \App\Services\NotificationService::send(
+                                        [
+                                            $record->user_id
+                                        ],
+                                        'Trạng thái đơn hàng thay đổi',
+                                        'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                                        'Đơn hàng'
+                                    );
+                                } catch (\Throwable $th) {
+                                    Log::error('DA co loi xay ra: ' . $th->getMessage() . ' Line: ' . $th->getLine() . ' File: ' . $th->getFile());
+
+                                    \App\Services\NotificationService::send(
+                                        [
+                                            $record->user_id
+                                        ],
+                                        'Duyệt thất bại',
+                                        'Đã có lỗi xảy ra: ' . $th->getMessage(),
+                                        'Đơn hàng'
+                                    );
+                                }
+                            }
+                            // $record->save();
+
+                            // \App\Services\NotificationService::send(
+                            //     [
+                            //         $record->user_id
+                            //     ],
+                            //     'Trạng thái đơn hàng thay đổi',
+                            //     'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                            //     'Đơn hàng'
+                            // );
                         })
                         ->color('success')
                         ->requiresConfirmation()
