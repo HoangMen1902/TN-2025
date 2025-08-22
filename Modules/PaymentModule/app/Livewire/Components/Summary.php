@@ -233,10 +233,12 @@ class Summary extends Component
         if ($voucher_type === 'global') {
             if ($voucher->voucher_type === "percent") {
                 $discountAmount = $this->finalPrice * ($voucher->reduced_amount / 100);
-
+                Log::info('Discount Amount 1: ' . $discountAmount);
                 if ($discountAmount > $voucher_max_amount) {
                     $discountAmount = $voucher_max_amount;
+                    Log::info('Discount Amount 2: ' . $discountAmount);
                 }
+                Log::info('Discount Amount 3: ' . $discountAmount);
                 $this->finalPrice = max(0, $this->finalPrice - $discountAmount);
             } elseif ($voucher->voucher_type === 'amount') {
                 $discountAmount = $voucher->reduced_amount;
