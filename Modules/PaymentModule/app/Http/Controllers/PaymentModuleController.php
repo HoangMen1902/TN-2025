@@ -2,6 +2,7 @@
 
 namespace Modules\PaymentModule\Http\Controllers;
 
+use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
 use App\Services\VnPay;
@@ -100,7 +101,7 @@ class PaymentModuleController extends Controller
             Session::forget('decrease_amount');
 
             $order = Order::create([
-                'orders_status' => $request->payment_method === "cod" || $request->payment_method === "payos" ? 'Chờ duyệt' : 'Chờ thanh toán',
+                'orders_status' => $request->payment_method === "cod" || $request->payment_method === "payos" ? OrderStatusEnum::ChoDuyet : OrderStatusEnum::ChoThanhToan,
                 'user_id' => $user->id,
                 'address' => $fullAddress ?? $request->full_address,
                 'phone' => $addressModel?->phone ?? $request->phone,
@@ -133,7 +134,6 @@ class PaymentModuleController extends Controller
             );
 
             $total_price = 0;
-
             foreach ($cartItems as $item) {
                 $price = 0;
                 $comboId = null;
