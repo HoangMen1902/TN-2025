@@ -106,6 +106,14 @@
                              <div class="text-xs text-gray-500">
                                     Còn lại: {{ $type === 'sku' ? ($item->sku->quantity ?? 0) : ($item->combo->quantity ?? 0) }}
                               </div>
+                              <button wire:click="removeItem({{ $combo->id }}, 'combo')"
+                                        class="mt-1 md:mt-2 text-gray-600 hover:text-red-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                                            stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </button>
                             </div>
                             <div class="w-full md:w-1/7 text-center text-red-600 flex justify-center items-center text-sm md:text-base" style="margin-left: 12px;">
                              {{ isset($discounted_price) && $type === 'sku' 
