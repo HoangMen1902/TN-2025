@@ -125,10 +125,35 @@ class Summary extends Component
         $this->finalPrice = $this->originalPrice;
 
 
-        $this->availableVouchers = Voucher::where('voucher_status', 'active')->where('start_at', '<', now())->where('expired_at', '>', now())
+        $this->availableVouchers = Voucher::select('*')
+            ->selectRaw("
+        CASE 
+            WHEN voucher_scope = 'shipping' AND voucher_type = 'percent'
+                 THEN LEAST((? * reduced_amount / 100), max_discount_amount)
+            WHEN voucher_scope = 'shipping' AND voucher_type = 'amount'
+                 THEN LEAST(reduced_amount, ?)
+
+            WHEN voucher_scope = 'global' AND voucher_type = 'percent'
+                 THEN LEAST((? * reduced_amount / 100), max_discount_amount)
+            WHEN voucher_scope = 'global' AND voucher_type = 'amount'
+                 THEN LEAST(reduced_amount, ?)
+
+            ELSE 0
+        END as discount_value
+    ", [
+                $this->shipping_fee,
+                $this->shipping_fee,
+                $this->finalPrice,
+                $this->finalPrice,
+            ])
+            ->where('voucher_status', 'active')
+            ->where('start_at', '<', now())
+            ->where('expired_at', '>', now())
             ->whereHas('voucherUsed', function ($q) {
                 $q->where('is_used', false);
-            })->get();
+            })
+            ->orderBy('discount_value', 'DESC')
+            ->get();
     }
 
     #[On('apply-voucher')]

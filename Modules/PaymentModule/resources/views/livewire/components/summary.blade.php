@@ -102,7 +102,8 @@
                         <p class="text-sm text-gray-600 text-center">Hiện chưa có mã giảm giá nào khả dụng.</p>
                     @else
                         <ul class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar pr-1">
-                            @foreach ($availableVouchers as $voucher)
+                            @foreach ($availableVouchers as $index => $voucher)
+
                                 @php
                                     $voucher_scope = $voucher->voucher_scope;
                                     $voucher_type = '';
@@ -113,6 +114,7 @@
                                         $voucher_type = "Giảm phí đơn hàng";
                                     }
                                 @endphp
+
                                     <li class="border border-gray-200 p-4 rounded-xl hover:bg-blue-50 cursor-pointer transition"
                                     onclick="selectVoucher('{{ $voucher->voucher_code }}')">
                                     <div class="flex justify-between items-center">
@@ -135,7 +137,12 @@
                                                                         <p class="text-sm text-gray-600 mt-1">
                                         Giảm tối đa: {{ number_format($voucher_max) }}₫
                                     </p>
-                                    <p class="text-xs text-gray-400 mt-1">Hạn: {{ $voucher->expired_at->format('d/m/Y') }}</p>
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-xs text-gray-400 mt-1">Hạn: {{ $voucher->expired_at->format('d/m/Y') }}</p>
+                                        @if($index === 0 ) 
+                                        <span class="bg-amber-200 border border-amber-300 text-amber-700 font-semibold px-4 py-1 rounded-lg">Deal hời nhất!</span>
+                                        @endif
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>
