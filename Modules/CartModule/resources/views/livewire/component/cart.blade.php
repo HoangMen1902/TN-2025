@@ -106,7 +106,7 @@
                              <div class="text-xs text-gray-500">
                                     Còn lại: {{ $type === 'sku' ? ($item->sku->quantity ?? 0) : ($item->combo->quantity ?? 0) }}
                               </div>
-                              <button wire:click="removeItem({{ $combo->id }}, 'combo')"
+                              <button wire:click="removeItem({{ $item->id }}, 'combo')"
                                         class="mt-1 md:mt-2 text-gray-600 hover:text-red-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                             stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
