@@ -39,11 +39,7 @@ class OrderResource extends Resource
                     ->label('Mã đơn')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('customer_name')->label('Khách hàng'),
-                TextColumn::make('phone')
-                    ->label('Số điện thoại')
-                    ->searchable()
-                    ->sortable(),
+
                 TextColumn::make('calculated_total_price')
                     ->label('Tổng tiền')
                     ->money('VND', locale: 'vi_VN')
@@ -373,6 +369,30 @@ class OrderResource extends Resource
                             \Filament\Notifications\Notification::make()
                                 ->title('Đã từ chối trả hàng')
                                 ->body('Đơn hàng đã trở lại trạng thái "Đã giao".')
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation(),
+                    Action::make('returnOnly')
+                        ->label('Trả hàng')
+                        ->icon('heroicon-o-arrow-uturn-left')
+                        ->visible(
+                            fn(Order $record) =>
+                            strtolower($record->orders_status) === 'chờ trả hàng'
+                                && $record->is_approved
+                                && ($record->paymentDetail?->payment_method === 'cod')
+                        )
+                        ->action(function (Order $record) {
+                            $shipmentUnit = $record->paymentDetail->shipment_unit ?? 'ghn';
+                            $shipmentResult = OrderShipmentService::processReturnShipment($record, $shipmentUnit);
+
+                            $record->orders_status = 'Đã trả hàng';
+                            $record->shipping_status = \App\Models\Order::SHIPPING_STATUS_DA_TRA_LAI;
+                            $record->save();
+
+                            \Filament\Notifications\Notification::make()
+                                ->title('Trả hàng thành công')
+                                ->body('Đã đăng đơn trả hàng cho khách.')
                                 ->success()
                                 ->send();
                         })

@@ -89,536 +89,555 @@
             @if (!is_null($orders) && $orders->isNotEmpty())
                 @foreach ($orders as $order)
 
-                    <div wire:key="order-{{ $order->id }}" class="block" id="all" role="tabpanel" aria-labelledby="all-tab">
-                        <div class="border border-gray-200 rounded-lg mx-4 mb-4">
-                            <div class="border-b border-gray-200 p-3 md:p-4 flex justify-between items-center">
-                                <div class="flex items-center">
-                                    <button class="bg-blue-100 text-red-500 px-2 py-1 rounded text-xs mr-3">Yêu thích</button>
-                                    <span class="font-medium">
-                                        {{ $order->orderDetails->first()?->sku?->product?->categories?->first()?->name ?? 'Đơn hàng' }}</span>
+                        <div wire:key="order-{{ $order->id }}" class="block" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            <div class="border border-gray-200 rounded-lg mx-4 mb-4">
+                                <div class="border-b border-gray-200 p-3 md:p-4 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <button class="bg-blue-100 text-red-500 px-2 py-1 rounded text-xs mr-3">Yêu thích</button>
+                                        <span class="font-medium">
+                                            {{ $order->orderDetails->first()?->sku?->product?->categories?->first()?->name ?? 'Đơn hàng' }}</span>
+                                    </div>
+                                    <a href="/chi-tiet-don-hang/{{$order->paymentDetail->tracking_id}}"
+                                        class="text-blue-600 underline">Chi tiết đơn hàng</a>
                                 </div>
-                                <a href="/chi-tiet-don-hang/{{$order->paymentDetail->tracking_id}}" class="text-blue-600 underline">Chi tiết đơn hàng</a>
-                            </div>
 
-                            @foreach ($order->orderDetails as $detail)
-                                @php
-                                    $item_type = $detail->combo_id ? 'combo' : 'sku';
-                                    $imagePath = $item_type === 'sku'
-                                        ? ($detail->sku->images[0] ?? 'default.jpg')
-                                        : ($detail->combo->images[0] ?? 'default.jpg');
-                                @endphp
-                                <div class="p-3 md:p-4 border-b border-gray-200">
-                                    <div class="flex items-start">
-                                        <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                            <img src="{{ asset('storage/' . $imagePath) ?? '/default.jpg' }}" alt="Sản phẩm"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
-                                                {{ $detail->sku->product->name ?? 'Tên sản phẩm' }}
-                                            </p>
-                                            @if ($detail->sku && $detail->sku->option_values)
-                                                <p class="text-gray-500 text-xs md:text-sm mb-1">
-                                                    Phân loại hàng: {{ $detail->sku->option_values->pluck('value')->join(', ') }}
+                                @foreach ($order->orderDetails as $detail)
+                                    @php
+                                        $item_type = $detail->combo_id ? 'combo' : 'sku';
+                                        $imagePath = $item_type === 'sku'
+                                            ? ($detail->sku->images[0] ?? 'default.jpg')
+                                            : ($detail->combo->images[0] ?? 'default.jpg');
+                                    @endphp
+                                    <div class="p-3 md:p-4 border-b border-gray-200">
+                                        <div class="flex items-start">
+                                            <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
+                                                <img src="{{ asset('storage/' . $imagePath) ?? '/default.jpg' }}" alt="Sản phẩm"
+                                                    class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
+                                                    {{ $detail->sku->product->name ?? 'Tên sản phẩm' }}
                                                 </p>
-                                            @endif
-
-                                            <p class="text-gray-500 text-xs md:text-sm">x{{ $detail->quantity }}</p>
-                                            @if($order->paymentDetail && $order->paymentDetail->tracking_id)
-                                                <div class="text-sm text-gray-600">
-                                                    Mã đơn: <span class="font-medium">{{ $order->paymentDetail->tracking_id }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="text-right ml-2 flex-shrink-0">
-                                            <div class="flex flex-col justify-end items-end gap-1">
-                                                <span class="text-gray-500 text-xs">Combo Khuyến Mãi</span>
-                                                <span class="text-gray-500 text-xs">Mua 2, Tiết kiệm ₫2.000</span>
-                                            </div>
-                                            <div class="text-red-500 font-medium text-sm md:text-base">
-                                                ₫{{ number_format($detail->price, 0, ',', '.') }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                            @php
-                                $statusMessages = [
-
-                                    'Đang xử lý' => [
-                                        'label' => 'Đang xử lý',
-                                        'color' => 'text-yellow-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
-                                    ],
-                                    'Chờ duyệt' => [
-                                        'label' => 'Đang chờ duyệt',
-                                        'color' => 'text-yellow-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  '
-                                    ],
-                                    'Đã thanh toán' => [
-                                        'label' => 'Đã thanh toán',
-                                        'color' => 'text-blue-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
-                                    ],
-                                    'Vận chuyển' => [
-                                        'label' => 'Đang vận chuyển',
-                                        'color' => 'text-indigo-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 12h18M5 16h14l-1-4H6l-1 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
-                                    ],
-                                    'Chờ hoàn tiền' => [
-                                        'label' => 'Chờ hoàn tiền',
-                                        'color' => 'text-yellow-600',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v4M8 8h8M12 12v4M8 16h8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
-                                    ],
-                                    'Đã hoàn tiền' => [
-                                        'label' => 'Đã hoàn tiền',
-                                        'color' => 'text-green-600',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
-                                    ],
-                                    'Đã giao' => [
-                                        'label' => 'Giao hàng thành công',
-                                        'color' => 'text-green-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
-                                    ],
-                                    'Đã hủy' => [
-                                        'label' => 'Đã hủy',
-                                        'color' => 'text-red-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
-                                    ],
-                                ];
-
-                                $status = $order->orders_status;
-                                if ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at > $now)) {
-                                    $statusMessages[$status] = [
-                                        'label' => 'Chờ thanh toán',
-                                        'color' => 'text-blue-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
-                                    ];
-                                } elseif ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at < $now)) {
-                                    $statusMessages[$status] = [
-                                        'label' => 'Đã hủy',
-                                        'color' => 'text-red-500',
-                                        'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
-                                    ];
-                                }
-                                $statusInfo = $statusMessages[$status] ?? ['label' => 'Không rõ trạng thái', 'color' => 'text-gray-500', 'icon' => ''];
-                                $total_price = $order->orderDetails->sum(function ($detail) {
-                                    return $detail->price * $detail->quantity;
-                                });
-                            @endphp
-
-                            <div class="p-3 md:p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-                                <div class="flex items-center">
-                                    {!! $statusInfo['icon'] !!}
-                                    <span class="{{ $statusInfo['color'] }} text-sm">{{ $statusInfo['label'] }}</span>
-                                </div>
-                                <!-- Phần thành tiền hay khác -->
-                                <div>
-                                    <div class="text-gray-600 text-sm text-right">
-                                        Thành tiền: <span class="text-red-500 text-base md:text-lg font-medium">
-                                            ₫{{ number_format($total_price, 0, ',', '.') }}
-                                        </span>
-                                    </div>
-                                    <!-- Thêm tracking_id, shipment_price, total_price ở đây -->
-
-                                    @if($order->shipment_price)
-                                        <div class="text-sm text-gray-600">
-                                            Phí vận chuyển: <span
-                                                class="font-medium text-blue-600">₫{{ number_format($order->shipment_price, 0, ',', '.') }}</span>
-                                        </div>
-                                    @endif
-                                    @if($order->total_price)
-                                        <div class="text-sm text-gray-600">
-                                            Tổng tiền: <span
-                                                class="font-medium text-green-600">₫{{ number_format($order->total_price, 0, ',', '.') }}</span>
-                                        </div>
-                                    @endif
-
-                                </div>
-                            </div>
-
-
-                            @php
-                                $status = $order->orders_status;
-                                $reviewDeadline = $order->updated_at->addDays(5)->format('d-m-Y');
-                            @endphp
-
-                            <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                @if($status === 'Chờ duyệt')
-                                    <div class="text-sm text-gray-700">
-                                        Đang gửi yêu cầu duyệt đơn.
-                                    </div>
-                                @elseif($status === 'Đang xử lý')
-                                    <div class="text-sm text-gray-700">
-                                        Hiện tại chúng tôi đang kiểm tra và sẽ xử lý đơn hàng sớm nhất.
-                                    </div>
-                                @elseif($status === 'Đã thanh toán')
-                                    <div class="text-sm text-blue-600">
-                                        Bạn đã thanh toán và đơn hàng của bạn sẽ được chuẩn bị để vận chuyển.
-                                    </div>
-                                @elseif($status === 'Vận chuyển')
-                                    <div class="text-sm text-indigo-600">
-                                        Đơn hàng đang được vận chuyển đến bạn, vui lòng chờ nhận hàng.
-                                    </div>
-                                @elseif($status === 'Chờ hoàn tiền')
-                                    <div class="text-sm text-yellow-600">
-                                        Đơn hàng đang chờ xử lý hoàn tiền, xin vui lòng chờ.
-                                    </div>
-                                @elseif($status === 'Đã hoàn tiền')
-                                    <div class="text-sm text-green-600">
-                                        Đơn hàng đã được hoàn tiền thành công.
-                                    </div>
-                                @elseif($status === 'Đã giao')
-                                    <div class="flex flex-col md:flex-row gap-2 items-center">
-                                        <div class="text-xs md:text-sm text-gray-500">
-                                            Đánh giá sản phẩm trước {{ $reviewDeadline }}
-                                        </div>
-
-                                    </div>
-                                @elseif($status === 'Đã hủy')
-                                    <div class="text-sm text-red-500">
-                                        Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.
-                                    </div>
-                                @elseif($status === "Chờ thanh toán")
-                                    @if ($order->paymentDetail->payment_expired_at > $now)
-                                        <a href="{{$order->paymentDetail->payment_url}}" class="bg-red-500 px-4 py-2 rounded-lg text-white font-bold" >Thanh toán ngay</a>
-                                    @else
-                                        <div class="text-sm text-red-500">
-                                            Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.
-                                        </div>
-                                    @endif
-                                @else
-                                    <div class="text-sm text-gray-500">
-                                        Trạng thái đơn hàng không xác định.
-                                    </div>
-                                @endif
-                            </div>
-
-
-                            @php
-                                $product = $order->orderDetails->first()?->sku?->product;
-                            @endphp
-
-                            <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                @if (in_array($order->orders_status, ['Đang xử lý']))
-                                    <button wire:click="openCancelModal({{ $order->id }})"
-                                        class="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Hủy đơn
-                                    </button>
-
-                                @elseif ($order->orders_status === 'Đã thanh toán')
-                                    <button wire:click="openRefundModal({{ $order->id }}, 'refund')"
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Yêu cầu hoàn tiền
-                                    </button>
-
-                                @elseif ($order->orders_status === 'Vận chuyển')
-                                    <button
-                                        class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Liên hệ người bán
-                                    </button>
-
-                                @elseif ($order->orders_status === 'Đã giao')
-                                    <button wire:click="openRefundModal({{ $order->id }}, 'return')"
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Yêu cầu trả hàng
-                                    </button>
-                                    @php
-                                        $allRated = $order->orderDetails->every(function ($detail) {
-                                            return \App\Models\Rating::where('user_id', Auth::id())
-                                                ->where('order_detail_id', $detail->id)
-                                                ->exists();
-                                        });
-                                    @endphp
-                                    @if ($allRated)
-                                        <button wire:click="viewRating({{ $order->id }})"
-                                            class="bg-green-500 hover:bg-green-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                            Xem đánh giá
-                                        </button>
-                                    @else
-                                        <button wire:click="openRatingModal({{ $order->id }})"
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                            Đánh giá
-                                        </button>
-                                    @endif
-                                    <a href="{{ url('/chi-tiet/' . $product->slug) }}"
-                                        class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Mua lại
-                                    </a>
-                                    @livewire('pdf-order', ['orderId' => $order->id])
-                                @elseif ($order->orders_status === 'Đã hủy' && $product)
-                                    <a href="{{ url('/chi-tiet/' . $product->slug) }}"
-                                        class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
-                                        Mua lại
-                                    </a>
-
-                                @elseif (in_array($order->orders_status, ['Chờ hoàn tiền', 'Đã hoàn tiền']))
-                                    <span class="text-sm text-gray-500 italic">Đơn hàng đang xử lý hoàn tiền</span>
-                                @endif
-                            </div>
-
-
-                        </div>
-                    </div>
-                    @if($showRefundModal)
-                        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-                            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                                <h2 class="text-lg font-semibold mb-4">
-                                    {{ $refundType === 'refund' ? 'Lý do yêu cầu hoàn tiền' : 'Lý do yêu cầu trả hàng & hoàn tiền' }}
-                                </h2>
-                                @error('refundReason') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
-                                <textarea wire:model="refundReason" rows="3" class="w-full border border-gray-300 rounded p-2 mb-4"
-                                    placeholder="Nhập lý do..."></textarea>
-                                <div class="flex justify-end gap-2">
-                                    <button wire:click="$set('showRefundModal', false)"
-                                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
-                                        Đóng
-                                    </button>
-                                    <button wire:click="confirmRefundRequest"
-                                        class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
-                                        Xác nhận
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    @if ($showViewRatingModal)
-                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
-                            <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
-                                <div class="p-4 border-b rounded-t flex justify-between items-center">
-                                    <h3 class="text-xl font-semibold text-gray-900">Đánh giá của bạn</h3>
-                                    <button type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                                        wire:click="$set('showViewRatingModal', false)">
-                                        <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                        </svg>
-                                        <span class="sr-only">Đóng</span>
-                                    </button>
-                                </div>
-                                <div class="p-6 space-y-6">
-                                    @foreach ($viewRatings as $rating)
-                                        <div class="mb-6 border-b pb-4">
-                                            <div class="flex items-center mb-2">
-                                                <span class="font-medium mr-2">Sản phẩm:</span>
-                                                <span>{{ $rating->orderDetail->sku->product->name ?? 'Sản phẩm' }}</span>
-                                            </div>
-                                            <div class="flex items-center mb-2">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    <span class="{{ $i <= $rating->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
-                                                @endfor
-                                            </div>
-                                            <div class="mb-2 text-gray-700">{{ $rating->review }}</div>
-                                            @if (!empty($rating->images))
-                                                <div class="flex gap-2 mt-2">
-                                                    @foreach (json_decode($rating->images, true) as $img)
-                                                        @php
-                                                            $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
-                                                            $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
-                                                            $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg', '3gp', 'webm']);
-                                                        @endphp
-                                                        @if ($isImage)
-                                                            <img src="{{ asset('storage/' . $img) }}"
-                                                                class="w-16 h-16 object-cover rounded border" />
-                                                        @elseif ($isVideo)
-                                                            <video class="w-16 h-16 rounded border" controls>
-                                                                <source src="{{ asset('storage/' . $img) }}" type="video/{{ $ext }}">
-                                                                Trình duyệt không hỗ trợ video.
-                                                            </video>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    @if ($showRatingModal)
-                        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
-                            <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
-                                <div class="p-4 border-b rounded-t flex justify-between items-center">
-                                    <h3 class="text-xl font-semibold text-gray-900">Đánh giá sản phẩm</h3>
-                                    <button type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                                        wire:click="$set('showRatingModal', false)">
-                                        <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                        </svg>
-                                        <span class="sr-only">Đóng</span>
-                                    </button>
-                                </div>
-                                <div class="p-6 space-y-6">
-                                    @php
-                                        $order = $orders->find($selectedOrderId);
-                                    @endphp
-                                    @foreach ($order->orderDetails as $detail)
-                                        <div class="mb-6 border-b pb-4">
-                                            <!-- Thông tin sản phẩm -->
-                                            <div class="flex items-start border-b border-gray-200 pb-4">
-                                                <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
-                                                    <img src="{{ $detail->sku->images[0] ?? '/default.jpg' }}" alt="Sản phẩm"
-                                                        class="w-full h-full object-cover">
-                                                </div>
-                                                <div class="flex-1 min-w-0">
-                                                    <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
-                                                        {{ $detail->sku->product->name ?? 'Tên sản phẩm' }}
+                                                @if ($detail->sku && $detail->sku->option_values)
+                                                    <p class="text-gray-500 text-xs md:text-sm mb-1">
+                                                        Phân loại hàng: {{ $detail->sku->option_values->pluck('value')->join(', ') }}
                                                     </p>
-                                                    @if ($detail->sku && $detail->sku->option_values)
-                                                        <p class="text-gray-500 text-xs md:text-sm mb-1">
-                                                            Phân loại hàng: {{ $detail->sku->option_values->pluck('value')->join(', ') }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="space-y-4 mt-2">
-                                                <!-- Đánh giá sao -->
-                                                <div class="text-center">
-                                                    <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
-                                                    <div class="flex items-center justify-center space-x-1 mb-2">
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            <button type="button" wire:click="set('ratings.{{ $detail->id }}', {{ $i }})"
-                                                                class="{{ ($ratings[$detail->id] ?? 5) >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 text-xl">
-                                                                ★
-                                                            </button>
-                                                        @endfor
-                                                        @error('ratings.' . $detail->id) <span
-                                                        class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                @endif
+
+                                                <p class="text-gray-500 text-xs md:text-sm">x{{ $detail->quantity }}</p>
+                                                @if($order->paymentDetail && $order->paymentDetail->tracking_id)
+                                                    <div class="text-sm text-gray-600">
+                                                        Mã đơn: <span class="font-medium">{{ $order->paymentDetail->tracking_id }}</span>
                                                     </div>
+                                                @endif
+                                            </div>
+
+                                            <div class="text-right ml-2 flex-shrink-0">
+                                                <div class="flex flex-col justify-end items-end gap-1">
+                                                    <span class="text-gray-500 text-xs">Combo Khuyến Mãi</span>
+                                                    <span class="text-gray-500 text-xs">Mua 2, Tiết kiệm ₫2.000</span>
                                                 </div>
-                                                <!-- Nội dung đánh giá -->
-                                                <div>
-                                                    <textarea wire:model="comments.{{ $detail->id }}" rows="4"
-                                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
-                                                        placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
-                                                    @error('comments.' . $detail->id) <span
-                                                    class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                                </div>
-                                                <!-- Upload ảnh -->
-                                                <div>
-                                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá:</label>
-                                                    <label
-                                                        class="flex flex-row items-center gap-2 px-3 py-2 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150 w-fit">
-                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4">
-                                                            </path>
-                                                        </svg>
-                                                        <span class="text-sm leading-normal">Chọn ảnh/video</span>
-                                                        <input type="file" multiple wire:model="images.{{ $detail->id }}"
-                                                            class="hidden" />
-                                                        <span wire:loading wire:target="images.{{ $detail->id }}">
-                                                            <svg class="animate-spin h-5 w-5 text-blue-500 ml-2"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                                    stroke-width="4"></circle>
-                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z">
-                                                                </path>
-                                                            </svg>
-                                                        </span>
-                                                    </label>
-                                                    @if (!empty($images[$detail->id]))
-                                                        <div class="flex mt-2 gap-2">
-                                                            @foreach ($images[$detail->id] as $img)
-                                                                <div class="relative group">
-                                                                    @php
-                                                                        $mime = $img->getMimeType();
-                                                                    @endphp
-                                                                    @if(\Illuminate\Support\Str::startsWith($mime, 'image/'))
-                                                                        <img src="{{ $img->temporaryUrl() }}"
-                                                                            class="w-16 h-16 object-cover rounded border" />
-                                                                    @elseif(\Illuminate\Support\Str::startsWith($mime, 'video/'))
-                                                                        <video class="w-16 h-16 rounded border" controls>
-                                                                            <source src="{{ $img->temporaryUrl() }}" type="{{ $mime }}">
-                                                                            Trình duyệt không hỗ trợ video.
-                                                                        </video>
-                                                                    @endif
-                                                                    <button type="button"
-                                                                        wire:click="removeImage({{ $detail->id }}, {{ $loop->index }})"
-                                                                        class="absolute top-0 right-0 text-black rounded-full p-1 opacity-70 hover:opacity-100 transition text-2xl leading-none">
-                                                                        &times;
-                                                                    </button>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @endif
-                                                    @error('images.' . $detail->id) <span
-                                                    class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                                </div>
-                                                <!-- Đánh giá ẩn danh -->
-                                                <div class="flex items-center">
-                                                    <input type="checkbox" wire:model="anonymous.{{ $detail->id }}"
-                                                        id="anonymous-{{ $detail->id }}" class="mr-2">
-                                                    <label for="anonymous-{{ $detail->id }}" class="text-sm text-gray-600">Đánh giá ẩn
-                                                        danh</label>
-                                                </div>
+                                                <div class="text-red-500 font-medium text-sm md:text-base">
+                                                    ₫{{ number_format($detail->price, 0, ',', '.') }}</div>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                                <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
-                                    <button type="button" wire:click="$set('showRatingModal', false)"
-                                        class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
-                                    <button type="button" wire:click="submitRatings"
-                                        class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
-                                        đánh giá</button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                                    </div>
+                                @endforeach
+                                @php
+                                    $statusMessages = [
+                                        'Đang xử lý' => [
+                                            'label' => 'Đang xử lý',
+                                            'color' => 'text-yellow-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle></svg>'
+                                        ],
+                                        'Chờ duyệt' => [
+                                            'label' => 'Chờ duyệt',
+                                            'color' => 'text-yellow-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle></svg>'
+                                        ],
+                                        'Chờ thanh toán' => [
+                                            'label' => 'Chờ thanh toán',
+                                            'color' => 'text-blue-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle></svg>'
+                                        ],
+                                        'Đã thanh toán' => [
+                                            'label' => 'Đã thanh toán',
+                                            'color' => 'text-blue-600',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"></circle></svg>'
+                                        ],
+                                        'Vận chuyển' => [
+                                            'label' => 'Đang vận chuyển',
+                                            'color' => 'text-indigo-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M5 16h14l-1-4H6l-1 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Giao hàng thất bại' => [
+                                            'label' => 'Giao hàng thất bại',
+                                            'color' => 'text-red-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
+                                        ],
+                                        'Chờ trả hàng' => [
+                                            'label' => 'Chờ trả hàng',
+                                            'color' => 'text-yellow-600',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v4M8 8h8M12 12v4M8 16h8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Đã trả hàng' => [
+                                            'label' => 'Đã trả hàng',
+                                            'color' => 'text-blue-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Chờ hoàn tiền' => [
+                                            'label' => 'Chờ hoàn tiền',
+                                            'color' => 'text-yellow-600',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v4M8 8h8M12 12v4M8 16h8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Đã hoàn tiền' => [
+                                            'label' => 'Đã hoàn tiền',
+                                            'color' => 'text-green-600',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Đã giao' => [
+                                            'label' => 'Giao hàng thành công',
+                                            'color' => 'text-green-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>'
+                                        ],
+                                        'Đã hủy' => [
+                                            'label' => 'Đã hủy',
+                                            'color' => 'text-red-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
+                                        ],
+                                    ];
 
+                                    $status = $order->orders_status;
+                                    if ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at > $now)) {
+                                        $statusMessages[$status] = [
+                                            'label' => 'Chờ thanh toán',
+                                            'color' => 'text-blue-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke-width="2"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path></svg>'
+                                        ];
+                                    } elseif ($status === 'Chờ thanh toán' && ($order->paymentDetail->payment_expired_at < $now)) {
+                                        $statusMessages[$status] = [
+                                            'label' => 'Đã hủy',
+                                            'color' => 'text-red-500',
+                                            'icon' => '<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line><line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></line></svg>'
+                                        ];
+                                    }
+                                    $statusInfo = $statusMessages[$status] ?? ['label' => 'Không rõ trạng thái', 'color' => 'text-gray-500', 'icon' => ''];
+                                    $total_price = $order->orderDetails->sum(function ($detail) {
+                                        return $detail->price * $detail->quantity;
+                                    });
+                                @endphp
+
+                                <div class="p-3 md:p-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                                    <div class="flex items-center">
+                                        {!! $statusInfo['icon'] !!}
+                                        <span class="{{ $statusInfo['color'] }} text-sm">{{ $statusInfo['label'] }}</span>
+                                    </div>
+                                    <!-- Phần thành tiền hay khác -->
+                                    <div>
+                                        <div class="text-gray-600 text-sm text-right">
+                                            Thành tiền: <span class="text-red-500 text-base md:text-lg font-medium">
+                                                ₫{{ number_format($total_price, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                        <!-- Thêm tracking_id, shipment_price, total_price ở đây -->
+
+                                        @if($order->shipment_price)
+                                            <div class="text-sm text-gray-600">
+                                                Phí vận chuyển: <span
+                                                    class="font-medium text-blue-600">₫{{ number_format($order->shipment_price, 0, ',', '.') }}</span>
+                                            </div>
+                                        @endif
+                                        @if($order->total_price)
+                                            <div class="text-sm text-gray-600">
+                                                Tổng tiền: <span
+                                                    class="font-medium text-green-600">₫{{ number_format($order->total_price, 0, ',', '.') }}</span>
+                                            </div>
+                                        @endif
+
+                                    </div>
+                                </div>
+
+
+                                @php
+                                    $status = $order->orders_status;
+                                    $reviewDeadline = $order->updated_at->addDays(5)->format('d-m-Y');
+                                @endphp
+
+                              <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
+                     @switch($status)
+                           @case('Chờ duyệt')
+                               <div class="text-sm text-gray-700">Đang gửi yêu cầu duyệt đơn.</div>
+                               @break
+                           @case('Đang xử lý')
+                               <div class="text-sm text-gray-700">Hiện tại chúng tôi đang kiểm tra và sẽ xử lý đơn hàng sớm nhất.</div>
+                              @break
+                           @case('Chờ thanh toán')
+                              @if ($order->paymentDetail->payment_expired_at > $now)
+                                  <a href="{{$order->paymentDetail->payment_url}}" class="bg-red-500 px-4 py-2 rounded-lg text-white font-bold">Thanh toán ngay</a>
+                              @else
+                                    <div class="text-sm text-red-500">Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.</div>
+                             @endif
+                             @break
+                          @case('Đã thanh toán')
+                             <div class="text-sm text-blue-600">Bạn đã thanh toán và đơn hàng của bạn sẽ được chuẩn bị để vận chuyển.</div>
+                             @break
+                          @case('Vận chuyển')
+                              <div class="text-sm text-indigo-600">Đơn hàng đang được vận chuyển đến bạn, vui lòng chờ nhận hàng.</div>
+                              @break
+                          @case('Giao hàng thất bại')
+                              <div class="text-sm text-red-500">Giao hàng thất bại. Vui lòng liên hệ hỗ trợ để được xử lý.</div>
+                              @break
+                          @case('Chờ trả hàng')
+                              <div class="text-sm text-yellow-600">Đơn hàng đang chờ trả hàng, xin vui lòng chờ.</div>
+                              @break
+                          @case('Đã trả hàng')
+                              <div class="text-sm text-blue-500">Đơn hàng đã được trả hàng thành công.</div>
+                              @break
+                          @case('Chờ hoàn tiền')
+                              <div class="text-sm text-yellow-600">Đơn hàng đang chờ xử lý hoàn tiền, xin vui lòng chờ.</div>
+                               @break
+                           @case('Đã hoàn tiền')
+                               <div class="text-sm text-green-600">Đơn hàng đã được hoàn tiền thành công.</div>
+                               @break
+                           @case('Đã giao')
+                               <div class="flex flex-col md:flex-row gap-2 items-center">
+                                   <div class="text-xs md:text-sm text-gray-500">
+                                       Đánh giá sản phẩm trước {{ $reviewDeadline }}
+                                   </div>
+                               </div>
+                               @break
+                          @case('Đã hủy')
+                               <div class="text-sm text-red-500">Đơn hàng đã bị hủy, nếu có thắc mắc vui lòng liên hệ hỗ trợ.</div>
+                              @break
+                           @default
+                               <div class="text-sm text-gray-500">Trạng thái đơn hàng không xác định.</div>
+                      @endswitch
+                    </div>
 
                     @php
-                        $reasons = ['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'];
+                        $product = $order->orderDetails->first()?->sku?->product;
                     @endphp
 
-                    @if ($showCancelModal)
-                        <div class="fixed inset-0 z-50 flex items-center justify-center bg-white/200 bg-opacity-50">
-                            <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                                <h2 class="text-lg font-semibold mb-4">Chọn lý do hủy đơn</h2>
+                                <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
+                                    @if (in_array($order->orders_status, ['Đang xử lý']))
+                                        <button wire:click="openCancelModal({{ $order->id }})"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Hủy đơn
+                                        </button>
 
-                                @error('reason')
-                                    <div class="text-red-600 text-sm mb-2">{{ $message }}</div>
-                                @enderror
+                                    @elseif ($order->orders_status === 'Đã thanh toán')
+                                        <button wire:click="openRefundModal({{ $order->id }}, 'refund')"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Yêu cầu hoàn tiền
+                                        </button>
 
-                                <div x-data="{ reason: @entangle('selectedReason') }" class="space-y-2">
-                                    @foreach (['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'] as $reason)
-                                        <label class="flex items-center space-x-2 cursor-pointer">
-                                            <input type="radio" name="cancel_reason" value="{{ $reason }}" x-model="reason"
-                                                class="text-blue-600">
-                                            <span>{{ $reason }}</span>
-                                        </label>
-                                    @endforeach
+                                    @elseif ($order->orders_status === 'Vận chuyển')
+                                        <button
+                                            class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Liên hệ người bán
+                                        </button>
 
-                                    <template x-if="reason === 'Lý do khác'">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mt-2">Nhập lý do của bạn:</label>
-                                            <input type="text" wire:model.live="customReason" placeholder="Nhập lý do..." readonly
-                                                onfocus="this.removeAttribute('readonly')"
-                                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200">
-                                        </div>
-                                    </template>
+                                    @elseif ($order->orders_status === 'Đã giao')
+                                        <button wire:click="openRefundModal({{ $order->id }}, 'return')"
+                                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Yêu cầu trả hàng
+                                        </button>
+                                        @php
+                                            $allRated = $order->orderDetails->every(function ($detail) {
+                                                return \App\Models\Rating::where('user_id', Auth::id())
+                                                    ->where('order_detail_id', $detail->id)
+                                                    ->exists();
+                                            });
+                                        @endphp
+                                        @if ($allRated)
+                                            <button wire:click="viewRating({{ $order->id }})"
+                                                class="bg-green-500 hover:bg-green-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                                Xem đánh giá
+                                            </button>
+                                        @else
+                                            <button wire:click="openRatingModal({{ $order->id }})"
+                                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                                Đánh giá
+                                            </button>
+                                        @endif
+                                        <a href="{{ url('/chi-tiet/' . $product->slug) }}"
+                                            class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Mua lại
+                                        </a>
+                                        @livewire('pdf-order', ['orderId' => $order->id])
+                                    @elseif ($order->orders_status === 'Đã hủy' && $product)
+                                        <a href="{{ url('/chi-tiet/' . $product->slug) }}"
+                                            class="border border-gray-300 text-gray-700 px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
+                                            Mua lại
+                                        </a>
+
+                                    @elseif (in_array($order->orders_status, ['Chờ hoàn tiền', 'Đã hoàn tiền']))
+                                        <span class="text-sm text-gray-500 italic">Đơn hàng đang xử lý hoàn tiền</span>
+                                    @endif
                                 </div>
 
 
-
-                                <div class="mt-4 flex justify-end gap-2">
-                                    <button wire:click="$set('showCancelModal', false)"
-                                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
-                                        Đóng
-                                    </button>
-
-                                    <button wire:click="cancelOrder"
-                                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
-                                        Xác nhận hủy
-                                    </button>
-                                </div>
                             </div>
                         </div>
-                    @endif
+                        @if($showRefundModal)
+                            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+                                    <h2 class="text-lg font-semibold mb-4">
+                                        {{ $refundType === 'refund' ? 'Lý do yêu cầu hoàn tiền' : 'Lý do yêu cầu trả hàng & hoàn tiền' }}
+                                    </h2>
+                                    @error('refundReason') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
+                                    <textarea wire:model="refundReason" rows="3" class="w-full border border-gray-300 rounded p-2 mb-4"
+                                        placeholder="Nhập lý do..."></textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button wire:click="$set('showRefundModal', false)"
+                                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
+                                            Đóng
+                                        </button>
+                                        <button wire:click="confirmRefundRequest"
+                                            class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
+                                            Xác nhận
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($showViewRatingModal)
+                            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
+                                <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                                    <div class="p-4 border-b rounded-t flex justify-between items-center">
+                                        <h3 class="text-xl font-semibold text-gray-900">Đánh giá của bạn</h3>
+                                        <button type="button"
+                                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                            wire:click="$set('showViewRatingModal', false)">
+                                            <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span class="sr-only">Đóng</span>
+                                        </button>
+                                    </div>
+                                    <div class="p-6 space-y-6">
+                                        @foreach ($viewRatings as $rating)
+                                            <div class="mb-6 border-b pb-4">
+                                                <div class="flex items-center mb-2">
+                                                    <span class="font-medium mr-2">Sản phẩm:</span>
+                                                    <span>{{ $rating->orderDetail->sku->product->name ?? 'Sản phẩm' }}</span>
+                                                </div>
+                                                <div class="flex items-center mb-2">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <span class="{{ $i <= $rating->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                                                    @endfor
+                                                </div>
+                                                <div class="mb-2 text-gray-700">{{ $rating->review }}</div>
+                                                @if (!empty($rating->images))
+                                                    <div class="flex gap-2 mt-2">
+                                                        @foreach (json_decode($rating->images, true) as $img)
+                                                            @php
+                                                                $ext = strtolower(pathinfo($img, PATHINFO_EXTENSION));
+                                                                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp']);
+                                                                $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'mpeg', '3gp', 'webm']);
+                                                            @endphp
+                                                            @if ($isImage)
+                                                                <img src="{{ asset('storage/' . $img) }}"
+                                                                    class="w-16 h-16 object-cover rounded border" />
+                                                            @elseif ($isVideo)
+                                                                <video class="w-16 h-16 rounded border" controls>
+                                                                    <source src="{{ asset('storage/' . $img) }}" type="video/{{ $ext }}">
+                                                                    Trình duyệt không hỗ trợ video.
+                                                                </video>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($showRatingModal)
+                            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
+                                <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
+                                    <div class="p-4 border-b rounded-t flex justify-between items-center">
+                                        <h3 class="text-xl font-semibold text-gray-900">Đánh giá sản phẩm</h3>
+                                        <button type="button"
+                                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                            wire:click="$set('showRatingModal', false)">
+                                            <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                            </svg>
+                                            <span class="sr-only">Đóng</span>
+                                        </button>
+                                    </div>
+                                    <div class="p-6 space-y-6">
+                                        @php
+                                            $order = $orders->find($selectedOrderId);
+                                        @endphp
+                                        @foreach ($order->orderDetails as $detail)
+                                            <div class="mb-6 border-b pb-4">
+                                                <!-- Thông tin sản phẩm -->
+                                                <div class="flex items-start border-b border-gray-200 pb-4">
+                                                    <div class="w-14 h-14 md:w-16 md:h-16 mr-3 flex-shrink-0">
+                                                        <img src="{{ $detail->sku->images[0] ?? '/default.jpg' }}" alt="Sản phẩm"
+                                                            class="w-full h-full object-cover">
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="font-medium mb-1 text-sm md:text-base line-clamp-2">
+                                                            {{ $detail->sku->product->name ?? 'Tên sản phẩm' }}
+                                                        </p>
+                                                        @if ($detail->sku && $detail->sku->option_values)
+                                                            <p class="text-gray-500 text-xs md:text-sm mb-1">
+                                                                Phân loại hàng: {{ $detail->sku->option_values->pluck('value')->join(', ') }}
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-4 mt-2">
+                                                    <!-- Đánh giá sao -->
+                                                    <div class="text-center">
+                                                        <p class="text-gray-700 mb-2">Chất lượng sản phẩm</p>
+                                                        <div class="flex items-center justify-center space-x-1 mb-2">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <button type="button" wire:click="set('ratings.{{ $detail->id }}', {{ $i }})"
+                                                                    class="{{ ($ratings[$detail->id] ?? 5) >= $i ? 'text-yellow-400' : 'text-gray-300' }} hover:text-yellow-400 text-xl">
+                                                                    ★
+                                                                </button>
+                                                            @endfor
+                                                            @error('ratings.' . $detail->id) <span
+                                                            class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                        </div>
+                                                    </div>
+                                                    <!-- Nội dung đánh giá -->
+                                                    <div>
+                                                        <textarea wire:model="comments.{{ $detail->id }}" rows="4"
+                                                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-red-500 focus:border-red-500"
+                                                            placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."></textarea>
+                                                        @error('comments.' . $detail->id) <span
+                                                        class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                    </div>
+                                                    <!-- Upload ảnh -->
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Ảnh đánh giá:</label>
+                                                        <label
+                                                            class="flex flex-row items-center gap-2 px-3 py-2 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-blue-100 hover:text-blue-600 transition-all duration-150 w-fit">
+                                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4">
+                                                                </path>
+                                                            </svg>
+                                                            <span class="text-sm leading-normal">Chọn ảnh/video</span>
+                                                            <input type="file" multiple wire:model="images.{{ $detail->id }}"
+                                                                class="hidden" />
+                                                            <span wire:loading wire:target="images.{{ $detail->id }}">
+                                                                <svg class="animate-spin h-5 w-5 text-blue-500 ml-2"
+                                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                                        stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z">
+                                                                    </path>
+                                                                </svg>
+                                                            </span>
+                                                        </label>
+                                                        @if (!empty($images[$detail->id]))
+                                                            <div class="flex mt-2 gap-2">
+                                                                @foreach ($images[$detail->id] as $img)
+                                                                    <div class="relative group">
+                                                                        @php
+                                                                            $mime = $img->getMimeType();
+                                                                        @endphp
+                                                                        @if(\Illuminate\Support\Str::startsWith($mime, 'image/'))
+                                                                            <img src="{{ $img->temporaryUrl() }}"
+                                                                                class="w-16 h-16 object-cover rounded border" />
+                                                                        @elseif(\Illuminate\Support\Str::startsWith($mime, 'video/'))
+                                                                            <video class="w-16 h-16 rounded border" controls>
+                                                                                <source src="{{ $img->temporaryUrl() }}" type="{{ $mime }}">
+                                                                                Trình duyệt không hỗ trợ video.
+                                                                            </video>
+                                                                        @endif
+                                                                        <button type="button"
+                                                                            wire:click="removeImage({{ $detail->id }}, {{ $loop->index }})"
+                                                                            class="absolute top-0 right-0 text-black rounded-full p-1 opacity-70 hover:opacity-100 transition text-2xl leading-none">
+                                                                            &times;
+                                                                        </button>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                        @error('images.' . $detail->id) <span
+                                                        class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                                    </div>
+                                                    <!-- Đánh giá ẩn danh -->
+                                                    <div class="flex items-center">
+                                                        <input type="checkbox" wire:model="anonymous.{{ $detail->id }}"
+                                                            id="anonymous-{{ $detail->id }}" class="mr-2">
+                                                        <label for="anonymous-{{ $detail->id }}" class="text-sm text-gray-600">Đánh giá ẩn
+                                                            danh</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="flex items-center justify-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                                        <button type="button" wire:click="$set('showRatingModal', false)"
+                                            class="border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium px-5 py-2.5">Hủy</button>
+                                        <button type="button" wire:click="submitRatings"
+                                            class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5">Gửi
+                                            đánh giá</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+
+                        @php
+                            $reasons = ['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'];
+                        @endphp
+
+                        @if ($showCancelModal)
+                            <div class="fixed inset-0 z-50 flex items-center justify-center bg-white/200 bg-opacity-50">
+                                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+                                    <h2 class="text-lg font-semibold mb-4">Chọn lý do hủy đơn</h2>
+
+                                    @error('reason')
+                                        <div class="text-red-600 text-sm mb-2">{{ $message }}</div>
+                                    @enderror
+
+                                    <div x-data="{ reason: @entangle('selectedReason') }" class="space-y-2">
+                                        @foreach (['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'] as $reason)
+                                            <label class="flex items-center space-x-2 cursor-pointer">
+                                                <input type="radio" name="cancel_reason" value="{{ $reason }}" x-model="reason"
+                                                    class="text-blue-600">
+                                                <span>{{ $reason }}</span>
+                                            </label>
+                                        @endforeach
+
+                                        <template x-if="reason === 'Lý do khác'">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mt-2">Nhập lý do của bạn:</label>
+                                                <input type="text" wire:model.live="customReason" placeholder="Nhập lý do..." readonly
+                                                    onfocus="this.removeAttribute('readonly')"
+                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200">
+                                            </div>
+                                        </template>
+                                    </div>
+
+
+
+                                    <div class="mt-4 flex justify-end gap-2">
+                                        <button wire:click="$set('showCancelModal', false)"
+                                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
+                                            Đóng
+                                        </button>
+
+                                        <button wire:click="cancelOrder"
+                                            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+                                            Xác nhận hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
 
 
