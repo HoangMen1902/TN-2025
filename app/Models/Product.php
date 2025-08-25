@@ -45,7 +45,7 @@ class Product extends Model
 
     public function productSkus()
     {
-        return $this->hasMany(ProductSku::class);
+        return $this->hasMany(ProductSku::class, 'product_id', 'id');
     }
 
     public function tags()
@@ -67,7 +67,7 @@ class Product extends Model
         return $this->hasOne(ProductSku::class);
     }
     public function preorders()
-{
-    return $this->hasMany(\App\Models\Preorder::class);
-}
+    {
+        return $this->hasMany(\App\Models\Preorder::class);
+    }
 }
