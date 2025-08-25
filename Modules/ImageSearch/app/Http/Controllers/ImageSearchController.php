@@ -77,7 +77,7 @@ class ImageSearchController extends Controller
         Log::info('Product:' . $product);
 
         if ($product) {
-            return redirect('/chi-tiet/' . $product->slug);
+            return redirect('/chi-tiet/' . $product->slug)->with('success', 'Đã tìm thấy sản phẩm phù hợp');
         }
 
         $sku = ProductSku::where('images', 'LIKE', "%$output%")->first();
