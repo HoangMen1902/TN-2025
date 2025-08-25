@@ -52,9 +52,9 @@ class ImageSearchController extends Controller
 
         Storage::disk('public')->put("temp/$filename", base64_decode($base64));
         $inputImage = storage_path("app/public/temp/$filename");
-        // Log::info('Uploaded Image');
-        // Image::load($inputImage)->fit(Fit::Crop, 224, 224)->save($inputImage);
-        // Log::info('Resized Image');
+        Log::info('Uploaded Image');
+        Image::load($inputImage)->fit(Fit::Crop, 224, 224)->save($inputImage);
+        Log::info('Resized Image');
         $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
         $pythonPath = $isWin
