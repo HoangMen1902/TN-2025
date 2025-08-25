@@ -13,7 +13,7 @@ class ProductSku extends Model
     protected $table = 'product_skus';
 
     protected $fillable = [
-        'product_id',
+        'sku_id',
         'sku',
         'images',
         'quantity',
@@ -33,7 +33,15 @@ class ProductSku extends Model
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
-
+    public function sku()
+{
+    return $this->belongsTo(ProductSku::class, 'sku_id');
+}
+    public function ebook()
+    {
+        return $this->hasOne(ProductEbook::class, 'sku_id', 'id');
+    }
+    
     public function skuValues() {
         return $this->hasMany(SkuValue::class, 'sku_id');
     }

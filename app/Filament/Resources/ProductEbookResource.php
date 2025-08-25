@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductEbook;
 use App\Models\ProductTag;
 use App\Models\EbookChapter;
+use App\Models\ProductSku;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -51,13 +52,16 @@ class ProductEbookResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Select::make('product_id')
-                ->label('Liên kết sản phẩm có sẵn')
-                ->relationship('product', 'name')
-                ->searchable()
+            Select::make('sku_id')
+                ->label('Liên kết sản phẩm (SKU)')
+                ->relationship('sku', 'sku') // hiển thị sku
+                ->getOptionLabelFromRecordUsing(
+                    fn($record) =>
+                    trim(($record->product?->name ?? '') . ' - ' . ($record->sku ?? ''), ' -')
+                )->searchable()
                 ->preload()
                 ->reactive()
-                ->placeholder('--- Tạo mới ebook ---')
+                ->placeholder('--- Chọn SKU cho ebook ---')
                 ->afterStateUpdated(function ($state, callable $set) {
                     if (!$state) {
                         $set('title', null);
@@ -66,6 +70,7 @@ class ProductEbookResource extends Resource
                         $set('tags', null);
                     }
                 }),
+
 
             Section::make('Thông tin Ebook')
                 ->schema([
@@ -180,11 +185,25 @@ class ProductEbookResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id'),
-                TextColumn::make('product.name')
+                // TextColumn::make('product.name')
+                //     ->label('Sản phẩm')
+                //     ->sortable()
+                //     ->limit(30)
+                //     ->searchable(),
+                TextColumn::make('sku_id')
                     ->label('Sản phẩm')
                     ->sortable()
-                    ->limit(30)
-                    ->searchable(),
+                    ->formatStateUsing(
+                        fn($state, $record) =>
+                        trim(($record->sku?->product?->name ?? '') . ' - ' . ($record->sku?->name ?? ''), ' -')
+                    )
+                    ->limit(50)
+                    ->searchable(query: function ($query, $search) {
+                        $query->whereHas('sku.product', fn($q) => $q->where('name', 'like', "%{$search}%"))
+                            ->orWhereHas('sku', fn($q) => $q->where('name', 'like', "%{$search}%"));
+                    }),
+
+
                 TextColumn::make('title')
                     ->label('Tiêu đề')
                     ->limit(30),
