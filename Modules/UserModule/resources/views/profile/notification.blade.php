@@ -68,7 +68,7 @@
                             <div class="flex items-start space-x-4">
                                 <div class="flex-shrink-0">
                                     <img class="h-16 w-16 object-contain"
-                                        src="{{ $notification->thumbnail ? asset('storage/' . $notification->thumbnail) : asset('storage/thumbnails/default.jpg') }}"
+                                        src="{{ $notification->thumbnail ? asset('storage/' . $notification->thumbnail) : "https://static.thenounproject.com/png/1077596-200.png"}}"
                                         alt="Thông báo">
                                 </div>
                                 <div>
