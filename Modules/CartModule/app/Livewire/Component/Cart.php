@@ -155,7 +155,7 @@ class Cart extends Component
 
             foreach ($this->selected_cart as $cart) {
                 $cartData = CartModel::find($cart);
-                $itemType = $cartData->item_type;
+                $itemType = $cartData->item_type ?? 'sku';
                 if ($itemType === "sku") {
                     if ($this->checkFlashsale($cartData->sku_id)) {
                         $flashsale = $this->flashsaleProduct->flashsale;
