@@ -80,15 +80,14 @@ class ImageSearchController extends Controller
             return redirect('/chi-tiet/' . $product->slug)->with('success', 'Đã tìm thấy sản phẩm phù hợp');
         }
 
-        $sku = ProductSku::where('images', 'LIKE', "%$output%")->first();
+        $sku = ProductSku::with('product')->where('images', 'LIKE', "%$output%")->first();
 
-        if ($sku && $sku->product && $sku->product->product_status === 'active') {
-            return redirect('/chi-tiet/' . $sku->product->slug);
+        if ($sku && $sku->product_status === 'active') {
+            return redirect('/chi-tiet/' . $sku->slug);
         }
 
         Log::info($sku->toArray());
-        Log::info($sku?->product?->product_status === 'active'); // ra null
-        Log::info($sku?->product); // ra null
+        Log::info($sku->product_status === 'active'); // ra null
 
         dd($sku);
         return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :((');
