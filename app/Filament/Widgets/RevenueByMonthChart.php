@@ -11,8 +11,7 @@ class RevenueByMonthChart extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Doanh thu ';
-
+    protected static ?string $heading = 'Doanh thu';
     protected function getData(): array
     {
         $start = $this->filters['startDate'] ?? null;

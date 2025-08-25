@@ -10,6 +10,7 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 class OrderStatusChart extends ChartWidget
 {
     use InteractsWithPageFilters;
+    
     protected static ?string $heading = 'Đơn hàng theo trạng thái';
 
     protected function getData(): array

@@ -10,9 +10,9 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 class TopRatedProductsChart extends ChartWidget
 {
     use InteractsWithPageFilters;
+    protected int|string|array $columnSpan = 6;
 
     protected static ?string $heading = 'Top sản phẩm được đánh giá cao nhất';
-
     protected function getData(): array
     {
         $start = $this->filters['startDate'] ?? null;

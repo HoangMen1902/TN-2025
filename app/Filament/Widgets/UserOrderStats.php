@@ -13,6 +13,7 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 class UserOrderStats extends BaseWidget
 {
     use InteractsWithPageFilters;
+    protected int|string|array $columnSpan = 6;
 
     protected function getStats(): array
     {
@@ -21,25 +22,49 @@ class UserOrderStats extends BaseWidget
 
         $startDate = $start ? Carbon::parse($start) : null;
         $endDate = $end ? Carbon::parse($end) : now();
+        $period = \Carbon\CarbonPeriod::create($startDate, '1 month', $endDate);
+        $userChart = [];
+        $orderChart = [];
+        $revenueChart = [];
 
+        foreach ($period as $date) {
+            $from = $date->copy()->startOfMonth();
+            $to = $date->copy()->endOfMonth();
+
+            $userChart[] = User::whereBetween('created_at', [$from, $to])->count();
+            $orderChart[] = Order::whereBetween('created_at', [$from, $to])->count();
+            $revenueChart[] = Order::where('orders_status', 'Đã thanh toán')
+                ->whereBetween('created_at', [$from, $to])
+                ->sum('total_price');
+        }
         return [
             Stat::make('Tổng người dùng', User::whereBetween('created_at', [$startDate, $endDate])->count())
                 ->description('Số người dùng mới ')
                 ->descriptionIcon('heroicon-m-user-group', \Filament\Support\Enums\IconPosition::Before)
                 ->color('success')
-                ->chart([2, 4, 6, 8, 10, 12]),
+                ->chart($userChart),
 
             Stat::make('Tổng đơn hàng', Order::whereBetween('created_at', [$startDate, $endDate])->count())
                 ->description('Tổng số đơn hàng')
                 ->descriptionIcon('heroicon-m-shopping-cart', \Filament\Support\Enums\IconPosition::Before)
                 ->color('primary')
-                ->chart([3, 5, 7, 9, 11, 13]),
+                ->chart($orderChart),
 
-            Stat::make('Tổng doanh thu', Order::where('orders_status', 'Đã thanh toán')->whereBetween('created_at', [$startDate, $endDate])->sum('total_price'))
+            Stat::make(
+                'Tổng doanh thu',
+                number_format(
+                    Order::where('orders_status', 'Đã thanh toán')
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->sum('total_price'),
+                    0,
+                    ',',
+                    '.'
+                ) . ' ₫'
+            )
                 ->description('Tổng doanh thu (đ)')
-                ->descriptionIcon('heroicon-m-banknotes', \Filament\Support\Enums\IconPosition::Before)
+                ->descriptionIcon('heroicon-m-banknotes', position: \Filament\Support\Enums\IconPosition::Before)
                 ->color('warning')
-                ->chart([100, 200, 300, 400, 500, 600]),
+                ->chart($revenueChart),
 
             Stat::make('SKU sắp hết hàng', ProductSku::where('quantity', '<', 5)->count())
                 ->description('Số SKU còn dưới 5 sản phẩm')

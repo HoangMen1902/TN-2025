@@ -12,6 +12,7 @@ class TopSellingProductsChart extends ChartWidget
     use InteractsWithPageFilters;
 
     protected static ?string $heading = 'Top sản phẩm bán chạy';
+    protected int|string|array $columnSpan = 6;
 
     protected function getData(): array
     {
