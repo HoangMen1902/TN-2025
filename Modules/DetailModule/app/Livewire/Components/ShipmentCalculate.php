@@ -30,7 +30,7 @@ class ShipmentCalculate extends Component
     public $data;
 
     public $currentSku;
-    public $skuQuantity;
+    public $currentEbook;
 
     public $type;
     protected $rules = [
@@ -40,7 +40,6 @@ class ShipmentCalculate extends Component
     ];
 
     public $vouchers;
-
 
     public function setStoreLocation(GhnService $ghn)
     {
@@ -69,7 +68,6 @@ class ShipmentCalculate extends Component
         $this->ward_default = $default_ward_data;
     }
 
-
     public function mount(GhnService $ghn)
     {
         try {
@@ -81,11 +79,20 @@ class ShipmentCalculate extends Component
             $estimated = $res['data']['leadtime_order']['to_estimate_date'];
             $date = Carbon::parse($estimated)->setTimezone('Asia/Ho_Chi_Minh');
             $this->estimatedTime = ucwords($date->translatedFormat('l - d/m'));
-            $this->currentSku = $this->data->productSkus->first();
-            $this->skuQuantity = $this->currentSku->quantity;
+            // $this->currentSku = $this->data->productSkus->first();
+          
+            // $this->currentSku = $this->data->productSkus()
+            // ->with('ebook')
+            // ->first();
+          
+            $this->data->load(['productSkus.ebook', 'productSkus.skuValues.option', 'productSkus.skuValues.value']);
 
+            
+            if ($this->data->productSkus->count() === 1) {
+                $this->currentSku = $this->data->productSkus->first();
+            }
+        
             $current_price = $this->currentSku->sale_price ?? $this->currentSku->price ?? 0;
-
 
             $user_id = Auth::id();
             $this->vouchers = VoucherUsed::with('voucher')
@@ -109,6 +116,18 @@ class ShipmentCalculate extends Component
             $this->dispatch('updatedSku', skuId: $skuId);
         }
     }
+    // public function selectSku($skuId)
+    // {
+    //     $currentSku = $this->data->productSkus()
+    //         ->with('ebook')
+    //         ->firstWhere('id', $skuId);
+    
+    //     if ($currentSku) {
+    //         $this->currentSku = $currentSku;
+    //         $this->dispatch('updatedSku', skuId: $skuId);
+    //     }
+    // }
+    
     function updateTime(GhnService $ghn)
     {
         $this->validate();
@@ -126,7 +145,6 @@ class ShipmentCalculate extends Component
         $customer_province = collect($this->provinces)->firstWhere('ProvinceID', $this->province_id);
         $customer_district = collect($this->districts)->firstWhere('DistrictID', $this->district_id);
         $customer_ward = collect($this->wards)->firstWhere('WardCode', $this->ward_id);
-
 
         $this->province_default = $customer_province;
         $this->district_default = $customer_district;
