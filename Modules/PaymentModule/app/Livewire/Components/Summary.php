@@ -5,10 +5,13 @@ namespace Modules\PaymentModule\Livewire\Components;
 use App\Models\FlashsaleProduct;
 use Livewire\Component;
 use App\Models\Voucher;
+use App\Models\VoucherUsed;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\On;
+use Illuminate\Support\Facades\Auth;
+
 
 class Summary extends Component
 {
@@ -179,6 +182,20 @@ class Summary extends Component
 
         if (!$voucher) {
             $this->voucherMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
+            $this->voucherDiscount = 0;
+            $this->finalPrice = $this->originalPrice + $this->shipping_fee;
+            $this->applied_voucher = false;
+            session()->put('order_total', $this->finalPrice);
+            return;
+        }
+        // Check xem user đã dùng voucher này chưa
+        $user_voucher = VoucherUsed::where('voucher_id', $voucher->id)
+            ->where('user_id', Auth::id())
+            ->where('is_used', true)
+            ->first();
+
+        if ($user_voucher) {
+            $this->voucherMessage = 'Bạn đã sử dụng mã giảm giá này rồi.';
             $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
             $this->applied_voucher = false;
