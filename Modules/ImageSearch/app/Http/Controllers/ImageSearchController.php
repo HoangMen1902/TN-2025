@@ -86,6 +86,7 @@ class ImageSearchController extends Controller
             return redirect('/chi-tiet/' . $sku->product->slug);
         }
 
+        Log::info('Sku Status: ' . ($sku && $sku->product) . ' ' . ($sku->product->product_status === 'active'));
         Log::info('SKU:' . ($sku?->sku ?? ""));
         return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :((');
     }
