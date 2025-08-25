@@ -22,9 +22,18 @@ class ProductEbook extends Model
         'ebook_status',
     ];
 
+    // public function product()
+    // {
+    //     return $this->belongsTo(Product::class);
+    // }
+    public function sku()
+    {
+        return $this->belongsTo(ProductSku::class, 'sku_id');
+    }
+
     public function product()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_id');
     }
 
     public function users()
