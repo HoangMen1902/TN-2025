@@ -155,6 +155,7 @@ class Summary extends Component
             ->whereHas('voucherUsed', function ($q) {
                 $q->where('is_used', false);
             })
+            ->where('requirement_price', '<', $this->finalPrice)
             ->orderBy('discount_value', 'DESC')
             ->get();
     }
