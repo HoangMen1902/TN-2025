@@ -21,26 +21,27 @@
                 </svg>
                 <div class="flex flex-col ml-3 m-2">
                     <span class="font-bold">Giao hàng tiêu chuẩn</span>
-                    <span class="text-sm">Dự kiến giao <span class="font-bold">{{$estimatedTime}}</span></span>
+                    <span class="text-sm">Dự kiến giao <span class="font-bold">{{ $estimatedTime }}</span></span>
                 </div>
             </div>
-            @if($vouchers && !empty($voucher))
+            @if ($vouchers && !empty($voucher))
                 <div class="flex flex-col">
                     <div class="flex items-center gap-4">
                         <h1 class="text-lg font-bold">Ưu đãi có thể áp dụng</h1>
-                        <a href="{{route('voucher.index')}}" class="text-sm text-blue-500">Xem thêm ></a>
+                        <a href="{{ route('voucher.index') }}" class="text-sm text-blue-500">Xem thêm ></a>
                     </div>
                     <div class="coupon-related w-full mt-4">
                         <div class="coupon-scroller flex items-center overflow-x-auto w-full gap-3">
                             @foreach ($vouchers as $voucher)
                                 <div class="coupon-container flex items-center gap-1">
                                     <div class="coupon-img bg-amber-500 p-1 rounded">
-                                        <img src="{{asset('assets/images/coupon.png')}}" alt="">
+                                        <img src="{{ asset('assets/images/coupon.png') }}" alt="">
                                     </div>
                                     <div class="coupon-name truncate text-[13px] font-bold">
                                         Mã giảm giá
-                                        {{$voucher?->voucher?->voucher_type === 'amount' ? number_format($voucher->voucher->reduced_amount, 0, '.', '.') : $voucher->voucher->reduced_amount . '%'}}
-                                        - cho đơn hàng {{number_format($voucher?->voucher?->requirement_price, 0, '.', '.')}}
+                                        {{ $voucher?->voucher?->voucher_type === 'amount' ? number_format($voucher->voucher->reduced_amount, 0, '.', '.') : $voucher->voucher->reduced_amount . '%' }}
+                                        - cho đơn hàng
+                                        {{ number_format($voucher?->voucher?->requirement_price, 0, '.', '.') }}
                                     </div>
                                 </div>
                             @endforeach
@@ -49,7 +50,7 @@
                     </div>
                 </div>
             @endif
-            <div class="flex items-center gap-12 mt-4">
+            {{-- <div class="flex items-center gap-12 mt-4">
                 <div class="flex flex-col gap-4 justify-between">
                     @php
                         $has_variant = $type === "product" && isset($data) && $data && $data->productSkus && $data->productSkus->count() > 1;
@@ -61,14 +62,13 @@
                     <h1 class="font-bold text-base">Số lượng:</h1>
                 </div>
 
-
                 <div class="flex flex-col gap-4 justify-between">
                     @if ($has_variant)
                         <div class="flex space-x-2">
                             @foreach ($data->productSkus as $sku)
                                 <a href="javascript:void(0)" wire:click="selectSku({{ $sku->id }})"
                                     class="{{ isset($currentSku) && $currentSku && $currentSku->id === $sku->id ? 'select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm' : 'select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100' }}">
-                                    @if($sku->skuValues)
+                                    @if ($sku->skuValues)
                                         @foreach ($sku->skuValues as $value)
                                             {{ $value->option->name ?? '' }} {{ $value->value->value_name ?? '' }}
                                         @endforeach
@@ -84,18 +84,79 @@
                             @endforeach
                         </div>
                     @endif
-                    <div class="flex items-center gap-4">
-                        <div class="quantity-container w-min">
-                            <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
-                            <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold"
-                                form="addToCart" />
-                            <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
+                    <div class="quantity-container w-min">
+                        <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
+                        <input type="number" name="quantity" id="quantity" value="1" min="1" class="font-bold"
+                            form="addToCart" />
+                        <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
+                    </div>
+
+                </div>
+            </div> --}}
+            <div class="flex items-center gap-12 mt-4">
+                <div class="flex flex-col gap-4 justify-between">
+                    @php
+                        $has_variant =
+                            $type === 'product' &&
+                            isset($data) &&
+                            $data &&
+                            $data->productSkus &&
+                            $data->productSkus->count() > 1;
+                    @endphp
+
+                    @if ($has_variant)
+                        <h1>Phân loại</h1>
+                    @elseif($data->productSkus->count() === 1 && $data->productSkus->first()->ebook)
+                        <h1 class="font-bold text-bas">Ebook</h1>
+                    @endif
+
+                    <h1 class="font-bold text-base">Số lượng:</h1>
+                </div>
+
+                <div class="flex flex-col gap-4 justify-between">
+                    @if ($has_variant)
+                        <div class="flex space-x-2">
+                            @foreach ($data->productSkus as $sku)
+                                <div class="relative inline-block">
+                                    <button wire:click="selectSku({{ $sku->id }})"
+                                        class="{{ isset($currentSku) && $currentSku && $currentSku->id === $sku->id
+                                            ? 'select-sku-btn flex items-center px-4 py-2 rounded border border-blue-500 bg-blue-100 text-blue-700 text-sm'
+                                            : 'select-sku-btn px-4 py-2 rounded border border-gray-300 bg-white text-gray-700 font-medium hover:bg-gray-100' }}">
+                                        @if ($sku->skuValues)
+                                            @foreach ($sku->skuValues as $value)
+                                                {{ $value->option->name ?? '' }} {{ $value->value->value_name ?? '' }}
+                                            @endforeach
+                                        @endif
+                                    </button>
+
+                                    @if ($sku->ebook)
+                                        <a href="{{ route('ebooks.show', $sku->ebook->id) }}"
+                                            class="absolute top-[-30%] right-[-10%] bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600 hover:scale-105 transition duration-200">
+                                            Ebook
+                                        </a>
+                                    @endif
+                                </div>
+                            @endforeach
                         </div>
-                        <span class="text-neutral-400 text-sm">Số lượng còn lại: {{$skuQuantity}}</span>
+                    @endif
+                    @if (!$has_variant && $data->productSkus->first()->ebook)
+                    <a href="{{ route('ebooks.show', $data->productSkus->first()->ebook->id) }}"
+                        class="mt-2 inline-flex items-center justify-center bg-blue-500 text-white text-xs px-2 py-1 rounded
+                               hover:bg-blue-600 hover:scale-105 transition duration-200">
+                        Ebook
+                     </a>
+                     
+                    @endif
+                    <div class="quantity-container w-min mt-2">
+                        <button class="btn minus bg-white hover:bg-white text-gray-400">-</button>
+                        <input type="number" name="quantity" id="quantity" value="1" min="1"
+                            class="font-bold" form="addToCart" />
+                        <button class="btn plus bg-white hover:bg-white text-gray-400">+</button>
                     </div>
 
                 </div>
             </div>
+
 
 
         </div>
@@ -104,7 +165,7 @@
         <div class="flashsale flex items-center justify-between p-4">
             <div class="flashsale-time m-[4px] w-full">
                 <div class="flashsale-wrapper flex items-center justify-between">
-                    <img src="{{asset('assets/images/whiteFlashsale.png')}}" alt="flashsale" class="object-contain">
+                    <img src="{{ asset('assets/images/whiteFlashsale.png') }}" alt="flashsale" class="object-contain">
                     <div class="flex gap-[5px] items-center justify-center">
                         <div class="hour-box flashsale-time-box text-white text-sm">
                             01
@@ -160,8 +221,8 @@
                     <span class="font-bold text-sm"></span>
                     <a href="javascript:void(0)" class="change-address"><span
                             class="text-neutral-400 w-full text-sm flex items-center">Giao hàng đến
-                            {{$ward_default['WardName'] ?? ''}} , {{$district_default['DistrictName'] ?? ''}},
-                            {{$province_default['ProvinceName'] ?? ''}}</span></a>
+                            {{ $ward_default['WardName'] ?? '' }} , {{ $district_default['DistrictName'] ?? '' }},
+                            {{ $province_default['ProvinceName'] ?? '' }}</span></a>
                 </div>
                 <a href="javascript:void(0)" class="change-address ml-auto"><svg xmlns="http://www.w3.org/2000/svg"
                         fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -170,26 +231,24 @@
 
             </div>
 
-
         </div>
 
-        <a href="#" class="py-4 w-full text-sm flex items-center"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" stroke-width="2" stroke="red" class="size-5">
+        <a href="#" class="py-4 w-full text-sm flex items-center"><svg xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="red" class="size-5">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
             </svg>
-            <span class="ml-3 text-sm">Giao nhanh và uy tín - Đổi trả miễn phí toàn quốc 30 ngày - Khách Sỉ</span> <span
-                class="ml-auto"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            <span class="ml-3 text-sm">Giao nhanh và uy tín - Đổi trả miễn phí toàn quốc 30 ngày - Khách Sỉ</span>
+            <span class="ml-auto"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     stroke-width="1.5" stroke="currentColor" class="size-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                 </svg>
             </span>
         </a>
 
-
     </div>
     <div id="modalOverlay"
-        class="fixed inset-0 flex {{$modal_open ? '' : 'hidden'}} items-center justify-center z-50  animate-popup"
+        class="fixed inset-0 flex {{ $modal_open ? '' : 'hidden' }} items-center justify-center z-50  animate-popup"
         style="background-color: rgba(0, 0, 0, 0.247)">
         <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6 relative">
             <button id="closeModalBtn"
@@ -214,7 +273,7 @@
                     </select>
                 </div>
 
-                <div class="{{empty($districts) || is_null($districts) ? 'hidden' : 'block'}}">
+                <div class="{{ empty($districts) || is_null($districts) ? 'hidden' : 'block' }}">
                     <label class="block text-sm font-medium mb-1">Quận/Huyện</label>
                     <select class="w-full border border-gray-300 p-2 rounded-md" name="district" id="districtName"
                         wire:model="district_id" required>
@@ -227,7 +286,7 @@
                     </select>
                 </div>
 
-                <div class="{{empty($wards) || is_null($wards) ? 'hidden' : 'block'}}">
+                <div class="{{ empty($wards) || is_null($wards) ? 'hidden' : 'block' }}">
                     <label class="block text-sm font-medium mb-1">Phường/Xã</label>
                     <select class="w-full border border-gray-300 p-2 rounded-md" name="ward" id="wardName"
                         wire:model="ward_id" required>
@@ -245,7 +304,8 @@
                         id="cancelBtn">
                         Hủy
                     </button>
-                    <button type="submit" class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <button type="submit"
+                        class="submit-btn bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         Xác nhận
                     </button>
 
