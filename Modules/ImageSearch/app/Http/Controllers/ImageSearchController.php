@@ -52,7 +52,7 @@ class ImageSearchController extends Controller
         Storage::disk('public')->put("temp/$filename", base64_decode($base64));
         $inputImage = storage_path("app/public/temp/$filename");
         Log::info('Uploaded Image');
-        Image::load($inputImage)->fit(Fit::Crop, 224, 224)->save($inputImage);
+        Image::load($inputImage)->fit(Fit::Crop, 1024, 720)->save($inputImage);
         Log::info('Resized Image');
         $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
@@ -77,7 +77,7 @@ class ImageSearchController extends Controller
         Log::info('Product:' . $product);
 
         if ($product) {
-            return redirect('/chi-tiet/' . $product->slug);
+            return redirect('/chi-tiet/' . $product->slug)->with('success', 'Đã tìm thấy sản phẩm phù hợp');
         }
 
         $sku = ProductSku::where('images', 'LIKE', "%$output%")->first();
