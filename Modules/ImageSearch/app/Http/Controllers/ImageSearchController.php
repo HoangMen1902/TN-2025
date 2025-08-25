@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductSku;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Enums\Fit;
@@ -91,6 +92,7 @@ class ImageSearchController extends Controller
         Log::info('SKU:', $sku?->toArray() ?? []);
         Log::info('Product:', $sku?->product?->toArray() ?? []);
         Log::info('Product status:', [$sku?->product?->product_status]);
+
 
         return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :((');
     }
