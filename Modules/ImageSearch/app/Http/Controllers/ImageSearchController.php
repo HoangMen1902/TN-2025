@@ -86,7 +86,7 @@ class ImageSearchController extends Controller
             return redirect('/chi-tiet/' . $sku->product->slug);
         }
 
-        dd($sku);
+        dd($sku->product);
         Log::info($sku);
         Log::info($sku?->product?->product_status === 'active');
         Log::info($sku?->product);
