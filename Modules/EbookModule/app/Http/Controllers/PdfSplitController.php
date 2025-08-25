@@ -37,7 +37,10 @@ class PdfSplitController extends Controller
 
     $artisanPath = base_path('artisan');
     $phpPath = PHP_BINARY;
-    exec("$phpPath $artisanPath queue:work --once > /dev/null 2>&1 &");
+    
+    $logFile = storage_path('logs/worker.log');
+    
+    exec("timeout 3600 $phpPath $artisanPath queue:work --once >> $logFile 2>&1 &");
     
     return response()->json([
         'message' => 'Đang xử lý. Vui lòng kiểm tra sau vài phút.'
