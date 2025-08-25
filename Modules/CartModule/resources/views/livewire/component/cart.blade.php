@@ -22,7 +22,7 @@
                 @foreach ($cartItems as $item)
                     @php $type = $item->item_type @endphp
                     @if($type === 'sku' || $type === 'combo')
-                        <div class="w-full mb-3 md:mb-5">
+                        <div class="w-full mb-3 md:mb-5" wire:key="{{$item->id}}">
                             <div
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
                                 <div class="max-w-[30px] inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
@@ -135,9 +135,9 @@
                     @endif
                 @endforeach
             @else 
-            @foreach ($cartItems['sku'] as $item)
+            @foreach ($cartItems['sku'] as $index => $item)
             @if (!empty($cartItems['sku']))
-            <div class="w-full mb-3 md:mb-5">
+            <div class="w-full mb-3 md:mb-5" wire:key="{{$index}}">
                             <div
                                 class="border-b p-1 md:p-2 flex flex-col md:flex-row border-gray-400 items-center md:items-stretch gap-1 md:gap-0">
                                 <div class="max-w-[30px] inline-flex items-center w-full md:w-1/7 p-1 md:p-2 justify-center">
