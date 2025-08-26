@@ -6,15 +6,33 @@ import sys
 import gc
 import json
 
-
+yolo_model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 
-def image_to_feature(img_path):
-    image = preprocess(Image.open(img_path)).unsqueeze(0).to(device)
+def image_to_feature(image):
+    if isinstance(image, str):
+        image = Image.open(image).convert("RGB")
+    image = preprocess(image).unsqueeze(0).to(device)
     with torch.no_grad():
         features = model.encode_image(image)
-    return features.squeeze(0)  
+    return features.squeeze(0)
+
+
+def detect_and_crop(image_path, target_label="book"):
+    results = yolo_model(image_path)
+    df = results.pandas().xyxy[0]  
+
+    crops = []
+    image = Image.open(image_path).convert("RGB")
+
+    for idx, row in df.iterrows():
+        label = row['name']  
+        if label == target_label:  
+            xmin, ymin, xmax, ymax = map(int, [row.xmin, row.ymin, row.xmax, row.ymax])
+            crop = image.crop((xmin, ymin, xmax, ymax))
+            crops.append(crop)
+    return crops
 
 def cache_folder_features(folder_path, cache_path):
     cache = {}
@@ -56,24 +74,33 @@ def cache_folder_features(folder_path, cache_path):
     gc.collect()
 
 def find_best_match_with_cache(input_img, cache_path, top_k=5):
-    input_feat = image_to_feature(input_img).cpu().squeeze(0)  
-    cache = torch.load(cache_path)
+    crops = detect_and_crop(input_img, target_label="book")
 
+    if not crops:
+        print(json.dumps([], ensure_ascii=False))
+        return
+
+    cache = torch.load(cache_path)
     if not cache:  
         print(json.dumps([], ensure_ascii=False))
         return
 
-    scores = []
-    for fname, feat in cache.items():
-        feat = feat.squeeze(0)
-        score = torch.nn.functional.cosine_similarity(input_feat, feat, dim=0).item()
-        scores.append((fname, score))
+    results = []
+    for crop in crops:
+        crop_feat = image_to_feature(crop).cpu().squeeze(0)  
 
-    scores = sorted(scores, key=lambda x: x[1], reverse=True)
+        scores = []
+        for fname, feat in cache.items():
+            feat = feat.squeeze(0)
+            score = torch.nn.functional.cosine_similarity(crop_feat, feat, dim=0).item()
+            scores.append((fname, score))
 
-    top_results = [{"file": fname, "score": score} for fname, score in scores[:top_k]]
+        scores = sorted(scores, key=lambda x: x[1], reverse=True)
+        top_results = [{"file": fname, "score": score} for fname, score in scores[:top_k]]
 
-    print(json.dumps(top_results, ensure_ascii=False))
+        results.append(top_results)
+
+    print(json.dumps(results, ensure_ascii=False))
 
 
 if __name__ == "__main__":
