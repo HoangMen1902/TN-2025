@@ -10,6 +10,8 @@ use App\Models\Rating;
 use Livewire\WithFileUploads;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use App\Models\PaymentDetail;
+use App\Services\VietQRService;
 
 class Order extends Component
 {
@@ -44,46 +46,103 @@ class Order extends Component
     public $showViewRatingModal = false;
     public $viewRatings = [];
 
+    public $paymentMethod;
+    public $banks = [];
+    public $bank_code;
+    public $bank_account_number;
+    public $bank_account_name;
+
+    public function mount(VietQRService $vietQR)
+    {
+        try {
+            $this->banks = $vietQR->getBanks();
+        } catch (\Exception $e) {
+            $this->banks = [];
+            Log::error('Error fetching banks from VietQR: ' . $e->getMessage());
+        }
+    }
     // =====================
     // return/refund Modal
     // =====================
     public function openRefundModal($orderId, $type)
     {
+        $order = OrderModel::with('paymentDetail')->find($orderId);
+        $this->paymentMethod = $order->paymentDetail?->payment_method; // null-safe
         $this->refundOrderId = $orderId;
         $this->refundType = $type; // 'refund' hoặc 'return'
         $this->refundReason = '';
         $this->showRefundModal = true;
     }
+
     public function confirmRefundRequest()
     {
         $order = OrderModel::find($this->refundOrderId);
+
         if (!$order) {
             $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng!');
             return;
         }
-        if (!$this->refundReason) {
-            $this->addError('refundReason', 'Vui lòng nhập lý do!');
-            return;
+
+        // Validate lý do (luôn bắt buộc)
+        $this->validate([
+            'refundReason' => 'required|string',
+        ], [
+            'refundReason.required' => 'Vui lòng nhập lý do!',
+        ]);
+
+        // Nếu đơn hàng thanh toán qua PayOS → validate thêm thông tin ngân hàng
+        if ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'VNPay') {
+            $this->validate([
+                'bank_code'            => 'required|string',
+                'bank_account_name'    => 'required|string',
+                'bank_account_number'  => 'required|string',
+            ], [
+                'bank_code.required'            => 'Vui lòng chọn ngân hàng!',
+                'bank_account_name.required'    => 'Vui lòng nhập tên chủ tài khoản!',
+                'bank_account_number.required'  => 'Vui lòng nhập số tài khoản!',
+            ]);
         }
 
+        // Xử lý logic thay đổi trạng thái
         if ($this->refundType === 'refund' && $order->orders_status === 'Đã thanh toán') {
             $order->update([
-                'orders_status' => 'Chờ hoàn tiền',
-                'reason' => $this->refundReason,
+                'orders_status'        => 'Chờ hoàn tiền',
+                'reason'               => $this->refundReason,
+                'bank_code'            => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_code : null,
+                'bank_account_name'    => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_name : null,
+                'bank_account_number'  => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_number : null,
             ]);
+
             $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu hoàn tiền!');
         } elseif ($this->refundType === 'return' && $order->orders_status === 'Đã giao') {
             $order->update([
-                'orders_status' => 'Chờ trả hàng',
-                'reason' => $this->refundReason,
+                'orders_status'        => 'Chờ trả hàng',
+                'reason'               => $this->refundReason,
+                 'bank_code'            => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_code : null,
+                'bank_account_name'    => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_name : null,
+                'bank_account_number'  => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_number : null,
             ]);
+
             $this->dispatch('toast', type: 'success', message: 'Đã gửi yêu cầu trả hàng & hoàn tiền!');
         } else {
             $this->dispatch('toast', type: 'error', message: 'Trạng thái đơn hàng không hợp lệ!');
         }
 
-        $this->reset(['showRefundModal', 'refundOrderId', 'refundReason', 'refundType']);
+        // Reset dữ liệu form
+        $this->reset([
+            'showRefundModal',
+            'refundOrderId',
+            'refundReason',
+            'refundType',
+            'bank_code',
+            'bank_account_number',
+            'bank_account_name'
+        ]);
     }
+
+
+
+
     // =====================
     // FILTER + SEARCH
     // =====================
@@ -140,7 +199,7 @@ class Order extends Component
     // =====================
     public function viewRating($orderId)
     {
- 
+
 
         $order = \App\Models\Order::with('orderDetails')->find($orderId);
         $ratings = [];

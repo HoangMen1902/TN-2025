@@ -36,6 +36,9 @@ class Order extends Model
         'reduced_amount',
         'voucher_id',
         'order_code',
+        'bank_account_name',
+        'bank_account_number',
+        'bank_code'
     ];
 
     protected $casts = [

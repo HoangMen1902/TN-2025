@@ -380,27 +380,116 @@
                             </div>
                         </div>
                         @if($showRefundModal)
-                            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-                                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                                    <h2 class="text-lg font-semibold mb-4">
-                                        {{ $refundType === 'refund' ? 'Lý do yêu cầu hoàn tiền' : 'Lý do yêu cầu trả hàng & hoàn tiền' }}
-                                    </h2>
-                                    @error('refundReason') <div class="text-red-600 text-sm mb-2">{{ $message }}</div> @enderror
-                                    <textarea wire:model="refundReason" rows="3" class="w-full border border-gray-300 rounded p-2 mb-4"
-                                        placeholder="Nhập lý do..."></textarea>
-                                    <div class="flex justify-end gap-2">
-                                        <button wire:click="$set('showRefundModal', false)"
-                                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
-                                            Đóng
-                                        </button>
-                                        <button wire:click="confirmRefundRequest"
-                                            class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm">
-                                            Xác nhận
-                                        </button>
+                        {{-- Overlay and Modal Container --}}
+                        <div
+                            class="fixed inset-0 z-50 flex items-center justify-center
+                                bg-opacity-50
+                                p-4 transition-opacity"
+                            x-data="{ open: @entangle('showRefundModal') }"
+                            x-show="open"
+                            x-transition:enter="ease-out duration-300"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="ease-in duration-200"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            wire:click.self="$set('showRefundModal', false)" 
+                            >
+
+                            {{-- Modal Content --}}
+                            <div
+                                class="bg-white rounded-lg p-6 w-full max-w-4xl
+                                    shadow-lg space-y-4"
+                                x-show="open"
+                                x-transition:enter="ease-out duration-300"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="ease-in duration-200"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95"
+                                >
+
+                                <h2 class="text-xl font-medium text-gray-900 border-b pb-3 mb-4 border-gray-200">
+                                    <i class="fas fa-undo-alt text-blue-500 mr-2"></i>
+                                    {{ $refundType === 'refund' ? 'Lý do yêu cầu hoàn tiền' : 'Lý do yêu cầu trả hàng & hoàn tiền' }}
+                                </h2>
+
+                                {{-- 1. Trường Lý do --}}
+                                <div class="space-y-1">
+                                    <label for="reason" class="block text-sm font-medium text-gray-700">Lý do yêu cầu</label>
+                                    <textarea
+                                        wire:model="refundReason"
+                                        rows="3"
+                                        id="reason"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        placeholder="Vui lòng mô tả chi tiết lý do bạn..."></textarea>
+                                    @error('refundReason') <div class="text-red-500 text-sm mt-1">{{ $message }}</div> @enderror
+                                </div>
+
+                                {{-- 2. Thông tin Ngân hàng (Chỉ khi $paymentMethod là 'payos') --}}
+                                @if ($paymentMethod === 'payos' || $paymentMethod === 'vnpay')
+                                    <div class="pt-4 border-t border-gray-200 space-y-4">
+                                        <h3 class="text-base font-semibold text-gray-900 flex items-center">
+                                            <i class="fas fa-university text-blue-500 mr-2"></i> Thông tin nhận hoàn tiền
+                                        </h3>
+
+                                        {{-- Tên Ngân hàng --}}
+                                        <div class="space-y-1">
+                                            <label for="bankName" class="block text-sm font-medium text-gray-700">Tên Ngân hàng</label>
+                                        <select
+                                                wire:model="bank_code"
+                                                id="bank_code"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                                                <option value="">-- Chọn Ngân hàng --</option>
+                                                @foreach ($banks as $bank)
+                                                   <option value="{{ $bank['bin'] }}">
+                                                        {{ $bank['shortName'] }} - {{ $bank['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('bank_code') <div class="text-red-500 text-sm mt-1">{{ $message }}</div> @enderror
+                                        </div>
+                                    {{-- Tên chủ tài khoản --}}
+                                        <div class="space-y-1">
+                                            <label for="accountHolder" class="block text-sm font-medium text-gray-700">Tên chủ tài khoản (In hoa không dấu)</label>
+                                            <input
+                                                wire:model="bank_account_name"
+                                                type="text"
+                                                id="bank_account_name"
+                                                placeholder="TÊN CHỦ TÀI KHOẢN"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                                                @error('bank_account_name') <div class="text-red-500 text-sm mt-1">{{ $message }}</div> @enderror
+                                        </div>
+                                        {{-- Số tài khoản --}}
+                                        <div class="space-y-1">
+                                            <label for="accountNumber" class="block text-sm font-medium text-gray-700">Số tài khoản</label>
+                                            <input
+                                                wire:model="bank_account_number"
+                                                type="text"
+                                                id="bank_account_number"
+                                                placeholder="Nhập số tài khoản ngân hàng"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                                                @error('bank_account_number') <div class="text-red-500 text-sm mt-1">{{ $message }}</div> @enderror
+                                        </div>
+
+                                
                                     </div>
+                                @endif
+
+                                {{-- Footer (Buttons) --}}
+                                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                                    <button wire:click="$set('showRefundModal', false)"
+                                            class="px-5 py-2 border border-red-500 rounded-md font-medium text-red-500 hover:bg-red-50 transition text-sm">
+                                        Hủy
+                                    </button>
+                                    <button wire:click="confirmRefundRequest"
+                                            class="px-5 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition text-sm">
+                                        Gửi yêu cầu
+                                    </button>
                                 </div>
                             </div>
-                        @endif
+                        </div>
+                    @endif
                         @if ($showViewRatingModal)
                             <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30">
                                 <div class="w-full max-w-xl bg-white rounded-lg shadow max-h-[100vh] overflow-y-auto">
