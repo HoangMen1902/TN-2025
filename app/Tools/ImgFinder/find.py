@@ -4,6 +4,8 @@ from PIL import Image
 import os
 import sys
 import gc
+import json
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
@@ -53,20 +55,25 @@ def cache_folder_features(folder_path, cache_path):
     del images, features, image_batch
     gc.collect()
 
-def find_best_match_with_cache(input_img, cache_path):
+def find_best_match_with_cache(input_img, cache_path, top_k=5):
     input_feat = image_to_feature(input_img).cpu().squeeze(0)  
     cache = torch.load(cache_path)
-    best_score = -1
-    best_fname = None
 
+    if not cache:  
+        print(json.dumps([], ensure_ascii=False))
+        return
+
+    scores = []
     for fname, feat in cache.items():
         feat = feat.squeeze(0)
         score = torch.nn.functional.cosine_similarity(input_feat, feat, dim=0).item()
-        if score > best_score:
-            best_score = score
-            best_fname = fname
+        scores.append((fname, score))
 
-    print(best_fname)
+    scores = sorted(scores, key=lambda x: x[1], reverse=True)
+
+    top_results = [{"file": fname, "score": score} for fname, score in scores[:top_k]]
+
+    print(json.dumps(top_results, ensure_ascii=False))
 
 
 if __name__ == "__main__":
