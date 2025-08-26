@@ -36,14 +36,14 @@
                                 <p class="text-red-500 font-bold text-xs">
                                     {{ number_format(($product->productSkus->first()->sale_price ?? $product->productSkus->first()->price), 0, ',', '.') }}đ
                                 </p>
-                                @if ($product->productSkus->first()->price > $product->productSkus->first()->sale_price)
+                                @if ($product->productSkus->first()->price > $product->productSkus->first()->sale_price && isset($product->productSkus->first()?->sale_price))
                                     <span class="ml-1 bg-red-500 text-white text-[10px] font-bold px-1 py-0.5 rounded">
                                         Giảm
                                         {{ round(($product->productSkus->first()->price - $product->productSkus->first()->sale_price) / $product->productSkus->first()->price * 100) }}%
                                     </span>
                                 @endif
                             </div>
-                            <p class="text-gray-500 line-through text-[10px]">
+                            <p class="text-gray-500 line-through text-[10px] {{isset($product->productSkus->first()->sale_price) ? '' : 'hidden'}}">
                                 {{ number_format($product->productSkus->first()->price, 0, ',', '.') }}đ
                             </p>
                             <div class="relative w-full h-3 bg-gray-300 rounded-full overflow-hidden mt-1">
