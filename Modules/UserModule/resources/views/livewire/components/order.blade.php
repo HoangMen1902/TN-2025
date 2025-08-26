@@ -247,13 +247,18 @@
                                                     class="font-medium text-blue-600">₫{{ number_format($order->shipment_price, 0, ',', '.') }}</span>
                                             </div>
                                         @endif
+
                                         @if($order->total_price)
                                             <div class="text-sm text-gray-600">
                                                 Tổng tiền: <span
                                                     class="font-medium text-green-600">₫{{ number_format($order->total_price, 0, ',', '.') }}</span>
                                             </div>
+                                                                                        <div class="text-sm text-gray-600">
+                                                Chiết khấu: <span
+                                                    class="font-medium text-amber-600">₫{{ number_format($order->amount_decrease, 0, ',', '.') }}</span>
+                                            </div>
                                         @endif
-
+                          
                                     </div>
                                 </div>
 
