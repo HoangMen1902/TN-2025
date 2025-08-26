@@ -57,6 +57,10 @@
              Thanh toán tiền mặt - COD
             @elseif($payment->payment_method === 'bank_transfer')
               Thanh toán chuyển khoản
+            @elseif($payment->payment_method === 'payos')
+              Thanh toán qua VietQr
+            @elseif($payment->payment_method === 'vnpay')
+              Thanh toán qua VNPAY
             @elseif($payment->payment_method === 'international')
             Thanh toán quốc tế
             @endif
