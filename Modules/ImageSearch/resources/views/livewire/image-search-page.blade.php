@@ -17,7 +17,7 @@
         <div class="flex flex-wrap gap-3 p-3">
             @forelse ($products as $product)
                 <a href="/chi-tiet/{{ $product->slug }}"
-                    class="block w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(20%-0.75rem)] mb-3">
+                    class="block w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(20%-0.75rem)] mb-3 h-full">
                     <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                         <div>
                             @if (!empty($product->thumbnail))
