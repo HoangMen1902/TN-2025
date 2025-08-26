@@ -6,7 +6,7 @@ import sys
 import gc
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model, preprocess = clip.load("ViT-B/32", device=device)
+model, preprocess = clip.load("ViT-L/14", device=device)
 
 def image_to_feature(img_path):
     image = preprocess(Image.open(img_path)).unsqueeze(0).to(device)
