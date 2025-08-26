@@ -24,20 +24,20 @@
           </thead>
           <tbody class="text-gray-800">
             @foreach ($payment->order->orderDetails as $item)
-          <tr class="border-t">
-            <td class="px-4 py-2">{{$item->sku ? $item->sku->product->name : $item->combo->combo_name}}</td>
-            <td class="text-center px-4 py-2">{{$item->quantity}}</td>
-            <td class="text-center px-4 py-2">
-            @if ($item->sku)
-            @foreach ($item->sku->optionValues as $index => $value)
-          {{ $value->value_name }}{{ !$loop->last ? ', ' : '' }}
-          @endforeach
-        @endif
-            </td>
+              <tr class="border-t">
+                <td class="px-4 py-2">{{$item->sku ? $item->sku->product->name : $item->combo->combo_name}}</td>
+                <td class="text-center px-4 py-2">{{$item->quantity}}</td>
+                <td class="text-center px-4 py-2">
+                  @if ($item->sku)
+                    @foreach ($item->sku->optionValues as $index => $value)
+                      {{ $value->value_name }}{{ !$loop->last ? ', ' : '' }}
+                    @endforeach
+                  @endif
+                </td>
 
-            <td class="text-right px-4 py-2">{{number_format($item->price * $item->quantity, 0, '.', '.')}}₫</td>
-          </tr>
-      @endforeach
+                <td class="text-right px-4 py-2">{{number_format($item->price * $item->quantity, 0, '.', '.')}}₫</td>
+              </tr>
+            @endforeach
           </tbody>
         </table>
       </div>
@@ -47,18 +47,19 @@
         <div>
           <h3 class="font-semibold text-gray-700 mb-2">Địa chỉ giao hàng</h3>
           <p class="text-gray-600 text-sm sm:text-base">
-            {{$payment->order->customer_name ?? ''}} - {{$payment->order->phone ?? ''}}<br>{{$payment->order->address ?? ''}}
+            {{$payment->order->customer_name ?? ''}} -
+            {{$payment->order->phone ?? ''}}<br>{{$payment->order->address ?? ''}}
           </p>
         </div>
         <div>
           <h3 class="font-semibold text-gray-700 mb-2">Phương thức thanh toán</h3>
           <p class="text-gray-600 text-sm sm:text-base">
             @if ($payment->payment_method === 'cod')
-             Thanh toán tiền mặt - COD
+              Thanh toán tiền mặt - COD
             @elseif($payment->payment_method === 'bank_transfer')
               Thanh toán chuyển khoản
             @elseif($payment->payment_method === 'international')
-            Thanh toán quốc tế
+              Thanh toán quốc tế
             @endif
           </p>
         </div>
@@ -66,26 +67,32 @@
 
       <!-- Tổng chi phí -->
       <div class="mt-8 border-t pt-4 space-y-2 text-sm sm:text-base">
-<div class="flex justify-between text-gray-700">
-  <span>Tạm tính:</span>
-  <span>
-    {{
-      number_format(
-        $payment->order->orderDetails->sum(function ($detail) {
-          return $detail->price * $detail->quantity;
-        }),
-        0, '.', '.'
-      )
+        <div class="flex justify-between text-gray-700">
+          <span>Tạm tính:</span>
+          <span>
+            {{
+  number_format(
+    $payment->order->orderDetails->sum(function ($detail) {
+      return $detail->price * $detail->quantity;
+    }),
+    0,
+    '.',
+    '.'
+  )
     }}₫
-  </span>
-</div>
+          </span>
+        </div>
         <div class="flex justify-between text-gray-700">
           <span>Phí vận chuyển:</span>
-          <span>{{number_format($payment->order->shipment_price, 0,'.','.')}}₫</span>
+          <span>{{number_format($payment->order->shipment_price, 0, '.', '.')}}₫</span>
         </div>
         <div class="flex justify-between text-lg font-bold text-gray-800 pt-2">
           <span>Tổng thanh toán:</span>
-          <span>{{number_format($payment->order->total_price, 0,'.','.')}}₫</span>
+          <div class="flex flex-col">
+            <span>{{number_format($payment->order->total_price, 0, '.', '.')}}₫ </span>
+            <span class="text-xs text-neutral-400 font-semibold">(Đã chiết khấu {{number_format($payment->order->reduced_amount, 0, '.', '.')}}₫)</span>
+          </div>
+
         </div>
       </div>
     </div>
