@@ -130,6 +130,9 @@ class Cart extends Component
     public function checkFlashsale($sku_id)
     {
         $now = Carbon::now();
+        if(!isset($sku_id)) {
+            return false;
+        }
         $flashSaleProduct = FlashsaleProduct::with(['sku', 'flashsale'])
             ->where('sku_id', $sku_id)
             ->whereHas('flashsale', function ($q) use ($now) {
@@ -157,7 +160,7 @@ class Cart extends Component
                 $cartData = CartModel::find($cart);
                 $itemType = $cartData->item_type ?? 'sku';
                 if ($itemType === "sku") {
-                    if ($this->checkFlashsale($cartData->sku_id)) {
+                    if ($this->checkFlashsale($cartData?->sku_id ?? null)) {
                         $flashsale = $this->flashsaleProduct->flashsale;
                         $flashsaleType = $flashsale->discount_type;
                         $flashsaleAmount = $flashsale->discount_amount;
