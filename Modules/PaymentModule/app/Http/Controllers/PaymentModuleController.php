@@ -114,7 +114,7 @@ class PaymentModuleController extends Controller
                 'province_id' => $addressModel->province_id,
                 'district_id' => $addressModel->district_id,
                 'ward_id' => $addressModel->ward_id,
-                'decrease_amount' => $decrease_amount,
+                'reduced_amount' => $decrease_amount,
                 'voucher_id' => $userVoucherCheck,
             ]);
 
@@ -199,7 +199,7 @@ class PaymentModuleController extends Controller
             } elseif ($paymentMethod === "international") {
                 $stripeService = new StripeService;
                 $order_id = $payment->order_id;
-                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $payment->id);
+                $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $payment->id, $decrease_amount);
                 $payment->payment_url = $session->url;
                 $payment->payment_expired_at = now()->addMinutes(10);
                 $payment->save();

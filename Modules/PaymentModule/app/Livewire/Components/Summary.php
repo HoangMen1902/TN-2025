@@ -163,15 +163,11 @@ class Summary extends Component
     #[On('apply-voucher')]
     public function applyVoucher($is_chosen = false)
     {
+        $this->finalPrice    = $this->originalPrice;
+        $this->shipping_fee  = $this->original_shipping_fee;
+        $this->voucherDiscount = 0;
+        $this->applied_voucher = false;
 
-        // if($is_chosen) {
-        $this->finalPrice = $this->originalPrice;
-        // } else {
-        //     return;
-        // }
-        $this->shipping_fee = $this->original_shipping_fee;
-
-        $totalPrice = $this->originalPrice;
         if (!$this->voucherCode) {
             return;
         }
@@ -183,13 +179,11 @@ class Summary extends Component
 
         if (!$voucher) {
             $this->voucherMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn.';
-            $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
-            $this->applied_voucher = false;
             session()->put('order_total', $this->finalPrice);
             return;
         }
-        // Check xem user đã dùng voucher này chưa
+
         $user_voucher = VoucherUsed::where('voucher_id', $voucher->id)
             ->where('user_id', Auth::id())
             ->where('is_used', true)
@@ -197,81 +191,67 @@ class Summary extends Component
 
         if ($user_voucher) {
             $this->voucherMessage = 'Bạn đã sử dụng mã giảm giá này rồi.';
-            $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
-            $this->applied_voucher = false;
             session()->put('order_total', $this->finalPrice);
             return;
         }
 
-        if ($totalPrice < $voucher->requirement_price) {
+        if ($this->originalPrice < $voucher->requirement_price) {
             $this->voucherMessage = 'Đơn hàng chưa đủ điều kiện áp dụng mã.';
-            $this->applied_voucher = false;
-            $this->voucherDiscount = 0;
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
-
             session()->put('order_total', $this->finalPrice);
             return;
         }
-        $voucher_type = $voucher->voucher_scope;
-        $voucher_max_amount = $voucher->max_discount_amount;
 
+
+        $discountAmount = 0;
+        $voucher_max_amount = $voucher->max_discount_amount;
+        $voucher_type = $voucher->voucher_scope;
 
         if ($voucher_type === "shipping") {
+            if ($this->shipping_fee <= 0) {
+                $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
+                $this->finalPrice = $this->originalPrice + $this->shipping_fee;
+                return;
+            }
+
             if ($voucher->voucher_type === "percent") {
-
-                if ($this->shipping_fee <= 0 && !$this->applied_voucher) {
-                    $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
-                    return;
-                }
-
                 $discountAmount = $this->shipping_fee * ($voucher->reduced_amount / 100);
-                if ($discountAmount > $voucher_max_amount) {
-                    $discountAmount = $voucher_max_amount;
-                }
-                $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
-                $this->finalPrice += $this->shipping_fee;
-                $this->applied_voucher = true;
-            } elseif ($voucher->voucher_type === "amount") {
-
-                if ($this->shipping_fee <= 0 && !$this->applied_voucher) {
-                    $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
-                    return;
-                }
-                $discountAmount = ($voucher->reduced_amount);
-                $this->shipping_fee = ($this->shipping_fee - $discountAmount) < 0 ? 0 : ($this->shipping_fee - $discountAmount);
-                $this->finalPrice += $this->shipping_fee;
-                $this->applied_voucher = true;
-            }
-
-            Session::put('shipping_fee', $this->shipping_fee);
-            $this->voucherDiscount = $discountAmount;
-        }
-
-        if ($voucher_type === 'global') {
-            if ($voucher->voucher_type === "percent") {
-                $discountAmount = $this->finalPrice * ($voucher->reduced_amount / 100);
-                Log::info('Discount Amount 1: ' . $discountAmount);
-                if ($discountAmount > $voucher_max_amount) {
-                    $discountAmount = $voucher_max_amount;
-                    Log::info('Discount Amount 2: ' . $discountAmount);
-                }
-                Log::info('Discount Amount 3: ' . $discountAmount);
-                $this->finalPrice = max(0, $this->finalPrice - $discountAmount);
-            } elseif ($voucher->voucher_type === 'amount') {
                 $discountAmount = $voucher->reduced_amount;
-
-                $this->finalPrice = max(0, $this->finalPrice - $discountAmount);
             }
 
-            $this->voucherDiscount = $discountAmount;
-            $this->applied_voucher = true;
+            if ($discountAmount > $voucher_max_amount) {
+                $discountAmount = $voucher_max_amount;
+            }
+
+            $this->shipping_fee = max(0, $this->shipping_fee - $discountAmount);
+            $this->finalPrice = $this->originalPrice + $this->shipping_fee;
         }
-        $this->voucherMessage = 'Đã áp dụng mã giảm giá thành công!';
+
+        if ($voucher_type === "global") {
+            $totalBeforeDiscount = $this->originalPrice + $this->shipping_fee;
+
+            if ($voucher->voucher_type === "percent") {
+                $discountAmount = $totalBeforeDiscount * ($voucher->reduced_amount / 100);
+            } else { // amount
+                $discountAmount = $voucher->reduced_amount;
+            }
+
+            if ($discountAmount > $voucher_max_amount) {
+                $discountAmount = $voucher_max_amount;
+            }
+
+            $this->finalPrice = max(0, $totalBeforeDiscount - $discountAmount);
+        }
+
+        $this->voucherDiscount = $discountAmount;
+        $this->applied_voucher = true;
+        $this->voucherMessage  = 'Đã áp dụng mã giảm giá thành công!';
+
         session()->put('order_total', $this->finalPrice);
         session()->put('decrease_amount', $discountAmount);
+        Session::put('shipping_fee', $this->shipping_fee);
     }
-
     public function render()
     {
         return view('paymentmodule::livewire.components.summary');

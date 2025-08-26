@@ -38,20 +38,34 @@ class StripeService
         }
     }
 
-    public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = null, bool $is_ebook = false)
+    public function createCheckoutSession($carts, $shipping_fee = 0, $payment_id, $voucher = 0, bool $is_ebook = false)
     {
         if (!$is_ebook) {
-            $lineItems = $this->formartItems($carts, $shipping_fee, $voucher);
+            $lineItems = $this->formartItems($carts, $shipping_fee);
         } else {
             // $lineItems = $this->formatEbook($carts);
         }
+
         $session = $this->stripe->checkout->sessions->create([
             'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
             'line_items' => $lineItems,
+            'discounts' => [[
+                'coupon' => $this->createCoupon($voucher),
+            ]],
             'mode' => 'payment',
             'cancel_url' => route('cart.index'),
         ]);
         return $session;
+    }
+
+    private function createCoupon($voucher)
+    {
+        $coupon = $this->stripe->coupons->create([
+            'amount_off' => $voucher, 
+            'currency'   => 'vnd',
+            'duration'   => 'once',
+        ]);
+        return $coupon->id;
     }
     public function createEbookCheckoutSession($ebooks, string $payment_id, string $voucher = null)
     {
