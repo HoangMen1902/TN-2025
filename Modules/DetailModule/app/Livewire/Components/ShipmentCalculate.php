@@ -32,6 +32,8 @@ class ShipmentCalculate extends Component
     public $currentSku;
     public $currentEbook;
 
+    public $content_enable = true;
+
     public $type;
     protected $rules = [
         'province_id' => 'required',
@@ -116,6 +118,16 @@ class ShipmentCalculate extends Component
             $this->dispatch('updatedSku', skuId: $skuId);
         }
     }
+
+    #[On('toogleContent')]
+    public function toogleContent($status) {
+        if($status === false) {
+            $this->content_enable = false;
+        } else {
+            $this->content_enable = true;
+        }
+    }
+
     // public function selectSku($skuId)
     // {
     //     $currentSku = $this->data->productSkus()

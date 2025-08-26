@@ -93,7 +93,7 @@
 
                 </div>
             </div> --}}
-            <div class="flex items-center gap-12 mt-4">
+            <div class="flex items-center gap-12 mt-4 {{$content_enable === true ? '' : 'hidden'}}">
                 <div class="flex flex-col gap-4 justify-between">
                     @php
                         $has_variant =

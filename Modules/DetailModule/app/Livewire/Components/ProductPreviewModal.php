@@ -17,15 +17,16 @@ class ProductPreviewModal extends Component
 
     protected $listeners = ['openPreviewModal'];
     public function openPreviewModal($productId)
-{
-    $product = Product::with('preview')->find($productId);
+    {
+        $product = Product::with('preview')->find($productId);
 
-    if ($product && $product->preview) {
-        $this->previewUrl = asset('storage/' . $product->preview->file_path);
-        $this->productTitle = $product->name;
-        $this->isOpen = true;
+        if ($product && $product->preview) {
+            $this->previewUrl = asset('storage/' . $product->preview->file_path);
+            $this->productTitle = $product->name;
+            $this->isOpen = true;
+            $this->dispatch('toogleContent', false);
+        }
     }
-}
 
 
 
@@ -35,6 +36,7 @@ class ProductPreviewModal extends Component
         $this->isOpen = false;
         $this->previewUrl = null;
         $this->productTitle = null;
+        $this->dispatch('toogleContent', true);
     }
 
     public function render()

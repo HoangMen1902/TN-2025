@@ -1,7 +1,7 @@
 <div class="detail-desc p-4 lg:mt-3">
     <h1 class="text-xl font-bold">Mô tả sản phẩm</h1>
     <div class="w-full relative mt-4 desc-wrapper" style="max-height: 320px">
-        <div class="desc-content text-sm text-justify overflow-hidden" style="max-height: 300px">
+        <div class="desc-content text-sm text-justify overflow-hidden z-0" style="max-height: 300px">
             {!! $data->description !!}
         </div>
         <div class="desc-gradient w-full absolute h-full" style="display:block"></div>
