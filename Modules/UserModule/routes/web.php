@@ -25,18 +25,7 @@ Route::middleware(RedirectIfAuthenticatedCustom::class)->group(function () {
     Route::get('/dang-ky', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/dang-ky', [AuthController::class, 'register'])->name('register');
 });
-Route::middleware(['auth'])->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::post('/dat-lai-mat-khau', [AuthController::class, 'handleResetPassword'])->name('update-password');
-    Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
-    Route::post('/cap-nhat-mat-khau', [AuthController::class, 'changePassword'])->name('password.change');
-    Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('infomation');
-    Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
-    Route::get('/don-hang', [AuthController::class, 'showOrderInfomation'])->name('order');
-    Route::get('/hoi-vien', [AuthController::class, 'showMembership'])->name('membership');
-    Route::get('/quan-ly-ebook', [AuthController::class, 'showUserEbook'])->name('membership');
-});
 Route::get('/xac-thuc', [AuthController::class, 'showVerifyOTPForm'])->name('verify-otp');
 Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
 Route::get('/dat-lai-mat-khau/{token}', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
@@ -49,7 +38,17 @@ Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notifi
 Route::get('/ma-giam-gia', [VoucherController::class, 'index'])->name('voucher.index');
 Route::get('login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('login/google/callback', [AuthController::class, 'handleGoogleCallback']);
-
+Route::middleware(['auth'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/dat-lai-mat-khau', [AuthController::class, 'handleResetPassword'])->name('update-password');
+    Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
+    Route::post('/cap-nhat-mat-khau', [AuthController::class, 'changePassword'])->name('password.change');
+    Route::get('/ho-so', [AuthController::class, 'showProfileInfomation'])->name('infomation');
+    Route::get('/dia-chi', [AuthController::class, 'showAddressInfomation'])->name('address');
+    Route::get('/don-hang', [AuthController::class, 'showOrderInfomation'])->name('order');
+    Route::get('/hoi-vien', [AuthController::class, 'showMembership'])->name('membership');
+    Route::get('/quan-ly-ebook', [AuthController::class, 'showUserEbook'])->name('membership');
+});
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
