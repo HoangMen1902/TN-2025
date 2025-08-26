@@ -27,9 +27,7 @@ Route::middleware(RedirectIfAuthenticatedCustom::class)->group(function () {
 });
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/xac-thuc', [AuthController::class, 'showVerifyOTPForm'])->name('verify-otp');
-    Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
-    Route::get('/dat-lai-mat-khau/{token}', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
+
     Route::post('/dat-lai-mat-khau', [AuthController::class, 'handleResetPassword'])->name('update-password');
     Route::get('/doi-mat-khau', [AuthController::class, 'showChangePasswordForm'])->name('change-password');
     Route::post('/cap-nhat-mat-khau', [AuthController::class, 'changePassword'])->name('password.change');
@@ -39,6 +37,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/hoi-vien', [AuthController::class, 'showMembership'])->name('membership');
     Route::get('/quan-ly-ebook', [AuthController::class, 'showUserEbook'])->name('membership');
 });
+Route::get('/xac-thuc', [AuthController::class, 'showVerifyOTPForm'])->name('verify-otp');
+Route::get('/quen-mat-khau', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
+Route::get('/dat-lai-mat-khau/{token}', [AuthController::class, 'showChangeForgotPasswordForm'])->name('change-forgot-password');
 // Route::get('/wishlist', [AuthController::class, 'showWishList'])->name('wishlist');
 
 Route::get('/thong-bao', [NotificationController::class, 'index'])->name('notification.index');
