@@ -269,6 +269,7 @@ class Cart extends Component
         if ($this->logged_in) {
             CartModel::where('id', $itemId)->delete();
             unset($this->quantities[$itemId]);
+            unset($this->selected_cart[$itemId]);
             $this->dispatch('selected_cart');
 
 
