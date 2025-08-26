@@ -47,7 +47,7 @@ class Cart extends Component
                 ->where('user_id', '=', $userId)->get();
             foreach ($this->cartItems as $item) {
                 $this->quantities[$item->id] = $item->quantity;
-                if($item->item_type === 'sku') {
+                if ($item->item_type === 'sku') {
                     $skuIds[] = $item->sku_id;
                 };
             }
@@ -130,7 +130,7 @@ class Cart extends Component
     public function checkFlashsale($sku_id)
     {
         $now = Carbon::now();
-        if(!isset($sku_id)) {
+        if (!isset($sku_id)) {
             return false;
         }
         $flashSaleProduct = FlashsaleProduct::with(['sku', 'flashsale'])
@@ -269,8 +269,10 @@ class Cart extends Component
         if ($this->logged_in) {
             CartModel::where('id', $itemId)->delete();
             unset($this->quantities[$itemId]);
-            dd($this->selected_cart);
-            unset($this->selected_cart[$itemId]);
+            // dd($this->selected_cart);
+            if (($key = array_search($itemId, $this->selected_cart)) !== false) {
+                unset($this->selected_cart[$key]);
+            }
             $this->dispatch('selected_cart');
 
 
