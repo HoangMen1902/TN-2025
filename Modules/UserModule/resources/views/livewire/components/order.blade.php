@@ -319,13 +319,12 @@
                     @endphp
 
                                 <div class="p-3 md:p-4 border-t border-gray-200 flex flex-wrap gap-2 justify-end">
-                                    @if (in_array($order->orders_status, ['Đang xử lý']))
+                                  @if (!$order->is_paid && in_array($order->orders_status, ['Đang xử lý', 'Chờ duyệt']))
                                         <button wire:click="openCancelModal({{ $order->id }})"
                                             class="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                             Hủy đơn
                                         </button>
-
-                                    @elseif ($order->orders_status === 'Đã thanh toán')
+                                    @elseif ($order->is_paid && in_array($order->orders_status, ['Chờ duyệt', 'Đã thanh toán']))
                                         <button wire:click="openRefundModal({{ $order->id }}, 'refund')"
                                             class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 md:px-6 py-1.5 md:py-2 rounded text-sm">
                                             Yêu cầu hoàn tiền
@@ -679,54 +678,93 @@
                         @endif
 
 
-                        @php
-                            $reasons = ['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'];
-                        @endphp
+                   
+              @if ($showCancelModal)
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-60"
+         aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
+            
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b rounded-t-lg">
+                <h3 class="text-xl font-semibold text-gray-900" id="modal-title">
+                    Chọn lý do hủy đơn
+                </h3>
+                <button wire:click="$set('showCancelModal', false)" class="text-gray-400 hover:text-gray-600">
+                    <span class="sr-only">Đóng</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
 
-                        @if ($showCancelModal)
-                            <div class="fixed inset-0 z-50 flex items-center justify-center bg-white/200 bg-opacity-50">
-                                <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-                                    <h2 class="text-lg font-semibold mb-4">Chọn lý do hủy đơn</h2>
+            {{-- Body --}}
+            <div class="p-6">
+                @if ($errors->any())
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4" role="alert">
+                        <p class="font-bold text-red-800">Có lỗi xảy ra:</p>
+                        <ul class="mt-1 list-disc list-inside text-sm text-red-700">
+                            @error('selectedReason') <li>{{ $message }}</li> @enderror
+                            @error('customReason') <li>{{ $message }}</li> @enderror
+                        </ul>
+                    </div>
+                @endif
+                
+                <div class="space-y-3">
+                    <p class="text-sm font-medium text-gray-800">Vui lòng chọn một lý do:</p>
+                    @foreach ($reasons as $reason)
+                        {{-- 
+                            CẢI TIẾN GIAO DIỆN Ô CHỌN (RADIO)
+                            - Thêm class động: Khi radio được chọn, cả label sẽ có viền xanh và nền xanh nhạt.
+                            - 'ring-2 ring-blue-200' tạo hiệu ứng vòng sáng đẹp mắt khi được chọn.
+                        --}}
+                        <label 
+                            class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200 
+                                   {{ $selectedReason === $reason 
+                                       ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200' 
+                                       : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50' }}">
+                            
+                            {{-- Plugin @tailwindcss/forms sẽ tự động làm đẹp radio button này --}}
+                            <input type="radio" name="cancel_reason" value="{{ $reason }}" wire:model.live="selectedReason"
+                                   class="h-4 w-4 form-radio text-blue-600 focus:ring-blue-500">
+                            
+                            <span class="ml-3 text-sm font-medium text-gray-800">{{ $reason }}</span>
+                        </label>
+                    @endforeach
+                </div>
 
-                                    @error('reason')
-                                        <div class="text-red-600 text-sm mb-2">{{ $message }}</div>
-                                    @enderror
+                @if ($selectedReason === 'Lý do khác')
+                    <div class="mt-4">
+                        <label for="customReason" class="block text-sm font-medium text-gray-700 mb-1">Nhập lý do của bạn:</label>
+                        {{-- 
+                            CẢI TIẾN GIAO DIỆN Ô NHẬP LIỆU (TEXTAREA)
+                            - Plugin @tailwindcss/forms sẽ tự động làm đẹp textarea này.
+                            - Nó sẽ có padding, bo góc, và hiệu ứng focus (viền xanh) rất đẹp.
+                        --}}
+                        <textarea id="customReason" wire:model="customReason" placeholder="Vui lòng nêu rõ lý do..."
+                               class="form-textarea block w-full rounded-md shadow-sm border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                    </div>
+                @endif
+            </div>
 
-                                    <div x-data="{ reason: @entangle('selectedReason') }" class="space-y-2">
-                                        @foreach (['Tôi đặt nhầm', 'Thời gian giao hàng quá lâu', 'Muốn thay đổi sản phẩm', 'Tìm được giá tốt hơn', 'Lý do khác'] as $reason)
-                                            <label class="flex items-center space-x-2 cursor-pointer">
-                                                <input type="radio" name="cancel_reason" value="{{ $reason }}" x-model="reason"
-                                                    class="text-blue-600">
-                                                <span>{{ $reason }}</span>
-                                            </label>
-                                        @endforeach
+            {{-- Footer --}}
+            <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3 rounded-b-lg">
+                <button wire:click="$set('showCancelModal', false)" type="button"
+                        class="px-4 py-2 bg-white text-sm font-medium text-gray-700 border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Đóng
+                </button>
 
-                                        <template x-if="reason === 'Lý do khác'">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mt-2">Nhập lý do của bạn:</label>
-                                                <input type="text" wire:model.live="customReason" placeholder="Nhập lý do..." readonly
-                                                    onfocus="this.removeAttribute('readonly')"
-                                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-200">
-                                            </div>
-                                        </template>
-                                    </div>
+                <button wire:click="cancelOrder" wire:loading.attr="disabled" wire:loading.class="opacity-50 cursor-wait" type="button"
+                        class="inline-flex items-center px-4 py-2 bg-red-600 text-sm font-medium text-white border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <svg wire:loading wire:target="cancelOrder" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Xác nhận hủy
+                </button>
+            </div>
+        </div>
+    </div>
+@endif
 
-
-
-                                    <div class="mt-4 flex justify-end gap-2">
-                                        <button wire:click="$set('showCancelModal', false)"
-                                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
-                                            Đóng
-                                        </button>
-
-                                        <button wire:click="cancelOrder"
-                                            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
-                                            Xác nhận hủy
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
 
 
 

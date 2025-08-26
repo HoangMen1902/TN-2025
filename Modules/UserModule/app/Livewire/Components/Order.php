@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Models\PaymentDetail;
 use App\Services\VietQRService;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Component
 {
@@ -52,6 +53,14 @@ class Order extends Component
     public $bank_account_number;
     public $bank_account_name;
 
+    public $reasons = [
+        'Tôi đặt nhầm',
+        'Thời gian giao hàng quá lâu',
+        'Muốn thay đổi sản phẩm',
+        'Tìm được giá tốt hơn',
+        'Lý do khác'
+    ];
+
     public function mount(VietQRService $vietQR)
     {
         try {
@@ -91,7 +100,7 @@ class Order extends Component
         ]);
 
         // Nếu đơn hàng thanh toán qua PayOS → validate thêm thông tin ngân hàng
-        if ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'VNPay') {
+        if ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') {
             $this->validate([
                 'bank_code'            => 'required|string',
                 'bank_account_name'    => 'required|string',
@@ -104,7 +113,11 @@ class Order extends Component
         }
 
         // Xử lý logic thay đổi trạng thái
-        if ($this->refundType === 'refund' && $order->orders_status === 'Đã thanh toán') {
+        if (
+            $this->refundType === 'refund'
+            && $order->is_paid === 1
+            && in_array($order->orders_status, ['Chờ duyệt', 'Đã thanh toán'])
+        ) {
             $order->update([
                 'orders_status'        => 'Chờ hoàn tiền',
                 'reason'               => $this->refundReason,
@@ -118,7 +131,7 @@ class Order extends Component
             $order->update([
                 'orders_status'        => 'Chờ trả hàng',
                 'reason'               => $this->refundReason,
-                 'bank_code'            => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_code : null,
+                'bank_code'            => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_code : null,
                 'bank_account_name'    => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_name : null,
                 'bank_account_number'  => ($order->paymentDetail?->payment_method === 'payos' || $order->paymentDetail?->payment_method === 'vnpay') ? $this->bank_account_number : null,
             ]);
@@ -171,24 +184,37 @@ class Order extends Component
 
     public function cancelOrder(): void
     {
-        $reason = $this->selectedReason === 'Lý do khác'
-            ? trim($this->customReason)
-            : $this->selectedReason;
+        $this->validate([
+            'selectedReason' => 'required',
+            'customReason'   => 'required_if:selectedReason,Lý do khác',
+        ], [
+            'selectedReason.required' => 'Vui lòng chọn lý do hủy.',
+            'customReason.required_if' => 'Vui lòng nhập lý do hủy.',
+        ]);
 
-        if (!$reason) {
-            $this->addError('reason', 'Vui lòng chọn hoặc nhập lý do hủy.');
+        $order = OrderModel::find($this->orderId);
+
+        if (!$order) {
+            $this->dispatch('toast', type: 'error', message: 'Không tìm thấy đơn hàng.');
             return;
         }
 
-        OrderModel::find($this->orderId)?->update([
-            'orders_status' => 'Đã hủy',
-            'reason' => $reason,
-        ]);
-        activity()
-            ->causedBy(Auth::user())
-            ->performedOn(OrderModel::find($this->orderId))
-            ->withProperties(['role' => Auth::user()?->role ?? 'client'])
-            ->log('Người dùng hủy đơn hàng: ' . $this->orderId);
+        $reason = $this->selectedReason === 'Lý do khác'
+            ? $this->customReason
+            : $this->selectedReason;
+
+        DB::transaction(function () use ($order, $reason) {
+            $order->update([
+                'orders_status' => 'Đã hủy',
+                'reason' => $reason,
+            ]);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($order)
+                ->withProperties(['role' => Auth::user()?->role ?? 'client'])
+                ->log('Người dùng hủy đơn hàng: ' . $this->orderId);
+        });
 
         $this->reset(['showCancelModal', 'selectedReason', 'customReason', 'orderId']);
         $this->dispatch('toast', type: 'success', message: 'Đã hủy đơn thành công');
