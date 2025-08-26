@@ -38,7 +38,7 @@
         <div class="my-2 flex items-center justify-between">
             <h1> Tổng tiền: <span class="font-semibold">{{number_format($data->order->total_price, 0 ,',', '.')}}đ</span></h1>
             <h1> Phí vận chuyển (Chưa chiết khấu): <span class="font-semibold">{{number_format($data->order->shipment_price, 0, ',', '.')}}đ</span></h1>
-            <h1> Chiết khấu: <span class="font-semibold">{{number_format($data->order->reduced_price, 0, ',', '.')}}đ</span></h1>
+            <h1> Chiết khấu: <span class="font-semibold">{{number_format($data->order->amount_decrease, 0, ',', '.')}}đ</span></h1>
         </div>
 
 

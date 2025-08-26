@@ -90,7 +90,8 @@
           <span>Tổng thanh toán:</span>
           <div class="flex flex-col">
             <span>{{number_format($payment->order->total_price, 0, '.', '.')}}₫ </span>
-            <span class="text-xs text-neutral-400 font-semibold">(Đã chiết khấu {{number_format($payment->order->reduced_amount, 0, '.', '.')}}₫)</span>
+            <span class="text-xs text-neutral-400 font-semibold">(Đã chiết khấu
+              {{number_format($payment->order->reduced_amount, 0, '.', '.')}}₫)</span>
           </div>
 
         </div>
