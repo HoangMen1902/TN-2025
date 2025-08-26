@@ -99,7 +99,7 @@ class PaymentModuleController extends Controller
 
             $decrease_amount = Session::get('decrease_amount', 0);
             Session::forget('decrease_amount');
-
+            $decrease_amount = round($decrease_amount);
             $order = Order::create([
                 'orders_status' => $request->payment_method === "cod" || $request->payment_method === "payos" ? OrderStatusEnum::ChoDuyet : OrderStatusEnum::ChoThanhToan,
                 'user_id' => $user->id,
@@ -200,6 +200,7 @@ class PaymentModuleController extends Controller
                 $stripeService = new StripeService;
                 $order_id = $payment->order_id;
                 $session = $stripeService->createCheckoutSession($cartItems, $shipment_fee, $payment->id, $decrease_amount);
+                Log::info('Tien ap voucher: ' . $decrease_amount);
                 $payment->payment_url = $session->url;
                 $payment->payment_expired_at = now()->addMinutes(10);
                 $payment->save();
