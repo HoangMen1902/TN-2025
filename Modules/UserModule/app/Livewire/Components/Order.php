@@ -346,7 +346,7 @@ class Order extends Component
             $query->where(function ($q) {
                 switch ($this->statusFilter) {
                     case 'pending-payment':
-                        $q->where('orders_status', 'Đang xử lý');
+                        $q->where('orders_status', 'Chờ duyệt');
                         break;
                     case 'paid':
                         $q->where('orders_status', 'Đã thanh toán');

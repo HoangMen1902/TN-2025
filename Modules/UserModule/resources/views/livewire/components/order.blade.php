@@ -21,7 +21,7 @@
                     <li class="mr-2">
                         <button wire:click="setStatusFilter('pending-payment')"
                             class="inline-block p-4 border-b-2 {{ $statusFilter === 'pending-payment' ? 'border-red-500 text-red-500' : 'border-transparent hover:text-gray-600 hover:border-gray-300' }}">
-                            Chờ xử lý
+                            Chờ duyệt
                         </button>
                     </li>
                     <li class="mr-2">
