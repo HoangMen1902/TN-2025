@@ -209,41 +209,59 @@ class Summary extends Component
         $voucher_type = $voucher->voucher_scope;
 
         if ($voucher_type === "shipping") {
+            Log::info("=== Áp dụng voucher SHIPPING ===");
+            Log::info("Phí ship ban đầu: {$this->shipping_fee}");
+
             if ($this->shipping_fee <= 0) {
                 $this->voucherMessage = 'Vui lòng chọn đơn vị vận chuyển.';
                 $this->finalPrice = $this->originalPrice + $this->shipping_fee;
+                Log::info("Phí ship = 0, không áp dụng voucher. Tổng tiền: {$this->finalPrice}");
                 return;
             }
 
             if ($voucher->voucher_type === "percent") {
                 $discountAmount = $this->shipping_fee * ($voucher->reduced_amount / 100);
+                Log::info("Giảm theo %: {$voucher->reduced_amount}% → {$discountAmount}");
+            } else { // amount
                 $discountAmount = $voucher->reduced_amount;
+                Log::info("Giảm theo số tiền cố định: {$discountAmount}");
             }
 
             if ($discountAmount > $voucher_max_amount) {
+                Log::info("Giảm vượt mức tối đa {$voucher_max_amount}, gán lại.");
                 $discountAmount = $voucher_max_amount;
             }
 
             $this->shipping_fee = max(0, $this->shipping_fee - $discountAmount);
             $this->finalPrice = $this->originalPrice + $this->shipping_fee;
+
+            Log::info("Phí ship sau giảm: {$this->shipping_fee}");
+            Log::info("Tổng cuối cùng: {$this->finalPrice}");
         }
 
         if ($voucher_type === "global") {
+            Log::info("=== Áp dụng voucher GLOBAL ===");
             $totalBeforeDiscount = $this->originalPrice + $this->shipping_fee;
+            Log::info("Tổng trước giảm: {$totalBeforeDiscount}");
 
             if ($voucher->voucher_type === "percent") {
                 $discountAmount = $totalBeforeDiscount * ($voucher->reduced_amount / 100);
-            } else { // amount
+                Log::info("Giảm theo %: {$voucher->reduced_amount}% → {$discountAmount}");
+            } else { 
                 $discountAmount = $voucher->reduced_amount;
+                Log::info("Giảm theo số tiền cố định: {$discountAmount}");
             }
 
-            if ($discountAmount > $voucher_max_amount) {
+            if ($discountAmount > $voucher_max_amount && $voucher->voucher_type === "percent") {
+                Log::info("Giảm vượt mức tối đa {$voucher_max_amount}, gán lại.");
                 $discountAmount = $voucher_max_amount;
             }
 
             $this->finalPrice = max(0, $totalBeforeDiscount - $discountAmount);
-        }
 
+            Log::info("Giảm cuối cùng: {$discountAmount}");
+            Log::info("Tổng sau giảm: {$this->finalPrice}");
+        }
         $this->voucherDiscount = $discountAmount;
         $this->applied_voucher = true;
         $this->voucherMessage  = 'Đã áp dụng mã giảm giá thành công!';
