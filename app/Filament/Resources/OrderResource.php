@@ -20,6 +20,12 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Enums\TabsLayout;
 use Filament\Tables\Tabs\Tab;
 use Illuminate\Support\Facades\DB;
+use App\Services\VietQRService;
+use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\HtmlString;
+use Filament\Notifications\Notification;
+use App\Services\StripeService;
+
 
 class OrderResource extends Resource
 {
@@ -202,14 +208,14 @@ class OrderResource extends Resource
                                         }
                                     });
                                     $record->save();
-                                        \App\Services\NotificationService::send(
-                                [
-                                    $record->user_id
-                                ],
-                                'Trạng thái đơn hàng thay đổi',
-                                'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
-                                'Đơn hàng'
-                            );
+                                    \App\Services\NotificationService::send(
+                                        [
+                                            $record->user_id
+                                        ],
+                                        'Trạng thái đơn hàng thay đổi',
+                                        'Đơn hàng #' . $record->id . ' đã được duyệt. Trạng thái mới: ' . $record->orders_status,
+                                        'Đơn hàng'
+                                    );
                                     \App\Services\NotificationService::send(
                                         [
                                             $record->user_id
@@ -276,58 +282,80 @@ class OrderResource extends Resource
                                 'reason' => $reason ?: 'Không có lý do nào được cung cấp.'
                             ]);
                         }),
-                    Action::make('refundOrder')
-                        ->label('Hoàn tiền')
+                    Action::make('refundStripe')
+                        ->label('Hoàn tiền Stripe')
                         ->icon('heroicon-o-currency-dollar')
-                        ->visible(fn(Order $record) => strtolower($record->orders_status) === 'chờ hoàn tiền')
-                        ->action(function (Order $record) {
+                        ->visible(
+                            fn(Order $record) =>
+                            strtolower($record->orders_status) === 'chờ hoàn tiền'
+                                && $record->paymentDetail?->payment_method === 'international'
+                        )
+                        ->action(function (Order $record): void {
                             $paymentIntentId = $record->paymentDetail->payment_id ?? null;
-                            Log::info('Bắt đầu hoàn tiền', [
-                                'order_id' => $record->id,
-                                'payment_id' => $paymentIntentId,
-                            ]);
+
                             if ($paymentIntentId) {
-                                $stripeService = new \App\Services\StripeService();
+                                $stripeService = new StripeService();
                                 $refund = $stripeService->refundStripe($paymentIntentId);
-                                Log::info('Kết quả refund Stripe', [
-                                    'order_id' => $record->id,
-                                    'refund' => $refund,
-                                ]);
+
                                 if ($refund && $refund->status === 'succeeded') {
-                                    $record->orders_status = 'Đã hoàn tiền';
-                                    $record->save();
-                                    \App\Services\NotificationService::send(
-                                        [$record->user_id],
-                                        'Hoàn tiền thành công',
-                                        'Đơn hàng #' . $record->id . ' đã được hoàn tiền qua Stripe.',
-                                        'Đơn hàng'
-                                    );
-                                    \Filament\Notifications\Notification::make()
+                                    $record->update(['orders_status' => 'Đã hoàn tiền']);
+                                    Notification::make()
                                         ->title('Hoàn tiền thành công')
-                                        ->body('Đã hoàn tiền cho khách hàng qua Stripe.')
+                                        ->body("Đơn hàng #{$record->id} đã được hoàn tiền qua Stripe.")
                                         ->success()
                                         ->send();
-                                    Log::info('Hoàn tiền thành công', [
-                                        'order_id' => $record->id,
-                                    ]);
                                 } else {
-                                    \Filament\Notifications\Notification::make()
+                                    Notification::make()
                                         ->title('Hoàn tiền thất bại')
                                         ->body('Không thể hoàn tiền qua Stripe.')
                                         ->danger()
                                         ->send();
-                                    Log::error('Hoàn tiền thất bại', [
-                                        'order_id' => $record->id,
-                                        'refund' => $refund,
-                                    ]);
                                 }
-                            } else {
-                                Log::error('Không tìm thấy payment_id để hoàn tiền', [
-                                    'order_id' => $record->id,
-                                ]);
                             }
                         })
                         ->requiresConfirmation(),
+
+                    Action::make('refundPayos')
+                        ->label('Hoàn tiền QR')
+                        ->icon('heroicon-o-qr-code')
+                        ->visible(
+                            fn(Order $record) =>
+                            strtolower($record->orders_status) === 'chờ hoàn tiền'
+                                && ($record->paymentDetail?->payment_method === 'payos' || $record->paymentDetail?->payment_method === 'vnpay')
+                        )
+                        ->modalHeading('Mã QR hoàn tiền')
+                        ->modalContent(function (Order $record) {
+                            $vietQrService = new VietQRService();
+
+                            $qr = $vietQrService->generateQRCode([
+                                "accountNo"   => $record->bank_account_number,
+                                "accountName" => $record->bank_account_name,
+                                "acqId"       => $record->bank_code,
+                                "amount"      => $record->calculated_total_price,
+                                "addInfo"     => "Hoàn tiền đơn hàng #{$record->id}",
+                                "template"    => "compact2"
+                            ]);
+
+                            $qrDataUrl = $qr['data']['qrDataURL'] ?? null;
+
+                            return view('filament.vietqr', [
+                                'qrDataUrl' => $qrDataUrl,
+                                'record'    => $record,
+                            ]);
+                        })
+                        ->action(function (Order $record) {
+                            // Cập nhật trạng thái đơn hàng
+                            $record->update(['orders_status' => 'Đã hoàn tiền']);
+
+                            // Gửi thông báo thành công
+                            Notification::make()
+                                ->title('Xác nhận hoàn tiền thành công')
+                                ->body("Đã cập nhật trạng thái hoàn tiền cho đơn hàng #{$record->id}.")
+                                ->success()
+                                ->send();
+                        })
+                        ->requiresConfirmation(), 
+
                     Action::make('rejectRefund')
                         ->label('Từ chối hoàn tiền')
                         ->icon('heroicon-o-x-circle')
