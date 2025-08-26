@@ -90,7 +90,7 @@
         </div>
 
         <!-- Icon Menu Grid -->
-        <div class="grid grid-cols-10 gap-2 bg-light p-2 rounded">
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 bg-light p-2 rounded">
             <div class="p-2 flex flex-col items-center justify-between h-[100px]">
                 <div class="h-[50px] aspect-square">
                     <a href="">
@@ -195,7 +195,7 @@
         <livewire:homemodule::components.publisher-product />
         <livewire:homemodule::components.combo-home />
         <livewire:suggestmodule::suggest :isMobile="request()->header('User-Agent') &&
-            preg_match('/Mobile|Android|iPhone/', request()->header('User-Agent'))" />
+        preg_match('/Mobile|Android|iPhone/', request()->header('User-Agent'))" />
 
     </div>
 </x-layouts.layout>
