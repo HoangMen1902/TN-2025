@@ -10,7 +10,7 @@ use App\Models\Order;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
 class Statistics extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
@@ -129,5 +129,16 @@ class Statistics extends Page
                 ->whereBetween('orders.created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
                 ->sum(DB::raw('order_details.price * order_details.quantity'))
         );
+    }
+    public static function canAccess(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        // Chỉ cho phép super_admin và marketing staff truy cập page này
+        return $user->hasAnyRole(['super_admin', 'marketing staff']);
     }
 }

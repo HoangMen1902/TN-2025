@@ -12,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Illuminate\Support\Facades\Auth;
 class ActivityResource extends Resource
 {
     protected static ?string $model = Activity::class;
@@ -57,5 +57,17 @@ class ActivityResource extends Resource
             'create' => Pages\CreateActivity::route('/create'),
             'edit' => Pages\EditActivity::route('/{record}/edit'),
         ];
+    }
+    
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user(); 
+
+        if (! $user) {
+            return false;
+        }
+
+        // Chỉ cho phép super_admin hoặc product staff thấy trong sidebar
+        return $user->hasAnyRole(['super_admin']);
     }
 }
