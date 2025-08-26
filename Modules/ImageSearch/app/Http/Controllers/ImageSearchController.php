@@ -141,7 +141,6 @@ class ImageSearchController extends Controller
         // Log::info('Product status:', [$sku?->product?->product_status]);
 
 
-        return back()->with('error', 'Không tìm thấy sản phẩm nào tương tự :((');
     }
 
     /**
