@@ -6,6 +6,7 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use Illuminate\Support\Facades\Auth;
 
 class TopRatedProductsChart extends ChartWidget
 {
@@ -50,5 +51,15 @@ class TopRatedProductsChart extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+         public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user(); 
+        if (! $user) {
+            return false;
+        }
+
+        // Chỉ cho phép super_admin hoặc sales staff thấy trong sidebar
+        return $user->hasAnyRole(['super_admin', 'marketing staff']);
     }
 }

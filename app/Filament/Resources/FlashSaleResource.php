@@ -56,7 +56,7 @@ use Filament\Support\Components\ViewComponent;
 use Illuminate\Database\Eloquent\Model;
 
 use function Livewire\Volt\placeholder;
-
+use Illuminate\Support\Facades\Auth;
 class FlashSaleResource extends Resource
 {
     protected static ?string $model = Flashsale::class;
@@ -432,5 +432,16 @@ class FlashSaleResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+     public static function shouldRegisterNavigation(): bool
+    {
+        $user = Auth::user(); 
+        if (! $user) {
+            return false;
+        }
+
+        // Chỉ cho phép super_admin hoặc sales staff thấy trong sidebar
+        return $user->hasAnyRole(['super_admin', 'marketing staff']);
     }
 }
