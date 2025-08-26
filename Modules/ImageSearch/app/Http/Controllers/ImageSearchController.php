@@ -111,11 +111,10 @@ class ImageSearchController extends Controller
                 }
             }
         }
-
+        session()->forget('products');
         $products = $products->unique('id')->values();
-        return redirect()->action([ImageSearchController::class, 'page'])
-            ->with('products', $products);
-
+        session()->put('products', $products);
+        return redirect()->action([ImageSearchController::class, 'page']);
 
 
 
