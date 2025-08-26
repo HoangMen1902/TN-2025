@@ -3,7 +3,8 @@
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
-
+use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 Route::view('dashboard', 'dashboard')
@@ -19,5 +20,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+
+Route::get('/orders/{order}/print', function (Order $order) {
+    return Pdf::loadView('filament.order-detail-pdf', ['order' => $order])
+        ->download('order-' . $order->id . '.pdf');
+})->name('orders.print');
 
 require __DIR__ . '/auth.php';
