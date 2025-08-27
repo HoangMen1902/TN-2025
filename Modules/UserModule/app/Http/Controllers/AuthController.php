@@ -187,7 +187,7 @@ class AuthController extends Controller
             ->join('ebook_payment_details', 'ebook_orders.id', '=', 'ebook_payment_details.ebook_order_id')
             ->where('ebook_orders.user_id', $userId)
             ->where('ebook_payment_details.is_paid', 1);
-    })->get();
+    })->orderByDesc('created_at')->get();
 
     $likedEbooks = ProductEbook::whereIn('id', function ($query) use ($userId) {
         $query->select('ebook_id')
@@ -195,7 +195,7 @@ class AuthController extends Controller
             ->where('user_id', $userId)
             ->where('is_favorite', 1)
             ->distinct();
-    })->get();
+    })->orderByDesc('created_at')->get();
 
     $selectedTab = $request->get('tab', 'purchased');
 
