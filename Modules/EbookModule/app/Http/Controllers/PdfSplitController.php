@@ -14,7 +14,7 @@ use Smalot\PdfParser\Parser;
 use Illuminate\Support\Facades\File;
 use App\Jobs\GenerateEbookAudioJob;
 use Illuminate\Support\Facades\Artisan;
-
+use Filament\Notifications\Notification;
 class PdfSplitController extends Controller
 {
 
@@ -55,7 +55,12 @@ class PdfSplitController extends Controller
         $chapters = $this->parseChaptersFromTocText($text);
 
         $this->splitPdf($ebookId, $chapters);
-    }
+        Notification::make()
+        ->title('Đã gửi yêu cầu tách chương')
+        ->body('Tách chương thành công')
+        ->success()
+        ->send();
+        }
 
     protected function extractPageText($pdfPath, $pageNumber): ?string
     {
