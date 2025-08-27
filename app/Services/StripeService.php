@@ -46,22 +46,27 @@ class StripeService
             // $lineItems = $this->formatEbook($carts);
         }
 
-        $session = $this->stripe->checkout->sessions->create([
+        $checkoutData = [
             'success_url' => env('APP_URL') . '/international-return/{CHECKOUT_SESSION_ID}/' . $payment_id,
             'line_items' => $lineItems,
-            'discounts' => [[
-                'coupon' => $this->createCoupon($voucher),
-            ]],
             'mode' => 'payment',
             'cancel_url' => route('cart.index'),
-        ]);
+        ];
+
+        if ($voucher > 0) {
+            $checkoutData['discounts'] = [[
+                'coupon' => $this->createCoupon($voucher),
+            ]];
+        }
+
+        $session = $this->stripe->checkout->sessions->create($checkoutData);
         return $session;
     }
 
     private function createCoupon($voucher)
     {
         $coupon = $this->stripe->coupons->create([
-            'amount_off' => $voucher, 
+            'amount_off' => $voucher,
             'currency'   => 'vnd',
             'duration'   => 'once',
         ]);
