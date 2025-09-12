@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Rating extends Model
+{
+    use HasFactory;
+
+    protected $table = 'ratings';
+
+    protected $fillable = [
+        'status',
+        'order_detail_id',
+        'user_id',
+        'review',
+        'rating',
+        'images',
+        'is_anonymous',
+    ];
+
+    public function orderDetail()
+    {
+        return $this->belongsTo(OrderDetail::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function likedUsers()
+    {
+        return $this->hasMany(UserLikedRating::class, 'rating_id');
+    }
+}

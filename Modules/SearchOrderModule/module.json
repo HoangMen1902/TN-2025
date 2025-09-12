@@ -1,0 +1,11 @@
+{
+    "name": "SearchOrderModule",
+    "alias": "searchordermodule",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\SearchOrderModule\\Providers\\SearchOrderModuleServiceProvider"
+    ],
+    "files": []
+}

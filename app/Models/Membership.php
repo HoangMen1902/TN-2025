@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Membership extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'required_points',
+        'benefits',
+        'status',
+    ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function vouchers()
+    {
+        return $this->hasMany(Voucher::class, 'membership_id');
+    }
+}

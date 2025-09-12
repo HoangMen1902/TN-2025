@@ -1,0 +1,11 @@
+{
+    "name": "PaymentEbookModule",
+    "alias": "paymentebookmodule",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PaymentEbookModule\\Providers\\PaymentEbookModuleServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "ImageSearch",
+    "alias": "imagesearch",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ImageSearch\\Providers\\ImageSearchServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,129 @@
+// 
+
+
+.lucky-spin * {
+  box-sizing: border-box;
+}
+
+.lucky-spin {
+  padding: 100px 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+}
+
+.wheel-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.wheel {
+  animation: wheel 3s ease-in-out infinite;
+  width: 500px;
+  height: 500px;
+  background-color: #ccc;
+  border-radius: 50%;
+  border: 15px solid rgb(255, 243, 82);
+  overflow: hidden;
+  transition: 5s;
+  position: relative;
+}
+
+.wheel .segment {
+  height: 50%;
+  width: 200px;
+  position: absolute;
+  clip-path: polygon(100% 0, 50% 100%, 0 0);
+  transform: translateX(-50%);
+  transform-origin: bottom;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; 
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  left: 135px;
+  padding-top: 15px; 
+}
+
+.wheel .segment span {
+  line-height: 1.2;
+  width: 80%;
+  transform: translateY(1px); 
+}
+
+
+/* Màu sắc các phần thưởng */
+.wheel .segment-1  { background-color: #FCA5A5; transform: rotate(0deg); }       /* hồng nhạt */
+.wheel .segment-2  { background-color: #FCD34D; transform: rotate(45deg); }      /* vàng nhạt */
+.wheel .segment-3  { background-color: #A5F3FC; transform: rotate(90deg); }      /* xanh cyan nhạt */
+.wheel .segment-4  { background-color: #D9F99D; transform: rotate(135deg); }     /* xanh lá nhạt */
+.wheel .segment-5  { background-color: #BFDBFE; transform: rotate(180deg); }     /* xanh dương nhạt */
+.wheel .segment-6  { background-color: #E9D5FF; transform: rotate(225deg); }     /* tím pastel */
+.wheel .segment-7  { background-color: #FDE68A; transform: rotate(270deg); }     /* vàng kem */
+.wheel .segment-8  { background-color: #FED7AA; transform: rotate(315deg); }     /* cam nhạt */
+
+
+
+.arrow {
+  position: absolute;
+  top: -120px; 
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.arrow-image {
+  width: 200px; 
+  height: auto;
+}
+
+
+.spin-button {
+  position: absolute;
+  animation: glowButton 2s ease-in-out infinite;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  border: 8px solid #fff;
+  font-weight: bold;
+  font-size: 20px;
+  color: #fa5757;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  outline: none;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px #f78cc3, 0 0 20px #f78cc3;
+    }
+    50% {
+        text-shadow: 0 0 20px #f78cc3, 0 0 30px #f78cc3;
+    }
+}
+
+@keyframes glowButton {
+  0%, 100% {
+    box-shadow: 0 0 10px #fa5757, 0 0 20px #fa5757;
+  }
+  50% {
+    box-shadow: 0 0 20px #fa5757, 0 0 30px #fa5757;
+  }
+}
+@keyframes wheel {
+  0%, 100% {
+    box-shadow: 0 0 10px #ffea2b, 0 0 20px #ffea2b;
+  }
+  50% {
+    box-shadow: 0 0 20px #ffea2b, 0 0 30px #ffea2b;
+  }}
+  

@@ -1,0 +1,120 @@
+.about {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    &-banner {
+        &__img {
+            width: 100%;
+            height: 500px;
+            background-image: url("https://images.pexels.com/photos/31937555/pexels-photo-31937555/free-photo-of-ch-ng-sach-co-danh-d-u-trang-tren-ban.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+            background-size: cover;
+            background-position: center;
+            
+
+            &-title {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                &__item {
+                    font-size: 70px;
+                    color: white;
+                    font-family: "Poppins", sans-serif;
+                }
+            }
+        }
+    }
+
+    .content {
+        width: 1200px;
+        margin: auto;
+    }
+
+    &-quote {
+        text-align: left;
+        margin: 100px auto;
+
+        &__title {
+            max-width: 800px;
+
+            &-item {
+                font-family: "Poppins", sans-serif;
+                font-size: 48px;
+                font-weight: 500;
+                line-height: 1.2;
+                margin-bottom: 24px;
+                color: #111;
+            }
+        }
+
+        &__content {
+            &-item {
+                font-size: 18px;
+                line-height: 1.6;
+                color: #333;
+                font-family: "Poppins", sans-serif;
+                max-width: 750px;
+                margin: 0;
+            }
+            &__text {
+                font-family: "Playfair Display", serif;
+                font-size: 24px;
+                font-style: italic;
+                color: #333;
+
+                cite {
+                    display: block;
+                    margin-top: 20px;
+                    font-size: 18px;
+                    color: #777;
+                }
+            }
+        }
+    }
+
+    &-cards {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        margin-top: 80px;
+
+        &__card {
+            position: relative;
+            flex: 1;
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 400px;
+            min-width: 280px;
+            height: 500px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                border-radius: 16px;
+            }
+
+            &:hover {
+                transform: translateY(-5px);
+            }
+
+            &-caption {
+                position: absolute;
+                bottom: 20px;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                font-size: 30px;
+                font-family: "Playfair Display", serif;
+                color: white;
+                text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+                padding: 0 16px;
+            }
+        }
+    }
+
+   
+}

@@ -1,0 +1,11 @@
+{
+    "name": "MiniGame",
+    "alias": "minigame",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\MiniGame\\Providers\\MiniGameServiceProvider"
+    ],
+    "files": []
+}

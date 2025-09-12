@@ -34,5 +34,20 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI'),
+    ],
+    'ghn' => [
+        'api_url' => env('GHN_API_URL'),
+        'token' => env('GHN_TOKEN'),
+        'shop_id' => env('GHN_SHOPID'),
+    ],
+    'viettelpost' => [
+        'api_url' => env('VIETTELPOST_API_URL', 'https://partner.viettelpost.vn/v2'),
+        'username' => env('VIETTELPOST_USERNAME'),
+        'password' => env('VIETTELPOST_PASSWORD'),
+        'group_address_id' => env('VIETTELPOST_GROUP_ADDRESS_ID'),
+    ],
 ];

@@ -25,3 +25,6 @@ yarn-error.log
 composer.lock
 package-lock.json
 modules_statuses.json
+output.txt
+.vnev_clip/
+/.venv_clip/

@@ -8,7 +8,12 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/scss/app.scss', 'resources/js/app.js'],
+            input: [
+                'resources/scss/app.scss',
+                'resources/js/app.js',
+                'Modules/MiniGame/resources/assets/js/app.js', 
+                'Modules/DetailModule/resources/assets/js/app.js'
+            ],
             refresh: true,
         }),
         tailwindcss(),
@@ -19,7 +24,7 @@ export default defineConfig({
     resolve: {
         alias: {
           '@sass': path.resolve(__dirname, 'resources/scss'),
-          '@modules': path.resolve(__dirname, 'Modules') 
+          '@modules': path.resolve(__dirname, 'Modules')
         }
-      }
+    }
 });

@@ -1,10 +1,53 @@
+// import giống như vậy theo từng module, đặt tên để dễ nhận biết
+@use "variables/_variables" as vars;
+@use "@sass/components/header";
+@use "@sass/components/footer";
+@use "@modules/AboutModule/resources/assets/sass/app.scss" as aboutModule;
+@use "@modules/ProductModule/resources/assets/sass/app.scss" as productModule;
+@use "@modules/CartModule/resources/assets/sass/app.scss" as cartModule;
+@use "@modules/TestModule/resources/assets/sass/app.scss" as testModule;
+@use "@modules/HomeModule/resources/assets/sass/app.scss" as HomeModule;
+@use "@modules/DetailModule/resources/assets/sass/app.scss" as chiTietSanPham;
+@use "@modules/PaymentModule/resources/assets/sass/app.scss" as thanhToan;
+@use "@modules/UserModule/resources/assets/scss/app.scss" as userModule;
+@use "@modules/MiniGame/resources/assets/sass/app.scss" as miniGame;
+@use "@sass/variables/variables" as variables;
 
+// @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;
 
 // import giống như vậy theo từng module, đặt tên để dễ nhận biết
-@use '@modules/TestModule/resources/assets/sass/app.scss' as testModule;  
-// @use '@modules/DetailModule/resources/assets/sass/app.scss' as chiTietSanPham;  
-
 
 * {
-    font-family: "Helvetica Neue", Helvetica, Arial, 文泉驛正黑, "WenQuanYi Zen Hei", "Hiragino Sans GB", "儷黑 Pro", "LiHei Pro", "Heiti TC", 微軟正黑體, "Microsoft JhengHei UI", "Microsoft JhengHei", sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, 文泉驛正黑,
+        "WenQuanYi Zen Hei", "Hiragino Sans GB", "儷黑 Pro", "LiHei Pro",
+        "Heiti TC", 微軟正黑體, "Microsoft JhengHei UI", "Microsoft JhengHei",
+        sans-serif;
+}
+
+.bg-primary {
+    background-color: vars.$primary-color;
+}
+.bb-primary {
+    background-color: #0a68ff;
+    color: white;
+    transition: all 0.3s ease-in-out;
+}
+.bb-primary:hover {
+    background-color: white;
+    color: #0a68ff;
+    border: 1px solid #0a68ff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.text-primary {
+    background-color: vars.$primary-color;
+}
+.bg-light {
+    background-color: vars.$bg-light;
+}
+.bg-dark {
+    background-color: vars.$bg-dark;
+}
+
+body {
+    background: variables.$bg-color;
 }

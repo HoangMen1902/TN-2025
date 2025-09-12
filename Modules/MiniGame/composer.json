@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/minigame",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\MiniGame\\": "app/",
+            "Modules\\MiniGame\\Database\\Factories\\": "database/factories/",
+            "Modules\\MiniGame\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\MiniGame\\Tests\\": "tests/"
+        }
+    }
+}

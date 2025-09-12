@@ -1,0 +1,102 @@
+<div class="w-[300px] min-h-screen p-4">
+    <div class="flex items-center space-x-3 mb-6 pb-4 ">
+        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+        </div>
+        <div>
+            <div class="font-medium">Tên người dùng</div>
+            <div class="text-gray-500 text-sm flex items-center">
+                <a href="/ho-so" class="flex">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Sửa Hồ Sơ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-1">
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <a href="/thong-bao">Thông báo</a>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between py-2 px-1 cursor-pointer hover:text-blue-600" onclick="toggleAccountDropdown()">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>Tài Khoản Của Tôi</span>
+                </div>
+                <svg id="accountDropdownIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+
+            <div id="accountDropdownMenu" class="pl-8 hidden">
+                <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
+                    <a href="{{ route('infomation') }}">Hồ Sơ</a>
+                </div>
+                <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
+                    <a href="/hoi-vien">Hội Viên</a>
+                </div>
+
+                <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
+                    <a href="{{ route('address') }}">Địa chỉ</a>
+                </div>
+
+                <div class="py-2 text-gray-700 cursor-pointer hover:text-blue-600">
+                    <a href="{{ route('change-password') }}">Đổi Mật Khẩu</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <a href="{{ route('order') }}"> Đơn Mua</a>
+        </div>
+
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+            </svg>
+            <a href="ma-giam-gia"> Kho Voucher</a>
+        </div>
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <a href="/wishlist"> Sản phẩm yêu thích</a>
+        </div>
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+            </svg>
+            <a href="/quan-ly-ebook"> Quản lý ebook</a>
+        </div>
+        <div class="flex items-center py-2 px-1 text-gray-700 hover:text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25" />
+            </svg>
+            <a href="/quan-ly-ebook">Đăng xuất</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAccountDropdown() {
+        const dropdownMenu = document.getElementById('accountDropdownMenu');
+        const dropdownIcon = document.getElementById('accountDropdownIcon');
+
+        dropdownMenu.classList.toggle('hidden');
+        dropdownIcon.classList.toggle('rotate-180');
+    }
+</script>
